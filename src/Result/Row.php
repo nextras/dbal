@@ -8,10 +8,12 @@
 
 namespace Nextras\Dbal\Result;
 
+use ArrayIterator;
+use IteratorAggregate;
 use Nextras\Dbal\Exceptions\NotSupportedException;
 
 
-final class Row
+final class Row implements IteratorAggregate, IRow
 {
 	/** @var array */
 	private $data;
@@ -48,6 +50,12 @@ final class Row
 	public function __unset($name)
 	{
 		throw new NotSupportedException('Row is read-only.');
+	}
+
+
+	public function getIterator()
+	{
+		return new ArrayIterator($this->data);
 	}
 
 }
