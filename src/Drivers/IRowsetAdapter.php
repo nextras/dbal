@@ -8,13 +8,15 @@
 
 namespace Nextras\Dbal\Drivers;
 
+use Nextras\Dbal\Exceptions\DbalException;
+
 
 interface IRowsetAdapter
 {
 
 	/**
 	 * @param  int $index
-	 * @return bool
+	 * @throws DbalException
 	 */
 	public function seek($index);
 

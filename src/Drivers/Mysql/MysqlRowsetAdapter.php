@@ -10,6 +10,7 @@ namespace Nextras\Dbal\Drivers\Mysql;
 
 use mysqli_result;
 use Nextras\Dbal\Drivers\IRowsetAdapter;
+use Nextras\Dbal\Exceptions\DbalException;
 
 
 class MysqlRowsetAdapter implements IRowsetAdapter
@@ -32,7 +33,9 @@ class MysqlRowsetAdapter implements IRowsetAdapter
 
 	public function seek($index)
 	{
-		return $this->result->data_seek($index);
+		if (!$this->result->data_seek($index)) {
+			throw new DbalException("Unable to seek in row set to {$index} index.");
+		}
 	}
 
 

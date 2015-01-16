@@ -8,28 +8,25 @@
 
 namespace Nextras\Dbal\Result;
 
-use IteratorAggregate;
+use Iterator;
 use Nextras\Dbal\Drivers\IRowsetAdapter;
-use Nextras\Dbal\Exceptions\DbalException;
 
 
-class Rowset implements IteratorAggregate, IRowset
+class Rowset implements Iterator, IRowset
 {
 	/** @var IRowsetAdapter */
 	private $adapter;
+
+	/** @var int */
+	private $iteratorIndex;
+
+	/** @var IRow */
+	private $iteratorRow;
 
 
 	public function __construct(IRowsetAdapter $adapter)
 	{
 		$this->adapter = $adapter;
-	}
-
-
-	public function seek($index)
-	{
-		if (!$this->adapter->seek($index)) {
-			throw new DbalException("Unable to seek in row set to {$index} index.");
-		}
 	}
 
 
@@ -47,9 +44,40 @@ class Rowset implements IteratorAggregate, IRowset
 	}
 
 
-	public function getIterator()
+	// === iterator ====================================================================================================
+
+
+	public function rewind()
 	{
-		return new RowsetIterator($this);
+		$this->iteratorIndex = 0;
+		$this->adapter->seek(0);
+		$this->iteratorRow = $this->fetch();
 	}
+
+
+	public function key()
+	{
+		return $this->iteratorIndex;
+	}
+
+
+	public function current()
+	{
+		return $this->iteratorRow;
+	}
+
+
+	public function next()
+	{
+		$this->iteratorIndex += 1;
+		$this->iteratorRow = $this->fetch();
+	}
+
+
+	public function valid()
+	{
+		return !empty($this->iteratorRow);
+	}
+
 
 }
