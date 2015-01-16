@@ -33,4 +33,13 @@ interface IDriver
 	 */
 	public function convertException($message, IDriverException $exception);
 
+
+	/**
+	 * Converts database value to php boolean.
+	 * @param  string $value
+	 * @param  mixed  $nativeType
+	 * @return mixed
+	 */
+	public function convertToPhp($value, $nativeType);
+
 }

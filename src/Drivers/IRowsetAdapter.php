@@ -13,6 +13,14 @@ use Nextras\Dbal\Exceptions\DbalException;
 
 interface IRowsetAdapter
 {
+	/** @const field types */
+	const TYPE_DRIVER_SPECIFIC = 0;
+	const TYPE_STRING   = 1;
+	const TYPE_INT      = 2;
+	const TYPE_FLOAT    = 3;
+	const TYPE_BOOL     = 4;
+	const TYPE_DATETIME = 5;
+
 
 	/**
 	 * @param  int $index
@@ -25,5 +33,12 @@ interface IRowsetAdapter
 	 * @return array
 	 */
 	public function fetch();
+
+
+	/**
+	 * Returns rowset set column types, array of [type, nativeType]
+	 * @return array
+	 */
+	public function getTypes();
 
 }

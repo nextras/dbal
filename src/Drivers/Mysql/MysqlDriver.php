@@ -8,6 +8,7 @@
 
 namespace Nextras\Dbal\Drivers\Mysql;
 
+use DateInterval;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IDriverException;
@@ -48,6 +49,20 @@ class MysqlDriver implements IDriver
 
 		} else {
 			return new Exceptions\DbalException($message, $exception);
+		}
+	}
+
+
+	public function convertToPhp($value, $nativeType)
+	{
+		if ($nativeType === MYSQLI_TYPE_TIME) {
+			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
+			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
+			$value->invert = $m[1] ? 1 : 0;
+			return $value;
+
+		} else {
+			throw new Exceptions\NotSupportedException("MysqlDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 

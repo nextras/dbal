@@ -86,7 +86,7 @@ class Connection extends Object
 		$this->fireEvent('onBeforeQuery', [$this, $query]);
 
 		try {
-			$result = new Rowset($this->connection->nativeQuery($query));
+			$result = new Rowset($this->connection->nativeQuery($query), $this->driver);
 
 		} catch (IDriverException $e) {
 			throw $this->driver->convertException($e->getMessage(), $e);

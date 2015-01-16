@@ -10,6 +10,7 @@ namespace Nextras\Dbal\Drivers\Mysql;
 
 use mysqli;
 use Nextras\Dbal\Drivers\IConnection;
+use Nextras\Dbal\Drivers\IDriver;
 
 
 class MysqlConnection implements IConnection
