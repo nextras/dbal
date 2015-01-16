@@ -58,4 +58,10 @@ final class Row implements IteratorAggregate, IRow
 		return new ArrayIterator($this->data);
 	}
 
+
+	public function __debugInfo()
+	{
+		return $this->data;
+	}
+
 }
