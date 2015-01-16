@@ -20,7 +20,7 @@ class Rowset implements Iterator, IRowset
 	/** @var int */
 	private $iteratorIndex;
 
-	/** @var IRow */
+	/** @var Row */
 	private $iteratorRow;
 
 
@@ -31,7 +31,7 @@ class Rowset implements Iterator, IRowset
 
 
 	/**
-	 * @return IRow
+	 * @return Row
 	 */
 	public function fetch()
 	{

@@ -15,7 +15,7 @@ interface IRowset extends Traversable
 {
 
 	/**
-	 * @return IRow
+	 * @return Row
 	 */
 	public function fetch();
 
