@@ -10,6 +10,7 @@ namespace Nextras\Dbal\Result;
 
 use ArrayIterator;
 use IteratorAggregate;
+use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Exceptions\NotSupportedException;
 
 
@@ -28,7 +29,7 @@ final class Row implements IteratorAggregate, IRow
 	public function __get($name)
 	{
 		if (!array_key_exists($name, $this->data)) {
-			throw new \mysqli_sql_exception();
+			throw new InvalidArgumentException();
 		}
 
 		return $this->data[$name];
