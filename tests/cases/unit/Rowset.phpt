@@ -23,8 +23,11 @@ class RowsetTest extends TestCase
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+
 		$names = [];
-		$rowset = new Rowset($adapter);
+		$rowset = new Rowset($adapter, $driver);
+		$rowset->setColumnValueNormalization(FALSE);
 		foreach ($rowset as $row) {
 			$names[] = $row->name;
 		}
