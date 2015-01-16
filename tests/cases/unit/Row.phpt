@@ -51,9 +51,13 @@ class RowTest extends TestCase
 	{
 		$row = new Row(['names' => ['One', 'Two']]);
 
-		Assert::error(function() use ($row) {
+		if (defined('HHVM_VERSION')) {
 			$row->names[] = 'Three';
-		}, E_NOTICE);
+		} else {
+			Assert::error(function () use ($row) {
+				$row->names[] = 'Three';
+			}, E_NOTICE);
+		}
 
 		Assert::same(['One', 'Two'], $row->names);
 	}
