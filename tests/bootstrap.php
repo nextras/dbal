@@ -10,6 +10,8 @@ if (@!include __DIR__ . '/../vendor/autoload.php') {
 	exit(1);
 }
 
+require_once __DIR__ . '/inc/TestCase.php';
+
 define('TEMP_DIR', __DIR__ . '/temp');
 date_default_timezone_set('Europe/Prague');
 

@@ -6,7 +6,6 @@ namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
-use Tester\TestCase;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
