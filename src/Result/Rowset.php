@@ -31,7 +31,7 @@ class Rowset implements Iterator, IRowset
 
 
 	/**
-	 * @return Row
+	 * @return Row|NULL
 	 */
 	public function fetch()
 	{
@@ -49,8 +49,8 @@ class Rowset implements Iterator, IRowset
 
 	public function rewind()
 	{
-		$this->iteratorIndex = 0;
 		$this->adapter->seek(0);
+		$this->iteratorIndex = 0;
 		$this->iteratorRow = $this->fetch();
 	}
 
@@ -69,15 +69,14 @@ class Rowset implements Iterator, IRowset
 
 	public function next()
 	{
-		$this->iteratorIndex += 1;
+		$this->iteratorIndex++;
 		$this->iteratorRow = $this->fetch();
 	}
 
 
 	public function valid()
 	{
-		return !empty($this->iteratorRow);
+		return $this->iteratorRow !== NULL;
 	}
-
 
 }

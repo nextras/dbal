@@ -19,13 +19,13 @@ Environment::setup();
 
 
 if (getenv(Environment::RUNNER)) {
-    # Runner
+	# Runner
 	header('Content-type: text/plain');
 	putenv('ANSICON=TRUE');
 
 } elseif (PHP_SAPI === 'cli') {
-    # CLI
+	# CLI
 
 } else {
-    # Browser
+	# Browser
 }
