@@ -28,7 +28,7 @@ final class Row implements IteratorAggregate
 
 	public function __get($name)
 	{
-		if (!array_key_exists($name, $this->data)) {
+		if (!(isset($this->data[$name]) || array_key_exists($name, $this->data))) {
 			throw new InvalidArgumentException();
 		}
 
@@ -38,7 +38,7 @@ final class Row implements IteratorAggregate
 
 	public function __isset($name)
 	{
-		return array_key_exists($name, $this->data);
+		return isset($this->data[$name]) || array_key_exists($name, $this->data);
 	}
 
 
