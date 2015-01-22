@@ -10,8 +10,8 @@ namespace Nextras\Dbal;
 
 use Nette\Object;
 use Nette\Utils\Callback;
-use Nextras\Dbal\Drivers\IConnection;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriverException;
 use Nextras\Dbal\Exceptions\NotImplementedException;
 use Nextras\Dbal\Result\Rowset;
@@ -34,42 +34,42 @@ class Connection extends Object
 	/** @var array */
 	private $config;
 
-	/** @var IConnection */
-	private $connection;
-
 	/** @var IDriver */
 	private $driver;
+
+	/** @var IDriverProvider */
+	private $driverProvider;
 
 
 	public function __construct(array $config)
 	{
 		$this->config = $config;
 
-		$driver = $config['driver'];
-		if (is_object($driver)) {
-			$this->driver = $driver;
+		$provider = $config['driver'];
+		if (is_object($provider)) {
+			$this->driverProvider = $provider;
 		} else {
-			$driver = ucfirst($driver);
-			$driver = "Nextras\\Dbal\\Drivers\\{$driver}\\{$driver}Driver";
-			$this->driver = new $driver;
+			$provider = ucfirst($provider);
+			$provider = "Nextras\\Dbal\\Drivers\\{$provider}\\{$provider}DriverProvider";
+			$this->driverProvider = new $provider;
 		}
 	}
 
 
 	public function connect()
 	{
-		if ($this->connection) {
+		if ($this->driver) {
 			return;
 		}
 
-		$this->connection = $this->driver->connect($this->config, $this->config['username'], $this->config['password']);
+		$this->driver = $this->driverProvider->connect($this->config, $this->config['username'], $this->config['password']);
 		$this->fireEvent('onConnect', [$this]);
 	}
 
 
 	public function disconnect()
 	{
-		$this->connection = NULL;
+		$this->driver = NULL;
 		$this->fireEvent('onDisconnect', [$this]);
 	}
 
@@ -86,10 +86,10 @@ class Connection extends Object
 		$this->fireEvent('onBeforeQuery', [$this, $query]);
 
 		try {
-			$result = new Rowset($this->connection->nativeQuery($query), $this->driver);
+			$result = new Rowset($this->driver->nativeQuery($query), $this->driver);
 
 		} catch (IDriverException $e) {
-			throw $this->driver->convertException($e->getMessage(), $e);
+			throw $this->driverProvider->convertException($e->getMessage(), $e);
 		}
 
 		$this->fireEvent('onAfterQuery', [$this, $query, $result]);
@@ -97,10 +97,12 @@ class Connection extends Object
 	}
 
 
+
+
 	public function getLastInsertedId($sequenceName = NULL)
 	{
 		$this->connect();
-		return $this->connection->getLastInsertedId($sequenceName);
+		return $this->driver->getLastInsertedId($sequenceName);
 	}
 
 
@@ -126,7 +128,7 @@ class Connection extends Object
 	{
 		$this->connect();
 		try {
-			return $this->connection->ping();
+			return $this->driver->ping();
 		} catch (\Exception $e) {
 			return FALSE;
 		}
