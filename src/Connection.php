@@ -129,7 +129,7 @@ class Connection extends Object
 		$this->connect();
 		try {
 			return $this->driver->ping();
-		} catch (\Exception $e) {
+		} catch (IDriverException $e) {
 			return FALSE;
 		}
 	}
