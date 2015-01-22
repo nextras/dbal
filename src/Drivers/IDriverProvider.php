@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Drivers;
 use Nextras\DBAL\Exceptions\DbalException;
 
 
-interface IDriver
+interface IDriverProvider
 {
 
 	/**
@@ -19,7 +19,7 @@ interface IDriver
 	 * @param  array  $params
 	 * @param  string $username
 	 * @param  string $password
-	 * @return IConnection
+	 * @return IDriver
 	 */
 	public function connect(array $params, $username, $password);
 
@@ -32,14 +32,5 @@ interface IDriver
 	 * @return DbalException
 	 */
 	public function convertException($message, IDriverException $exception);
-
-
-	/**
-	 * Converts database value to php boolean.
-	 * @param  string $value
-	 * @param  mixed  $nativeType
-	 * @return mixed
-	 */
-	public function convertToPhp($value, $nativeType);
 
 }
