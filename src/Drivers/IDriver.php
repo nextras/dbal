@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Drivers;
 
 
-interface IConnection
+interface IDriver
 {
 
 	/**
@@ -48,5 +48,14 @@ interface IConnection
 	 * @return bool
 	 */
 	public function ping();
+
+
+	/**
+	 * Converts database value to php boolean.
+	 * @param  string $value
+	 * @param  mixed  $nativeType
+	 * @return mixed
+	 */
+	public function convertToPhp($value, $nativeType);
 
 }

@@ -8,12 +8,13 @@
 
 namespace Nextras\Dbal\Drivers\Mysql;
 
+use DateInterval;
 use mysqli;
-use Nextras\Dbal\Drivers\IConnection;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exceptions\NotSupportedException;
 
 
-class MysqlConnection implements IConnection
+class MysqlDriver implements IDriver
 {
 	/** @const name of key in params for passing flags to connection */
 	const PARAMS_FLAGS = 'flags';
@@ -109,6 +110,20 @@ class MysqlConnection implements IConnection
 
 		if (isset($params['sqlMode'])) {
 			$this->nativeQuery('SET sql_mode = \'' . $this->connection->escape_string($params['sqlMode']) . '\'');
+		}
+	}
+
+
+	public function convertToPhp($value, $nativeType)
+	{
+		if ($nativeType === MYSQLI_TYPE_TIME) {
+			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
+			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
+			$value->invert = $m[1] ? 1 : 0;
+			return $value;
+
+		} else {
+			throw new NotSupportedException("MysqlDriverProvider does not support '{$nativeType}' type conversion.");
 		}
 	}
 
