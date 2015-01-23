@@ -11,7 +11,6 @@ namespace Nextras\Dbal\Drivers\Mysql;
 use mysqli_result;
 use Nextras\Dbal\Drivers\IRowsetAdapter;
 use Nextras\Dbal\Exceptions\DbalException;
-use Nextras\Dbal\Structure\IStructure;
 
 
 class MysqlRowsetAdapter implements IRowsetAdapter
@@ -90,7 +89,7 @@ class MysqlRowsetAdapter implements IRowsetAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$field = (array) $this->result->fetch_field_direct($i);
 			$types[$field['name']] = [
-				0 => isset(self::$types[$field['type']]) ? self::$types[$field['type']] : IStructure::TYPE_STRING,
+				0 => isset(self::$types[$field['type']]) ? self::$types[$field['type']] : self::TYPE_STRING,
 				1 => $field['type'],
 			];
 		}
