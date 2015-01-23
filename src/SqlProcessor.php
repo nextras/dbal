@@ -57,6 +57,9 @@ class SqlProcessor
 		} elseif (isset($type[$len-1]) && $type[$len-1] === '?' && $value === NULL) {
 			return 'NULL';
 
+		} elseif ($value === NULL) {
+			throw new InvalidArgumentException("NULL value not allowed in '%{$type}' modifier. Use '%{$type}?' modifier.");
+
 		} elseif ($type === 'table' || $type === 'column') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
 
@@ -73,7 +76,7 @@ class SqlProcessor
 			return rtrim(rtrim(number_format($value, 10, '.', ''), '0'), '.');
 
 		} else {
-			throw new InvalidArgumentException("Unknown modifier '{$type}'.");
+			throw new InvalidArgumentException("Unknown modifier '%{$type}'.");
 		}
 	}
 

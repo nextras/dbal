@@ -57,6 +57,10 @@ class SqlProcessorScalarTest extends TestCase
 			'SELECT FROM test WHERE price = 1.323',
 			$this->convert('SELECT FROM test WHERE price = %f', '01.3230')
 		);
+
+		Assert::throws(function() {
+			$this->convert('SELECT FROM test WHERE id = %i', NULL);
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', "NULL value not allowed in '%i' modifier. Use '%i?' modifier.");
 	}
 
 

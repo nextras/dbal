@@ -39,11 +39,6 @@ class SqlProcessorArrayTest extends TestCase
 			'SELECT FROM test WHERE id IN (NULL, 2, 3)',
 			$this->convert('SELECT FROM test WHERE id IN %i?[]', [NULL, 2, 3])
 		);
-
-		Assert::same(
-			'SELECT FROM test WHERE id IN (0, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN %i[]', [NULL, 2, 3])
-		);
 	}
 
 
