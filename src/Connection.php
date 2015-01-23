@@ -40,6 +40,9 @@ class Connection extends Object
 	/** @var IDriverProvider */
 	private $driverProvider;
 
+	/** @var SqlProcessor */
+	private $sqlPreprocessor;
+
 
 	public function __construct(array $config)
 	{
@@ -63,6 +66,7 @@ class Connection extends Object
 		}
 
 		$this->driver = $this->driverProvider->connect($this->config, $this->config['username'], $this->config['password']);
+		$this->sqlPreprocessor = new SqlProcessor($this->driver);
 		$this->fireEvent('onConnect', [$this]);
 	}
 
@@ -70,6 +74,7 @@ class Connection extends Object
 	public function disconnect()
 	{
 		$this->driver = NULL;
+		$this->sqlPreprocessor = NULL;
 		$this->fireEvent('onDisconnect', [$this]);
 	}
 
@@ -83,20 +88,19 @@ class Connection extends Object
 	public function query($query)
 	{
 		$this->connect();
-		$this->fireEvent('onBeforeQuery', [$this, $query]);
+		$sql = $this->sqlPreprocessor->process($query, array_slice(func_get_args(), 1));
+		$this->fireEvent('onBeforeQuery', [$this, $sql]);
 
 		try {
-			$result = new Rowset($this->driver->nativeQuery($query), $this->driver);
+			$result = new Rowset($this->driver->nativeQuery($sql), $this->driver);
 
 		} catch (IDriverException $e) {
 			throw $this->driverProvider->convertException($e->getMessage(), $e);
 		}
 
-		$this->fireEvent('onAfterQuery', [$this, $query, $result]);
+		$this->fireEvent('onAfterQuery', [$this, $sql, $result]);
 		return $result;
 	}
-
-
 
 
 	public function getLastInsertedId($sequenceName = NULL)
