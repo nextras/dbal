@@ -11,6 +11,7 @@ namespace Nextras\Dbal\Drivers\Mysql;
 use DateInterval;
 use mysqli;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Exceptions\NotSupportedException;
 
 
@@ -125,6 +126,30 @@ class MysqlDriver implements IDriver
 		} else {
 			throw new NotSupportedException("MysqlDriverProvider does not support '{$nativeType}' type conversion.");
 		}
+	}
+
+
+	public function convertToSql($value, $type)
+	{
+		switch ($type) {
+			case self::TYPE_STRING:
+				return "'" . $this->connection->escape_string($value) . "'";
+
+			case self::TYPE_BOOL:
+				return $value ? '1' : '0';
+
+			case self::TYPE_IDENTIFIER:
+				return '`' . str_replace('`', '``', $value) . '`';
+
+			default:
+				throw new InvalidArgumentException();
+		}
+	}
+
+
+	public function getTokenRegexp()
+	{
+		return '(?:`.*?`|".*?"|\'.*?\')';
 	}
 
 }

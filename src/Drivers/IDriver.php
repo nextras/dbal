@@ -11,6 +11,11 @@ namespace Nextras\Dbal\Drivers;
 
 interface IDriver
 {
+	/** @const data types, which driver converts to sql */
+	const TYPE_STRING = 1;
+	const TYPE_BOOL = 2;
+	const TYPE_IDENTIFIER = 3;
+
 
 	/**
 	 * Returns connection resource.
@@ -57,5 +62,21 @@ interface IDriver
 	 * @return mixed
 	 */
 	public function convertToPhp($value, $nativeType);
+
+
+	/**
+	 * Converts php value to database value.
+	 * @param  mixed $value
+	 * @param  mixed $type
+	 * @return mixed
+	 */
+	public function convertToSql($value, $type);
+
+
+	/**
+	 * Returns matching regexp of tokens, in which modifiers should have not been matched.
+	 * @return string
+	 */
+	public function getTokenRegexp();
 
 }
