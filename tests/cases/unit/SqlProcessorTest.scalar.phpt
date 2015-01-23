@@ -52,6 +52,11 @@ class SqlProcessorScalarTest extends TestCase
 			'SELECT FROM test WHERE price = 1.323',
 			$this->convert('SELECT FROM test WHERE price = %f', 1.323)
 		);
+
+		Assert::same(
+			'SELECT FROM test WHERE price = 1.323',
+			$this->convert('SELECT FROM test WHERE price = %f', '01.3230')
+		);
 	}
 
 
