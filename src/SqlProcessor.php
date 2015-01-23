@@ -52,27 +52,35 @@ class SqlProcessor
 			foreach ((array) $value as $subValue) {
 				$values[] = $this->processValue($subValue, $subType);
 			}
+
 			return '(' . implode(', ', $values) . ')';
-
-		} elseif (isset($type[$len-1]) && $type[$len-1] === '?' && $value === NULL) {
-			return 'NULL';
-
-		} elseif ($value === NULL) {
-			throw new InvalidArgumentException("NULL value not allowed in '%{$type}' modifier. Use '%{$type}?' modifier.");
 
 		} elseif ($type === 'table' || $type === 'column') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
+		}
 
-		} elseif ($type[0] === 's') {
+
+		$isNullable = isset($type[$len-1]) && $type[$len-1] === '?';
+		if ($isNullable) {
+			$type = substr($type, 0, -1);
+		}
+
+		if ($value === NULL) {
+			if (!$isNullable) {
+				throw new InvalidArgumentException("NULL value not allowed in '%{$type}' modifier. Use '%{$type}?' modifier.");
+			}
+			return 'NULL';
+
+		} elseif ($type === 's') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
 
-		} elseif ($type[0] === 'b') {
+		} elseif ($type === 'b') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
 
-		} elseif ($type[0] === 'i') {
+		} elseif ($type === 'i') {
 			return (string) (int) $value;
 
-		} elseif ($type[0] === 'f') {
+		} elseif ($type === 'f') {
 			return rtrim(rtrim(number_format($value, 10, '.', ''), '0'), '.');
 
 		} else {
