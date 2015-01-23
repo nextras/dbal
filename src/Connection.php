@@ -8,8 +8,6 @@
 
 namespace Nextras\Dbal;
 
-use Nette\Object;
-use Nette\Utils\Callback;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriverException;
@@ -17,7 +15,7 @@ use Nextras\Dbal\Exceptions\NotImplementedException;
 use Nextras\Dbal\Result\Rowset;
 
 
-class Connection extends Object
+class Connection
 {
 	/** @var array of callbacks: function(Connection $connection) */
 	public $onConnect = [];
@@ -142,7 +140,7 @@ class Connection extends Object
 	private function fireEvent($event, $args)
 	{
 		foreach ($this->$event as $callbacks) {
-			Callback::invokeArgs($callbacks, $args);
+			call_user_func_array($callbacks, $args);
 		}
 	}
 

@@ -8,7 +8,6 @@
 
 namespace  Nextras\Dbal;
 
-use Nette\Utils\Strings;
 use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
@@ -32,13 +31,13 @@ class SqlProcessor
 
 	public function process($sql, $args)
 	{
-		return Strings::replace($sql, $this->pattern, function($matches) use (& $args) {
+		return preg_replace_callback($this->pattern, function($matches) use (& $args) {
 			if (!isset($matches['m'])) {
 				return $matches[0];
 			}
 
 			return $this->processValue(array_shift($args), substr($matches['m'], 1));
-		});
+		}, $sql);
 	}
 
 
