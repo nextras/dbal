@@ -10,10 +10,10 @@ namespace Nextras\Dbal\Result;
 
 use Iterator;
 use Nette\Utils\Callback;
-use Nette\Utils\DateTime;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IRowsetAdapter;
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
+use Nextras\Dbal\Utils\DateTimeFactory;
 
 
 class Rowset implements Iterator, IRowset
@@ -137,7 +137,7 @@ class Rowset implements Iterator, IRowset
 				$data[$key] = (bool) $value;
 
 			} elseif ($type === IRowsetAdapter::TYPE_DATETIME) {
-				$data[$key] = DateTime::from($value);
+				$data[$key] = DateTimeFactory::from($value);
 
 			} elseif (is_callable($type)) {
 				$data[$key] = Callback::invokeArgs($type, [$value]);
