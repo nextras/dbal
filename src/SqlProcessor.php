@@ -25,15 +25,37 @@ class SqlProcessor
 	}
 
 
-	public function process($sql, $args)
+	public function process(array $args)
 	{
-		return preg_replace_callback('# (?P<m>%\w+\??(?:\[\])?) #xs', function($matches) use (& $args) {
-			if (!isset($matches['m'])) {
-				return $matches[0];
+		$last = count($args) - 1;
+		$query = '';
+
+		for ($i = 0; $i <= $last; $i++) {
+			if (!is_string($args[$i])) {
+				throw new InvalidArgumentException('Redundant query parameter.');
 			}
 
-			return $this->processValue(array_shift($args), substr($matches['m'], 1));
-		}, $sql);
+			$query .= preg_replace_callback(
+				'#%(\w++\??+(?:\[\])?+)#',
+				function ($matches) use ($args, &$i) {
+					++$i;
+					if (!(isset($args[$i]) || array_key_exists($i, $args))) {
+						throw new InvalidArgumentException('Missing query parameter.');
+					}
+
+					return $this->processValue($args[$i], $matches[1]);
+				},
+				$args[$i],
+				-1,
+				$count
+			);
+
+			if ($count === 0 && $i !== $last) {
+				throw new InvalidArgumentException('Redundant query expression.');
+			}
+		}
+
+		return $query;
 	}
 
 

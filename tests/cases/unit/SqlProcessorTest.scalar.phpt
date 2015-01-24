@@ -66,7 +66,7 @@ class SqlProcessorScalarTest extends TestCase
 
 	private function convert($sql)
 	{
-		return $this->parser->process($sql, array_slice(func_get_args(), 1));
+		return $this->parser->process(func_get_args());
 	}
 
 }

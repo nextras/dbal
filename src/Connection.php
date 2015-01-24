@@ -86,7 +86,7 @@ class Connection
 	public function query($query)
 	{
 		$this->connect();
-		$sql = $this->sqlPreprocessor->process($query, array_slice(func_get_args(), 1));
+		$sql = $this->sqlPreprocessor->process(func_get_args());
 		$this->fireEvent('onBeforeQuery', [$this, $sql]);
 
 		try {
