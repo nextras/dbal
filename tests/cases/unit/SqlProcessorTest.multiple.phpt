@@ -51,7 +51,7 @@ class SqlProcessorMultipleTest extends TestCase
 	{
 		Assert::throws(function() {
 			$this->convert('SELECT %i');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing query parameter.');
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing query parameter for modifier %i.');
 
 		Assert::throws(function() {
 			$this->convert('SELECT %i', 1, 1);
@@ -59,7 +59,7 @@ class SqlProcessorMultipleTest extends TestCase
 
 		Assert::throws(function() {
 			$this->convert('SELECT %i', 1, ' WHERE ', '1=1');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query expression.');
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing modifier in query expression \' WHERE \'.');
 	}
 
 

@@ -37,13 +37,11 @@ class SqlProcessor
 
 			$query .= preg_replace_callback(
 				'#%(\w++\??+(?:\[\])?+)#',
-				function ($matches) use ($args, &$i) {
-					++$i;
-					if (!(isset($args[$i]) || array_key_exists($i, $args))) {
-						throw new InvalidArgumentException('Missing query parameter.');
+				function ($matches) use ($args, &$i, $last) {
+					if ($i === $last) {
+						throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
 					}
-
-					return $this->processValue($args[$i], $matches[1]);
+					return $this->processValue($args[++$i], $matches[1]);
 				},
 				$args[$i],
 				-1,
@@ -51,7 +49,7 @@ class SqlProcessor
 			);
 
 			if ($count === 0 && $i !== $last) {
-				throw new InvalidArgumentException('Redundant query expression.');
+				throw new InvalidArgumentException("Missing modifier in query expression '$args[$i]'.");
 			}
 		}
 
