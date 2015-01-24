@@ -30,7 +30,7 @@ class SqlProcessor
 		$last = count($args) - 1;
 		$query = '';
 
-		for ($i = 0; $i <= $last; $i++) {
+		for ($i = 0, $j = 0; $i <= $last; $i = ++$j) {
 			if (!is_string($args[$i])) {
 				throw new InvalidArgumentException('Redundant query parameter.');
 			}
@@ -40,19 +40,22 @@ class SqlProcessor
 			}
 
 			$query .= preg_replace_callback(
-				'#%(\w++\??+(?:\[\])?+)#',
-				function ($matches) use ($args, &$i, $last) {
-					if ($i === $last) {
-						throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
+				'#%(\w++\??+(?:\[\])?+)|(\[.+?\])#',
+				function ($matches) use ($args, &$j, $last) {
+					if ($matches[1] !== '') {
+						if ($j === $last) {
+							throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
+						}
+						return $this->processValue($args[++$j], $matches[1]);
+
+					} else {
+						return $this->driver->convertToSql(substr($matches[2], 1, -1), IDriver::TYPE_IDENTIFIER);
 					}
-					return $this->processValue($args[++$i], $matches[1]);
 				},
-				$args[$i],
-				-1,
-				$count
+				$args[$i]
 			);
 
-			if ($count === 0 && $i !== $last) {
+			if ($i === $j && $j !== $last) {
 				throw new InvalidArgumentException("Missing modifier in query expression '$args[$i]'.");
 			}
 		}
