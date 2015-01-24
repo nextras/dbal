@@ -25,6 +25,9 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @return string
+	 */
 	public function process(array $args)
 	{
 		$last = count($args) - 1;
@@ -32,20 +35,16 @@ class SqlProcessor
 
 		for ($i = 0, $j = 0; $j <= $last; $j++) {
 			if (!is_string($args[$j])) {
-				if ($j === 0) {
-					throw new InvalidArgumentException('Query fragment must be string.');
-				} else {
-					throw new InvalidArgumentException("Redundant query parameter or missing modifier in query fragment '$args[$i]'.");
-				}
+				throw new InvalidArgumentException($j === 0
+					? 'Query fragment must be string.'
+					: "Redundant query parameter or missing modifier in query fragment '$args[$i]'."
+				);
 			}
 
 			$i = $j;
-			if ($i > 0) {
-				$query .= ' ';
-			}
-
+			$query .= ($i ? ' ' : '');
 			$query .= preg_replace_callback(
-				'#%(\w++\??+(?:\[\])?+)|(\[.+?\])#',
+				'#%(\w++\??+(?:\[\])?+)|\[(.+?)\]#', // %modifier | [identifier]
 				function ($matches) use ($args, &$j, $last) {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
@@ -54,7 +53,7 @@ class SqlProcessor
 						return $this->processValue($args[++$j], $matches[1]);
 
 					} else {
-						return $this->driver->convertToSql(substr($matches[2], 1, -1), IDriver::TYPE_IDENTIFIER);
+						return $this->driver->convertToSql($matches[2], IDriver::TYPE_IDENTIFIER);
 					}
 				},
 				$args[$i]
