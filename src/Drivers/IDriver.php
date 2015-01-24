@@ -19,7 +19,6 @@ interface IDriver
 
 	/**
 	 * Returns connection resource.
-	 * @internal
 	 * @return mixed
 	 */
 	public function getResourceHandle();
