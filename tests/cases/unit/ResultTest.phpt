@@ -5,18 +5,18 @@
 namespace NextrasTests\Dbal;
 
 use Mockery;
-use Nextras\Dbal\Result\Rowset;
+use Nextras\Dbal\Result\Result;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class RowsetTest extends TestCase
+class ResultTest extends TestCase
 {
 
 	public function testIterator()
 	{
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IRowsetAdapter');
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
@@ -26,7 +26,7 @@ class RowsetTest extends TestCase
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 
 		$names = [];
-		$rowset = new Rowset($adapter, $driver);
+		$rowset = new Result($adapter, $driver);
 		$rowset->setColumnValueNormalization(FALSE);
 		foreach ($rowset as $row) {
 			$names[] = $row->name;
@@ -48,5 +48,5 @@ class RowsetTest extends TestCase
 }
 
 
-$test = new RowsetTest();
+$test = new ResultTest();
 $test->run();

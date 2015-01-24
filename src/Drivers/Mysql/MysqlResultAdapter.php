@@ -9,11 +9,11 @@
 namespace Nextras\Dbal\Drivers\Mysql;
 
 use mysqli_result;
-use Nextras\Dbal\Drivers\IRowsetAdapter;
+use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exceptions\DbalException;
 
 
-class MysqlRowsetAdapter implements IRowsetAdapter
+class MysqlResultAdapter implements IResultAdapter
 {
 	/** @var array */
 	protected static $types = [

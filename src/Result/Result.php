@@ -10,14 +10,14 @@ namespace Nextras\Dbal\Result;
 
 use Iterator;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IRowsetAdapter;
+use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeFactory;
 
 
-class Rowset implements Iterator
+class Result implements Iterator
 {
-	/** @var IRowsetAdapter */
+	/** @var IResultAdapter */
 	private $adapter;
 
 	/** @var int */
@@ -33,7 +33,7 @@ class Rowset implements Iterator
 	private $driver;
 
 
-	public function __construct(IRowsetAdapter $adapter, IDriver $driver)
+	public function __construct(IResultAdapter $adapter, IDriver $driver)
 	{
 		$this->adapter = $adapter;
 		$this->driver = $driver;
@@ -62,7 +62,7 @@ class Rowset implements Iterator
 			$this->types = $this->adapter->getTypes();
 		}
 
-		if ($type === IRowsetAdapter::TYPE_DRIVER_SPECIFIC && $nativeType === NULL) {
+		if ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC && $nativeType === NULL) {
 			throw new InvalidArgumentException('Undefined native type for driver resolution.');
 		}
 
@@ -113,17 +113,17 @@ class Rowset implements Iterator
 			list($type, $nativeType) = $typePair;
 			$value = $data[$key];
 
-			if ($value === NULL || $type === IRowsetAdapter::TYPE_STRING) {
+			if ($value === NULL || $type === IResultAdapter::TYPE_STRING) {
 				// nothing to do
 
-			} elseif ($type === IRowsetAdapter::TYPE_DRIVER_SPECIFIC) {
+			} elseif ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC) {
 				$data[$key] = $this->driver->convertToPhp($value, $nativeType);
 
-			} elseif ($type === IRowsetAdapter::TYPE_INT) {
+			} elseif ($type === IResultAdapter::TYPE_INT) {
 				// number is to big for integer type
 				$data[$key] = is_float($tmp = $value * 1) ? $value : $tmp;
 
-			} elseif ($type === IRowsetAdapter::TYPE_FLOAT) {
+			} elseif ($type === IResultAdapter::TYPE_FLOAT) {
 				// number is to big for float type
 				$pointPos = strpos($value, '.');
 				if ($pointPos !== FALSE) {
@@ -132,10 +132,10 @@ class Rowset implements Iterator
 				$float = (float) $value;
 				$data[$key] = number_format($float, strlen($value) - $pointPos - 1, '.', '') === $value ? $float : $value;
 
-			} elseif ($type === IRowsetAdapter::TYPE_BOOL) {
+			} elseif ($type === IResultAdapter::TYPE_BOOL) {
 				$data[$key] = (bool) $value;
 
-			} elseif ($type === IRowsetAdapter::TYPE_DATETIME) {
+			} elseif ($type === IResultAdapter::TYPE_DATETIME) {
 				$data[$key] = DateTimeFactory::from($value);
 
 			} elseif (is_callable($type)) {

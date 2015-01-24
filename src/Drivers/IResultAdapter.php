@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Drivers;
 use Nextras\Dbal\Exceptions\DbalException;
 
 
-interface IRowsetAdapter
+interface IResultAdapter
 {
 	/** @const field types */
 	const TYPE_DRIVER_SPECIFIC = 0;

@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Drivers;
 
-use Nextras\Dbal\Result\Rowset;
+use Nextras\Dbal\Result\Result;
 
 
 interface IDriver
@@ -29,7 +29,7 @@ interface IDriver
 	/**
 	 * Runs query and returns the result.
 	 * @param  string $query
-	 * @return Rowset
+	 * @return Result
 	 */
 	public function nativeQuery($query);
 

@@ -12,7 +12,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriverException;
 use Nextras\Dbal\Exceptions\NotImplementedException;
-use Nextras\Dbal\Result\Rowset;
+use Nextras\Dbal\Result\Result;
 
 
 class Connection
@@ -26,7 +26,7 @@ class Connection
 	/** @var array of callbacks: function(Connection $connection, string $query) */
 	public $onBeforeQuery = [];
 
-	/** @var array of callbacks: function(Connection $connection, string $query, Rowset $rowset) */
+	/** @var array of callbacks: function(Connection $connection, string $query, Result $rowset) */
 	public $onAfterQuery = [];
 
 	/** @var array */
