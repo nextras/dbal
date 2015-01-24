@@ -11,6 +11,7 @@ namespace Nextras\Dbal;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriverException;
+use Nextras\DBAL\Exceptions\DbalException;
 use Nextras\Dbal\Exceptions\NotImplementedException;
 use Nextras\Dbal\Result\Result;
 
@@ -83,6 +84,11 @@ class Connection
 	}
 
 
+	/**
+	 * @param  string $query
+	 * @return Result
+	 * @throws DbalException
+	 */
 	public function query($query)
 	{
 		$this->connect();
