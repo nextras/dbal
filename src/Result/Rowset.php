@@ -15,7 +15,7 @@ use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeFactory;
 
 
-class Rowset implements Iterator, IRowset
+class Rowset implements Iterator
 {
 	/** @var IRowsetAdapter */
 	private $adapter;

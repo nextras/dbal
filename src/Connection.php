@@ -26,7 +26,7 @@ class Connection
 	/** @var array of callbacks: function(Connection $connection, string $query) */
 	public $onBeforeQuery = [];
 
-	/** @var array of callbacks: function(Connection $connection, string $query, IRowset $rowset) */
+	/** @var array of callbacks: function(Connection $connection, string $query, Rowset $rowset) */
 	public $onAfterQuery = [];
 
 	/** @var array */
