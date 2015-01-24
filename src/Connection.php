@@ -90,7 +90,7 @@ class Connection
 		$this->fireEvent('onBeforeQuery', [$this, $sql]);
 
 		try {
-			$result = new Rowset($this->driver->nativeQuery($sql), $this->driver);
+			$result = $this->driver->nativeQuery($sql);
 
 		} catch (IDriverException $e) {
 			throw $this->driverProvider->convertException($e->getMessage(), $e);

@@ -13,6 +13,7 @@ use mysqli;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Exceptions\NotSupportedException;
+use Nextras\Dbal\Result\Rowset;
 
 
 class MysqlDriver implements IDriver
@@ -71,7 +72,7 @@ class MysqlDriver implements IDriver
 			);
 		}
 
-		return new MysqlRowsetAdapter($result);
+		return new Rowset(new MysqlRowsetAdapter($result), $this);
 	}
 
 

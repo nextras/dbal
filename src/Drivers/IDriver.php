@@ -8,6 +8,8 @@
 
 namespace Nextras\Dbal\Drivers;
 
+use Nextras\Dbal\Result\IRowset;
+
 
 interface IDriver
 {
@@ -27,7 +29,7 @@ interface IDriver
 	/**
 	 * Runs query and returns the result.
 	 * @param  string $query
-	 * @return IRowsetAdapter
+	 * @return IRowset
 	 */
 	public function nativeQuery($query);
 
