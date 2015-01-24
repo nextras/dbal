@@ -50,16 +50,28 @@ class SqlProcessorMultipleTest extends TestCase
 	public function testWrongArguments()
 	{
 		Assert::throws(function() {
+			$this->convert(123);
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Query fragment must be string.');
+
+		Assert::throws(function() {
+			$this->convert(new \stdClass());
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Query fragment must be string.');
+
+		Assert::throws(function() {
 			$this->convert('SELECT %i');
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing query parameter for modifier %i.');
 
 		Assert::throws(function() {
 			$this->convert('SELECT %i', 1, 1);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter.');
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'SELECT %i\'.');
+
+		Assert::throws(function() {
+			$this->convert('SELECT %i', 1, 1);
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'SELECT %i\'.');
 
 		Assert::throws(function() {
 			$this->convert('SELECT %i', 1, ' WHERE ', '1=1');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing modifier in query expression \' WHERE \'.');
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \' WHERE \'.');
 	}
 
 

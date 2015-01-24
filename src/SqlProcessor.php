@@ -30,11 +30,16 @@ class SqlProcessor
 		$last = count($args) - 1;
 		$query = '';
 
-		for ($i = 0, $j = 0; $i <= $last; $i = ++$j) {
-			if (!is_string($args[$i])) {
-				throw new InvalidArgumentException('Redundant query parameter.');
+		for ($i = 0, $j = 0; $j <= $last; $j++) {
+			if (!is_string($args[$j])) {
+				if ($j === 0) {
+					throw new InvalidArgumentException('Query fragment must be string.');
+				} else {
+					throw new InvalidArgumentException("Redundant query parameter or missing modifier in query fragment '$args[$i]'.");
+				}
 			}
 
+			$i = $j;
 			if ($i > 0) {
 				$query .= ' ';
 			}
@@ -56,7 +61,7 @@ class SqlProcessor
 			);
 
 			if ($i === $j && $j !== $last) {
-				throw new InvalidArgumentException("Missing modifier in query expression '$args[$i]'.");
+				throw new InvalidArgumentException("Redundant query parameter or missing modifier in query fragment '$args[$i]'.");
 			}
 		}
 
