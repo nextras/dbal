@@ -31,18 +31,18 @@ class SqlProcessorMultipleTest extends TestCase
 		);
 
 		Assert::same(
-			'SELECT 1, 2, 3, 4',
+			'SELECT 1, 2 , 3, 4',
 			$this->convert('SELECT %i, %i', 1, 2, ', %i, %i', 3, 4)
 		);
 
 		Assert::same(
-			'SELECT 1, 2, 3, 4 WHERE 1=1',
-			$this->convert('SELECT %i, %i', 1, 2, ', %i, %i', 3, 4, ' WHERE 1=1')
+			'SELECT 1, 2 , 3, 4 WHERE 1=1',
+			$this->convert('SELECT %i, %i', 1, 2, ', %i, %i', 3, 4, 'WHERE 1=1')
 		);
 
 		Assert::same(
 			'SELECT 1 2',
-			$this->convert('SELECT %i ', 1, '2')
+			$this->convert('SELECT %i', 1, '2')
 		);
 	}
 

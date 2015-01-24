@@ -35,6 +35,10 @@ class SqlProcessor
 				throw new InvalidArgumentException('Redundant query parameter.');
 			}
 
+			if ($i > 0) {
+				$query .= ' ';
+			}
+
 			$query .= preg_replace_callback(
 				'#%(\w++\??+(?:\[\])?+)#',
 				function ($matches) use ($args, &$i, $last) {
