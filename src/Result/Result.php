@@ -23,7 +23,7 @@ class Result implements Iterator
 	/** @var int */
 	private $iteratorIndex;
 
-	/** @var Row */
+	/** @var Row|NULL */
 	private $iteratorRow;
 
 	/** @var NULL|bool|array */

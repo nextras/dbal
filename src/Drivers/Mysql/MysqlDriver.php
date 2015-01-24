@@ -34,7 +34,7 @@ class MysqlDriver implements IDriver
 		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 		$flags  = isset($params[self::PARAMS_FLAGS]) ? $params[self::PARAMS_FLAGS] : 0;
 
-		$this->connection = mysqli_init();
+		$this->connection = new mysqli();
 
 		if (!$this->connection->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
 			throw new MysqlException(

@@ -145,8 +145,8 @@ class Connection
 
 	private function fireEvent($event, $args)
 	{
-		foreach ($this->$event as $callbacks) {
-			call_user_func_array($callbacks, $args);
+		foreach ($this->$event as $callback) {
+			call_user_func_array($callback, $args);
 		}
 	}
 
