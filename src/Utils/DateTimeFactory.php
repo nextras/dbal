@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Utils;
 
 use DateTime;
+use DateTimeInterface;
 use DateTimeZone;
 
 
@@ -17,15 +18,21 @@ class DateTimeFactory
 
 	public static function from($time, DateTimeZone $timezone = NULL)
 	{
-		if (is_numeric($time)) {
-			$datetime = new DateTime("@{$time}");
-			$datetime->setTimeZone($timezone ?: new DateTimeZone(date_default_timezone_get()));
+		if ($time instanceof DateTime || $time instanceof DateTimeInterface) {
+			$datetime = clone $time;
 
-		} elseif ($timezone !== NULL) {
-			$datetime = new DateTime($time, $timezone);
+		} elseif (ctype_digit($time)) {
+			$datetime = new DateTime("@{$time}");
+			if ($timezone === NULL) {
+				$timezone = new DateTimeZone(date_default_timezone_get());
+			}
 
 		} else {
 			$datetime = new DateTime($time);
+		}
+
+		if ($timezone !== NULL) {
+			$datetime->setTimezone($timezone);
 		}
 
 		return $datetime;
