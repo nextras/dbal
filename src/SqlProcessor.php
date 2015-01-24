@@ -18,20 +18,16 @@ class SqlProcessor
 	/** @var IDriverProvider */
 	private $driver;
 
-	/** @var string */
-	private $pattern;
-
 
 	public function __construct(IDriver $driver)
 	{
 		$this->driver = $driver;
-		$this->pattern = $this->buildPattern();
 	}
 
 
 	public function process($sql, $args)
 	{
-		return preg_replace_callback($this->pattern, function($matches) use (& $args) {
+		return preg_replace_callback('# (?P<m>%\w+\??(?:\[\])?) #xs', function($matches) use (& $args) {
 			if (!isset($matches['m'])) {
 				return $matches[0];
 			}
@@ -85,14 +81,6 @@ class SqlProcessor
 		} else {
 			throw new InvalidArgumentException("Unknown modifier '%{$type}'.");
 		}
-	}
-
-
-	private function buildPattern()
-	{
-		$pattern = '#(?:';
-		$pattern .= " ({$this->driver->getTokenRegexp()}) | ";
-		return $pattern . ' (?P<m>%\w+\??(?:\[\])?) )#xs';
 	}
 
 }

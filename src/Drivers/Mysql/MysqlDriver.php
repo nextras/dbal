@@ -147,10 +147,4 @@ class MysqlDriver implements IDriver
 		}
 	}
 
-
-	public function getTokenRegexp()
-	{
-		return '(?:`.*?`|".*?"|\'.*?\')';
-	}
-
 }

@@ -73,11 +73,4 @@ interface IDriver
 	 */
 	public function convertToSql($value, $type);
 
-
-	/**
-	 * Returns matching regexp of tokens, in which modifiers should have not been matched.
-	 * @return string
-	 */
-	public function getTokenRegexp();
-
 }
