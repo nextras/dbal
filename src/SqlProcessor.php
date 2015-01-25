@@ -73,25 +73,13 @@ class SqlProcessor
 		$len = strlen($type);
 
 		if (isset($type[$len-2], $type[$len-1]) && $type[$len-2] === '[' && $type[$len-1] === ']') {
-			$values = [];
-			$subType = substr($type, 0, -2);
-			foreach ((array) $value as $subValue) {
-				$values[] = $this->processValue($subValue, $subType);
-			}
-
-			return '(' . implode(', ', $values) . ')';
+			return $this->processValueArray($value, $type);
 
 		} elseif ($type === 'table' || $type === 'column') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
 
 		} elseif ($type === 'set') {
-			$pairs = [];
-			foreach ($value as $_key => $val) {
-				$key = explode('%', $_key, 2);
-				$pairs[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
-					. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
-			}
-			return implode(', ', $pairs);
+			return $this->processValueSet($value);
 
 		}
 
@@ -122,6 +110,31 @@ class SqlProcessor
 		} else {
 			throw new InvalidArgumentException("Unknown modifier '%{$type}'.");
 		}
+	}
+
+
+	protected function processValueArray($value, $type)
+	{
+		$values = [];
+		$subType = substr($type, 0, -2);
+		foreach ((array) $value as $subValue) {
+			$values[] = $this->processValue($subValue, $subType);
+		}
+
+		return '(' . implode(', ', $values) . ')';
+	}
+
+
+	protected function processValueSet($value)
+	{
+		$values = [];
+		foreach ($value as $_key => $val) {
+			$key = explode('%', $_key, 2);
+			$values[] = $this->driver->convertToSql($key[0],	IDriver::TYPE_IDENTIFIER) . ' = '
+				. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+		}
+
+		return implode(', ', $values);
 	}
 
 }
