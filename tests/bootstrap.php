@@ -11,6 +11,8 @@ if (@!include __DIR__ . '/../vendor/autoload.php') {
 }
 
 require_once __DIR__ . '/inc/TestCase.php';
+require_once __DIR__ . '/inc/QueryBuilderTestCase.php';
+
 
 define('TEMP_DIR', __DIR__ . '/temp');
 date_default_timezone_set('Europe/Prague');
