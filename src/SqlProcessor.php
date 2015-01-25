@@ -83,6 +83,16 @@ class SqlProcessor
 
 		} elseif ($type === 'table' || $type === 'column') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
+
+		} elseif ($type === 'set') {
+			$pairs = [];
+			foreach ($value as $_key => $val) {
+				$key = explode('%', $_key, 2);
+				$pairs[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
+					. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+			}
+			return implode(', ', $pairs);
+
 		}
 
 
