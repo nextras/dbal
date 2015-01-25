@@ -32,8 +32,8 @@ class SqlProcessorValuesTest extends TestCase
 	public function testArray()
 	{
 		Assert::same(
-			"INTSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', '2')",
-			$this->convert('INTSERT INTO test %values', [
+			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', '2')",
+			$this->convert('INSERT INTO test %values', [
 				'id%i' => 1,
 				'title%s' => "'foo'",
 				'foo' => 2,
