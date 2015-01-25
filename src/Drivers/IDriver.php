@@ -73,4 +73,14 @@ interface IDriver
 	 */
 	public function convertToSql($value, $type);
 
+
+	/**
+	 * Adds driver-specific limit clause to the query.
+	 * @param  string   $query
+	 * @param  int|NULL $limit
+	 * @param  int|NULL $offset
+	 * @return string
+	 */
+	public function modifyLimitQuery($query, $limit, $offset);
+
 }

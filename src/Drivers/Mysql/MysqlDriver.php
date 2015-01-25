@@ -147,4 +147,20 @@ class MysqlDriver implements IDriver
 		}
 	}
 
+
+	public function modifyLimitQuery($query, $limit, $offset)
+	{
+		if ($limit !== NULL || $offset !== NULL) {
+			// 18446744073709551615 is maximum of unsigned BIGINT
+			// see http://dev.mysql.com/doc/refman/5.0/en/select.html
+			$query .= ' LIMIT ' . ($limit !== NULL ? (int) $limit : '18446744073709551615');
+		}
+
+		if ($offset !== NULL) {
+			$query .= ' OFFSET ' . (int) $offset;
+		}
+
+		return $query;
+	}
+
 }
