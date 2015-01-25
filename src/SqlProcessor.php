@@ -81,6 +81,8 @@ class SqlProcessor
 		} elseif ($type === 'set') {
 			return $this->processValueSet($value);
 
+		} elseif ($type === 'values') {
+			return $this->processValueValues($value);
 		}
 
 
@@ -135,6 +137,19 @@ class SqlProcessor
 		}
 
 		return implode(', ', $values);
+	}
+
+
+	private function processValueValues($value)
+	{
+		$keys = $values = [];
+		foreach ($value as $_key => $val) {
+			$key = explode('%', $_key, 2);
+			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+			$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+		}
+
+		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
 	}
 
 }
