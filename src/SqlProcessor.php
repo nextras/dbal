@@ -72,7 +72,7 @@ class SqlProcessor
 	{
 		$len = strlen($type);
 
-		if (isset($type[$len-2], $type[$len-1]) && $type[$len-2] === '[' && $type[$len-1] === ']') {
+		if (isset($type[$len-2]) && $type[$len-2] === '[' && $type[$len-1] === ']') {
 			return $this->processValueArray($value, $type);
 
 		} elseif ($type === 'table' || $type === 'column') {
@@ -84,7 +84,7 @@ class SqlProcessor
 		}
 
 
-		$isNullable = isset($type[$len-1]) && $type[$len-1] === '?';
+		$isNullable = $type[$len-1] === '?';
 		if ($isNullable) {
 			$type = substr($type, 0, -1);
 		}
@@ -130,7 +130,7 @@ class SqlProcessor
 		$values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$values[] = $this->driver->convertToSql($key[0],	IDriver::TYPE_IDENTIFIER) . ' = '
+			$values[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
 				. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
 		}
 
