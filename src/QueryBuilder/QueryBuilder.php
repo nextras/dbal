@@ -34,7 +34,7 @@ class QueryBuilder
 	];
 
 	/** @var array|NULL */
-	private $select;
+	private $select = ['*'];
 
 	/** @var array|NULL */
 	private $from;

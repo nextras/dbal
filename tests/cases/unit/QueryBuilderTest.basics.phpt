@@ -13,6 +13,11 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 	public function testParametersOrder()
 	{
 		$this->assertBuilder(
+			['SELECT * FROM test'],
+			$this->builder()->from('test')
+		);
+
+		$this->assertBuilder(
 			['SELECT CONCAT(%s) FROM test WHERE id = %i', 'foo', 1],
 			$this->builder()->select('CONCAT(%s)', 'foo')->from('test')->where('id = %i', 1)
 		);
