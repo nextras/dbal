@@ -119,52 +119,52 @@ class QueryBuilder
 
 	private function getFromClauses()
 	{
-		$query = $this->from[0] . ($this->from[1] ? ' ' . $this->from[1] : '');
+		$query = $this->from[0] . ($this->from[1] ? " [{$this->from[1]}]" : '');
 		foreach ((array) $this->join as $join) {
-			$query .= ' ' . $join['type'] . ' JOIN '
-				. $join['table'] . ($join['alias'] ? ' ' . $join['table'] : '')
-				. ' ON (' . $join['on'] . ')';
+			$query .= ' '
+				. $join['type'] . " JOIN {$join['table']} " . ($join['alias'] ? "[{$join['alias']}] " : '')
+				. 'ON (' . $join['on'] . ')';
 		}
 
 		return $query;
 	}
 
 
-	public function from($from, $alias = NULL)
+	public function from($fromExpression, $alias = NULL)
 	{
 		$this->dirty();
 		$this->type = self::TYPE_SELECT;
-		$this->from = [$from, $alias];
+		$this->from = [$fromExpression, $alias];
 		$this->pushArgs('from', array_slice(func_get_args(), 2));
 		return $this;
 	}
 
 
-	public function innerJoin($fromAlias, $to, $toAlias, $onExpression)
+	public function innerJoin($fromAlias, $toExpression, $toAlias, $onExpression)
 	{
-		return $this->join('INNER', $fromAlias, $to, $toAlias, $onExpression, array_slice(func_get_args(), 4));
+		return $this->join('INNER', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
 	}
 
 
-	public function leftJoin($fromAlias, $to, $toAlias, $onExpression)
+	public function leftJoin($fromAlias, $toExpression, $toAlias, $onExpression)
 	{
-		return $this->join('LEFT', $fromAlias, $to, $toAlias, $onExpression, array_slice(func_get_args(), 4));
+		return $this->join('LEFT', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
 	}
 
 
-	public function rightJoin($fromAlias, $to, $toAlias, $onExpression)
+	public function rightJoin($fromAlias, $toExpression, $toAlias, $onExpression)
 	{
-		return $this->join('RIGHT', $fromAlias, $to, $toAlias, $onExpression, array_slice(func_get_args(), 4));
+		return $this->join('RIGHT', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
 	}
 
 
-	private function join($type, $fromAlias, $to, $toAlias, $onExpression, $args)
+	private function join($type, $fromAlias, $toExpression, $toAlias, $onExpression, $args)
 	{
 		$this->dirty();
 		$this->join[] = [
 			'type' => $type,
 			'from' => $fromAlias,
-			'table' => $to,
+			'table' => $toExpression,
 			'alias' => $toAlias,
 			'on' => $onExpression,
 		];
