@@ -26,23 +26,23 @@ class ResultTest extends TestCase
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 
 		$names = [];
-		$rowset = new Result($adapter, $driver);
-		$rowset->setColumnValueNormalization(FALSE);
-		foreach ($rowset as $row) {
+		$result = new Result($adapter, $driver);
+		$result->setColumnValueNormalization(FALSE);
+		foreach ($result as $row) {
 			$names[] = $row->name;
 		}
 
 		Assert::same(['First'], $names);
 
-		Assert::false($rowset->valid());
-		Assert::null($rowset->current());
-		Assert::same(1, $rowset->key());
+		Assert::false($result->valid());
+		Assert::null($result->current());
+		Assert::same(1, $result->key());
 
-		$rowset->rewind();
-		Assert::truthy($rowset->current());
-		Assert::same('First', $rowset->current()->name);
-		Assert::true($rowset->valid());
-		Assert::same(0, $rowset->key());
+		$result->rewind();
+		Assert::truthy($result->current());
+		Assert::same('First', $result->current()->name);
+		Assert::true($result->valid());
+		Assert::same(0, $result->key());
 	}
 
 
@@ -53,9 +53,9 @@ class ResultTest extends TestCase
 
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 
-		$rowset = new Result($adapter, $driver);
-		$rowset->setColumnValueNormalization(FALSE);
-		Assert::same('First', $rowset->fetchField());
+		$result = new Result($adapter, $driver);
+		$result->setColumnValueNormalization(FALSE);
+		Assert::same('First', $result->fetchField());
 
 
 		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
@@ -63,10 +63,9 @@ class ResultTest extends TestCase
 
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 
-		$rowset = new Result($adapter, $driver);
-		$rowset->setColumnValueNormalization(FALSE);
-		Assert::null($rowset->fetchField());
-
+		$result = new Result($adapter, $driver);
+		$result->setColumnValueNormalization(FALSE);
+		Assert::null($result->fetchField());
 	}
 
 }
