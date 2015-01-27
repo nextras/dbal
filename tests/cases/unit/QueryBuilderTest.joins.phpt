@@ -4,6 +4,9 @@
 
 namespace NextrasTests\Dbal;
 
+use Tester\Assert;
+
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -26,6 +29,20 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 				->innerJoin('t', 'three', 'th', 't.userId = th.userId')
 				->rightJoin('th', 'four', 'f', 'th.userId = f.userId')
 		);
+	}
+
+
+	public function testValidateMissingAlias()
+	{
+		Assert::throws(function() {
+
+			$this->builder()
+				->from('one', 'o')
+				->innerJoin('t', 'three', 'th', 't.userId = th.userId')
+				->rightJoin('th', 'four', 'f', 'th.userId = f.userId')
+				->getQuerySQL();
+
+		}, 'Nextras\Dbal\Exceptions\InvalidStateException', "Unknown alias 't'.");
 	}
 
 }

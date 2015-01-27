@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\QueryBuilder;
 
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exceptions\InvalidStateException;
 
 
 class QueryBuilder
@@ -119,8 +120,14 @@ class QueryBuilder
 
 	private function getFromClauses()
 	{
+		$knownAliases = array_flip($this->getKnownAliases());
+
 		$query = $this->from[0] . ($this->from[1] ? " [{$this->from[1]}]" : '');
 		foreach ((array) $this->join as $join) {
+			if (!isset($knownAliases[$join['from']])) {
+				throw new InvalidStateException("Unknown alias '{$join['from']}'.");
+			}
+
 			$query .= ' '
 				. $join['type'] . " JOIN {$join['table']} " . ($join['alias'] ? "[{$join['alias']}] " : '')
 				. 'ON (' . $join['on'] . ')';
@@ -303,6 +310,21 @@ class QueryBuilder
 	private function pushArgs($type, array $args)
 	{
 		$this->args[$type] = array_merge((array) $this->args[$type], $args);
+	}
+
+
+	/** @return string[] */
+	private function getKnownAliases()
+	{
+		$knownAliases = [];
+		if (isset($this->from)) {
+			$knownAliases[] = isset($this->from[1]) ? $this->from[1] : $this->from[0];
+		}
+		foreach ((array) $this->join as $join) {
+			$knownAliases[] = isset($join['alias']) ? $join['alias'] : $join['table'];
+		}
+
+		return $knownAliases;
 	}
 
 }
