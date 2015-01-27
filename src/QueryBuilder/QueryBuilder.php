@@ -184,8 +184,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->select = [$expression];
-		$this->args['select'] = [];
-		$this->pushArgs('select', array_slice(func_get_args(), 1));
+		$this->args['select'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
 
@@ -203,8 +202,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->where = $expression;
-		$this->args['where'] = [];
-		$this->pushArgs('where', array_slice(func_get_args(), 1));
+		$this->args['where'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
 
@@ -231,8 +229,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->group = [$expression];
-		$this->args['group'] = [];
-		$this->pushArgs('group', array_slice(func_get_args(), 1));
+		$this->args['group'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
 
@@ -250,8 +247,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->having = $expression;
-		$this->args['having'] = [];
-		$this->pushArgs('having', array_slice(func_get_args(), 1));
+		$this->args['having'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
 
@@ -278,8 +274,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->order = [$expression];
-		$this->args['order'] = [];
-		$this->pushArgs('order', array_slice(func_get_args(), 1));
+		$this->args['order'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
 
