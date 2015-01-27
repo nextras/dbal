@@ -45,6 +45,30 @@ class ResultTest extends TestCase
 		Assert::same(0, $rowset->key());
 	}
 
+
+	public function testFetchField()
+	{
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
+
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+
+		$rowset = new Result($adapter, $driver);
+		$rowset->setColumnValueNormalization(FALSE);
+		Assert::same('First', $rowset->fetchField());
+
+
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+
+		$rowset = new Result($adapter, $driver);
+		$rowset->setColumnValueNormalization(FALSE);
+		Assert::null($rowset->fetchField());
+
+	}
+
 }
 
 

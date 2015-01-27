@@ -86,9 +86,7 @@ class Result implements Iterator
 	}
 
 
-	/**
-	 * @return Row|NULL
-	 */
+	/** @return Row|NULL */
 	public function fetch()
 	{
 		$data = $this->adapter->fetch();
@@ -104,6 +102,19 @@ class Result implements Iterator
 		}
 
 		return new Row($data);
+	}
+
+
+	/** @return mixed|NULL */
+	public function fetchField()
+	{
+		if ($row = $this->fetch()) { // = intentionally
+			foreach ($row as $value) {
+				return $value;
+			}
+		}
+
+		return NULL;
 	}
 
 
