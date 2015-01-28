@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Drivers\Mysql;
 use DateInterval;
 use mysqli;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IDriverException;
+use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Result\Result;
 
@@ -43,7 +43,7 @@ class MysqlDriver implements IDriver
 		$this->connection = new mysqli();
 
 		if (!$this->connection->real_connect($host, $params['username'], $params['password'], $dbname, $port, $socket, $flags)) {
-			throw new MysqlException(
+			throw new DriverException(
 				$this->connection->connect_error,
 				$this->connection->connect_errno,
 				@$this->connection->sqlstate ?: 'HY000'
@@ -71,7 +71,7 @@ class MysqlDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	public function convertException(IDriverException $exception)
+	public function convertException(DriverException $exception)
 	{
 		$message = $exception->getMessage();
 		$code = (int) $exception->getErrorCode();
@@ -104,7 +104,7 @@ class MysqlDriver implements IDriver
 	{
 		$result = $this->connection->query($query);
 		if ($this->connection->errno) {
-			throw new MysqlException(
+			throw new DriverException(
 				$this->connection->error,
 				$this->connection->errno,
 				$this->connection->sqlstate

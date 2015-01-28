@@ -6,13 +6,12 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Mysql;
+namespace Nextras\Dbal\Drivers;
 
 use Exception;
-use Nextras\Dbal\Drivers\IDriverException;
 
 
-class MysqlException extends Exception implements IDriverException
+class DriverException extends Exception
 {
 	/** @var int */
 	private $errorCode;

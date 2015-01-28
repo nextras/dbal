@@ -9,7 +9,7 @@
 namespace Nextras\Dbal;
 
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IDriverException;
+use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions\DbalException;
 use Nextras\Dbal\Exceptions\NotImplementedException;
 use Nextras\Dbal\Result\Result;
@@ -65,7 +65,7 @@ class Connection
 
 		try {
 			$this->driver->connect($this->config);
-		} catch (IDriverException $e) {
+		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
 
@@ -101,7 +101,7 @@ class Connection
 		try {
 			$result = $this->driver->nativeQuery($sql);
 
-		} catch (IDriverException $e) {
+		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
 
@@ -140,7 +140,7 @@ class Connection
 		$this->connect();
 		try {
 			return $this->driver->ping();
-		} catch (IDriverException $e) {
+		} catch (DriverException $e) {
 			return FALSE;
 		}
 	}

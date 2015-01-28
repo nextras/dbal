@@ -9,15 +9,14 @@
 namespace  Nextras\Dbal\Exceptions;
 
 use Exception;
-use Nextras\Dbal\Drivers\IDriverException;
+use Nextras\Dbal\Drivers\DriverException;
 
 
 class DbalException extends Exception
 {
 
-	public function __construct($message, IDriverException $exception = NULL)
+	public function __construct($message, DriverException $exception = NULL)
 	{
-		$exception = $exception instanceof Exception ? $exception : NULL;
 		parent::__construct($message, 0, $exception);
 	}
 
