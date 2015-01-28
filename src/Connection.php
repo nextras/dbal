@@ -9,7 +9,6 @@
 namespace Nextras\Dbal;
 
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriverException;
 use Nextras\Dbal\Exceptions\DbalException;
 use Nextras\Dbal\Exceptions\NotImplementedException;
@@ -36,9 +35,6 @@ class Connection
 	/** @var IDriver */
 	private $driver;
 
-	/** @var IDriverProvider */
-	private $driverProvider;
-
 	/** @var SqlProcessor */
 	private $sqlPreprocessor;
 
@@ -47,40 +43,47 @@ class Connection
 	{
 		$this->config = $config;
 
-		$provider = $config['driver'];
-		if (is_object($provider)) {
-			$this->driverProvider = $provider;
+		$driver = $config['driver'];
+		if (is_object($driver)) {
+			$this->driver = $driver;
+
 		} else {
-			$provider = ucfirst($provider);
-			$provider = "Nextras\\Dbal\\Drivers\\{$provider}\\{$provider}DriverProvider";
-			$this->driverProvider = new $provider;
+			$driver = ucfirst($driver);
+			$driver = "Nextras\\Dbal\\Drivers\\{$driver}\\{$driver}Driver";
+			$this->driver = new $driver;
 		}
+
+		$this->sqlPreprocessor = new SqlProcessor($this->driver);
 	}
 
 
 	public function connect()
 	{
-		if ($this->driver) {
+		if ($this->driver->isConnected()) {
 			return;
 		}
 
-		$this->driver = $this->driverProvider->connect($this->config, $this->config['username'], $this->config['password']);
-		$this->sqlPreprocessor = new SqlProcessor($this->driver);
+		try {
+			$this->driver->connect($this->config);
+		} catch (IDriverException $e) {
+			throw $this->driver->convertException($e->getMessage(), $e);
+		}
+
 		$this->fireEvent('onConnect', [$this]);
 	}
 
 
 	public function disconnect()
 	{
-		$this->driver = NULL;
-		$this->sqlPreprocessor = NULL;
+		$this->driver->disconnect();
 		$this->fireEvent('onDisconnect', [$this]);
 	}
 
 
 	public function reconnect()
 	{
-		throw new NotImplementedException();
+		$this->disconnect();
+		$this->connect();
 	}
 
 
@@ -99,7 +102,7 @@ class Connection
 			$result = $this->driver->nativeQuery($sql);
 
 		} catch (IDriverException $e) {
-			throw $this->driverProvider->convertException($e->getMessage(), $e);
+			throw $this->driver->convertException($e->getMessage(), $e);
 		}
 
 		$this->fireEvent('onAfterQuery', [$this, $sql, $result]);

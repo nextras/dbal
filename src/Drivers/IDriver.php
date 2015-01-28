@@ -8,6 +8,7 @@
 
 namespace Nextras\Dbal\Drivers;
 
+use Nextras\Dbal\Exceptions\DbalException;
 use Nextras\Dbal\Result\Result;
 
 
@@ -17,6 +18,36 @@ interface IDriver
 	const TYPE_STRING = 1;
 	const TYPE_BOOL = 2;
 	const TYPE_IDENTIFIER = 3;
+
+
+	/**
+	 * Connects the driver to database.
+	 * @param  array $params
+	 */
+	public function connect(array $params);
+
+
+	/**
+	 * Disconnects from the database.
+	 */
+	public function disconnect();
+
+
+	/**
+	 * Returns true, if there is created connection.
+	 * @return bool
+	 */
+	public function isConnected();
+
+
+	/**
+	 * Converts IDriverException to exception representing the database error.
+	 *
+	 * @param  string           $message
+	 * @param  IDriverException $exception
+	 * @return DbalException
+	 */
+	public function convertException($message, IDriverException $exception);
 
 
 	/**

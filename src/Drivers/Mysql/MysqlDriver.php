@@ -11,8 +11,8 @@ namespace Nextras\Dbal\Drivers\Mysql;
 use DateInterval;
 use mysqli;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
-use Nextras\Dbal\Exceptions\NotSupportedException;
+use Nextras\Dbal\Drivers\IDriverException;
+use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Result\Result;
 
 
@@ -25,7 +25,13 @@ class MysqlDriver implements IDriver
 	private $connection;
 
 
-	public function __construct(array $params, $username, $password)
+	public function __destruct()
+	{
+		$this->disconnect();
+	}
+
+
+	public function connect(array $params)
 	{
 		$host   = isset($params['host']) ? $params['host'] : ini_get('mysqli.default_host');
 		$port   = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
@@ -36,7 +42,7 @@ class MysqlDriver implements IDriver
 
 		$this->connection = new mysqli();
 
-		if (!$this->connection->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
+		if (!$this->connection->real_connect($host, $params['username'], $params['password'], $dbname, $port, $socket, $flags)) {
 			throw new MysqlException(
 				$this->connection->connect_error,
 				$this->connection->connect_errno,
@@ -48,9 +54,41 @@ class MysqlDriver implements IDriver
 	}
 
 
-	public function __destruct()
+	public function disconnect()
 	{
 		$this->connection->close();
+		$this->connection = NULL;
+	}
+
+
+	public function isConnected()
+	{
+		return $this->connection !== NULL;
+	}
+
+
+	/**
+	 * This method is based on Doctrine\DBAL project.
+	 * @link www.doctrine-project.org
+	 */
+	public function convertException($message, IDriverException $exception)
+	{
+		$code = (int) $exception->getErrorCode();
+		if (in_array($code, [1216, 1217, 1451, 1452, 1701], TRUE)) {
+			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);
+
+		} elseif (in_array($code, [1062, 1557, 1569, 1586], TRUE)) {
+			return new Exceptions\UniqueConstraintViolationException($message, $exception);
+
+		} elseif (in_array($code, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], TRUE)) {
+			return new Exceptions\ConnectionException($message, $exception);
+
+		} elseif (in_array($code, [1048, 1121, 1138, 1171, 1252, 1263, 1566], TRUE)) {
+			return new Exceptions\NotNullConstraintViolationException($message, $exception);
+
+		} else {
+			return new Exceptions\DbalException($message, $exception);
+		}
 	}
 
 
@@ -125,7 +163,7 @@ class MysqlDriver implements IDriver
 			return $value;
 
 		} else {
-			throw new NotSupportedException("MysqlDriverProvider does not support '{$nativeType}' type conversion.");
+			throw new Exceptions\NotSupportedException("MysqlDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 
@@ -143,7 +181,7 @@ class MysqlDriver implements IDriver
 				return '`' . str_replace('`', '``', $value) . '`';
 
 			default:
-				throw new InvalidArgumentException();
+				throw new Exceptions\InvalidArgumentException();
 		}
 	}
 
