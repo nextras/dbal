@@ -26,7 +26,7 @@ class DriverException extends Exception
 	 * @param string    $errorSqlState
 	 * @param Exception $previousException
 	 */
-	public function __construct($message, $errorCode, $errorSqlState, $previousException = NULL)
+	public function __construct($message, $errorCode = 0, $errorSqlState = '', $previousException = NULL)
 	{
 		parent::__construct($message, 0, $previousException);
 		$this->errorCode = (int) $errorCode;
