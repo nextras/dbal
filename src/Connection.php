@@ -87,6 +87,12 @@ class Connection
 	}
 
 
+	public function getDriver()
+	{
+		return $this->driver;
+	}
+
+
 	/**
 	 * @param  string $query
 	 * @return Result
