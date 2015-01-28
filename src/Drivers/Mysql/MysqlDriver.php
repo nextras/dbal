@@ -71,8 +71,9 @@ class MysqlDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	public function convertException($message, IDriverException $exception)
+	public function convertException(IDriverException $exception)
 	{
+		$message = $exception->getMessage();
 		$code = (int) $exception->getErrorCode();
 		if (in_array($code, [1216, 1217, 1451, 1452, 1701], TRUE)) {
 			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);

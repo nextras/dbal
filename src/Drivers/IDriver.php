@@ -42,12 +42,10 @@ interface IDriver
 
 	/**
 	 * Converts IDriverException to exception representing the database error.
-	 *
-	 * @param  string           $message
 	 * @param  IDriverException $exception
 	 * @return DbalException
 	 */
-	public function convertException($message, IDriverException $exception);
+	public function convertException(IDriverException $exception);
 
 
 	/**

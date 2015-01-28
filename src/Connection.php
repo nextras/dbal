@@ -66,7 +66,7 @@ class Connection
 		try {
 			$this->driver->connect($this->config);
 		} catch (IDriverException $e) {
-			throw $this->driver->convertException($e->getMessage(), $e);
+			throw $this->driver->convertException($e);
 		}
 
 		$this->fireEvent('onConnect', [$this]);
@@ -102,7 +102,7 @@ class Connection
 			$result = $this->driver->nativeQuery($sql);
 
 		} catch (IDriverException $e) {
-			throw $this->driver->convertException($e->getMessage(), $e);
+			throw $this->driver->convertException($e);
 		}
 
 		$this->fireEvent('onAfterQuery', [$this, $sql, $result]);
