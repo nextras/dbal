@@ -18,9 +18,6 @@ use Nextras\Dbal\Result\Result;
 
 class MysqlDriver implements IDriver
 {
-	/** @const name of key in params for passing flags to connection */
-	const PARAMS_FLAGS = 'flags';
-
 	/** @var mysqli */
 	private $connection;
 
@@ -38,7 +35,7 @@ class MysqlDriver implements IDriver
 		$port   = $port ?: 3306;
 		$dbname = isset($params['dbname']) ? $params['dbname'] : NULL;
 		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
-		$flags  = isset($params[self::PARAMS_FLAGS]) ? $params[self::PARAMS_FLAGS] : 0;
+		$flags  = isset($params['flags']) ? $params['flags'] : 0;
 
 		$this->connection = new mysqli();
 
