@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * This file is part of the Nextras\Dbal library.
+ * @license    MIT
+ * @link       https://github.com/nextras/dbal
+ */
+
+namespace Nextras\Dbal\Drivers\Postgre;
+
+use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Drivers\DriverException;
+use Nextras\Dbal\Exceptions;
+use Nextras\Dbal\Result\Result;
+
+
+class PostgreDriver implements IDriver
+{
+	/** @var resource */
+	private $connection;
+
+
+	public function __destruct()
+	{
+		$this->disconnect();
+	}
+
+
+	public function connect(array $params)
+	{
+		static $knownKeys = [
+			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
+			'connect_timeout', 'options', 'sslmode', 'service',
+		];
+
+		$connectionString = '';
+		foreach ($knownKeys as $key) {
+			if (isset($params[$key])) {
+				$connectionString .= $key . '=' . $params[$key] . ' ';
+			}
+		}
+
+		set_error_handler(function($code, $message) {
+			restore_error_handler();
+			throw new DriverException($message, $code);
+		}, E_ALL);
+
+		$this->connection = pg_connect($connectionString, PGSQL_CONNECT_FORCE_NEW);
+
+		restore_error_handler();
+	}
+
+
+	public function disconnect()
+	{
+		@pg_close($this->connection);
+		$this->connection = NULL;
+	}
+
+
+	public function isConnected()
+	{
+		return $this->connection !== NULL;
+	}
+
+
+	/**
+	 * This method is based on Doctrine\DBAL project.
+	 * @link www.doctrine-project.org
+	 */
+	public function convertException(DriverException $exception)
+	{
+		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
+
+		$message = $exception->getMessage();
+		$code = (string) $exception->getErrorSQLState();
+		if ($code === '0A000' && strpos($message, 'truncate') !== FALSE) {
+			// Foreign key constraint violations during a TRUNCATE operation
+			// are considered "feature not supported" in PostgreSQL.
+			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);
+
+		} elseif ($code === '23502') {
+			return new Exceptions\NotNullConstraintViolationException($message, $exception);
+
+		} elseif ($code === '23503') {
+			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);
+
+		} elseif ($code === '23505') {
+			return new Exceptions\UniqueConstraintViolationException($message, $exception);
+
+		} elseif ($code === '' && stripos($message, 'pg_connect()') !== FALSE) {
+			return new Exceptions\ConnectionException($message, $exception);
+
+		} else {
+			return new Exceptions\DbalException($message, $exception);
+		}
+	}
+
+
+	public function getResourceHandle()
+	{
+		return $this->connection;
+	}
+
+
+	public function nativeQuery($query)
+	{
+		if (!pg_send_query($this->connection, $query)) {
+			throw new DriverException(pg_last_error($this->connection));
+		}
+
+		$resource = pg_get_result($this->connection);
+		if ($resource === FALSE) {
+			throw new DriverException(pg_last_error($this->connection));
+		}
+
+		$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
+		if ($state !== NULL) {
+			throw new DriverException(pg_result_error($resource), 0, $state);
+		}
+
+		return new Result(new PostgreResultAdapter($resource), $this);
+	}
+
+
+	public function getLastInsertedId($sequenceName = NULL)
+	{
+		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
+		return $this->nativeQuery($sql)->fetchField();
+	}
+
+
+	public function getServerVersion()
+	{
+		$version = pg_version($this->connection);
+		return $version['server'];
+	}
+
+
+	public function ping()
+	{
+		return pg_ping($this->connection);
+	}
+
+
+	public function convertToPhp($value, $nativeType)
+	{
+		throw new Exceptions\NotSupportedException("PostgreDriver does not support '{$nativeType}' type conversion.");
+	}
+
+
+	public function convertToSql($value, $type)
+	{
+		switch ($type) {
+			case self::TYPE_STRING:
+				return pg_escape_literal($value);
+
+			case self::TYPE_BOOL:
+				return $value ? '1' : '0';
+
+			case self::TYPE_IDENTIFIER:
+				return pg_escape_identifier($value);
+
+			default:
+				throw new Exceptions\InvalidArgumentException();
+		}
+	}
+
+
+	public function modifyLimitQuery($query, $limit, $offset)
+	{
+		if ($limit !== NULL) {
+			$query .= ' LIMIT ' . (int) $limit;
+		}
+		if ($offset !== NULL) {
+			$query .= ' OFFSET ' . (int) $offset;
+		}
+		return $query;
+	}
+
+}
