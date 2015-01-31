@@ -53,8 +53,10 @@ class MysqlDriver implements IDriver
 
 	public function disconnect()
 	{
-		$this->connection->close();
-		$this->connection = NULL;
+		if ($this->connection) {
+			$this->connection->close();
+			$this->connection = NULL;
+		}
 	}
 
 

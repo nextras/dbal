@@ -53,8 +53,10 @@ class PostgreDriver implements IDriver
 
 	public function disconnect()
 	{
-		@pg_close($this->connection);
-		$this->connection = NULL;
+		if ($this->connection) {
+			pg_close($this->connection);
+			$this->connection = NULL;
+		}
 	}
 
 
