@@ -29,7 +29,7 @@ final class Row implements IteratorAggregate
 	public function __get($name)
 	{
 		if (!(isset($this->data[$name]) || array_key_exists($name, $this->data))) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException("Undefined property '{$name}'.");
 		}
 
 		return $this->data[$name];

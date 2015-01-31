@@ -35,7 +35,7 @@ class RowTest extends TestCase
 
 		Assert::throws(function() use ($row) {
 			$row->NAME;
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException');
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', "Undefined property 'NAME'.");
 
 		Assert::throws(function() use ($row) {
 			$row->NAME = 'Peter';
