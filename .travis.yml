@@ -13,5 +13,10 @@ after_failure:
     - for i in $(find tests -name \*.log); do echo "--- $i"; cat $i; echo; echo; done
 
 before_script:
-    # Install Nette Tester
     - composer install --no-interaction --dev --prefer-source
+
+    - cp ./tests/databases.sample.ini ./tests/databases.ini
+    - cp ./tests/php.unix-sample.ini ./tests/php.ini
+
+    - psql -c 'CREATE DATABASE nextras_dbal_test' -U postgres
+    - mysql -e 'CREATE DATABASE nextras_dbal_test;'
