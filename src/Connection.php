@@ -95,7 +95,7 @@ class Connection
 
 	/**
 	 * @param  string $query
-	 * @return Result
+	 * @return Result|NULL
 	 * @throws DbalException
 	 */
 	public function query($query)

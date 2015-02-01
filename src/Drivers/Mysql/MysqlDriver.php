@@ -110,6 +110,10 @@ class MysqlDriver implements IDriver
 			);
 		}
 
+		if ($result === TRUE) {
+			return NULL;
+		}
+
 		return new Result(new MysqlResultAdapter($result), $this);
 	}
 

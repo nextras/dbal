@@ -56,9 +56,9 @@ interface IDriver
 
 
 	/**
-	 * Runs query and returns the result.
+	 * Runs query and returns the result. Returns NULL if query does not select data.
 	 * @param  string $query
-	 * @return Result
+	 * @return Result|NULL
 	 */
 	public function nativeQuery($query);
 
