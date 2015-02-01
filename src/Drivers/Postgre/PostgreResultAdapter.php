@@ -14,6 +14,29 @@ use Nextras\Dbal\Exceptions\DbalException;
 
 class PostgreResultAdapter implements IResultAdapter
 {
+	/**
+	 * @var array
+	 * @see http://www.postgresql.org/docs/9.4/static/datatype.html
+	 */
+	protected static $types = [
+		'bool'        => self::TYPE_DRIVER_SPECIFIC,
+		'bit'         => self::TYPE_DRIVER_SPECIFIC,
+		'varbit'      => self::TYPE_DRIVER_SPECIFIC,
+		'bytea'       => self::TYPE_DRIVER_SPECIFIC,
+		'interval'    => self::TYPE_DRIVER_SPECIFIC,
+
+		'int8'        => self::TYPE_INT,
+		'int4'        => self::TYPE_INT,
+		'int2'        => self::TYPE_INT,
+
+		'numeric'     => self::TYPE_FLOAT,
+		'float4'      => self::TYPE_FLOAT,
+		'float8'      => self::TYPE_FLOAT,
+
+		'timetz'      => self::TYPE_DATETIME,
+		'timestamptz' => self::TYPE_DATETIME,
+	];
+
 	/** @var resource */
 	private $result;
 
@@ -52,7 +75,7 @@ class PostgreResultAdapter implements IResultAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$nativeType = pg_field_type($this->result, $i);
 			$types[pg_field_name($this->result, $i)] = [
-				0 => self::TYPE_STRING,
+				0 => isset(self::$types[$nativeType]) ? self::$types[$nativeType] : self::TYPE_STRING,
 				1 => $nativeType,
 			];
 		}

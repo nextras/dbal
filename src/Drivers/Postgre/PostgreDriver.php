@@ -8,6 +8,7 @@
 
 namespace Nextras\Dbal\Drivers\Postgre;
 
+use DateInterval;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
@@ -147,7 +148,23 @@ class PostgreDriver implements IDriver
 
 	public function convertToPhp($value, $nativeType)
 	{
-		throw new Exceptions\NotSupportedException("PostgreDriver does not support '{$nativeType}' type conversion.");
+		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
+
+		if ($nativeType === 'bool') {
+			return in_array(strtolower($value), $trues, TRUE);
+
+		} elseif ($nativeType === 'interval') {
+			return DateInterval::createFromDateString($value);
+
+		} elseif ($nativeType === 'bit' || $nativeType === 'varbit') {
+			return bindec($value);
+
+		} elseif ($nativeType === 'bytea') {
+			return pg_unescape_bytea($value);
+
+		} else {
+			throw new Exceptions\NotSupportedException("PostgreDriver does not support '{$nativeType}' type conversion.");
+		}
 	}
 
 
