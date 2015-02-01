@@ -153,7 +153,7 @@ class MysqlDriver implements IDriver
 		$this->connection->set_charset($charset);
 
 		if (isset($params['sqlMode'])) {
-			$this->nativeQuery('SET sql_mode = \'' . $this->connection->escape_string($params['sqlMode']) . '\'');
+			$this->nativeQuery('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
 		}
 	}
 
