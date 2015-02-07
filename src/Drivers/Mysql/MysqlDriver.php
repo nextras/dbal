@@ -9,6 +9,8 @@
 namespace Nextras\Dbal\Drivers\Mysql;
 
 use DateInterval;
+use DateTime;
+use DateTimeZone;
 use mysqli;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
@@ -20,6 +22,12 @@ class MysqlDriver implements IDriver
 {
 	/** @var mysqli */
 	private $connection;
+
+	/** @var DateTimeZone Timezone for columns without timezone handling (datetime). */
+	private $simpleStorageTz;
+
+	/** @var DateTimeZone Timezone for database connection. */
+	private $connectionTz;
 
 
 	public function __destruct()
@@ -155,6 +163,10 @@ class MysqlDriver implements IDriver
 		if (isset($params['sqlMode'])) {
 			$this->nativeQuery('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
 		}
+
+		$this->simpleStorageTz = new DateTimeZone(isset($params['simple_storage_tz']) ? $params['simple_storage_tz'] : 'UTC');
+		$this->connectionTz = new DateTimeZone(isset($params['connection_tz']) ? $params['connection_tz'] : date_default_timezone_get());
+		$this->nativeQuery('SET time_zone = ' . $this->convertToSql($this->connectionTz->getName(), self::TYPE_STRING));
 	}
 
 
@@ -165,6 +177,12 @@ class MysqlDriver implements IDriver
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
 			$value->invert = $m[1] ? 1 : 0;
 			return $value;
+
+		} elseif ($nativeType === MYSQLI_TYPE_DATE || $nativeType === MYSQLI_TYPE_DATETIME) {
+			return new DateTime($value . ' ' . $this->simpleStorageTz->getName());
+
+		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
+			return new DateTime($value . ' ' . $this->connectionTz->getName());
 
 		} else {
 			throw new Exceptions\NotSupportedException("MysqlDriver does not support '{$nativeType}' type conversion.");
@@ -183,6 +201,20 @@ class MysqlDriver implements IDriver
 
 			case self::TYPE_IDENTIFIER:
 				return '`' . str_replace('`', '``', $value) . '`';
+
+			case self::TYPE_DATETIME:
+				if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
+					$value = clone $value;
+					$value->setTimezone($this->connectionTz);
+				}
+				return "'" . $value->format('Y-m-d H:i:s') . "'";
+
+			case self::TYPE_DATETIME_SIMPLE:
+				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
+					$value = clone $value;
+					$value->setTimeZone($this->simpleStorageTz);
+				}
+				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
 			default:
 				throw new Exceptions\InvalidArgumentException();

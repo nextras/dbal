@@ -9,6 +9,8 @@
 namespace Nextras\Dbal\Drivers\Postgre;
 
 use DateInterval;
+use DateTime;
+use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
@@ -19,6 +21,12 @@ class PostgreDriver implements IDriver
 {
 	/** @var resource */
 	private $connection;
+
+	/** @var DateTimeZone Timezone for columns without timezone handling (timestamp, datetime, time). */
+	private $simpleStorageTz;
+
+	/** @var DateTimeZone Timezone for database connection. */
+	private $connectionTz;
 
 
 	public function __destruct()
@@ -49,6 +57,10 @@ class PostgreDriver implements IDriver
 		$this->connection = pg_connect($connectionString, PGSQL_CONNECT_FORCE_NEW);
 
 		restore_error_handler();
+
+		$this->simpleStorageTz = new DateTimeZone(isset($params['simple_storage_tz']) ? $params['simple_storage_tz'] : 'UTC');
+		$this->connectionTz = new DateTimeZone(isset($params['connection_tz']) ? $params['connection_tz'] : date_default_timezone_get());
+		$this->nativeQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
 	}
 
 
@@ -153,6 +165,9 @@ class PostgreDriver implements IDriver
 		if ($nativeType === 'bool') {
 			return in_array(strtolower($value), $trues, TRUE);
 
+		} elseif ($nativeType === 'time' || $nativeType === 'date' || $nativeType === 'timestamp') {
+			return new DateTime($value . ' ' . $this->simpleStorageTz->getName());
+
 		} elseif ($nativeType === 'interval') {
 			return DateInterval::createFromDateString($value);
 
@@ -179,6 +194,16 @@ class PostgreDriver implements IDriver
 
 			case self::TYPE_IDENTIFIER:
 				return pg_escape_identifier($value);
+
+			case self::TYPE_DATETIME:
+				return "'" . $value->format('Y-m-d H:i:sP') . "'";
+
+			case self::TYPE_DATETIME_SIMPLE:
+				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
+					$value = clone $value;
+					$value->setTimezone($this->simpleStorageTz);
+				}
+				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
 			default:
 				throw new Exceptions\InvalidArgumentException();

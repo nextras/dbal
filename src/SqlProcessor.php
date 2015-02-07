@@ -108,6 +108,12 @@ class SqlProcessor
 		} elseif ($type === 'f') {
 			return rtrim(rtrim(number_format($value, 10, '.', ''), '0'), '.');
 
+		} elseif ($type === 'dt') {
+			return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
+
+		} elseif ($type === 'dts') {
+			return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
+
 		} else {
 			throw new InvalidArgumentException("Unknown modifier '%{$type}'.");
 		}

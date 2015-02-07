@@ -18,6 +18,9 @@ class MysqlResultAdapter implements IResultAdapter
 	/** @var array */
 	protected static $types = [
 		MYSQLI_TYPE_TIME        => self::TYPE_DRIVER_SPECIFIC,
+		MYSQLI_TYPE_DATE        => self::TYPE_DRIVER_SPECIFIC,
+		MYSQLI_TYPE_DATETIME    => self::TYPE_DRIVER_SPECIFIC,
+		MYSQLI_TYPE_TIMESTAMP   => self::TYPE_DRIVER_SPECIFIC,
 
 		MYSQLI_TYPE_BLOB        => self::TYPE_STRING,
 		MYSQLI_TYPE_TINY_BLOB   => self::TYPE_STRING,
@@ -45,10 +48,6 @@ class MysqlResultAdapter implements IResultAdapter
 		MYSQLI_TYPE_NEWDECIMAL  => self::TYPE_FLOAT,
 		MYSQLI_TYPE_DOUBLE      => self::TYPE_FLOAT,
 		MYSQLI_TYPE_FLOAT       => self::TYPE_FLOAT,
-
-		MYSQLI_TYPE_DATE        => self::TYPE_DATETIME,
-		MYSQLI_TYPE_DATETIME    => self::TYPE_DATETIME,
-		MYSQLI_TYPE_TIMESTAMP   => self::TYPE_DATETIME,
 	];
 
 	/** @var mysqli_result */

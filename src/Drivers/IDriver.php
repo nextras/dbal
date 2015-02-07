@@ -14,10 +14,11 @@ use Nextras\Dbal\Result\Result;
 
 interface IDriver
 {
-	/** @const data types, which driver converts to sql */
-	const TYPE_STRING = 1;
-	const TYPE_BOOL = 2;
-	const TYPE_IDENTIFIER = 3;
+	const TYPE_BOOL = 1;
+	const TYPE_DATETIME = 2;
+	const TYPE_DATETIME_SIMPLE = 3;
+	const TYPE_IDENTIFIER = 4;
+	const TYPE_STRING = 5;
 
 
 	/**
