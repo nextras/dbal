@@ -34,7 +34,7 @@ class MysqlDriver implements IDriver
 		$port   = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
 		$port   = $port ?: 3306;
 		$dbname = isset($params['dbname']) ? $params['dbname'] : NULL;
-		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
+		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : (ini_get('mysqli.default_socket') ?: NULL);
 		$flags  = isset($params['flags']) ? $params['flags'] : 0;
 
 		$this->connection = new mysqli();
