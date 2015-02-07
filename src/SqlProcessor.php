@@ -8,14 +8,13 @@
 
 namespace  Nextras\Dbal;
 
-use Nextras\Dbal\Drivers\IDriverProvider;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
 
 
 class SqlProcessor
 {
-	/** @var IDriverProvider */
+	/** @var IDriver */
 	private $driver;
 
 
