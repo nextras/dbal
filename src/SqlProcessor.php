@@ -71,7 +71,7 @@ class SqlProcessor
 	{
 		$len = strlen($type);
 
-		if (isset($type[$len-2]) && $type[$len-2] === '[' && $type[$len-1] === ']') {
+		if ($type[$len-1] === ']') {
 			if ($type === 'values[]') {
 				return $this->processValueMultiValues($value);
 			} else {
