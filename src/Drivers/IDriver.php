@@ -99,7 +99,7 @@ interface IDriver
 	 * Converts php value to database value.
 	 * @param  mixed $value
 	 * @param  mixed $type
-	 * @return mixed
+	 * @return string
 	 */
 	public function convertToSql($value, $type);
 
