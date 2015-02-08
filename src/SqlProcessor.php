@@ -43,7 +43,7 @@ class SqlProcessor
 			$i = $j;
 			$query .= ($i ? ' ' : '');
 			$query .= preg_replace_callback(
-				'#%(\w++\??+(?:\[\])?+)|\[(.+?)\]#', // %modifier | [identifier]
+				'#%(\w++\??+(?:\[\]){0,2}+)|\[(.+?)\]#', // %modifier | [identifier]
 				function ($matches) use ($args, &$j, $last) {
 					if ($matches[1] !== '') {
 						if ($j === $last) {

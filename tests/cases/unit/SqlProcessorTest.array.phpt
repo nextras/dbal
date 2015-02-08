@@ -41,6 +41,19 @@ class SqlProcessorArrayTest extends TestCase
 	}
 
 
+	public function testWhereTuplets()
+	{
+		Assert::same(
+			"SELECT 1 FROM foo WHERE (a, b) IN ((1, 2), (3, 4), (5, 6))",
+			$this->convert('SELECT 1 FROM foo WHERE (a, b) IN %i[][]', [
+				[1, 2],
+				[3, 4],
+				[5, 6],
+			])
+		);
+	}
+
+
 	private function convert($sql)
 	{
 		return $this->parser->process(func_get_args());
