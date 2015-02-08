@@ -73,7 +73,7 @@ class SqlProcessor
 
 		if (isset($type[$len-2]) && $type[$len-2] === '[' && $type[$len-1] === ']') {
 			if ($type === 'values[]') {
-				return $this->processValueValues($value, TRUE);
+				return $this->processValueMultiValues($value);
 			} else {
 				return $this->processValueArray($value, $type);
 			}
@@ -85,7 +85,7 @@ class SqlProcessor
 			return $this->processValueSet($value);
 
 		} elseif ($type === 'values') {
-			return $this->processValueValues($value, FALSE);
+			return $this->processValueValues($value);
 
 		} elseif ($type === 'and' || $type === 'or') {
 			return $this->processValueWhere($value, $type);
@@ -152,36 +152,36 @@ class SqlProcessor
 	}
 
 
-	private function processValueValues($value, $isMultiInsert = FALSE)
+	private function processValueMultiValues($value)
 	{
 		$keys = $values = [];
-
-		if ($isMultiInsert) {
-			foreach ($value[0] as $_key => $val) {
-				$key = explode('%', $_key, 2);
-				$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
-			}
-			foreach ($value as $subValue) {
-				$subValues = [];
-				foreach ($subValue as $_key => $val) {
-					$key = explode('%', $_key, 2);
-					$subValues[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
-				}
-				$values[] = '(' . implode(', ', $subValues) . ')';
-			}
-
-			return '(' . implode(', ', $keys) . ') VALUES ' . implode(', ', $values);
-
-
-		} else {
-			foreach ($value as $_key => $val) {
-				$key = explode('%', $_key, 2);
-				$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
-				$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
-			}
-
-			return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
+		foreach ($value[0] as $_key => $val) {
+			$key = explode('%', $_key, 2);
+			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
 		}
+		foreach ($value as $subValue) {
+			$subValues = [];
+			foreach ($subValue as $_key => $val) {
+				$key = explode('%', $_key, 2);
+				$subValues[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+			}
+			$values[] = '(' . implode(', ', $subValues) . ')';
+		}
+
+		return '(' . implode(', ', $keys) . ') VALUES ' . implode(', ', $values);
+	}
+
+
+	private function processValueValues($value)
+	{
+		$keys = $values = [];
+		foreach ($value as $_key => $val) {
+			$key = explode('%', $_key, 2);
+			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+			$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+		}
+
+		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
 	}
 
 
