@@ -22,19 +22,6 @@ class MysqlResultAdapter implements IResultAdapter
 		MYSQLI_TYPE_DATETIME    => self::TYPE_DRIVER_SPECIFIC,
 		MYSQLI_TYPE_TIMESTAMP   => self::TYPE_DRIVER_SPECIFIC,
 
-		MYSQLI_TYPE_BLOB        => self::TYPE_STRING,
-		MYSQLI_TYPE_TINY_BLOB   => self::TYPE_STRING,
-		MYSQLI_TYPE_MEDIUM_BLOB => self::TYPE_STRING,
-		MYSQLI_TYPE_LONG_BLOB   => self::TYPE_STRING,
-
-		MYSQLI_TYPE_CHAR        => self::TYPE_STRING,
-		MYSQLI_TYPE_ENUM        => self::TYPE_STRING,
-		MYSQLI_TYPE_GEOMETRY    => self::TYPE_STRING,
-		MYSQLI_TYPE_NEWDATE     => self::TYPE_STRING,
-		MYSQLI_TYPE_SET         => self::TYPE_STRING,
-		MYSQLI_TYPE_STRING      => self::TYPE_STRING,
-		MYSQLI_TYPE_VAR_STRING  => self::TYPE_STRING,
-
 		MYSQLI_TYPE_BIT         => self::TYPE_INT, // returned as int
 		MYSQLI_TYPE_INT24       => self::TYPE_INT,
 		MYSQLI_TYPE_INTERVAL    => self::TYPE_INT,
