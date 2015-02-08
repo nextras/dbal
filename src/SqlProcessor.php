@@ -86,6 +86,9 @@ class SqlProcessor
 
 		} elseif ($type === 'values') {
 			return $this->processValueValues($value, FALSE);
+
+		} elseif ($type === 'and' || $type === 'or') {
+			return $this->processValueWhere($value, $type);
 		}
 
 
@@ -179,6 +182,19 @@ class SqlProcessor
 
 			return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
 		}
+	}
+
+
+	private function processValueWhere($value, $type)
+	{
+		$values = [];
+		foreach ($value as $_key => $val) {
+			$key = explode('%', $_key, 2);
+			$values[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
+				. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+		}
+
+		return implode($type === 'and' ? ' AND ' : ' OR ', $values);
 	}
 
 }
