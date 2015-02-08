@@ -57,6 +57,9 @@ class MysqlResultAdapter implements IResultAdapter
 	public function __construct(mysqli_result $result)
 	{
 		$this->result = $result;
+		if (defined('HHVM_VERSION')) {
+			self::$types[MYSQLI_TYPE_BIT] = self::TYPE_DRIVER_SPECIFIC;
+		}
 	}
 
 

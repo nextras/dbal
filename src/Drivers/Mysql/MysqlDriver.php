@@ -184,6 +184,10 @@ class MysqlDriver implements IDriver
 		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
 			return new DateTime($value . ' ' . $this->connectionTz->getName());
 
+		} elseif ($nativeType === MYSQLI_TYPE_BIT) {
+			// called only under HHVM
+			return ord($value);
+
 		} else {
 			throw new Exceptions\NotSupportedException("MysqlDriver does not support '{$nativeType}' type conversion.");
 		}
