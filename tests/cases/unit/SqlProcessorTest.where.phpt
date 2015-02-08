@@ -35,18 +35,19 @@ class SqlProcessorWhereTest extends TestCase
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
 		$this->driver->shouldReceive('convertToSql')->once()->with('bar', IDriver::TYPE_IDENTIFIER)->andReturn('bar');
 		$this->driver->shouldReceive('convertToSql')->once()->with('baz', IDriver::TYPE_IDENTIFIER)->andReturn('baz');
+		$this->driver->shouldReceive('convertToSql')->once()->with('bax', IDriver::TYPE_IDENTIFIER)->andReturn('bax');
 
-		$this->driver->shouldReceive('convertToSql')->once()->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
 		$this->driver->shouldReceive('convertToSql')->once()->with(1, IDriver::TYPE_STRING)->andReturn("'1'");
-		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_STRING)->andReturn("'a'");
+		$this->driver->shouldReceive('convertToSql')->twice()->with('a', IDriver::TYPE_STRING)->andReturn("'a'");
 
 		Assert::same(
-			"SELECT 1 FROM foo WHERE id = 1 AND foo = '2' AND bar IS NULL AND baz IN ('1', 'a')",
+			"SELECT 1 FROM foo WHERE id = 1 AND foo = 2 AND bar IS NULL AND baz IN ('1', 'a') AND bax IN (1, 'a')",
 			$this->convert('SELECT 1 FROM foo WHERE %and', [
-				'id%i' => 1,
+				'id%i' => '1',
 				'foo' => 2,
 				'bar%s?' => NULL,
-				'baz%s[]' => [1, 'a']
+				'baz%s[]' => [1, 'a'],
+				'bax%any[]' => [1, 'a'],
 			])
 		);
 	}

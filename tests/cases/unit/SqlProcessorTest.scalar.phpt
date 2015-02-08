@@ -21,6 +21,7 @@ class SqlProcessorScalarTest extends TestCase
 		$driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 		$driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
 		$driver->shouldReceive('convertToSql')->once()->with(10, IDriver::TYPE_BOOL)->andReturn('1');
+		$driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_STRING)->andReturn("'a'");
 		$this->parser = new SqlProcessor($driver);
 	}
 
@@ -55,6 +56,11 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same(
 			'SELECT FROM test WHERE price = 1.323',
 			$this->convert('SELECT FROM test WHERE price = %f', '01.3230')
+		);
+
+		Assert::same(
+			"SELECT FROM test WHERE a = 1.323 AND b IN (1, 'a')",
+			$this->convert('SELECT FROM test WHERE a = %any AND b IN %any', 1.323, [1, 'a'])
 		);
 
 		Assert::throws(function() {

@@ -35,10 +35,9 @@ class SqlProcessorValuesTest extends TestCase
 		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
 		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
-		$this->driver->shouldReceive('convertToSql')->once()->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
 
 		Assert::same(
-			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', '2')",
+			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', 2)",
 			$this->convert('INSERT INTO test %values', [
 				'id%i' => 1,
 				'title%s' => "'foo'",
@@ -55,12 +54,10 @@ class SqlProcessorValuesTest extends TestCase
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
 
 		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$this->driver->shouldReceive('convertToSql')->once()->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
 		$this->driver->shouldReceive('convertToSql')->once()->with("'foo2'", IDriver::TYPE_STRING)->andReturn("'\\'foo2\\''");
-		$this->driver->shouldReceive('convertToSql')->once()->with(3, IDriver::TYPE_STRING)->andReturn("'3'");
 
 		Assert::same(
-			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', '2'), (2, '\\'foo2\\'', '3')",
+			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', 2), (2, '\\'foo2\\'', 3)",
 			$this->convert('INSERT INTO test %values[]', [
 				[
 					'id%i' => 1,

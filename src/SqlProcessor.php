@@ -69,8 +69,11 @@ class SqlProcessor
 
 	protected function processValue($value, $type)
 	{
-		$len = strlen($type);
+		if ($type === 'any') {
+			$type = $this->getValueModifier($value);
+		}
 
+		$len = strlen($type);
 		if ($type[$len-1] === ']') {
 			if ($type === 'values[]') {
 				return $this->processValueMultiValues($value);
@@ -90,7 +93,6 @@ class SqlProcessor
 		} elseif ($type === 'and' || $type === 'or') {
 			return $this->processValueWhere($value, $type);
 		}
-
 
 		$isNullable = $type[$len-1] === '?';
 		if ($isNullable) {
@@ -145,7 +147,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$values[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
-				. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+				. $this->processValue($val, isset($key[1]) ? $key[1] : $this->getValueModifier($val));
 		}
 
 		return implode(', ', $values);
@@ -163,7 +165,7 @@ class SqlProcessor
 			$subValues = [];
 			foreach ($subValue as $_key => $val) {
 				$key = explode('%', $_key, 2);
-				$subValues[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+				$subValues[] = $this->processValue($val, isset($key[1]) ? $key[1] : $this->getValueModifier($val));
 			}
 			$values[] = '(' . implode(', ', $subValues) . ')';
 		}
@@ -178,7 +180,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
-			$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+			$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : $this->getValueModifier($val));
 		}
 
 		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
@@ -199,7 +201,7 @@ class SqlProcessor
 				$key = explode('%', $_key, 2);
 				$exp = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
 
-				$modifier = isset($key[1]) ? $key[1] : 's';
+				$modifier = isset($key[1]) ? $key[1] : $this->getValueModifier($val);
 				$len = strlen($modifier);
 				if ($modifier[$len - 1] === '?' && $val === NULL) {
 					$exp .= ' IS ';
@@ -215,6 +217,28 @@ class SqlProcessor
 		}
 
 		return implode($type === 'and' ? ' AND ' : ' OR ', $values);
+	}
+
+
+	private function getValueModifier($value)
+	{
+		if ($value === NULL) {
+			return 'any?';
+		} elseif (is_array($value)) {
+			return 'any[]';
+		} elseif (is_string($value)) {
+			return 's';
+		} elseif (is_bool($value)) {
+			return 'b';
+		} elseif (is_int($value)) {
+			return 'i';
+		} elseif (is_float($value)) {
+			return 'f';
+		} elseif ($value instanceof \DateTime) {
+			return 'dt';
+		} else {
+			return 's';
+		}
 	}
 
 }
