@@ -141,7 +141,7 @@ class Result implements Iterator
 					$value = rtrim(rtrim($pointPos === 0 ? "0{$value}" : $value, '.'), '0');
 				}
 				$float = (float) $value;
-				$data[$key] = number_format($float, strlen($value) - $pointPos - 1, '.', '') === $value ? $float : $value;
+				$data[$key] = number_format($float, $pointPos ? strlen($value) - $pointPos - 1 : 0, '.', '') === $value ? $float : $value;
 
 			} elseif ($type === IResultAdapter::TYPE_BOOL) {
 				$data[$key] = (bool) $value;
