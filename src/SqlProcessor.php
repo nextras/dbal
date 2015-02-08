@@ -189,23 +189,29 @@ class SqlProcessor
 	{
 		$values = [];
 		foreach ($value as $_key => $val) {
-			$key = explode('%', $_key, 2);
-			$exp = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
-
-			$modifier = isset($key[1]) ? $key[1] : 's';
-			$len = strlen($modifier);
-			if ($modifier[$len-1] === '?' && $val === NULL) {
-				$exp .= ' IS ';
-
-			} elseif ($modifier[$len-1] === ']') {
-				$exp .= ' IN ';
+			if (is_int($_key)) {
+				if (!is_array($val)) {
+					throw new InvalidArgumentException('Item value with numeric index has to be an array.');
+				}
+				$values[] = '(' . $this->processValueWhere($val, $type === 'and' ? 'or' : 'and') . ')';
 
 			} else {
-				$exp .= ' = ';
-			}
+				$key = explode('%', $_key, 2);
+				$exp = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
 
-			$exp .= $this->processValue($val, $modifier);
-			$values[] = $exp;
+				$modifier = isset($key[1]) ? $key[1] : 's';
+				$len = strlen($modifier);
+				if ($modifier[$len - 1] === '?' && $val === NULL) {
+					$exp .= ' IS ';
+				} elseif ($modifier[$len - 1] === ']') {
+					$exp .= ' IN ';
+				} else {
+					$exp .= ' = ';
+				}
+
+				$exp .= $this->processValue($val, $modifier);
+				$values[] = $exp;
+			}
 		}
 
 		return implode($type === 'and' ? ' AND ' : ' OR ', $values);

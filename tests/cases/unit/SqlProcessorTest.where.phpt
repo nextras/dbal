@@ -52,21 +52,16 @@ class SqlProcessorWhereTest extends TestCase
 	}
 
 
-	public function testWhereOr()
+	public function testWhereOrNested()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
-		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
-		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
-
-		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$this->driver->shouldReceive('convertToSql')->once()->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
+		$this->driver->shouldReceive('convertToSql')->twice()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('a');
+		$this->driver->shouldReceive('convertToSql')->twice()->with('b', IDriver::TYPE_IDENTIFIER)->andReturn('b');
 
 		Assert::same(
-			"SELECT 1 FROM foo WHERE id = 1 OR title = '\\'foo\\'' OR foo = '2'",
+			"SELECT 1 FROM foo WHERE (a = 1 AND b IS NULL) OR (a IS NULL AND b = 1)",
 			$this->convert('SELECT 1 FROM foo WHERE %or', [
-				'id%i' => 1,
-				'title%s' => "'foo'",
-				'foo' => 2,
+				['a%i?' => 1, 'b%i?' => NULL],
+				['a%i?' => NULL, 'b%i?' => 1],
 			])
 		);
 	}
