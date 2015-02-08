@@ -193,7 +193,7 @@ class SqlProcessor
 				if (!is_array($val)) {
 					throw new InvalidArgumentException('Item value with numeric index has to be an array.');
 				}
-				$values[] = '(' . $this->processValueWhere($val, $type === 'and' ? 'or' : 'and') . ')';
+				$values[] = '(' . $this->process($val) . ')';
 
 			} else {
 				$key = explode('%', $_key, 2);

@@ -60,8 +60,8 @@ class SqlProcessorWhereTest extends TestCase
 		Assert::same(
 			"SELECT 1 FROM foo WHERE (a = 1 AND b IS NULL) OR (a IS NULL AND b = 1)",
 			$this->convert('SELECT 1 FROM foo WHERE %or', [
-				['a%i?' => 1, 'b%i?' => NULL],
-				['a%i?' => NULL, 'b%i?' => 1],
+				['%and', ['a%i?' => 1, 'b%i?' => NULL]],
+				['%and', ['a%i?' => NULL, 'b%i?' => 1]],
 			])
 		);
 	}
