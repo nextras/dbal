@@ -187,8 +187,12 @@ class SqlProcessor
 	}
 
 
-	private function processValueWhere($value, $type)
+	private function processValueWhere(array $value, $type)
 	{
+		if (count($value) === 0) {
+			return '1=1';
+		}
+
 		$values = [];
 		foreach ($value as $_key => $val) {
 			if (is_int($_key)) {

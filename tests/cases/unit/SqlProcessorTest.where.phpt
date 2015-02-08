@@ -68,6 +68,15 @@ class SqlProcessorWhereTest extends TestCase
 	}
 
 
+	public function testEmptyConds()
+	{
+		Assert::same(
+			'SELECT 1 FROM foo WHERE 1=1',
+			$this->convert('SELECT 1 FROM foo WHERE %and', [])
+		);
+	}
+
+
 	private function convert($sql)
 	{
 		return $this->parser->process(func_get_args());
