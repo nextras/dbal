@@ -124,7 +124,7 @@ class Result implements Iterator
 			list($type, $nativeType) = $typePair;
 			$value = $data[$key];
 
-			if ($value === NULL || $type === IResultAdapter::TYPE_STRING) {
+			if ($value === NULL || $type === IResultAdapter::TYPE_STRING || !is_string($value)) {
 				// nothing to do
 
 			} elseif ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC) {
