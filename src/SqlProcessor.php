@@ -190,8 +190,22 @@ class SqlProcessor
 		$values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$values[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
-				. $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+			$exp = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+
+			$modifier = isset($key[1]) ? $key[1] : 's';
+			$len = strlen($modifier);
+			if ($modifier[$len-1] === '?' && $val === NULL) {
+				$exp .= ' IS ';
+
+			} elseif ($modifier[$len-1] === ']') {
+				$exp .= ' IN ';
+
+			} else {
+				$exp .= ' = ';
+			}
+
+			$exp .= $this->processValue($val, $modifier);
+			$values[] = $exp;
 		}
 
 		return implode($type === 'and' ? ' AND ' : ' OR ', $values);

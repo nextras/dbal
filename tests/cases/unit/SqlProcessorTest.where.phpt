@@ -32,18 +32,21 @@ class SqlProcessorWhereTest extends TestCase
 	public function testWhereAnd()
 	{
 		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
-		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
+		$this->driver->shouldReceive('convertToSql')->once()->with('bar', IDriver::TYPE_IDENTIFIER)->andReturn('bar');
+		$this->driver->shouldReceive('convertToSql')->once()->with('baz', IDriver::TYPE_IDENTIFIER)->andReturn('baz');
 
-		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
 		$this->driver->shouldReceive('convertToSql')->once()->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
+		$this->driver->shouldReceive('convertToSql')->once()->with(1, IDriver::TYPE_STRING)->andReturn("'1'");
+		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_STRING)->andReturn("'a'");
 
 		Assert::same(
-			"SELECT 1 FROM foo WHERE id = 1 AND title = '\\'foo\\'' AND foo = '2'",
+			"SELECT 1 FROM foo WHERE id = 1 AND foo = '2' AND bar IS NULL AND baz IN ('1', 'a')",
 			$this->convert('SELECT 1 FROM foo WHERE %and', [
 				'id%i' => 1,
-				'title%s' => "'foo'",
 				'foo' => 2,
+				'bar%s?' => NULL,
+				'baz%s[]' => [1, 'a']
 			])
 		);
 	}
