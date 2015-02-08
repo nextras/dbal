@@ -72,7 +72,11 @@ class SqlProcessor
 		$len = strlen($type);
 
 		if (isset($type[$len-2]) && $type[$len-2] === '[' && $type[$len-1] === ']') {
-			return $this->processValueArray($value, $type);
+			if ($type === 'values[]') {
+				return $this->processValueValues($value, TRUE);
+			} else {
+				return $this->processValueArray($value, $type);
+			}
 
 		} elseif ($type === 'table' || $type === 'column') {
 			return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
@@ -81,7 +85,7 @@ class SqlProcessor
 			return $this->processValueSet($value);
 
 		} elseif ($type === 'values') {
-			return $this->processValueValues($value);
+			return $this->processValueValues($value, FALSE);
 		}
 
 
@@ -145,16 +149,36 @@ class SqlProcessor
 	}
 
 
-	private function processValueValues($value)
+	private function processValueValues($value, $isMultiInsert = FALSE)
 	{
 		$keys = $values = [];
-		foreach ($value as $_key => $val) {
-			$key = explode('%', $_key, 2);
-			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
-			$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
-		}
 
-		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
+		if ($isMultiInsert) {
+			foreach ($value[0] as $_key => $val) {
+				$key = explode('%', $_key, 2);
+				$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+			}
+			foreach ($value as $subValue) {
+				$subValues = [];
+				foreach ($subValue as $_key => $val) {
+					$key = explode('%', $_key, 2);
+					$subValues[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+				}
+				$values[] = '(' . implode(', ', $subValues) . ')';
+			}
+
+			return '(' . implode(', ', $keys) . ') VALUES ' . implode(', ', $values);
+
+
+		} else {
+			foreach ($value as $_key => $val) {
+				$key = explode('%', $_key, 2);
+				$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+				$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : 's');
+			}
+
+			return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
+		}
 	}
 
 }
