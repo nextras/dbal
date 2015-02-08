@@ -1,6 +1,6 @@
 <?php
 
-/** @testcase */
+/** @testCase */
 
 namespace NextrasTests\Dbal;
 

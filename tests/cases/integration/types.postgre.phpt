@@ -1,6 +1,9 @@
 <?php
 
-/** @dataProvider? ../../databases.ini postgre */
+/**
+ * @testCase
+ * @dataProvider? ../../databases.ini postgre
+ */
 
 namespace NextrasTests\Dbal;
 

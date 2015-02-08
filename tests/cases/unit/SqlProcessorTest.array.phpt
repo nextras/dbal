@@ -1,5 +1,7 @@
 <?php
 
+/** @testCase */
+
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\SqlProcessor;

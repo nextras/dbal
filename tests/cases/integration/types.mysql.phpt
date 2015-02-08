@@ -1,6 +1,9 @@
 <?php
 
-/** @dataProvider? ../../databases.ini mysql */
+/**
+ * @testCase
+ * @dataProvider? ../../databases.ini mysql
+ */
 
 namespace NextrasTests\Dbal;
 
