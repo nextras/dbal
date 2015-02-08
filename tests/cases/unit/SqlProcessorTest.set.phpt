@@ -19,12 +19,11 @@ class SqlProcessorSetTest extends TestCase
 	{
 		parent::setUp();
 		$driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
-		$driver->shouldReceive('getTokenRegexp')->andReturn('');
-		$driver->shouldReceive('convertToSql')->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
-		$driver->shouldReceive('convertToSql')->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$driver->shouldReceive('convertToSql')->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
-		$driver->shouldReceive('convertToSql')->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
-		$driver->shouldReceive('convertToSql')->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
+		$driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
+		$driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
+		$driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
+		$driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
+		$driver->shouldReceive('convertToSql')->once()->with(2, IDriver::TYPE_STRING)->andReturn("'2'");
 		$this->parser = new SqlProcessor($driver);
 	}
 

@@ -18,7 +18,6 @@ class SqlProcessorArrayTest extends TestCase
 	{
 		parent::setUp();
 		$driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
-		$driver->shouldReceive('getTokenRegexp')->andReturn('');
 		$this->parser = new SqlProcessor($driver);
 	}
 

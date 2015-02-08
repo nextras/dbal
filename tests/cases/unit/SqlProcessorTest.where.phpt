@@ -31,7 +31,6 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testWhereAnd()
 	{
-		$this->driver->shouldReceive('getTokenRegexp')->andReturn('');
 		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
 		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
@@ -52,7 +51,6 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testWhereOr()
 	{
-		$this->driver->shouldReceive('getTokenRegexp')->andReturn('');
 		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
 		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');

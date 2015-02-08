@@ -19,9 +19,8 @@ class SqlProcessorScalarTest extends TestCase
 	{
 		parent::setUp();
 		$driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
-		$driver->shouldReceive('getTokenRegexp')->andReturn('');
-		$driver->shouldReceive('convertToSql')->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$driver->shouldReceive('convertToSql')->with(10, IDriver::TYPE_BOOL)->andReturn('1');
+		$driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
+		$driver->shouldReceive('convertToSql')->once()->with(10, IDriver::TYPE_BOOL)->andReturn('1');
 		$this->parser = new SqlProcessor($driver);
 	}
 

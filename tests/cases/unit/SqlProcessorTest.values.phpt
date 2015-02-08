@@ -31,7 +31,6 @@ class SqlProcessorValuesTest extends TestCase
 
 	public function testArray()
 	{
-		$this->driver->shouldReceive('getTokenRegexp')->andReturn('');
 		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
 		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
 		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
@@ -51,7 +50,6 @@ class SqlProcessorValuesTest extends TestCase
 
 	public function testMultiInsert()
 	{
-		$this->driver->shouldReceive('getTokenRegexp')->andReturn('');
 		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
 		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
