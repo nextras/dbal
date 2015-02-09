@@ -98,6 +98,12 @@ final class Row implements IteratorAggregate, ArrayAccess
 	}
 
 
+	public function toArray()
+	{
+		return $this->data;
+	}
+
+
 	public function __debugInfo()
 	{
 		return $this->data;

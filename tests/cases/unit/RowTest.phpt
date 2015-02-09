@@ -71,6 +71,13 @@ class RowTest extends TestCase
 	}
 
 
+	public function testToArray()
+	{
+		$row = new Row(['name' => 'Jon', 'surname' => 'Snow']);
+		Assert::same(['name' => 'Jon', 'surname' => 'Snow'], $row->toArray());
+	}
+
+
 	public function testReadonlyArrayArg()
 	{
 		$row = new Row(['names' => ['One', 'Two']]);
