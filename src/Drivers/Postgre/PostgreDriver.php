@@ -187,13 +187,19 @@ class PostgreDriver implements IDriver
 	{
 		switch ($type) {
 			case self::TYPE_STRING:
-				return pg_escape_literal($value);
+				return pg_escape_literal($this->connection, $value);
 
 			case self::TYPE_BOOL:
 				return $value ? '1' : '0';
 
 			case self::TYPE_IDENTIFIER:
-				return pg_escape_identifier($value);
+				$parts = explode('.', $value);
+				foreach ($parts as &$part) {
+					if ($part !== '*') {
+						$part = pg_escape_identifier($this->connection, $part);
+					}
+				}
+				return implode('.', $parts);
 
 			case self::TYPE_DATETIME:
 				return "'" . $value->format('Y-m-d H:i:sP') . "'";

@@ -204,7 +204,7 @@ class MysqlDriver implements IDriver
 				return $value ? '1' : '0';
 
 			case self::TYPE_IDENTIFIER:
-				return '`' . str_replace('`', '``', $value) . '`';
+				return str_replace('`*`', '*', '`' . str_replace(['`', '.'], ['``', '`.`'], $value) . '`');
 
 			case self::TYPE_DATETIME:
 				if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
