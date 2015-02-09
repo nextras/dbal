@@ -8,6 +8,9 @@ use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Tester\Environment;
 
 
+/**
+ * @property-read Connection $connection
+ */
 class IntegrationTestCase extends TestCase
 {
 	/** @var Connection */
