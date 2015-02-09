@@ -47,6 +47,30 @@ class RowTest extends TestCase
 	}
 
 
+	public function testArrayAccess()
+	{
+		$row = new Row(['name' => 'Jon', 'surname' => 'Snow']);
+
+		Assert::same('Jon', $row[0]);
+		Assert::same('Snow', $row[1]);
+
+		Assert::true(isset($row[0]));
+		Assert::false(isset($row[2]));
+
+		Assert::throws(function() use ($row) {
+			$row[3];
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', "Undefined offset '3'.");
+
+		Assert::throws(function() use ($row) {
+			$row[2] = 'Peter';
+		}, 'Nextras\Dbal\Exceptions\NotSupportedException', 'Row is read-only.');
+
+		Assert::throws(function() use ($row) {
+			unset($row[0]);
+		}, 'Nextras\Dbal\Exceptions\NotSupportedException', 'Row is read-only.');
+	}
+
+
 	public function testReadonlyArrayArg()
 	{
 		$row = new Row(['names' => ['One', 'Two']]);
