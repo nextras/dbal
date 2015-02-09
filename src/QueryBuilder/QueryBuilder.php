@@ -291,8 +291,14 @@ class QueryBuilder
 	public function limitBy($limit, $offset = NULL)
 	{
 		$this->dirty();
-		$this->limit = [$limit, $offset];
+		$this->limit = $limit || $offset ? [$limit, $offset] : NULL;
 		return $this;
+	}
+
+
+	public function hasLimitOffsetClause()
+	{
+		return $this->limit !== NULL;
 	}
 
 
