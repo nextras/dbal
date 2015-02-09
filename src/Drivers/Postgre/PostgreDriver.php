@@ -147,8 +147,7 @@ class PostgreDriver implements IDriver
 
 	public function getServerVersion()
 	{
-		$version = pg_version($this->connection);
-		return $version['server'];
+		return pg_version($this->connection)['server'];
 	}
 
 
