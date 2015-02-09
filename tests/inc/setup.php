@@ -23,6 +23,9 @@ foreach ($config as $name => $configDatabase) {
 	echo "[setup] Bootstraping '{$name}' structure.\n";
 
 	$connection = new Connection($configDatabase);
+	$resetFunction = require __DIR__ . "/../data/{$name}-reset.php";
+	$resetFunction($connection, $configDatabase['dbname']);
+
 	FileImporter::executeFile($connection, __DIR__ . "/../data/{$name}-init.sql");
 }
 
