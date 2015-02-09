@@ -116,6 +116,13 @@ class Connection
 	}
 
 
+	public function queryArgs($query, array $args)
+	{
+		array_unshift($args, $query);
+		return call_user_func_array([$this, 'query'], $args);
+	}
+
+
 	public function getLastInsertedId($sequenceName = NULL)
 	{
 		$this->connect();
