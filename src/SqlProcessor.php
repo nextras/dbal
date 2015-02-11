@@ -83,7 +83,9 @@ class SqlProcessor
 
 		$len = strlen($type);
 		if ($type[$len-1] === ']') {
-			if ($type === 'values[]') {
+			if (!is_array($value)) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be array, " . gettype($value) . " given.");
+			} elseif ($type === 'values[]') {
 				return $this->processValueMultiValues($value);
 			} else {
 				return $this->processValueArray($value, $type);
@@ -106,32 +108,50 @@ class SqlProcessor
 		}
 
 		$isNullable = $type[$len-1] === '?';
-		if ($isNullable) {
-			$type = substr($type, 0, -1);
-		}
+		$type2 = $isNullable ? substr($type, 0, -1) : $type;
 
 		if ($value === NULL) {
 			if (!$isNullable) {
-				throw new InvalidArgumentException("NULL value not allowed in '%{$type}' modifier. Use '%{$type}?' modifier.");
+				throw new InvalidArgumentException("Modifier %$type does not allow NULL value, use modifier %{$type}? instead.");
 			}
 			return 'NULL';
 
-		} elseif ($type === 's') {
+		} elseif ($type2 === 's') {
+			if (!is_string($value)) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be string, " . gettype($value) . " given.");
+			}
 			return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
 
-		} elseif ($type === 'b') {
+		} elseif ($type2 === 'b') {
+			if (!is_bool($value)) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be bool, " . gettype($value) . " given.");
+			}
 			return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
 
-		} elseif ($type === 'i') {
-			return (string) (int) $value;
+		} elseif ($type2 === 'i') {
+			if (!is_int($value) && (!is_string($value) || !preg_match('#^-?[1-9][0-9]*+\z#', $value))) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be int, " . gettype($value) . " given.");
+			}
+			return (string) $value;
 
-		} elseif ($type === 'f') {
-			return rtrim(rtrim(number_format($value, 10, '.', ''), '0'), '.');
+		} elseif ($type2 === 'f') {
+			if (!is_float($value)) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be float, " . gettype($value) . " given.");
+			} elseif (!is_finite($value)) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be finite float, $value given.");
+			}
+			return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
 
-		} elseif ($type === 'dt') {
+		} elseif ($type2 === 'dt') {
+			if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be DateTime, " . gettype($value) . " given.");
+			}
 			return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
 
-		} elseif ($type === 'dts') {
+		} elseif ($type2 === 'dts') {
+			if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
+				throw new InvalidArgumentException("Modifier %$type expects value to be DateTime, " . gettype($value) . " given.");
+			}
 			return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
 
 		} else {
@@ -144,7 +164,7 @@ class SqlProcessor
 	{
 		$values = [];
 		$subType = substr($type, 0, -2);
-		foreach ((array) $value as $subValue) {
+		foreach ($value as $subValue) {
 			$values[] = $this->processModifier($subType, $subValue);
 		}
 
@@ -249,10 +269,10 @@ class SqlProcessor
 			return 'i';
 		} elseif (is_float($value)) {
 			return 'f';
-		} elseif ($value instanceof \DateTime) {
+		} elseif ($value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
 			return 'dt';
 		} else {
-			return 's';
+			throw new InvalidArgumentException("Modifier %any can handle pretty much anything but not " . gettype($value) . ".");
 		}
 	}
 

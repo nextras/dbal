@@ -46,7 +46,7 @@ class SqlProcessorWhereTest extends TestCase
 				'id%i' => '1',
 				'foo' => 2,
 				'bar%s?' => NULL,
-				'baz%s[]' => [1, 'a'],
+				'baz%s[]' => ['1', 'a'],
 				'bax%any[]' => [1, 'a'],
 			])
 		);
