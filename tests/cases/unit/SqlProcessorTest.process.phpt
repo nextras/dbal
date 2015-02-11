@@ -40,9 +40,9 @@ class SqlProcessorProcessTest extends TestCase
 		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('f.f.f', IDriver::TYPE_IDENTIFIER)->andReturn('FF');
 
 		Assert::same(
-			'AA BB CC DD EE FF',
+			'AA BB CC DD EE FF [1]',
 			$this->parser->process([
-				'%a %b? %c[] %d?[] [e] [f.f.f]',
+				'%a %b? %c[] %d?[] [e] [f.f.f] [1]',
 				'A', 'B', 'C', 'D',
 			])
 		);

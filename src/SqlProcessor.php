@@ -51,8 +51,11 @@ class SqlProcessor
 						}
 						return $this->processValue($args[++$j], $matches[1]);
 
-					} else {
+					} elseif (!ctype_digit($matches[2])) {
 						return $this->driver->convertToSql($matches[2], IDriver::TYPE_IDENTIFIER);
+
+					} else {
+						return "[$matches[2]]";
 					}
 				},
 				$args[$i]
