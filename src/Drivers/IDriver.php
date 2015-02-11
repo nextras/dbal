@@ -97,6 +97,27 @@ interface IDriver
 
 
 	/**
+	 * Begins a transaction.
+	 * @throws DbalException
+	 */
+	public function transactionBegin();
+
+
+	/**
+	 * Commits a transaction.
+	 * @throws DbalException
+	 */
+	public function transactionCommit();
+
+
+	/**
+	 * Rollback a transaction.
+	 * @throws DbalException
+	 */
+	public function transactionRollback();
+
+
+	/**
 	 * Converts database value to php boolean.
 	 * @param  string $value
 	 * @param  mixed  $nativeType

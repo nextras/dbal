@@ -156,6 +156,24 @@ class MysqlDriver implements IDriver
 	}
 
 
+	public function transactionBegin()
+	{
+		$this->nativeQuery('START TRANSACTION');
+	}
+
+
+	public function transactionCommit()
+	{
+		$this->nativeQuery('COMMIT');
+	}
+
+
+	public function transactionRollback()
+	{
+		$this->nativeQuery('ROLLBACK');
+	}
+
+
 	protected function processInitialSettings(array $params)
 	{
 		if (isset($params['charset'])) {

@@ -165,6 +165,24 @@ class PostgreDriver implements IDriver
 	}
 
 
+	public function transactionBegin()
+	{
+		$this->nativeQuery('START TRANSACTION');
+	}
+
+
+	public function transactionCommit()
+	{
+		$this->nativeQuery('COMMIT');
+	}
+
+
+	public function transactionRollback()
+	{
+		$this->nativeQuery('ROLLBACK');
+	}
+
+
 	public function convertToPhp($value, $nativeType)
 	{
 		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];

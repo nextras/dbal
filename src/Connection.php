@@ -11,7 +11,6 @@ namespace Nextras\Dbal;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions\DbalException;
-use Nextras\Dbal\Exceptions\NotImplementedException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -147,19 +146,40 @@ class Connection
 
 	public function transactionBegin()
 	{
-		throw new NotImplementedException();
+		$this->connect();
+		$this->fireEvent('onBeforeQuery', [$this, '::TRANSACTION BEGIN::']);
+		try {
+			$this->driver->transactionBegin();
+		} catch (DriverException $e) {
+			throw $this->driver->convertException($e);
+		}
+		$this->fireEvent('onAfterQuery', [$this, '::TRANSACTION BEGIN::']);
 	}
 
 
 	public function transactionCommit()
 	{
-		throw new NotImplementedException();
+		$this->connect();
+		$this->fireEvent('onBeforeQuery', [$this, '::TRANSACTION COMMIT::']);
+		try {
+			$this->driver->transactionCommit();
+		} catch (DriverException $e) {
+			throw $this->driver->convertException($e);
+		}
+		$this->fireEvent('onAfterQuery', [$this, '::TRANSACTION COMMIT::']);
 	}
 
 
 	public function transactionRollback()
 	{
-		throw new NotImplementedException();
+		$this->connect();
+		$this->fireEvent('onBeforeQuery', [$this, '::TRANSACTION ROLLBACK::']);
+		try {
+			$this->driver->transactionRollback();
+		} catch (DriverException $e) {
+			throw $this->driver->convertException($e);
+		}
+		$this->fireEvent('onAfterQuery', [$this, '::TRANSACTION ROLLBACK::']);
 	}
 
 
