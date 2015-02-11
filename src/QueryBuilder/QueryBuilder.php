@@ -68,7 +68,7 @@ class QueryBuilder
 	}
 
 
-	public function getQuerySQL()
+	public function getQuerySql()
 	{
 		if ($this->generatedSql !== NULL) {
 			return $this->generatedSql;

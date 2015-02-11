@@ -40,7 +40,7 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 				->from('one', 'o')
 				->innerJoin('t', 'three', 'th', 't.userId = th.userId')
 				->rightJoin('th', 'four', 'f', 'th.userId = f.userId')
-				->getQuerySQL();
+				->getQuerySql();
 
 		}, 'Nextras\Dbal\Exceptions\InvalidStateException', "Unknown alias 't'.");
 	}

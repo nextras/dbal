@@ -30,7 +30,7 @@ class QueryBuilderTestCase extends TestCase
 	protected function assertBuilder($expected, QueryBuilder $builder)
 	{
 		$args = $builder->getQueryParameters();
-		array_unshift($args, $builder->getQuerySQL());
+		array_unshift($args, $builder->getQuerySql());
 		Assert::same($expected, $args);
 	}
 
