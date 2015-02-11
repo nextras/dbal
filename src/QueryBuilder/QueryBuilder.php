@@ -210,7 +210,7 @@ class QueryBuilder
 	public function andWhere($expression)
 	{
 		$this->dirty();
-		$this->where = '(' . $this->where . ') AND (' . $expression . ')';
+		$this->where = $this->where ? '(' . $this->where . ') AND (' . $expression . ')' : $expression;
 		$this->pushArgs('where', array_slice(func_get_args(), 1));
 		return $this;
 	}
@@ -219,7 +219,7 @@ class QueryBuilder
 	public function orWhere($expression)
 	{
 		$this->dirty();
-		$this->where = '(' . $this->where . ') OR (' . $expression . ')';
+		$this->where = $this->where ? '(' . $this->where . ') OR (' . $expression . ')' : $expression;
 		$this->pushArgs('where', array_slice(func_get_args(), 1));
 		return $this;
 	}
@@ -255,7 +255,7 @@ class QueryBuilder
 	public function andHaving($expression)
 	{
 		$this->dirty();
-		$this->having = '(' . $this->having . ') AND (' . $expression . ')';
+		$this->having = $this->having ? '(' . $this->having . ') AND (' . $expression . ')' : $expression;
 		$this->pushArgs('having', array_slice(func_get_args(), 1));
 		return $this;
 	}
@@ -264,7 +264,7 @@ class QueryBuilder
 	public function orHaving($expression)
 	{
 		$this->dirty();
-		$this->having = '(' . $this->having . ') OR (' . $expression . ')';
+		$this->having = $this->having ? '(' . $this->having . ') OR (' . $expression . ')' : $expression;
 		$this->pushArgs('having', array_slice(func_get_args(), 1));
 		return $this;
 	}

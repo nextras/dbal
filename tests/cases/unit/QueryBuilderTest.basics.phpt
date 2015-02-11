@@ -59,6 +59,38 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 		);
 	}
 
+
+	public function testAndMethods()
+	{
+		$this->assertBuilder(
+			['SELECT * FROM foo WHERE id = %i', 1],
+			$this->builder()
+				->from('foo')
+				->andWhere('id = %i', 1)
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo WHERE id = %i', 1],
+			$this->builder()
+				->from('foo')
+				->orWhere('id = %i', 1)
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo HAVING id = %i', 1],
+			$this->builder()
+				->from('foo')
+				->andHaving('id = %i', 1)
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo HAVING id = %i', 1],
+			$this->builder()
+				->from('foo')
+				->orHaving('id = %i', 1)
+		);
+	}
+
 }
 
 
