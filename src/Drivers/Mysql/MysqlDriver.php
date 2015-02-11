@@ -12,9 +12,11 @@ use DateInterval;
 use DateTime;
 use DateTimeZone;
 use mysqli;
+use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
+use Nextras\Dbal\Platforms\MysqlPlatform;
 use Nextras\Dbal\Result\Result;
 
 
@@ -129,6 +131,12 @@ class MysqlDriver implements IDriver
 	public function getLastInsertedId($sequenceName = NULL)
 	{
 		return $this->connection->insert_id;
+	}
+
+
+	public function createPlatform(Connection $connection)
+	{
+		return new MysqlPlatform($connection);
 	}
 
 

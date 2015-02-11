@@ -12,6 +12,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions\DbalException;
 use Nextras\Dbal\Exceptions\NotImplementedException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
 
@@ -34,6 +35,9 @@ class Connection
 
 	/** @var IDriver */
 	private $driver;
+
+	/** @var IPlatform */
+	private $platform;
 
 	/** @var SqlProcessor */
 	private $sqlPreprocessor;
@@ -127,6 +131,17 @@ class Connection
 	{
 		$this->connect();
 		return $this->driver->getLastInsertedId($sequenceName);
+	}
+
+
+	public function getPlatform()
+	{
+		if ($this->platform === NULL) {
+			$this->connect();
+			$this->platform = $this->driver->createPlatform($this);
+		}
+
+		return $this->platform;
 	}
 
 

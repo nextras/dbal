@@ -11,9 +11,11 @@ namespace Nextras\Dbal\Drivers\Postgre;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
+use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
+use Nextras\Dbal\Platforms\PostgrePlatform;
 use Nextras\Dbal\Result\Result;
 
 
@@ -142,6 +144,12 @@ class PostgreDriver implements IDriver
 	{
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
 		return $this->nativeQuery($sql)->fetchField();
+	}
+
+
+	public function createPlatform(Connection $connection)
+	{
+		return new PostgrePlatform($connection);
 	}
 
 

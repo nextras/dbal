@@ -8,7 +8,9 @@
 
 namespace Nextras\Dbal\Drivers;
 
+use Nextras\Dbal\Connection;
 use Nextras\Dbal\Exceptions\DbalException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
 
@@ -70,6 +72,14 @@ interface IDriver
 	 * @return mixed
 	 */
 	public function getLastInsertedId($sequenceName = NULL);
+
+
+	/**
+	 * Creates database plafrom.
+	 * @param  Connection $connection
+	 * @return IPlatform
+	 */
+	public function createPlatform(Connection $connection);
 
 
 	/**
