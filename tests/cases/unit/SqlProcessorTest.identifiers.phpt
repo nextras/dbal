@@ -25,7 +25,6 @@ class SqlProcessorIdentifiersTest extends TestCase
 	{
 		parent::setUp();
 		$this->driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
-
 		$this->parser = new SqlProcessor($this->driver);
 	}
 

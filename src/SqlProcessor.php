@@ -92,6 +92,9 @@ class SqlProcessor
 
 		} elseif ($type === 'and' || $type === 'or') {
 			return $this->processValueWhere($value, $type);
+
+		} elseif ($type === 'raw') {
+			return $value;
 		}
 
 		$isNullable = $type[$len-1] === '?';
