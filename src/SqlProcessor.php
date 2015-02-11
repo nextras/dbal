@@ -49,7 +49,7 @@ class SqlProcessor
 						if ($j === $last) {
 							throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
 						}
-						return $this->processValue($args[++$j], $matches[1]);
+						return $this->processModifier($matches[1], $args[++$j]);
 
 					} elseif (!ctype_digit($matches[2])) {
 						return $this->driver->convertToSql($matches[2], IDriver::TYPE_IDENTIFIER);
@@ -70,7 +70,12 @@ class SqlProcessor
 	}
 
 
-	protected function processValue($value, $type)
+	/**
+	 * @param  string $type
+	 * @param  mixed  $value
+	 * @return string
+	 */
+	public function processModifier($type, $value)
 	{
 		if ($type === 'any') {
 			$type = $this->getValueModifier($value);
@@ -140,7 +145,7 @@ class SqlProcessor
 		$values = [];
 		$subType = substr($type, 0, -2);
 		foreach ((array) $value as $subValue) {
-			$values[] = $this->processValue($subValue, $subType);
+			$values[] = $this->processModifier($subType, $subValue);
 		}
 
 		return '(' . implode(', ', $values) . ')';
@@ -153,7 +158,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$values[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
-				. $this->processValue($val, isset($key[1]) ? $key[1] : $this->getValueModifier($val));
+				. $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
 		}
 
 		return implode(', ', $values);
@@ -171,7 +176,7 @@ class SqlProcessor
 			$subValues = [];
 			foreach ($subValue as $_key => $val) {
 				$key = explode('%', $_key, 2);
-				$subValues[] = $this->processValue($val, isset($key[1]) ? $key[1] : $this->getValueModifier($val));
+				$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
 			}
 			$values[] = '(' . implode(', ', $subValues) . ')';
 		}
@@ -186,7 +191,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
-			$values[] = $this->processValue($val, isset($key[1]) ? $key[1] : $this->getValueModifier($val));
+			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
 		}
 
 		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
@@ -221,7 +226,7 @@ class SqlProcessor
 					$exp .= ' = ';
 				}
 
-				$exp .= $this->processValue($val, $modifier);
+				$exp .= $this->processModifier($modifier, $val);
 				$values[] = $exp;
 			}
 		}

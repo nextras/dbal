@@ -25,17 +25,16 @@ class SqlProcessorProcessTest extends TestCase
 	{
 		parent::setUp();
 		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
-		$this->parser = Mockery::mock('Nextras\Dbal\SqlProcessor[processValue]', [$this->driver])
-			->shouldAllowMockingProtectedMethods();
+		$this->parser = Mockery::mock('Nextras\Dbal\SqlProcessor[processModifier]', [$this->driver]);
 	}
 
 
 	public function testPatternAndCallback()
 	{
-		$this->parser->shouldReceive('processValue')->once()->globally()->ordered()->with('A', 'a')->andReturn('AA');
-		$this->parser->shouldReceive('processValue')->once()->globally()->ordered()->with('B', 'b?')->andReturn('BB');
-		$this->parser->shouldReceive('processValue')->once()->globally()->ordered()->with('C', 'c[]')->andReturn('CC');
-		$this->parser->shouldReceive('processValue')->once()->globally()->ordered()->with('D', 'd?[]')->andReturn('DD');
+		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('a', 'A')->andReturn('AA');
+		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('b?', 'B')->andReturn('BB');
+		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('c[]', 'C')->andReturn('CC');
+		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('d?[]', 'D')->andReturn('DD');
 		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('e', IDriver::TYPE_IDENTIFIER)->andReturn('EE');
 		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('f.f.f', IDriver::TYPE_IDENTIFIER)->andReturn('FF');
 
@@ -51,7 +50,7 @@ class SqlProcessorProcessTest extends TestCase
 
 	public function testMultipleFragments()
 	{
-		$this->parser->shouldReceive('processValue')->times(3)->andReturnUsing(function($value, $type) {
+		$this->parser->shouldReceive('processModifier')->times(3)->andReturnUsing(function($type, $value) {
 			return $type . $value;
 		});
 
@@ -77,17 +76,17 @@ class SqlProcessorProcessTest extends TestCase
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing query parameter for modifier %xxx.');
 
 		Assert::throws(function() {
-			$this->parser->shouldReceive('processValue')->once()->with(1, 'xxx')->andReturn('i1');
+			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 2]);
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'A %xxx B\'.');
 
 		Assert::throws(function() {
-			$this->parser->shouldReceive('processValue')->once()->with(1, 'xxx')->andReturn('i1');
+			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 'C', 2]);
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 
 		Assert::throws(function() {
-			$this->parser->shouldReceive('processValue')->once()->with(1, 'xxx')->andReturn('i1');
+			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 'C', 'D']);
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 	}
