@@ -58,7 +58,7 @@ class MysqlResultAdapter implements IResultAdapter
 
 	public function seek($index)
 	{
-		if (!$this->result->data_seek($index)) {
+		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {
 			throw new DbalException("Unable to seek in row set to {$index} index.");
 		}
 	}
