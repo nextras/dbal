@@ -272,24 +272,31 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @param  mixed $value
+	 * @return string
+	 */
 	private function getValueModifier($value)
 	{
-		if ($value === NULL) {
-			return 'any?';
-		} elseif (is_array($value)) {
-			return 'any[]';
-		} elseif (is_string($value)) {
-			return 's';
-		} elseif (is_bool($value)) {
-			return 'b';
-		} elseif (is_int($value)) {
-			return 'i';
-		} elseif (is_float($value)) {
-			return 'f';
-		} elseif ($value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
-			return 'dt';
-		} else {
-			throw new InvalidArgumentException("Modifier %any can handle pretty much anything but not " . gettype($value) . ".");
+		$type = is_object($value) ? get_class($value) : gettype($value);
+		switch ($type) {
+			case 'string':
+				return 's';
+			case 'integer':
+				return 'i';
+			case 'double':
+				return 'f';
+			case 'boolean':
+				return 'b';
+			case 'array':
+				return 'any[]';
+			case 'NULL':
+				return 'any?';
+			case 'DateTime':
+			case 'DateTimeImmutable':
+				return 'dt';
+			default:
+				throw new InvalidArgumentException("Modifier %any can handle pretty much anything but not " . $type . ".");
 		}
 	}
 
