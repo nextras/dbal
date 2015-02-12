@@ -56,8 +56,8 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testComplex()
 	{
-		$this->driver->shouldReceive('convertToSql')->times(3)->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('a');
-		$this->driver->shouldReceive('convertToSql')->times(3)->with('b', IDriver::TYPE_IDENTIFIER)->andReturn('b');
+		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('a');
+		$this->driver->shouldReceive('convertToSql')->once()->with('b', IDriver::TYPE_IDENTIFIER)->andReturn('b');
 
 		Assert::same(
 			'(a = 1 AND b IS NULL) OR a = 2 OR (a IS NULL AND b = 1) OR b = 3',

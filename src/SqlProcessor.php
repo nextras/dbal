@@ -17,6 +17,9 @@ class SqlProcessor
 	/** @var IDriver */
 	private $driver;
 
+	/** @var LazyHashMap */
+	private $identifiers;
+
 	/** @var array (name => [supports ?, supports [], expected type]) */
 	protected $modifiers = [
 		// expressions
@@ -43,6 +46,9 @@ class SqlProcessor
 	public function __construct(IDriver $driver)
 	{
 		$this->driver = $driver;
+		$this->identifiers = new LazyHashMap(function($key) {
+			return $this->driver->convertToSql($key, IDriver::TYPE_IDENTIFIER);
+		});
 	}
 
 
@@ -75,7 +81,7 @@ class SqlProcessor
 						return $this->processModifier($matches[1], $args[++$j]);
 
 					} elseif (!ctype_digit($matches[2])) {
-						return $this->driver->convertToSql($matches[2], IDriver::TYPE_IDENTIFIER);
+						return $this->identifiers->{$matches[2]};
 
 					} else {
 						return "[$matches[2]]";
@@ -122,7 +128,7 @@ class SqlProcessor
 						if ($value === '*') {
 							$this->throwWrongModifierException($type, $value, "{$type}[]");
 						}
-						return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
+						return $this->identifiers->$value;
 
 					case 'raw':
 						return $value;
@@ -208,11 +214,16 @@ class SqlProcessor
 						return '(' . implode(', ', $value) . ')';
 
 					case 's[]':
-					case 'column[]':
-						$dbType = ($type === 's[]' ? IDriver::TYPE_STRING : IDriver::TYPE_IDENTIFIER);
 						foreach ($value as &$subValue) {
 							if (!is_string($subValue)) break 2; // fallback to processArray
-							$subValue = $this->driver->convertToSql($subValue, $dbType);
+							$subValue = $this->driver->convertToSql($subValue, IDriver::TYPE_STRING);
+						}
+						return '(' . implode(', ', $value) . ')';
+
+					case 'column[]':
+						foreach ($value as &$subValue) {
+							if (!is_string($subValue)) break 2; // fallback to processArray
+							$subValue = $this->identifiers->$subValue;
 						}
 						return '(' . implode(', ', $value) . ')';
 
@@ -319,7 +330,7 @@ class SqlProcessor
 		$values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$column = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+			$column = $this->identifiers->{$key{0}};
 			$expr = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val); // TODO: limited subset to anything
 			$values[] = "$column = $expr";
 		}
@@ -337,7 +348,7 @@ class SqlProcessor
 	{
 		$keys = $values = [];
 		foreach (array_keys($value[0]) as $key) {
-			$keys[] = $this->driver->convertToSql(explode('%', $key, 2)[0], IDriver::TYPE_IDENTIFIER);
+			$keys[] = $this->identifiers->{explode('%', $key, 2)[0]};
 		}
 		foreach ($value as $subValue) {
 			$subValues = [];
@@ -362,7 +373,7 @@ class SqlProcessor
 		$keys = $values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+			$keys[] = $this->identifiers->{$key[0]};
 			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
 		}
 
@@ -392,7 +403,7 @@ class SqlProcessor
 
 			} else {
 				$key = explode('%', $_key, 2);
-				$operand = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+				$operand = $this->identifiers->{$key[0]};
 
 				$modifier = isset($key[1]) ? $key[1] : $this->getValueModifier($val);
 				$last = substr($modifier, -1);
