@@ -164,14 +164,13 @@ class SqlProcessor
 			break;
 			case 'N': // NULL
 				switch ($type) {
+					case 'any?':
 					case 's?':
 					case 'i?':
 					case 'f?':
 					case 'b?':
 					case 'dt?':
 					case 'dts?':
-					case 'any':
-					case 'any?':
 						return 'NULL';
 				}
 
@@ -408,7 +407,7 @@ class SqlProcessor
 			case 'boolean':
 				return 'b';
 			case 'array':
-				return 'any[]';
+				return 'any?[]';
 			case 'NULL':
 				return 'any?';
 			case 'DateTime':
