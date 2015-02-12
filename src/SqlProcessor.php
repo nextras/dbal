@@ -106,9 +106,8 @@ class SqlProcessor
 	 */
 	public function processModifier($type, $value)
 	{
-		$valueType = gettype($value);
-		switch ($valueType[0]) {
-			case 's': // string
+		switch (gettype($value)) {
+			case 'string':
 				switch ($type) {
 					case 's':
 					case 's?':
@@ -135,7 +134,7 @@ class SqlProcessor
 				}
 
 			break;
-			case 'i': // integer
+			case 'integer':
 				switch ($type) {
 					case 'i':
 					case 'i?':
@@ -145,7 +144,7 @@ class SqlProcessor
 				}
 
 			break;
-			case 'd': // double
+			case 'double':
 				switch ($type) {
 					case 'f':
 					case 'f?':
@@ -158,7 +157,7 @@ class SqlProcessor
 				}
 
 			break;
-			case 'b': // boolean
+			case 'boolean':
 				switch ($type) {
 					case 'b':
 					case 'b?':
@@ -168,7 +167,7 @@ class SqlProcessor
 				}
 
 			break;
-			case 'N': // NULL
+			case 'NULL':
 				switch ($type) {
 					case 'any?':
 					case 's?':
@@ -181,7 +180,7 @@ class SqlProcessor
 				}
 
 			break;
-			case 'o': // object
+			case 'object':
 				switch ($type) {
 					case 'dt':
 					case 'dt?':
@@ -201,7 +200,7 @@ class SqlProcessor
 				}
 
 			break;
-			case 'a': // array
+			case 'array':
 				switch ($type) {
 					// micro-optimizations
 					case 'any?[]':
