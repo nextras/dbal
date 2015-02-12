@@ -100,6 +100,18 @@ class SqlProcessorScalarTest extends TestCase
 	}
 
 
+	public function testNullable()
+	{
+		Assert::same('NULL', $this->parser->processModifier('s?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('i?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('f?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('b?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('dt?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('dts?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('any?', NULL));
+	}
+
+
 	/**
 	 * @dataProvider provideInvalidData
 	 */
