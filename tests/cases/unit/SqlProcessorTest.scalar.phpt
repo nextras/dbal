@@ -96,7 +96,7 @@ class SqlProcessorScalarTest extends TestCase
 		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
 		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
 		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME)->andReturn('DT');
-		Assert::same('(B, 123, 123.4, T, NULL, DT)', $this->parser->processModifier('any', ['A', 123, 123.4, TRUE, NULL, $dt]));
+		Assert::same('(B, 123, 123.4, T, NULL, DT)', $this->parser->processModifier('any[]', ['A', 123, 123.4, TRUE, NULL, $dt]));
 	}
 
 

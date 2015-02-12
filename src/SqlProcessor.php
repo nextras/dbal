@@ -207,9 +207,6 @@ class SqlProcessor
 					case 'set':
 						return $this->processSet($type, $value);
 
-					case 'any':
-					case 'any?':
-						return $this->processArray("{$type}[]", $value);
 				}
 
 				if (substr($type, -1) === ']') {
