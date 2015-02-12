@@ -428,26 +428,21 @@ class SqlProcessor
 	 */
 	private function getValueModifier($value)
 	{
-		$type = is_object($value) ? get_class($value) : gettype($value);
-		switch ($type) {
-			case 'string':
-				return 's';
-			case 'integer':
-				return 'i';
-			case 'double':
-				return 'f';
-			case 'boolean':
-				return 'b';
-			case 'array':
-				return 'any?[]';
-			case 'NULL':
-				return 'any?';
-			case 'DateTime':
-			case 'DateTimeImmutable':
-				return 'dt';
-			default:
-				throw new InvalidArgumentException("Modifier %any can handle pretty much anything but not " . $type . ".");
+		switch (gettype($value)) {
+			case 'string': return 's';
+			case 'integer': return 'i';
+			case 'double': return 'f';
+			case 'boolean': return 'b';
+			case 'array': return 'any?[]';
+			case 'NULL': return 'any?';
+			case 'object':
+				if ($value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
+					return 'rt';
+				}
 		}
+
+		$valueType = $this->getVariableTypeName($value);
+		throw new InvalidArgumentException("Modifier %any can handle pretty much anything but not $valueType.");
 	}
 
 
