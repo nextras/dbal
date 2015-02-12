@@ -197,12 +197,18 @@ class SqlProcessor
 			break;
 			case 'a': // array
 				switch ($type) {
+					case 'any?[]': // micro-optimization
+						return $this->processArray($type, $value);
+
 					case 'and':
 					case 'or':
 						return $this->processWhere($type, $value);
 
 					case 'values':
 						return $this->processValues($type, $value);
+
+					case 'values[]':
+						return $this->processMultiValues($type, $value);
 
 					case 'set':
 						return $this->processSet($type, $value);
@@ -212,12 +218,9 @@ class SqlProcessor
 				}
 
 				if (substr($type, -1) === ']') {
-					switch ($type) {
-						case 'values[]':
-							return $this->processMultiValues($type, $value);
-
-						default:
-							return $this->processArray($type, $value); // TODO
+					$baseType = rtrim($type, '[]?');
+					if (isset($this->modifiers[$baseType]) && $this->modifiers[$baseType][1]) {
+						return $this->processArray($type, $value);
 					}
 				}
 		}
