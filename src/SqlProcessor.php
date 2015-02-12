@@ -257,7 +257,7 @@ class SqlProcessor
 	 */
 	protected function throwInvalidValueTypeException($type, $value, $expectedType)
 	{
-		$actualType = is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+		$actualType = $this->getVariableTypeName($value);
 		throw new InvalidArgumentException("Modifier %$type expects value to be $expectedType, $actualType given.");
 	}
 
@@ -368,7 +368,8 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			if (is_int($_key)) {
 				if (!is_array($val)) {
-					throw new InvalidArgumentException('Item value with numeric index has to be an array.');
+					$valType = $this->getVariableTypeName($val);
+					throw new InvalidArgumentException("Modifier %$type requires items with numeric index to be array, $valType given.");
 				}
 				$operands[] = '(' . $this->process($val) . ')';
 
@@ -381,7 +382,7 @@ class SqlProcessor
 				if ($last === '?' && $val === NULL) {
 					$operand .= ' IS NULL';
 				} elseif ($last === ']') {
-					$operand .= ' IN ' . $this->processArray($modifier, $val);
+					$operand .= ' IN ' . $this->processModifier($modifier, $val);
 				} else {
 					$operand .= ' = ' . $this->processModifier($modifier, $val);
 				}
@@ -421,4 +422,13 @@ class SqlProcessor
 		}
 	}
 
+
+	/**
+	 * @param $value
+	 * @return float|string
+	 */
+	protected function getVariableTypeName($value)
+	{
+		return is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+	}
 }

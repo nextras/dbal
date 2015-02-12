@@ -7,6 +7,7 @@ namespace NextrasTests\Dbal;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\SqlProcessor;
+use stdClass;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -81,6 +82,53 @@ class SqlProcessorWhereTest extends TestCase
 			'1=1',
 			$this->parser->processModifier('or', [])
 		);
+	}
+
+
+	/**
+	 * @dataProvider provideInvalidData
+	 */
+	public function testInvalid($type, $value, $message)
+	{
+		$this->driver->shouldIgnoreMissing('X');
+		Assert::throws(
+			function() use ($type, $value) {
+				$this->parser->processModifier($type, $value);
+			},
+			'Nextras\Dbal\Exceptions\InvalidArgumentException', $message
+		);
+	}
+
+
+	public function provideInvalidData()
+	{
+		return [
+			['and', 123, 'Modifier %and expects value to be array, integer given.'],
+			['and', NULL, 'Modifier %and expects value to be array, NULL given.'],
+
+			['and', ['s'], 'Modifier %and requires items with numeric index to be array, string given.'],
+			['and', ['a%i' => 's'], 'Modifier %i expects value to be int, string given.'],
+			['and', ['a%i[]' => 123], 'Modifier %i[] expects value to be array, integer given.'],
+			['and', ['a' => new stdClass()], 'Modifier %any can handle pretty much anything but not stdClass.'],
+			['and', ['a%foo' => 's'], 'Unknown modifier %foo.'],
+
+			['and?', [], 'Modifier %and does not have %and? variant.'],
+			['and[]', [], 'Modifier %and does not have %and[] variant.'],
+			['and?[]', [], 'Modifier %and does not have %and?[] variant.'],
+
+			['or', 123, 'Modifier %or expects value to be array, integer given.'],
+			['or', NULL, 'Modifier %or expects value to be array, NULL given.'],
+
+			['or', ['s'], 'Modifier %or requires items with numeric index to be array, string given.'],
+			['or', ['a%i' => 's'], 'Modifier %i expects value to be int, string given.'],
+			['or', ['a%i[]' => 123], 'Modifier %i[] expects value to be array, integer given.'],
+			['or', ['a' => new stdClass()], 'Modifier %any can handle pretty much anything but not stdClass.'],
+			['or', ['a%foo' => 's'], 'Unknown modifier %foo.'],
+
+			['or?', [], 'Modifier %or does not have %or? variant.'],
+			['or[]', [], 'Modifier %or does not have %or[] variant.'],
+			['or?[]', [], 'Modifier %or does not have %or?[] variant.'],
+		];
 	}
 
 }
