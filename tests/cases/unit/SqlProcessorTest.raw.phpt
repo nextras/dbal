@@ -4,7 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Mockery\MockInterface;
+use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
@@ -14,7 +14,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class SqlProcessorRawTest extends TestCase
 {
-	/** @var MockInterface */
+	/** @var IDriver|Mockery\MockInterface */
 	private $driver;
 
 	/** @var SqlProcessor */
@@ -24,16 +24,21 @@ class SqlProcessorRawTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 		$this->parser = new SqlProcessor($this->driver);
 	}
 
 
-	public function testRawModifier()
+	public function testRaw()
 	{
 		Assert::same(
-			'SELECT a FROM foo',
-			$this->parser->process(['SELECT a %raw', 'FROM foo'])
+			'',
+			$this->parser->processModifier('raw', '')
+		);
+
+		Assert::same(
+			'SELECT [column] %modifier /* comment */',
+			$this->parser->processModifier('raw', 'SELECT [column] %modifier /* comment */')
 		);
 	}
 
