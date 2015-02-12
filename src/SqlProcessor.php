@@ -235,8 +235,11 @@ class SqlProcessor
 		} elseif ($typeArray) {
 			$this->throwInvalidValueTypeException($type, $value, 'array');
 
-		} elseif ($value === NULL && !$typeNullable) {
+		} elseif ($value === NULL && !$typeNullable && $this->modifiers[$baseType][0]) {
 			$this->throwWrongModifierException($type, $value, "$type?");
+
+		} elseif (is_array($value) && !$typeArray && $this->modifiers[$baseType][1]) {
+			$this->throwWrongModifierException($type, $value, "{$type}[]");
 
 		} else {
 			$this->throwInvalidValueTypeException($type, $value, $this->modifiers[$baseType][2]);
@@ -265,7 +268,7 @@ class SqlProcessor
 	 */
 	protected function throwWrongModifierException($type, $value, $hint)
 	{
-		$valueLabel = var_export($value, TRUE);
+		$valueLabel = is_scalar($value) ? var_export($value, TRUE) : gettype($value);
 		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");
 	}
 

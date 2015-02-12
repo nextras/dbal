@@ -132,14 +132,14 @@ class SqlProcessorScalarTest extends TestCase
 			['s', 123, 'Modifier %s expects value to be string, integer given.'],
 			['s', 123.0, 'Modifier %s expects value to be string, double given.'],
 			['s', TRUE, 'Modifier %s expects value to be string, boolean given.'],
-			['s', [], 'Modifier %s expects value to be string, array given.'],
+			['s', [], 'Modifier %s does not allow array value, use modifier %s[] instead.'],
 			['s', new stdClass(), 'Modifier %s expects value to be string, stdClass given.'],
 			['s', NULL, 'Modifier %s does not allow NULL value, use modifier %s? instead.'],
 
 			['s?', 123, 'Modifier %s? expects value to be string, integer given.'],
 			['s?', 123.0, 'Modifier %s? expects value to be string, double given.'],
 			['s?', TRUE, 'Modifier %s? expects value to be string, boolean given.'],
-			['s?', [], 'Modifier %s? expects value to be string, array given.'],
+			['s?', [], 'Modifier %s? does not allow array value, use modifier %s?[] instead.'],
 			['s?', new stdClass(), 'Modifier %s? expects value to be string, stdClass given.'],
 
 			['s[]', '123', 'Modifier %s[] expects value to be array, string given.'],
@@ -151,7 +151,7 @@ class SqlProcessorScalarTest extends TestCase
 			['s[]', [123], 'Modifier %s expects value to be string, integer given.'],
 			['s[]', [123.0], 'Modifier %s expects value to be string, double given.'],
 			['s[]', [TRUE], 'Modifier %s expects value to be string, boolean given.'],
-			['s[]', [[]], 'Modifier %s expects value to be string, array given.'],
+			['s[]', [[]], 'Modifier %s does not allow array value, use modifier %s[] instead.'],
 			['s[]', [new stdClass()], 'Modifier %s expects value to be string, stdClass given.'],
 			['s[]', [NULL], 'Modifier %s does not allow NULL value, use modifier %s? instead.'],
 
@@ -164,14 +164,14 @@ class SqlProcessorScalarTest extends TestCase
 			['s?[]', [123], 'Modifier %s? expects value to be string, integer given.'],
 			['s?[]', [123.0], 'Modifier %s? expects value to be string, double given.'],
 			['s?[]', [TRUE], 'Modifier %s? expects value to be string, boolean given.'],
-			['s?[]', [[]], 'Modifier %s? expects value to be string, array given.'],
+			['s?[]', [[]], 'Modifier %s? does not allow array value, use modifier %s?[] instead.'],
 			['s?[]', [new stdClass()], 'Modifier %s? expects value to be string, stdClass given.'],
 
 			['i', '123x', 'Modifier %i expects value to be int, string given.'],
 			['i', '0123', 'Modifier %i expects value to be int, string given.'],
 			['i', 123.0, 'Modifier %i expects value to be int, double given.'],
 			['i', TRUE, 'Modifier %i expects value to be int, boolean given.'],
-			['i', [], 'Modifier %i expects value to be int, array given.'],
+			['i', [], 'Modifier %i does not allow array value, use modifier %i[] instead.'],
 			['i', new stdClass(), 'Modifier %i expects value to be int, stdClass given.'],
 			['i', NULL, 'Modifier %i does not allow NULL value, use modifier %i? instead.'],
 
@@ -179,7 +179,7 @@ class SqlProcessorScalarTest extends TestCase
 			['i?', '0123', 'Modifier %i? expects value to be int, string given.'],
 			['i?', 123.0, 'Modifier %i? expects value to be int, double given.'],
 			['i?', TRUE, 'Modifier %i? expects value to be int, boolean given.'],
-			['i?', [], 'Modifier %i? expects value to be int, array given.'],
+			['i?', [], 'Modifier %i? does not allow array value, use modifier %i?[] instead.'],
 			['i?', new stdClass(), 'Modifier %i? expects value to be int, stdClass given.'],
 
 			['i[]', '123', 'Modifier %i[] expects value to be array, string given.'],
@@ -191,7 +191,7 @@ class SqlProcessorScalarTest extends TestCase
 			['i[]', ['123x'], 'Modifier %i expects value to be int, string given.'],
 			['i[]', [123.0], 'Modifier %i expects value to be int, double given.'],
 			['i[]', [TRUE], 'Modifier %i expects value to be int, boolean given.'],
-			['i[]', [[]], 'Modifier %i expects value to be int, array given.'],
+			['i[]', [[]], 'Modifier %i does not allow array value, use modifier %i[] instead.'],
 			['i[]', [new stdClass()], 'Modifier %i expects value to be int, stdClass given.'],
 			['i[]', [NULL], 'Modifier %i does not allow NULL value, use modifier %i? instead.'],
 
@@ -205,7 +205,7 @@ class SqlProcessorScalarTest extends TestCase
 			['i?[]', ['0123'], 'Modifier %i? expects value to be int, string given.'],
 			['i?[]', [123.0], 'Modifier %i? expects value to be int, double given.'],
 			['i?[]', [TRUE], 'Modifier %i? expects value to be int, boolean given.'],
-			['i?[]', [[]], 'Modifier %i? expects value to be int, array given.'],
+			['i?[]', [[]], 'Modifier %i? does not allow array value, use modifier %i?[] instead.'],
 			['i?[]', [new stdClass()], 'Modifier %i? expects value to be int, stdClass given.'],
 
 			['f', NAN, 'Modifier %f expects value to be finite float, NAN given.'],
@@ -215,7 +215,7 @@ class SqlProcessorScalarTest extends TestCase
 			['f', '123.4', 'Modifier %f expects value to be float, string given.'],
 			['f', 123, 'Modifier %f expects value to be float, integer given.'],
 			['f', TRUE, 'Modifier %f expects value to be float, boolean given.'],
-			['f', [], 'Modifier %f expects value to be float, array given.'],
+			['f', [], 'Modifier %f does not allow array value, use modifier %f[] instead.'],
 			['f', new stdClass(), 'Modifier %f expects value to be float, stdClass given.'],
 			['f', NULL, 'Modifier %f does not allow NULL value, use modifier %f? instead.'],
 
@@ -226,7 +226,7 @@ class SqlProcessorScalarTest extends TestCase
 			['f?', '123.4', 'Modifier %f? expects value to be float, string given.'],
 			['f?', 123, 'Modifier %f? expects value to be float, integer given.'],
 			['f?', TRUE, 'Modifier %f? expects value to be float, boolean given.'],
-			['f?', [], 'Modifier %f? expects value to be float, array given.'],
+			['f?', [], 'Modifier %f? does not allow array value, use modifier %f?[] instead.'],
 			['f?', new stdClass(), 'Modifier %f? expects value to be float, stdClass given.'],
 
 			['f[]', '123', 'Modifier %f[] expects value to be array, string given.'],
@@ -242,7 +242,7 @@ class SqlProcessorScalarTest extends TestCase
 			['f[]', ['123.4'], 'Modifier %f expects value to be float, string given.'],
 			['f[]', [123], 'Modifier %f expects value to be float, integer given.'],
 			['f[]', [TRUE], 'Modifier %f expects value to be float, boolean given.'],
-			['f[]', [[]], 'Modifier %f expects value to be float, array given.'],
+			['f[]', [[]], 'Modifier %f does not allow array value, use modifier %f[] instead.'],
 			['f[]', [new stdClass()], 'Modifier %f expects value to be float, stdClass given.'],
 			['f[]', [NULL], 'Modifier %f does not allow NULL value, use modifier %f? instead.'],
 
@@ -259,20 +259,20 @@ class SqlProcessorScalarTest extends TestCase
 			['f?[]', ['123.4'], 'Modifier %f? expects value to be float, string given.'],
 			['f?[]', [123], 'Modifier %f? expects value to be float, integer given.'],
 			['f?[]', [TRUE], 'Modifier %f? expects value to be float, boolean given.'],
-			['f?[]', [[]], 'Modifier %f? expects value to be float, array given.'],
+			['f?[]', [[]], 'Modifier %f? does not allow array value, use modifier %f?[] instead.'],
 			['f?[]', [new stdClass()], 'Modifier %f? expects value to be float, stdClass given.'],
 
 			['b', 'true', 'Modifier %b expects value to be bool, string given.'],
 			['b', 1, 'Modifier %b expects value to be bool, integer given.'],
 			['b', 1.0, 'Modifier %b expects value to be bool, double given.'],
-			['b', [], 'Modifier %b expects value to be bool, array given.'],
+			['b', [], 'Modifier %b does not allow array value, use modifier %b[] instead.'],
 			['b', new stdClass(), 'Modifier %b expects value to be bool, stdClass given.'],
 			['b', NULL, 'Modifier %b does not allow NULL value, use modifier %b? instead.'],
 
 			['b?', 'true', 'Modifier %b? expects value to be bool, string given.'],
 			['b?', 1, 'Modifier %b? expects value to be bool, integer given.'],
 			['b?', 1.0, 'Modifier %b? expects value to be bool, double given.'],
-			['b?', [], 'Modifier %b? expects value to be bool, array given.'],
+			['b?', [], 'Modifier %b? does not allow array value, use modifier %b?[] instead.'],
 			['b?', new stdClass(), 'Modifier %b? expects value to be bool, stdClass given.'],
 
 			['b[]', '123', 'Modifier %b[] expects value to be array, string given.'],
@@ -284,7 +284,7 @@ class SqlProcessorScalarTest extends TestCase
 			['b[]', ['true'], 'Modifier %b expects value to be bool, string given.'],
 			['b[]', [1], 'Modifier %b expects value to be bool, integer given.'],
 			['b[]', [1.0], 'Modifier %b expects value to be bool, double given.'],
-			['b[]', [[]], 'Modifier %b expects value to be bool, array given.'],
+			['b[]', [[]], 'Modifier %b does not allow array value, use modifier %b[] instead.'],
 			['b[]', [new stdClass()], 'Modifier %b expects value to be bool, stdClass given.'],
 			['b[]', [NULL], 'Modifier %b does not allow NULL value, use modifier %b? instead.'],
 
@@ -297,14 +297,14 @@ class SqlProcessorScalarTest extends TestCase
 			['b?[]', ['true'], 'Modifier %b? expects value to be bool, string given.'],
 			['b?[]', [1], 'Modifier %b? expects value to be bool, integer given.'],
 			['b?[]', [1.0], 'Modifier %b? expects value to be bool, double given.'],
-			['b?[]', [[]], 'Modifier %b? expects value to be bool, array given.'],
+			['b?[]', [[]], 'Modifier %b? does not allow array value, use modifier %b?[] instead.'],
 			['b?[]', [new stdClass()], 'Modifier %b? expects value to be bool, stdClass given.'],
 
 			['dt', 'true', 'Modifier %dt expects value to be DateTime, string given.'],
 			['dt', 1, 'Modifier %dt expects value to be DateTime, integer given.'],
 			['dt', 1.0, 'Modifier %dt expects value to be DateTime, double given.'],
 			['dt', TRUE, 'Modifier %dt expects value to be DateTime, boolean given.'],
-			['dt', [], 'Modifier %dt expects value to be DateTime, array given.'],
+			['dt', [], 'Modifier %dt does not allow array value, use modifier %dt[] instead.'],
 			['dt', new stdClass(), 'Modifier %dt expects value to be DateTime, stdClass given.'],
 			['dt', NULL, 'Modifier %dt does not allow NULL value, use modifier %dt? instead.'],
 
@@ -312,7 +312,7 @@ class SqlProcessorScalarTest extends TestCase
 			['dt?', 1, 'Modifier %dt? expects value to be DateTime, integer given.'],
 			['dt?', 1.0, 'Modifier %dt? expects value to be DateTime, double given.'],
 			['dt?', TRUE, 'Modifier %dt? expects value to be DateTime, boolean given.'],
-			['dt?', [], 'Modifier %dt? expects value to be DateTime, array given.'],
+			['dt?', [], 'Modifier %dt? does not allow array value, use modifier %dt?[] instead.'],
 			['dt?', new stdClass(), 'Modifier %dt? expects value to be DateTime, stdClass given.'],
 
 			['dt[]', '123', 'Modifier %dt[] expects value to be array, string given.'],
@@ -325,7 +325,7 @@ class SqlProcessorScalarTest extends TestCase
 			['dt[]', [1], 'Modifier %dt expects value to be DateTime, integer given.'],
 			['dt[]', [1.0], 'Modifier %dt expects value to be DateTime, double given.'],
 			['dt[]', [TRUE], 'Modifier %dt expects value to be DateTime, boolean given.'],
-			['dt[]', [[]], 'Modifier %dt expects value to be DateTime, array given.'],
+			['dt[]', [[]], 'Modifier %dt does not allow array value, use modifier %dt[] instead.'],
 			['dt[]', [new stdClass()], 'Modifier %dt expects value to be DateTime, stdClass given.'],
 			['dt[]', [NULL], 'Modifier %dt does not allow NULL value, use modifier %dt? instead.'],
 
@@ -339,14 +339,14 @@ class SqlProcessorScalarTest extends TestCase
 			['dt?[]', [1], 'Modifier %dt? expects value to be DateTime, integer given.'],
 			['dt?[]', [1.0], 'Modifier %dt? expects value to be DateTime, double given.'],
 			['dt?[]', [TRUE], 'Modifier %dt? expects value to be DateTime, boolean given.'],
-			['dt?[]', [[]], 'Modifier %dt? expects value to be DateTime, array given.'],
+			['dt?[]', [[]], 'Modifier %dt? does not allow array value, use modifier %dt?[] instead.'],
 			['dt?[]', [new stdClass()], 'Modifier %dt? expects value to be DateTime, stdClass given.'],
 
 			['dts', 'true', 'Modifier %dts expects value to be DateTime, string given.'],
 			['dts', 1, 'Modifier %dts expects value to be DateTime, integer given.'],
 			['dts', 1.0, 'Modifier %dts expects value to be DateTime, double given.'],
 			['dts', TRUE, 'Modifier %dts expects value to be DateTime, boolean given.'],
-			['dts', [], 'Modifier %dts expects value to be DateTime, array given.'],
+			['dts', [], 'Modifier %dts does not allow array value, use modifier %dts[] instead.'],
 			['dts', new stdClass(), 'Modifier %dts expects value to be DateTime, stdClass given.'],
 			['dts', NULL, 'Modifier %dts does not allow NULL value, use modifier %dts? instead.'],
 
@@ -354,7 +354,7 @@ class SqlProcessorScalarTest extends TestCase
 			['dts?', 1, 'Modifier %dts? expects value to be DateTime, integer given.'],
 			['dts?', 1.0, 'Modifier %dts? expects value to be DateTime, double given.'],
 			['dts?', TRUE, 'Modifier %dts? expects value to be DateTime, boolean given.'],
-			['dts?', [], 'Modifier %dts? expects value to be DateTime, array given.'],
+			['dts?', [], 'Modifier %dts? does not allow array value, use modifier %dts?[] instead.'],
 			['dts?', new stdClass(), 'Modifier %dts? expects value to be DateTime, stdClass given.'],
 
 			['dts[]', '123', 'Modifier %dts[] expects value to be array, string given.'],
@@ -367,7 +367,7 @@ class SqlProcessorScalarTest extends TestCase
 			['dts[]', [1], 'Modifier %dts expects value to be DateTime, integer given.'],
 			['dts[]', [1.0], 'Modifier %dts expects value to be DateTime, double given.'],
 			['dts[]', [TRUE], 'Modifier %dts expects value to be DateTime, boolean given.'],
-			['dts[]', [[]], 'Modifier %dts expects value to be DateTime, array given.'],
+			['dts[]', [[]], 'Modifier %dts does not allow array value, use modifier %dts[] instead.'],
 			['dts[]', [new stdClass()], 'Modifier %dts expects value to be DateTime, stdClass given.'],
 			['dts[]', [NULL], 'Modifier %dts does not allow NULL value, use modifier %dts? instead.'],
 
@@ -381,7 +381,7 @@ class SqlProcessorScalarTest extends TestCase
 			['dts?[]', [1], 'Modifier %dts? expects value to be DateTime, integer given.'],
 			['dts?[]', [1.0], 'Modifier %dts? expects value to be DateTime, double given.'],
 			['dts?[]', [TRUE], 'Modifier %dts? expects value to be DateTime, boolean given.'],
-			['dts?[]', [[]], 'Modifier %dts? expects value to be DateTime, array given.'],
+			['dts?[]', [[]], 'Modifier %dts? does not allow array value, use modifier %dts?[] instead.'],
 			['dts?[]', [new stdClass()], 'Modifier %dts? expects value to be DateTime, stdClass given.'],
 
 			['any', new stdClass(), 'Modifier %any expects value to be DateTime, stdClass given.'],
