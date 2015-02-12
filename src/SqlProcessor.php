@@ -197,9 +197,26 @@ class SqlProcessor
 			break;
 			case 'a': // array
 				switch ($type) {
-					case 'any?[]': // micro-optimization
+					// micro-optimizations
+					case 'any?[]':
 						return $this->processArray($type, $value);
 
+					case 'i[]':
+						$i = count($value);
+						while ($i-- && is_int($value[$i]));
+						if ($i >= 0) break; // fallback to processArray
+						return '(' . implode(', ', $value) . ')';
+
+					case 's[]':
+					case 'column[]':
+						$dbType = ($type === 's[]' ? IDriver::TYPE_STRING : IDriver::TYPE_IDENTIFIER);
+						foreach ($value as &$subValue) {
+							if (!is_string($subValue)) break 2; // fallback to processArray
+							$subValue = $this->driver->convertToSql($subValue, $dbType);
+						}
+						return '(' . implode(', ', $value) . ')';
+
+					// normal
 					case 'and':
 					case 'or':
 						return $this->processWhere($type, $value);
