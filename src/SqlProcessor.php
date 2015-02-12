@@ -29,7 +29,7 @@ class SqlProcessor
 		'b' => [TRUE, TRUE, 'bool'],
 		'dt' => [TRUE, TRUE, 'DateTime'],
 		'dts' => [TRUE, TRUE, 'DateTime'],
-		'any' => [TRUE, TRUE, 'pretty much anything'],
+		'any' => [FALSE, FALSE, 'pretty much anything'],
 		'and' => [FALSE, FALSE, 'array'],
 		'or' => [FALSE, FALSE, 'array'],
 
@@ -109,10 +109,9 @@ class SqlProcessor
 		switch (gettype($value)) {
 			case 'string':
 				switch ($type) {
+					case 'any':
 					case 's':
 					case 's?':
-					case 'any':
-					case 'any?':
 						return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
 
 					case 'i':
@@ -136,20 +135,18 @@ class SqlProcessor
 			break;
 			case 'integer':
 				switch ($type) {
+					case 'any':
 					case 'i':
 					case 'i?':
-					case 'any':
-					case 'any?':
 						return (string) $value;
 				}
 
 			break;
 			case 'double':
 				switch ($type) {
+					case 'any':
 					case 'f':
 					case 'f?':
-					case 'any':
-					case 'any?':
 						if (!is_finite($value)) {
 							$this->throwInvalidValueTypeException($type, $value, 'finite float');
 						}
@@ -159,17 +156,16 @@ class SqlProcessor
 			break;
 			case 'boolean':
 				switch ($type) {
+					case 'any':
 					case 'b':
 					case 'b?':
-					case 'any':
-					case 'any?':
 						return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
 				}
 
 			break;
 			case 'NULL':
 				switch ($type) {
-					case 'any?':
+					case 'any':
 					case 's?':
 					case 'i?':
 					case 'f?':
@@ -182,11 +178,11 @@ class SqlProcessor
 			break;
 			case 'object':
 				switch ($type) {
+					case 'any':
 					case 'dt':
 					case 'dt?':
-					case 'any':
-					case 'any?':
 						if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
+							if ($type === 'any') break; // to get better nicer error message
 							$this->throwInvalidValueTypeException($type, $value, 'DateTime');
 						}
 						return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
@@ -203,8 +199,8 @@ class SqlProcessor
 			case 'array':
 				switch ($type) {
 					// micro-optimizations
-					case 'any?[]':
-						return $this->processArray($type, $value);
+					case 'any':
+						return $this->processArray("any[]", $value);
 
 					case 'i[]':
 						$i = count($value);
@@ -330,7 +326,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$column = $this->identifiers->{$key{0}};
-			$expr = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val); // TODO: limited subset to anything
+			$expr = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 			$values[] = "$column = $expr";
 		}
 
@@ -353,7 +349,7 @@ class SqlProcessor
 			$subValues = [];
 			foreach ($subValue as $_key => $val) {
 				$key = explode('%', $_key, 2);
-				$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
+				$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 			}
 			$values[] = '(' . implode(', ', $subValues) . ')';
 		}
@@ -373,7 +369,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$keys[] = $this->identifiers->{$key[0]};
-			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
+			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 		}
 
 		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
@@ -404,11 +400,10 @@ class SqlProcessor
 				$key = explode('%', $_key, 2);
 				$operand = $this->identifiers->{$key[0]};
 
-				$modifier = isset($key[1]) ? $key[1] : $this->getValueModifier($val);
-				$last = substr($modifier, -1);
-				if ($last === '?' && $val === NULL) {
-					$operand .= ' IS NULL';
-				} elseif ($last === ']') {
+				$modifier = isset($key[1]) ? $key[1] : 'any';
+				if ($val === NULL) {
+					$operand .= ' IS ' . $this->processModifier($modifier, $val);
+				} elseif (is_array($val)) {
 					$operand .= ' IN ' . $this->processModifier($modifier, $val);
 				} else {
 					$operand .= ' = ' . $this->processModifier($modifier, $val);
@@ -422,30 +417,6 @@ class SqlProcessor
 
 
 	/**
-	 * @param  mixed $value
-	 * @return string
-	 */
-	private function getValueModifier($value)
-	{
-		switch (gettype($value)) {
-			case 'string': return 's';
-			case 'integer': return 'i';
-			case 'double': return 'f';
-			case 'boolean': return 'b';
-			case 'array': return 'any?[]';
-			case 'NULL': return 'any?';
-			case 'object':
-				if ($value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
-					return 'rt';
-				}
-		}
-
-		$valueType = $this->getVariableTypeName($value);
-		throw new InvalidArgumentException("Modifier %any can handle pretty much anything but not $valueType.");
-	}
-
-
-	/**
 	 * @param $value
 	 * @return float|string
 	 */
@@ -453,4 +424,5 @@ class SqlProcessor
 	{
 		return is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
 	}
+
 }

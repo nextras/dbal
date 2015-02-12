@@ -48,7 +48,7 @@ class SqlProcessorWhereTest extends TestCase
 				'b.c' => 2,
 				'd%s?' => NULL,
 				'e%s[]' => ['1', 'a'],
-				'f%any[]' => [1, 'a'],
+				'f%any' => [1, 'a'],
 			])
 		);
 	}
@@ -109,7 +109,7 @@ class SqlProcessorWhereTest extends TestCase
 			['and', ['s'], 'Modifier %and requires items with numeric index to be array, string given.'],
 			['and', ['a%i' => 's'], 'Modifier %i expects value to be int, string given.'],
 			['and', ['a%i[]' => 123], 'Modifier %i[] expects value to be array, integer given.'],
-			['and', ['a' => new stdClass()], 'Modifier %any can handle pretty much anything but not stdClass.'],
+			['and', ['a' => new stdClass()], 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 			['and', ['a%foo' => 's'], 'Unknown modifier %foo.'],
 
 			['and?', [], 'Modifier %and does not have %and? variant.'],
@@ -122,7 +122,7 @@ class SqlProcessorWhereTest extends TestCase
 			['or', ['s'], 'Modifier %or requires items with numeric index to be array, string given.'],
 			['or', ['a%i' => 's'], 'Modifier %i expects value to be int, string given.'],
 			['or', ['a%i[]' => 123], 'Modifier %i[] expects value to be array, integer given.'],
-			['or', ['a' => new stdClass()], 'Modifier %any can handle pretty much anything but not stdClass.'],
+			['or', ['a' => new stdClass()], 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 			['or', ['a%foo' => 's'], 'Unknown modifier %foo.'],
 
 			['or?', [], 'Modifier %or does not have %or? variant.'],

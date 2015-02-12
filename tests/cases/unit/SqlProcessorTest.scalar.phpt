@@ -91,11 +91,12 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('123.4', $this->parser->processModifier('any', 123.4));
 		Assert::same('T', $this->parser->processModifier('any', TRUE));
 		Assert::same('DT', $this->parser->processModifier('any', $dt));
+		Assert::same('NULL', $this->parser->processModifier('any', NULL));
 
 		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
 		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
 		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME)->andReturn('DT');
-		Assert::same('(B, 123, 123.4, T, DT)', $this->parser->processModifier('any[]', ['A', 123, 123.4, TRUE, $dt]));
+		Assert::same('(B, 123, 123.4, T, DT, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, TRUE, $dt, NULL]));
 	}
 
 
@@ -107,7 +108,7 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('NULL', $this->parser->processModifier('b?', NULL));
 		Assert::same('NULL', $this->parser->processModifier('dt?', NULL));
 		Assert::same('NULL', $this->parser->processModifier('dts?', NULL));
-		Assert::same('NULL', $this->parser->processModifier('any?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('any', NULL));
 	}
 
 
@@ -383,31 +384,7 @@ class SqlProcessorScalarTest extends TestCase
 			['dts?[]', [[]], 'Modifier %dts? does not allow array value, use modifier %dts?[] instead.'],
 			['dts?[]', [new stdClass()], 'Modifier %dts? expects value to be DateTime, stdClass given.'],
 
-			['any', [], 'Modifier %any does not allow array value, use modifier %any[] instead.'],
-			['any', new stdClass(), 'Modifier %any expects value to be DateTime, stdClass given.'],
-			['any', NULL, 'Modifier %any does not allow NULL value, use modifier %any? instead.'],
-
-			['any?', [], 'Modifier %any? does not allow array value, use modifier %any?[] instead.'],
-			['any?', new stdClass(), 'Modifier %any? expects value to be DateTime, stdClass given.'],
-
-			['any[]', '123', 'Modifier %any[] expects value to be array, string given.'],
-			['any[]', 123, 'Modifier %any[] expects value to be array, integer given.'],
-			['any[]', 123.0, 'Modifier %any[] expects value to be array, double given.'],
-			['any[]', TRUE, 'Modifier %any[] expects value to be array, boolean given.'],
-			['any[]', new stdClass(), 'Modifier %any[] expects value to be array, stdClass given.'],
-			['any[]', NULL, 'Modifier %any[] expects value to be array, NULL given.'],
-			['any[]', [[]], 'Modifier %any does not allow array value, use modifier %any[] instead.'],
-			['any[]', [new stdClass()], 'Modifier %any expects value to be DateTime, stdClass given.'],
-			['any[]', [NULL], 'Modifier %any does not allow NULL value, use modifier %any? instead.'],
-
-			['any?[]', '123', 'Modifier %any?[] expects value to be array, string given.'],
-			['any?[]', 123, 'Modifier %any?[] expects value to be array, integer given.'],
-			['any?[]', 123.0, 'Modifier %any?[] expects value to be array, double given.'],
-			['any?[]', TRUE, 'Modifier %any?[] expects value to be array, boolean given.'],
-			['any?[]', new stdClass(), 'Modifier %any?[] expects value to be array, stdClass given.'],
-			['any?[]', NULL, 'Modifier %any?[] expects value to be array, NULL given.'],
-			['any?[]', [[]], 'Modifier %any? does not allow array value, use modifier %any?[] instead.'],
-			['any?[]', [new stdClass()], 'Modifier %any? expects value to be DateTime, stdClass given.'],
+			['any', new stdClass(), 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 		];
 	}
 
