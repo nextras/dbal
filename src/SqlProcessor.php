@@ -36,6 +36,7 @@ class SqlProcessor
 		'values' => [FALSE, TRUE, 'array'],
 		'set' => [FALSE, FALSE, 'array'],
 		'raw' => [FALSE, FALSE, 'string'],
+		'ex' => [FALSE, FALSE, 'array'],
 	];
 
 
@@ -207,6 +208,8 @@ class SqlProcessor
 					case 'set':
 						return $this->processSet($type, $value);
 
+					case 'ex':
+						return $this->process($value);
 				}
 
 				if (substr($type, -1) === ']') {
