@@ -17,6 +17,27 @@ class SqlProcessor
 	/** @var IDriver */
 	private $driver;
 
+	/** @var array (name => [supports ?, supports [], expected type]) */
+	protected $modifiers = [
+		// expressions
+		's' => [TRUE, TRUE, 'string'],
+		'i' => [TRUE, TRUE, 'int'],
+		'f' => [TRUE, TRUE, 'float'],
+		'b' => [TRUE, TRUE, 'bool'],
+		'dt' => [TRUE, TRUE, 'DateTime'],
+		'dts' => [TRUE, TRUE, 'DateTime'],
+		'any' => [TRUE, TRUE, 'pretty much anything'],
+		'and' => [FALSE, FALSE, 'array'],
+		'or' => [FALSE, FALSE, 'array'],
+
+		// SQL constructs
+		'table' => [FALSE, TRUE, 'string'],
+		'column' => [FALSE, TRUE, 'string'],
+		'values' => [FALSE, TRUE, 'array'],
+		'set' => [FALSE, FALSE, 'array'],
+		'raw' => [FALSE, FALSE, 'string'],
+	];
+
 
 	public function __construct(IDriver $driver)
 	{
@@ -25,6 +46,7 @@ class SqlProcessor
 
 
 	/**
+	 * @param  mixed[]
 	 * @return string
 	 */
 	public function process(array $args)
@@ -77,137 +99,223 @@ class SqlProcessor
 	 */
 	public function processModifier($type, $value)
 	{
-		if ($type === 'any') {
-			$type = $this->getValueModifier($value);
+		$valueType = gettype($value);
+		switch ($valueType[0]) {
+			case 's': // string
+				switch ($type) {
+					case 's':
+					case 's?':
+					case 'any':
+					case 'any?':
+						return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
+
+					case 'i':
+					case 'i?':
+						if (!preg_match('#^-?[1-9][0-9]*+\z#', $value)) {
+							$this->throwInvalidValueTypeException($type, $value, 'int'); // TODO!
+						}
+						return (string) $value;
+
+					case 'table':
+					case 'column':
+						if ($value === '*') {
+							$this->throwWrongModifierException($type, $value, "{$type}[]");
+						}
+						return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
+
+					case 'raw':
+						return $value;
+				}
+
+			break;
+			case 'i': // integer
+				switch ($type) {
+					case 'i':
+					case 'i?':
+					case 'any':
+					case 'any?':
+						return (string) $value;
+				}
+
+			break;
+			case 'd': // double
+				switch ($type) {
+					case 'f':
+					case 'f?':
+					case 'any':
+					case 'any?':
+						if (!is_finite($value)) {
+							$this->throwInvalidValueTypeException($type, $value, 'finite float');
+						}
+						return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
+				}
+
+			break;
+			case 'b': // boolean
+				switch ($type) {
+					case 'b':
+					case 'b?':
+					case 'any':
+					case 'any?':
+						return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
+				}
+
+			break;
+			case 'N': // NULL
+				switch ($type) {
+					case 's?':
+					case 'i?':
+					case 'f?':
+					case 'b?':
+					case 'dt?':
+					case 'dts?':
+					case 'any':
+					case 'any?':
+						return 'NULL';
+				}
+
+			break;
+			case 'o': // object
+				switch ($type) {
+					case 'dt':
+					case 'dt?':
+					case 'any':
+					case 'any?':
+						if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
+							$this->throwInvalidValueTypeException($type, $value, 'DateTime');
+						}
+						return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
+
+					case 'dts':
+					case 'dts?':
+						if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
+							$this->throwInvalidValueTypeException($type, $value, 'DateTime');
+						}
+						return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
+				}
+
+			break;
+			case 'a': // array
+				switch ($type) {
+					case 'and':
+					case 'or':
+						return $this->processWhere($type, $value);
+
+					case 'values':
+						return $this->processValues($type, $value);
+
+					case 'set':
+						return $this->processSet($type, $value);
+
+					case 'any':
+					case 'any?':
+						return $this->processArray("{$type}[]", $value);
+				}
+
+				if (substr($type, -1) === ']') {
+					switch ($type) {
+						case 'values[]':
+							return $this->processMultiValues($type, $value);
+
+						default:
+							return $this->processArray($type, $value); // TODO
+					}
+				}
 		}
-		$last = $type[strlen($type) - 1];
 
-		// %modifier[]
-		if ($last === ']') {
-			if (!is_array($value)) {
-				throw new InvalidArgumentException("Modifier %$type expects value to be array, " . gettype($value) . " given.");
-			} elseif ($type === 'values[]') {
-				return $this->processValueMultiValues($value);
-			} else {
-				return $this->processValueArray($value, $type);
-			}
-		}
+		$baseType = rtrim($type, '[]?');
+		$typeNullable = strrpos($type, '?');
+		$typeArray = substr($type, -2) === '[]';
+		if (!isset($this->modifiers[$baseType])) {
+			throw new InvalidArgumentException("Unknown modifier %$type.");
 
-		// %modifier?
-		if ($value === NULL) {
-			switch ($type) {
-				case 's?':
-				case 'i?':
-				case 'f?':
-				case 'b?':
-				case 'dt?':
-				case 'dts?':
-				case 'any?':
-					return 'NULL';
+		} elseif (($typeNullable && !$this->modifiers[$baseType][0]) || ($typeArray && !$this->modifiers[$baseType][1])) {
+			throw new InvalidArgumentException("Modifier %$baseType does not have %$type variant.");
 
-				case 's':
-				case 'i':
-				case 'f':
-				case 'b':
-				case 'dt':
-				case 'dts':
-					throw new InvalidArgumentException("Modifier %$type does not allow NULL value, use modifier %$type? instead.");
+		} elseif ($typeArray) {
+			$this->throwInvalidValueTypeException($type, $value, 'array');
 
-				default:
-					throw new InvalidArgumentException("Modifier %$type does not allow NULL value.");
-			}
-		}
+		} elseif ($value === NULL && !$typeNullable) {
+			$this->throwWrongModifierException($type, $value, "$type?");
 
-		// %modifier
-		$type2 = $last === '?' ? substr($type, 0, -1) : $type;
-		switch ($type2) {
-			case 's':
-				if (!is_string($value)) {
-					throw new InvalidArgumentException("Modifier %$type expects value to be string, " . gettype($value) . " given.");
-				}
-				return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
-
-			case 'i':
-				if (!is_int($value) && (!is_string($value) || !preg_match('#^-?[1-9][0-9]*+\z#', $value))) {
-					throw new InvalidArgumentException("Modifier %$type expects value to be int, " . gettype($value) . " given.");
-				}
-				return (string) $value;
-
-			case 'f':
-				if (!is_float($value)) {
-					throw new InvalidArgumentException("Modifier %$type expects value to be float, " . gettype($value) . " given.");
-				} elseif (!is_finite($value)) {
-					throw new InvalidArgumentException("Modifier %$type expects value to be finite float, $value given.");
-				}
-				return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
-
-			case 'b':
-				if (!is_bool($value)) {
-					throw new InvalidArgumentException("Modifier %$type expects value to be bool, " . gettype($value) . " given.");
-				}
-				return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
-
-			case 'dt':
-			case 'dts':
-				if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
-					throw new InvalidArgumentException("Modifier %$type expects value to be DateTime, " . gettype($value) . " given.");
-				}
-				return $this->driver->convertToSql($value, $type2 === 'dt' ? IDriver::TYPE_DATETIME : IDriver::TYPE_DATETIME_SIMPLE);
-
-			case 'table':
-			case 'column':
-				return $this->driver->convertToSql($value, IDriver::TYPE_IDENTIFIER);
-
-			case 'set':
-				return $this->processValueSet($value);
-
-			case 'values':
-				return $this->processValueValues($value);
-
-			case 'and':
-			case 'or':
-				return $this->processValueWhere($value, $type);
-
-			case 'raw':
-				return $value;
-
-			default:
-				throw new InvalidArgumentException("Unknown modifier %$type.");
+		} else {
+			$this->throwInvalidValueTypeException($type, $value, $this->modifiers[$baseType][2]);
 		}
 	}
 
 
-	protected function processValueArray($value, $type)
+	/**
+	 * @param  string $type
+	 * @param  mixed  $value
+	 * @param  string $expectedType
+	 * @return void
+	 */
+	protected function throwInvalidValueTypeException($type, $value, $expectedType)
+	{
+		$actualType = is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+		throw new InvalidArgumentException("Modifier %$type expects value to be $expectedType, $actualType given.");
+	}
+
+
+	/**
+	 * @param  string $type
+	 * @param  mixed  $value
+	 * @param  string $hint
+	 * @return void
+	 */
+	protected function throwWrongModifierException($type, $value, $hint)
+	{
+		$valueLabel = var_export($value, TRUE);
+		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");
+	}
+
+
+	/**
+	 * @param  string $type
+	 * @param  array  $value
+	 * @return string
+	 */
+	protected function processArray($type, array $value)
 	{
 		$values = [];
 		$subType = substr($type, 0, -2);
 		foreach ($value as $subValue) {
-			$values[] = $this->processModifier($subType, $subValue);
+			$values[] = $this->processModifier($subType, $subValue); // TODO: limited subset to s, i, f, b, dt, dts, any, table, column + NULLABLE
 		}
 
 		return '(' . implode(', ', $values) . ')';
 	}
 
 
-	protected function processValueSet($value)
+	/**
+	 * @param  string $type
+	 * @param  array  $value
+	 * @return string
+	 */
+	protected function processSet($type, array $value)
 	{
 		$values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$values[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER) . ' = '
-				. $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val);
+			$column = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+			$expr = $this->processModifier(isset($key[1]) ? $key[1] : $this->getValueModifier($val), $val); // TODO: limited subset to anything
+			$values[] = "$column = $expr";
 		}
 
 		return implode(', ', $values);
 	}
 
 
-	private function processValueMultiValues($value)
+	/**
+	 * @param  string $type
+	 * @param  array  $value
+	 * @return string
+	 */
+	protected function processMultiValues($type, array $value)
 	{
 		$keys = $values = [];
-		foreach ($value[0] as $_key => $val) {
-			$key = explode('%', $_key, 2);
-			$keys[] = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+		foreach (array_keys($value[0]) as $key) {
+			$keys[] = $this->driver->convertToSql(explode('%', $key, 2)[0], IDriver::TYPE_IDENTIFIER);
 		}
 		foreach ($value as $subValue) {
 			$subValues = [];
@@ -222,7 +330,12 @@ class SqlProcessor
 	}
 
 
-	private function processValueValues($value)
+	/**
+	 * @param  string $type
+	 * @param  array  $value
+	 * @return string
+	 */
+	private function processValues($type, array $value)
 	{
 		$keys = $values = [];
 		foreach ($value as $_key => $val) {
@@ -235,40 +348,43 @@ class SqlProcessor
 	}
 
 
-	private function processValueWhere(array $value, $type)
+	/**
+	 * @param  string $type
+	 * @param  array  $value
+	 * @return string
+	 */
+	private function processWhere($type, array $value)
 	{
 		if (count($value) === 0) {
 			return '1=1';
 		}
 
-		$values = [];
+		$operands = [];
 		foreach ($value as $_key => $val) {
 			if (is_int($_key)) {
 				if (!is_array($val)) {
 					throw new InvalidArgumentException('Item value with numeric index has to be an array.');
 				}
-				$values[] = '(' . $this->process($val) . ')';
+				$operands[] = '(' . $this->process($val) . ')';
 
 			} else {
 				$key = explode('%', $_key, 2);
-				$exp = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
+				$operand = $this->driver->convertToSql($key[0], IDriver::TYPE_IDENTIFIER);
 
 				$modifier = isset($key[1]) ? $key[1] : $this->getValueModifier($val);
-				$len = strlen($modifier);
-				if ($modifier[$len - 1] === '?' && $val === NULL) {
-					$exp .= ' IS ';
-				} elseif ($modifier[$len - 1] === ']') {
-					$exp .= ' IN ';
+				$last = substr($modifier, -1);
+				if ($last === '?' && $val === NULL) {
+					$operand .= ' IS NULL';
+				} elseif ($last === ']') {
+					$operand .= ' IN ' . $this->processArray($modifier, $val);
 				} else {
-					$exp .= ' = ';
+					$operand .= ' = ' . $this->processModifier($modifier, $val);
 				}
-
-				$exp .= $this->processModifier($modifier, $val);
-				$values[] = $exp;
+				$operands[] = $operand;
 			}
 		}
 
-		return implode($type === 'and' ? ' AND ' : ' OR ', $values);
+		return implode($type === 'and' ? ' AND ' : ' OR ', $operands);
 	}
 
 
