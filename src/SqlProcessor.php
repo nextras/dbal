@@ -177,22 +177,17 @@ class SqlProcessor
 
 			break;
 			case 'object':
-				switch ($type) {
-					case 'any':
-					case 'dt':
-					case 'dt?':
-						if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
-							if ($type === 'any') break; // to get better nicer error message
-							$this->throwInvalidValueTypeException($type, $value, 'DateTime');
-						}
-						return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
+				if ($value instanceof \DateTimeImmutable || $value instanceof \DateTime) {
+					switch ($type) {
+						case 'any':
+						case 'dt':
+						case 'dt?':
+							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
 
-					case 'dts':
-					case 'dts?':
-						if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
-							$this->throwInvalidValueTypeException($type, $value, 'DateTime');
-						}
-						return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
+						case 'dts':
+						case 'dts?':
+							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
+					}
 				}
 
 			break;
