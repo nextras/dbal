@@ -117,7 +117,7 @@ class SqlProcessor
 					case 'i':
 					case 'i?':
 						if (!preg_match('#^-?[1-9][0-9]*+\z#', $value)) {
-							$this->throwInvalidValueTypeException($type, $value, 'int'); // TODO!
+							break;
 						}
 						return (string) $value;
 
