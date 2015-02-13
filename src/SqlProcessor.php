@@ -299,13 +299,12 @@ class SqlProcessor
 	 */
 	protected function processArray($type, array $value)
 	{
-		$values = [];
 		$subType = substr($type, 0, -2);
-		foreach ($value as $subValue) {
-			$values[] = $this->processModifier($subType, $subValue); // TODO: limited subset to s, i, f, b, dt, dts, any, table, column + NULLABLE
+		foreach ($value as &$subValue) {
+			$subValue = $this->processModifier($subType, $subValue);
 		}
 
-		return '(' . implode(', ', $values) . ')';
+		return '(' . implode(', ', $value) . ')';
 	}
 
 
