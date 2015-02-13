@@ -25,7 +25,7 @@ class SqlProcessor
 		// expressions
 		's' => [TRUE, TRUE, 'string'],
 		'i' => [TRUE, TRUE, 'int'],
-		'f' => [TRUE, TRUE, 'float'],
+		'f' => [TRUE, TRUE, '(finite) float'],
 		'b' => [TRUE, TRUE, 'bool'],
 		'dt' => [TRUE, TRUE, 'DateTime'],
 		'dts' => [TRUE, TRUE, 'DateTime'],
@@ -143,14 +143,13 @@ class SqlProcessor
 
 			break;
 			case 'double':
-				switch ($type) {
-					case 'any':
-					case 'f':
-					case 'f?':
-						if (!is_finite($value)) {
-							$this->throwInvalidValueTypeException($type, $value, 'finite float');
-						}
-						return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
+				if (is_finite($value)) { // database can not handle INF and NAN
+					switch ($type) {
+						case 'any':
+						case 'f':
+						case 'f?':
+							return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
+					}
 				}
 
 			break;
