@@ -35,6 +35,11 @@ class SqlProcessorScalarTest extends TestCase
 	{
 		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
 		Assert::same('B', $this->parser->processModifier('s', 'A'));
+
+		// object with __toString
+		$file = new \SplFileInfo('C');
+		$this->driver->shouldReceive('convertToSql')->once()->with('C', IDriver::TYPE_STRING)->andReturn('D');
+		Assert::same('D', $this->parser->processModifier('s', $file));
 	}
 
 

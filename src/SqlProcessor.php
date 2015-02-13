@@ -187,6 +187,14 @@ class SqlProcessor
 						case 'dts?':
 							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
 					}
+
+				} elseif (method_exists($value, '__toString')) {
+					switch ($type) {
+						case 'any':
+						case 's':
+						case 's?':
+							return $this->driver->convertToSql((string) $value, IDriver::TYPE_STRING);
+					}
 				}
 
 			break;
