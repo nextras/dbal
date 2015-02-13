@@ -388,28 +388,32 @@ class SqlProcessor
 		}
 
 		$operands = [];
-		foreach ($value as $_key => $val) {
+		foreach ($value as $_key => $subValue) {
 			if (is_int($_key)) {
-				if (!is_array($val)) {
-					$valType = $this->getVariableTypeName($val);
-					throw new InvalidArgumentException("Modifier %$type requires items with numeric index to be array, $valType given.");
+				if (!is_array($subValue)) {
+					$subValueType = $this->getVariableTypeName($subValue);
+					throw new InvalidArgumentException("Modifier %$type requires items with numeric index to be array, $subValueType given.");
 				}
-				$operands[] = '(' . $this->process($val) . ')';
+
+				$operand = '(' . $this->process($subValue) . ')';
 
 			} else {
 				$key = explode('%', $_key, 2);
-				$operand = $this->identifiers->{$key[0]};
+				$column = $this->identifiers->{$key[0]};
+				$subType = isset($key[1]) ? $key[1] : 'any';
 
-				$modifier = isset($key[1]) ? $key[1] : 'any';
-				if ($val === NULL) {
-					$operand .= ' IS ' . $this->processModifier($modifier, $val);
-				} elseif (is_array($val)) {
-					$operand .= ' IN ' . $this->processModifier($modifier, $val);
+				if ($subValue === NULL) {
+					$op = ' IS ';
+				} elseif (is_array($subValue) && $subType !== 'ex') {
+					$op = ' IN ';
 				} else {
-					$operand .= ' = ' . $this->processModifier($modifier, $val);
+					$op = ' = ';
 				}
-				$operands[] = $operand;
+
+				$operand = $column . $op . $this->processModifier($subType, $subValue);
 			}
+
+			$operands[] = $operand;
 		}
 
 		return implode($type === 'and' ? ' AND ' : ' OR ', $operands);

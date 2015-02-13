@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+use DateTime;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\SqlProcessor;
@@ -27,6 +28,106 @@ class SqlProcessorWhereTest extends TestCase
 		parent::setUp();
 		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 		$this->parser = new SqlProcessor($this->driver);
+	}
+
+
+	/**
+	 * @dataProvider provideImplicitTypesData
+	 * @dataProvider provideExplicitTypesData
+	 */
+	public function testImplicitAndExplicitTypes($expected, $operands)
+	{
+		$this->driver->shouldReceive('convertToSql')->with('col', IDriver::TYPE_IDENTIFIER)->andReturn('`col`');
+		$this->driver->shouldReceive('convertToSql')->with('x', IDriver::TYPE_STRING)->andReturn('"x"');
+		$this->driver->shouldReceive('convertToSql')->with(Mockery::type('DateTime'), IDriver::TYPE_DATETIME)->andReturn('DT');
+
+		Assert::same($expected, $this->parser->processModifier('and', $operands));
+	}
+
+
+	public function provideImplicitTypesData()
+	{
+		return [
+			[
+				'`col` = 123',
+				['col' => 123]
+			],
+			[
+				'`col` = 123.4',
+				['col' => 123.4]
+			],
+			[
+				'`col` = "x"',
+				['col' => 'x']
+			],
+			[
+				'`col` = DT',
+				['col' => new DateTime('2014-05-01')]
+			],
+			[
+				'`col` IS NULL',
+				['col' => NULL]
+			],
+			[
+				'`col` IN (1, 2, 3)',
+				['col' => [1, 2, 3]]
+			],
+			[
+				'`col` IN ((1, 2), (3, 4))',
+				['col' => [[1, 2], [3, 4]]]
+			],
+			[
+				'`col` IN ("x", (1, ("x", DT), 3))',
+				['col' => ['x', [1, ['x', new DateTime('2014-05-01')], 3]]]
+			],
+		];
+	}
+
+
+	public function provideExplicitTypesData()
+	{
+		return [
+			[
+				'`col` = 123',
+				['col%i' => 123],
+			],
+			[
+				'`col` = 123.4',
+				['col%f' => 123.4],
+			],
+			[
+				'`col` = "x"',
+				['col%s' => 'x'],
+			],
+			[
+				'`col` = DT',
+				['col%dt' => new DateTime('2014-05-01')],
+			],
+			[
+				'`col` IS NULL',
+				['col%i?' => NULL],
+			],
+			[
+				'`col` IN (1, 2, 3)',
+				['col%i[]' => [1, 2, 3]],
+			],
+			[
+				'`col` IN ((1, 2), (3, 4))',
+				['col%i[][]' => [[1, 2], [3, 4]]],
+			],
+			[
+				'`col` = `col`',
+				['col%column' => 'col'],
+			],
+			[
+				'`col` = NOW() + 5',
+				['col%ex' => ['NOW() + %i', 5]],
+			],
+			[
+				'`col` = NOW() + %i',
+				['col%raw' => 'NOW() + %i'],
+			],
+		];
 	}
 
 
@@ -90,7 +191,7 @@ class SqlProcessorWhereTest extends TestCase
 	 */
 	public function testInvalid($type, $value, $message)
 	{
-		$this->driver->shouldIgnoreMissing('X');
+		$this->driver->shouldIgnoreMissing();
 		Assert::throws(
 			function() use ($type, $value) {
 				$this->parser->processModifier($type, $value);
