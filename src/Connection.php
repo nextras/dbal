@@ -8,8 +8,8 @@
 
 namespace Nextras\Dbal;
 
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\DriverException;
+use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions\DbalException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
@@ -23,11 +23,8 @@ class Connection
 	/** @var array of callbacks: function(Connection $connection) */
 	public $onDisconnect = [];
 
-	/** @var array of callbacks: function(Connection $connection, string $query) */
-	public $onBeforeQuery = [];
-
-	/** @var array of callbacks: function(Connection $connection, string $query, Result $rowset) */
-	public $onAfterQuery = [];
+	/** @var array of callbacks: function(Connection $connection, string $query, Result $result) */
+	public $onQuery = [];
 
 	/** @var array */
 	private $config;
@@ -105,7 +102,6 @@ class Connection
 	{
 		$this->connect();
 		$sql = $this->sqlPreprocessor->process(func_get_args());
-		$this->fireEvent('onBeforeQuery', [$this, $sql]);
 
 		try {
 			$result = $this->driver->nativeQuery($sql);
@@ -114,7 +110,7 @@ class Connection
 			throw $this->driver->convertException($e);
 		}
 
-		$this->fireEvent('onAfterQuery', [$this, $sql, $result]);
+		$this->fireEvent('onQuery', [$this, $sql, $result]);
 		return $result;
 	}
 
@@ -147,39 +143,36 @@ class Connection
 	public function transactionBegin()
 	{
 		$this->connect();
-		$this->fireEvent('onBeforeQuery', [$this, '::TRANSACTION BEGIN::']);
 		try {
 			$this->driver->transactionBegin();
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
-		$this->fireEvent('onAfterQuery', [$this, '::TRANSACTION BEGIN::']);
+		$this->fireEvent('onQuery', [$this, '::TRANSACTION BEGIN::']);
 	}
 
 
 	public function transactionCommit()
 	{
 		$this->connect();
-		$this->fireEvent('onBeforeQuery', [$this, '::TRANSACTION COMMIT::']);
 		try {
 			$this->driver->transactionCommit();
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
-		$this->fireEvent('onAfterQuery', [$this, '::TRANSACTION COMMIT::']);
+		$this->fireEvent('onQuery', [$this, '::TRANSACTION COMMIT::']);
 	}
 
 
 	public function transactionRollback()
 	{
 		$this->connect();
-		$this->fireEvent('onBeforeQuery', [$this, '::TRANSACTION ROLLBACK::']);
 		try {
 			$this->driver->transactionRollback();
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
-		$this->fireEvent('onAfterQuery', [$this, '::TRANSACTION ROLLBACK::']);
+		$this->fireEvent('onQuery', [$this, '::TRANSACTION ROLLBACK::']);
 	}
 
 
