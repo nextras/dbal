@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\QueryBuilder;
 
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Exceptions\InvalidStateException;
 
 
@@ -182,6 +183,9 @@ class QueryBuilder
 
 	public function select($expression)
 	{
+		if (!($expression === NULL || is_string($expression))) {
+			throw new InvalidArgumentException('Select expression has to be a string or NULL.');
+		}
 		$this->dirty();
 		$this->select = $expression === NULL ? NULL : [$expression];
 		$this->args['select'] = array_slice(func_get_args(), 1);
@@ -191,6 +195,9 @@ class QueryBuilder
 
 	public function addSelect($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Select expression has to be a string.');
+		}
 		$this->dirty();
 		$this->select[] = $expression;
 		$this->pushArgs('select', array_slice(func_get_args(), 1));
@@ -200,6 +207,9 @@ class QueryBuilder
 
 	public function where($expression)
 	{
+		if (!($expression === NULL || is_string($expression))) {
+			throw new InvalidArgumentException('Where expression has to be a string or NULL.');
+		}
 		$this->dirty();
 		$this->where = $expression;
 		$this->args['where'] = array_slice(func_get_args(), 1);
@@ -209,6 +219,9 @@ class QueryBuilder
 
 	public function andWhere($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Where expression has to be a string.');
+		}
 		$this->dirty();
 		$this->where = $this->where ? '(' . $this->where . ') AND (' . $expression . ')' : $expression;
 		$this->pushArgs('where', array_slice(func_get_args(), 1));
@@ -218,6 +231,9 @@ class QueryBuilder
 
 	public function orWhere($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Where expression has to be a string.');
+		}
 		$this->dirty();
 		$this->where = $this->where ? '(' . $this->where . ') OR (' . $expression . ')' : $expression;
 		$this->pushArgs('where', array_slice(func_get_args(), 1));
@@ -227,6 +243,9 @@ class QueryBuilder
 
 	public function groupBy($expression)
 	{
+		if (!($expression === NULL || is_string($expression))) {
+			throw new InvalidArgumentException('Group by expression has to be a string or NULL.');
+		}
 		$this->dirty();
 		$this->group = $expression === NULL ? NULL : [$expression];
 		$this->args['group'] = array_slice(func_get_args(), 1);
@@ -236,6 +255,9 @@ class QueryBuilder
 
 	public function addGroupBy($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Group by expression has to be a string.');
+		}
 		$this->dirty();
 		$this->group[] = $expression;
 		$this->pushArgs('group', array_slice(func_get_args(), 1));
@@ -245,6 +267,9 @@ class QueryBuilder
 
 	public function having($expression)
 	{
+		if (!($expression === NULL || is_string($expression))) {
+			throw new InvalidArgumentException('Having expression has to be a string or NULL.');
+		}
 		$this->dirty();
 		$this->having = $expression;
 		$this->args['having'] = array_slice(func_get_args(), 1);
@@ -254,6 +279,9 @@ class QueryBuilder
 
 	public function andHaving($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Having expression has to be a string.');
+		}
 		$this->dirty();
 		$this->having = $this->having ? '(' . $this->having . ') AND (' . $expression . ')' : $expression;
 		$this->pushArgs('having', array_slice(func_get_args(), 1));
@@ -263,6 +291,9 @@ class QueryBuilder
 
 	public function orHaving($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Having expression has to be a string.');
+		}
 		$this->dirty();
 		$this->having = $this->having ? '(' . $this->having . ') OR (' . $expression . ')' : $expression;
 		$this->pushArgs('having', array_slice(func_get_args(), 1));
@@ -272,6 +303,9 @@ class QueryBuilder
 
 	public function orderBy($expression)
 	{
+		if (!($expression === NULL || is_string($expression))) {
+			throw new InvalidArgumentException('Order by expression has to be a string or NULL.');
+		}
 		$this->dirty();
 		$this->order = $expression === NULL ? NULL : [$expression];
 		$this->args['order'] = array_slice(func_get_args(), 1);
@@ -281,6 +315,9 @@ class QueryBuilder
 
 	public function addOrderBy($expression)
 	{
+		if (!is_string($expression)) {
+			throw new InvalidArgumentException('Order by expression has to be a string.');
+		}
 		$this->dirty();
 		$this->order[] = $expression;
 		$this->pushArgs('order', array_slice(func_get_args(), 1));
