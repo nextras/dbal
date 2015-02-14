@@ -10,6 +10,7 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Result\Result;
+use Tracy\Debugger;
 use Tracy\IBarPanel;
 
 
@@ -23,6 +24,12 @@ class ConnectionPanel implements IBarPanel
 
 	/** @var array */
 	private $queries = [];
+
+
+	public static function install(Connection $connection)
+	{
+		Debugger::getBar()->addPanel(new ConnectionPanel($connection));
+	}
 
 
 	public function __construct(Connection $connection)
