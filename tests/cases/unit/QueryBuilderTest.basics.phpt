@@ -60,6 +60,20 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 	}
 
 
+	public function testSelect()
+	{
+		$this->assertBuilder(
+			['SELECT id FROM foo'],
+			$this->builder()->from('foo')->addSelect('id')
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo'],
+			$this->builder()->from('foo')
+		);
+	}
+
+
 	public function testAndMethods()
 	{
 		$this->assertBuilder(

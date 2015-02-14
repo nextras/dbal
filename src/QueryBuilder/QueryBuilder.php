@@ -35,7 +35,7 @@ class QueryBuilder
 	];
 
 	/** @var array|NULL */
-	private $select = ['*'];
+	private $select;
 
 	/** @var array|NULL */
 	private $from;
@@ -103,7 +103,7 @@ class QueryBuilder
 	private function getSQLForSelect()
 	{
 		$query =
-			'SELECT ' . implode(', ', $this->select)
+			'SELECT ' . ($this->select !== NULL ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
 			. ($this->where !== NULL  ? ' WHERE ' . ($this->where) : '')
 			. ($this->group           ? ' GROUP BY ' . implode(', ', $this->group) : '')
