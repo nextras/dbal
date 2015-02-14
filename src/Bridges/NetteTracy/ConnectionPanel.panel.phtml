@@ -1,0 +1,24 @@
+<?php
+
+namespace Nextras\Dbal\Bridges\NetteTracy;
+
+?>
+<style class="tracy-debug">
+	#tracy-debug td.nextras-dbal-panel-sql { background: white !important }
+</style>
+
+<h1>Queries: <?php echo $count ?></h1>
+<div class="tracy-inner nextras-dbal-panel">
+	<table>
+		<tr><th>SQL query</th></tr>
+		<?php
+		foreach ($queries as $query):
+			list($connection, $sql) = $query;
+		?>
+		<tr>
+		<td class="nextras-dbal-panel-sql"><?php echo $sql ?></td>
+		</tr>
+		<?php endforeach ?>
+	</table>
+	<?php if (count($queries) < $count): ?><p>...and more</p><?php endif ?>
+</div>
