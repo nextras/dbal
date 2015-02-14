@@ -181,6 +181,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Sets expression as SELECT clause. Passing NULL sets clause to the default state.
+	 * @param  string|NULL $expression
+	 * @param  mixed       ...$arg
+	 * @return self
+	 */
 	public function select($expression)
 	{
 		if (!($expression === NULL || is_string($expression))) {
@@ -193,6 +199,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression to SELECT clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function addSelect($expression)
 	{
 		if (!is_string($expression)) {
@@ -205,6 +217,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Sets expression as WHERE clause. Passing NULL sets clause to the default state.
+	 * @param  string|NULL $expression
+	 * @param  mixed       ...$arg
+	 * @return self
+	 */
 	public function where($expression)
 	{
 		if (!($expression === NULL || is_string($expression))) {
@@ -217,6 +235,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression with AND to WHERE clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function andWhere($expression)
 	{
 		if (!is_string($expression)) {
@@ -229,6 +253,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression with OR to WHERE clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function orWhere($expression)
 	{
 		if (!is_string($expression)) {
@@ -241,6 +271,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Sets expression as GROUP BY clause. Passing NULL sets clause to the default state.
+	 * @param  string|NULL $expression
+	 * @param  mixed       ...$arg
+	 * @return self
+	 */
 	public function groupBy($expression)
 	{
 		if (!($expression === NULL || is_string($expression))) {
@@ -253,6 +289,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression to GROUP BY clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function addGroupBy($expression)
 	{
 		if (!is_string($expression)) {
@@ -265,6 +307,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Sets expression as HAVING clause. Passing NULL sets clause to the default state.
+	 * @param  string|NULL $expression
+	 * @param  mixed       ...$arg
+	 * @return self
+	 */
 	public function having($expression)
 	{
 		if (!($expression === NULL || is_string($expression))) {
@@ -277,6 +325,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression with AND to HAVING clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function andHaving($expression)
 	{
 		if (!is_string($expression)) {
@@ -289,6 +343,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression with OR to HAVING clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function orHaving($expression)
 	{
 		if (!is_string($expression)) {
@@ -301,6 +361,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Sets expression as ORDER BY clause. Passing NULL sets clause to the default state.
+	 * @param  string|NULL $expression
+	 * @param  mixed       ...$arg
+	 * @return self
+	 */
 	public function orderBy($expression)
 	{
 		if (!($expression === NULL || is_string($expression))) {
@@ -313,6 +379,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Adds expression to ORDER BY clause.
+	 * @param  string $expression
+	 * @param  mixed  ...$arg
+	 * @return self
+	 */
 	public function addOrderBy($expression)
 	{
 		if (!is_string($expression)) {
@@ -325,6 +397,12 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Sets LIMIT and OFFSET clause.
+	 * @param  int|NULL $limit
+	 * @param  int|NULL $offset
+	 * @return self
+	 */
 	public function limitBy($limit, $offset = NULL)
 	{
 		$this->dirty();
@@ -333,6 +411,10 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Returns true if LIMIT or OFFSET clause is set.
+	 * @return bool
+	 */
 	public function hasLimitOffsetClause()
 	{
 		return $this->limit !== NULL;
