@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Bridges\NetteDI;
 
 use Nette\DI\CompilerExtension;
+use Tracy\Debugger;
 
 
 class DbalExtension extends CompilerExtension
@@ -25,11 +26,21 @@ class DbalExtension extends CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 
-		$builder->addDefinition($this->prefix('connection'))
+		$definition = $builder->addDefinition($this->prefix('connection'))
 			->setClass('Nextras\Dbal\Connection')
 			->setArguments([
 				'config' => $config,
 			]);
+
+		if (isset($config['tracyPanel'])) {
+			$enableTracyPanel = $config['tracyPanel'];
+		} else {
+			$enableTracyPanel = class_exists('Tracy\Debugger') && Debugger::$productionMode === Debugger::DEVELOPMENT;
+		}
+
+		if ($enableTracyPanel) {
+			$definition->addSetup('Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel::install', ['@self']);
+		}
 	}
 
 }
