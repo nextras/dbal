@@ -44,6 +44,13 @@ class PostgreDriver implements IDriver
 			'connect_timeout', 'options', 'sslmode', 'service',
 		];
 
+		if (!isset($params['user']) && isset($params['username'])) {
+			$params['user'] = $params['username'];
+		}
+		if (!isset($params['dbname']) && isset($params['database'])) {
+			$params['dbname'] = $params['database'];
+		}
+
 		$connectionString = '';
 		foreach ($knownKeys as $key) {
 			if (isset($params[$key])) {

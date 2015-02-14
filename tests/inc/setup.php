@@ -24,7 +24,7 @@ foreach ($config as $name => $configDatabase) {
 
 	$connection = new Connection($configDatabase);
 	$resetFunction = require __DIR__ . "/../data/{$name}-reset.php";
-	$resetFunction($connection, $configDatabase['dbname']);
+	$resetFunction($connection, $configDatabase['database']);
 
 	FileImporter::executeFile($connection, __DIR__ . "/../data/{$name}-init.sql");
 }
