@@ -183,7 +183,7 @@ class QueryBuilder
 	public function select($expression)
 	{
 		$this->dirty();
-		$this->select = [$expression];
+		$this->select = $expression === NULL ? NULL : [$expression];
 		$this->args['select'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
@@ -228,7 +228,7 @@ class QueryBuilder
 	public function groupBy($expression)
 	{
 		$this->dirty();
-		$this->group = [$expression];
+		$this->group = $expression === NULL ? NULL : [$expression];
 		$this->args['group'] = array_slice(func_get_args(), 1);
 		return $this;
 	}
@@ -273,7 +273,7 @@ class QueryBuilder
 	public function orderBy($expression)
 	{
 		$this->dirty();
-		$this->order = [$expression];
+		$this->order = $expression === NULL ? NULL : [$expression];
 		$this->args['order'] = array_slice(func_get_args(), 1);
 		return $this;
 	}

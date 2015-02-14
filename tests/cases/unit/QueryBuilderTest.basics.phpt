@@ -74,6 +74,34 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 	}
 
 
+	public function testResetingAddExpression()
+	{
+		$this->assertBuilder(
+			['SELECT * FROM foo'],
+			$this->builder()
+				->from('foo')
+				->select('id')
+				->select(NULL)
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo'],
+			$this->builder()
+				->from('foo')
+				->groupBy('id')
+				->groupBy(NULL)
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo'],
+			$this->builder()
+				->from('foo')
+				->orderBy('id')
+				->orderBy(NULL)
+		);
+	}
+
+
 	public function testAndMethods()
 	{
 		$this->assertBuilder(
