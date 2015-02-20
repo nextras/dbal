@@ -148,6 +148,16 @@ class QueryBuilder
 	}
 
 
+	public function getFromAlias()
+	{
+		if ($this->from === NULL) {
+			throw new InvalidArgumentException('From clause has not been set.');
+		}
+
+		return $this->from[1];
+	}
+
+
 	public function innerJoin($fromAlias, $toExpression, $toAlias, $onExpression)
 	{
 		return $this->join('INNER', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
