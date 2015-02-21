@@ -138,6 +138,16 @@ class QueryBuilder
 	}
 
 
+	public function getClause($part)
+	{
+		if (!isset($this->args[$part]) && !array_key_exists($part, $this->args)) {
+			throw new InvalidArgumentException("Unknown '$part' clause type.");
+		}
+
+		return [$this->$part, $this->args[$part]];
+	}
+
+
 	public function from($fromExpression, $alias = NULL)
 	{
 		$this->dirty();
