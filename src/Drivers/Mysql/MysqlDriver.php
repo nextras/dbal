@@ -18,6 +18,7 @@ use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Platforms\MysqlPlatform;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\DateTimeFactory;
 
 
 class MysqlDriver implements IDriver
@@ -205,10 +206,10 @@ class MysqlDriver implements IDriver
 			return $value;
 
 		} elseif ($nativeType === MYSQLI_TYPE_DATE || $nativeType === MYSQLI_TYPE_DATETIME) {
-			return new DateTime($value . ' ' . $this->simpleStorageTz->getName());
+			return DateTimeFactory::from($value . ' ' . $this->simpleStorageTz->getName());
 
 		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
-			return new DateTime($value . ' ' . $this->connectionTz->getName());
+			return DateTimeFactory::from($value . ' ' . $this->connectionTz->getName());
 
 		} elseif ($nativeType === MYSQLI_TYPE_BIT) {
 			// called only under HHVM

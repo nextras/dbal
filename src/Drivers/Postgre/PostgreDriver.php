@@ -17,6 +17,7 @@ use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Platforms\PostgrePlatform;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\DateTimeFactory;
 
 
 class PostgreDriver implements IDriver
@@ -198,7 +199,7 @@ class PostgreDriver implements IDriver
 			return in_array(strtolower($value), $trues, TRUE);
 
 		} elseif ($nativeType === 'time' || $nativeType === 'date' || $nativeType === 'timestamp') {
-			return new DateTime($value . ' ' . $this->simpleStorageTz->getName());
+			return DateTimeFactory::from($value . ' ' . $this->simpleStorageTz->getName());
 
 		} elseif ($nativeType === 'interval') {
 			return DateInterval::createFromDateString($value);

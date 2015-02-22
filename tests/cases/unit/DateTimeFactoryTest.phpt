@@ -44,6 +44,13 @@ class DateTimeFactoryTest extends TestCase
 		);
 	}
 
+
+	public function testType()
+	{
+		$datetime = DateTimeFactory::from(new DateTime('2015-01-01T05:27:35+01:00'), new DateTimeZone('Europe/London'));
+		Assert::type('Nextras\Dbal\Utils\DateTime', $datetime);
+	}
+
 }
 
 

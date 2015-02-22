@@ -8,8 +8,6 @@
 
 namespace Nextras\Dbal\Utils;
 
-use DateTime;
-use DateTimeInterface;
 use DateTimeZone;
 
 
@@ -18,8 +16,8 @@ class DateTimeFactory
 
 	public static function from($time, DateTimeZone $timezone = NULL)
 	{
-		if ($time instanceof DateTime || $time instanceof DateTimeInterface) {
-			$datetime = clone $time;
+		if ($time instanceof \DateTime || $time instanceof \DateTimeInterface) {
+			$datetime = new DateTime($time->format('Y-m-d H:i:s'), $time->getTimezone());
 
 		} elseif (ctype_digit($time)) {
 			$datetime = new DateTime("@{$time}");
