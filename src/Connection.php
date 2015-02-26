@@ -42,17 +42,7 @@ class Connection
 	public function __construct(array $config)
 	{
 		$this->config = $config;
-
-		$driver = $config['driver'];
-		if (is_object($driver)) {
-			$this->driver = $driver;
-
-		} else {
-			$driver = ucfirst($driver);
-			$driver = "Nextras\\Dbal\\Drivers\\{$driver}\\{$driver}Driver";
-			$this->driver = new $driver;
-		}
-
+		$this->driver = $this->createDriver($config);
 		$this->sqlPreprocessor = new SqlProcessor($this->driver);
 	}
 
@@ -193,6 +183,19 @@ class Connection
 			return $this->driver->ping();
 		} catch (DriverException $e) {
 			return FALSE;
+		}
+	}
+
+
+	private function createDriver(array $config)
+	{
+		if ($config['driver'] instanceof IDriver) {
+			return $config['driver'];
+
+		} else {
+			$name = ucfirst($config['driver']);
+			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
+			return new $class;
 		}
 	}
 
