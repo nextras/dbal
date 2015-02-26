@@ -15,7 +15,7 @@ use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Exceptions\NotSupportedException;
 
 
-final class Row implements IteratorAggregate, ArrayAccess
+class Row implements IteratorAggregate, ArrayAccess
 {
 	/** @var array */
 	private $data;
