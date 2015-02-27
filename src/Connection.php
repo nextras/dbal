@@ -94,6 +94,16 @@ class Connection
 
 
 	/**
+	 * Returns connection configuration.
+	 * @return array
+	 */
+	public function getConfiguration()
+	{
+		return $this->config;
+	}
+
+
+	/**
 	 * @param  string $query
 	 * @return Result|NULL
 	 * @throws DbalException
