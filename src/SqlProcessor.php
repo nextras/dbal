@@ -59,7 +59,7 @@ class SqlProcessor
 	public function process(array $args)
 	{
 		$last = count($args) - 1;
-		$query = '';
+		$fragments = [];
 
 		for ($i = 0, $j = 0; $j <= $last; $j++) {
 			if (!is_string($args[$j])) {
@@ -70,8 +70,7 @@ class SqlProcessor
 			}
 
 			$i = $j;
-			$query .= ($i ? ' ' : '');
-			$query .= preg_replace_callback(
+			$fragments[] = preg_replace_callback(
 				'#%(\w++\??+(?:\[\]){0,2}+)|\[(.+?)\]#S', // %modifier | [identifier]
 				function ($matches) use ($args, &$j, $last) {
 					if ($matches[1] !== '') {
@@ -95,7 +94,7 @@ class SqlProcessor
 			}
 		}
 
-		return $query;
+		return implode(' ', $fragments);
 	}
 
 
