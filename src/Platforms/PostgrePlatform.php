@@ -43,7 +43,7 @@ class PostgrePlatform implements IPlatform
 
 		$tables = [];
 		foreach ($result as $row) {
-			$tables[$row['name']] = $row->toArray();
+			$tables[$row->name] = $row->toArray();
 		}
 		return $tables;
 	}

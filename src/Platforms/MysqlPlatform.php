@@ -27,6 +27,7 @@ class MysqlPlatform implements IPlatform
 	{
 		$tables = [];
 		foreach ($this->connection->query('SHOW FULL TABLES') as $row) {
+			$row = array_values($row->toArray());
 			$tables[$row[0]] = [
 				'name' => $row[0],
 				'is_view' => isset($row[1]) && $row[1] === 'VIEW',
@@ -40,16 +41,16 @@ class MysqlPlatform implements IPlatform
 	{
 		$columns = [];
 		foreach ($this->connection->query('SHOW FULL COLUMNS FROM %table', $table) as $row) {
-			$type = explode('(', $row['Type']);
-			$columns[$row['Field']] = [
-				'name' => $row['Field'],
+			$type = explode('(', $row->Type);
+			$columns[$row->Field] = [
+				'name' => $row->Field,
 				'type' => strtoupper($type[0]),
 				'size' => isset($type[1]) ? (int) $type[1] : NULL,
-				'default' => $row['Default'],
-				'is_primary' => $row['Key'] === 'PRI',
-				'is_autoincrement' => $row['Extra'] === 'auto_increment',
-				'is_unsigned' => (bool) strstr($row['Type'], 'unsigned'),
-				'is_nullable' => $row['Null'] === 'YES',
+				'default' => $row->Default,
+				'is_primary' => $row->Key === 'PRI',
+				'is_autoincrement' => $row->Extra === 'auto_increment',
+				'is_unsigned' => (bool) strstr($row->Type, 'unsigned'),
+				'is_nullable' => $row->Null === 'YES',
 			];
 		}
 		return $columns;
@@ -71,11 +72,11 @@ class MysqlPlatform implements IPlatform
 
 		$keys = [];
 		foreach ($result as $row) {
-			$keys[$row['COLUMN_NAME']] = [
-				'name' => $row['CONSTRAINT_NAME'],
-				'column' => $row['COLUMN_NAME'],
-				'ref_table' => $row['REFERENCED_TABLE_NAME'],
-				'ref_column' => $row['REFERENCED_COLUMN_NAME'],
+			$keys[$row->COLUMN_NAME] = [
+				'name' => $row->CONSTRAINT_NAME,
+				'column' => $row->COLUMN_NAME,
+				'ref_table' => $row->REFERENCED_TABLE_NAME,
+				'ref_column' => $row->REFERENCED_COLUMN_NAME,
 			];
 		}
 		return $keys;
