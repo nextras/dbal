@@ -38,6 +38,9 @@ class Connection
 	/** @var SqlProcessor */
 	private $sqlPreprocessor;
 
+	/** @var bool */
+	private $connected;
+
 
 	/**
 	 * @param  array $config see drivers for supported options
@@ -47,6 +50,7 @@ class Connection
 		$this->config = $config;
 		$this->driver = $this->createDriver($config);
 		$this->sqlPreprocessor = new SqlProcessor($this->driver);
+		$this->connected = $this->driver->isConnected();
 	}
 
 
@@ -57,12 +61,10 @@ class Connection
 	 */
 	public function connect()
 	{
-		if ($this->driver->isConnected()) {
-			return;
-		}
-
 		try {
 			$this->driver->connect($this->config);
+			$this->connected = TRUE;
+
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
@@ -78,6 +80,7 @@ class Connection
 	public function disconnect()
 	{
 		$this->driver->disconnect();
+		$this->connected = FALSE;
 		$this->fireEvent('onDisconnect', [$this]);
 	}
 
@@ -121,7 +124,7 @@ class Connection
 	 */
 	public function query(/*...$args*/)
 	{
-		$this->connect();
+		$this->connected || $this->connect();
 		$args = func_get_args();
 		$sql = $this->sqlPreprocessor->process($args);
 
@@ -157,7 +160,6 @@ class Connection
 	 */
 	public function getLastInsertedId($sequenceName = NULL)
 	{
-		$this->connect();
 		return $this->driver->getLastInsertedId($sequenceName);
 	}
 
@@ -168,7 +170,7 @@ class Connection
 	public function getPlatform()
 	{
 		if ($this->platform === NULL) {
-			$this->connect();
+			$this->connected || $this->connect();
 			$this->platform = $this->driver->createPlatform($this);
 		}
 
@@ -203,7 +205,7 @@ class Connection
 	 */
 	public function transactionBegin()
 	{
-		$this->connect();
+		$this->connected || $this->connect();
 		try {
 			$this->driver->transactionBegin();
 		} catch (DriverException $e) {
@@ -220,7 +222,6 @@ class Connection
 	 */
 	public function transactionCommit()
 	{
-		$this->connect();
 		try {
 			$this->driver->transactionCommit();
 		} catch (DriverException $e) {
@@ -237,7 +238,6 @@ class Connection
 	 */
 	public function transactionRollback()
 	{
-		$this->connect();
 		try {
 			$this->driver->transactionRollback();
 		} catch (DriverException $e) {
@@ -253,7 +253,6 @@ class Connection
 	 */
 	public function ping()
 	{
-		$this->connect();
 		try {
 			return $this->driver->ping();
 
