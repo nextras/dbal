@@ -8,14 +8,11 @@
 
 namespace Nextras\Dbal\Result;
 
-use Iterator;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
-use Nextras\Dbal\Utils\DateTimeFactory;
 
 
-class Result implements Iterator
+class Result implements \SeekableIterator
 {
 	/** @var IResultAdapter */
 	private $adapter;
@@ -26,17 +23,45 @@ class Result implements Iterator
 	/** @var Row|NULL */
 	private $iteratorRow;
 
-	/** @var NULL|bool|array */
-	private $types;
-
 	/** @var IDriver */
 	private $driver;
+
+	/** @var string[] list of columns which should be casted to int */
+	private $toIntColumns = [];
+
+	/** @var string[] list of columns which should be casted to float */
+	private $toFloatColumns = [];
+
+	/** @var string[] list of columns which should be casted to string */
+	private $toStringColumns = [];
+
+	/** @var string[] list of columns which should be casted to bool */
+	private $toBoolColumns = [];
+
+	/** @var string[] list of columns which should be casted to DateTime */
+	private $toDateTimeColumns = [];
+
+	/** @var array[] list of columns which should be casted using driver-specific logic */
+	private $toDriverColumns = [];
+
+	/** @var array[] list of columns which should be casted using callback */
+	private $toCallbackColumns = [];
 
 
 	public function __construct(IResultAdapter $adapter, IDriver $driver)
 	{
 		$this->adapter = $adapter;
 		$this->driver = $driver;
+		$this->initColumnConversions();
+	}
+
+
+	/**
+	 * @return IResultAdapter
+	 */
+	public function getAdapter()
+	{
+		return $this->adapter;
 	}
 
 
@@ -46,62 +71,25 @@ class Result implements Iterator
 	 */
 	public function setColumnValueNormalization($enabled = FALSE)
 	{
-		$this->types = $enabled ? NULL : FALSE;
+		$this->toIntColumns = [];
+		$this->toFloatColumns = [];
+		$this->toStringColumns = [];
+		$this->toBoolColumns = [];
+		$this->toDateTimeColumns = [];
+		$this->toDriverColumns = [];
+		$this->toCallbackColumns = [];
 	}
 
 
 	/**
-	 * Sets column type.
-	 * @param string $column
-	 * @param int    $type
-	 * @param mixed  $nativeType
+	 * @return Row|NULL
 	 */
-	public function setColumnType($column, $type, $nativeType = NULL)
-	{
-		if ($this->types === NULL) {
-			$this->types = $this->adapter->getTypes();
-		}
-
-		if ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC && $nativeType === NULL) {
-			throw new InvalidArgumentException('Undefined native type for driver resolution.');
-		}
-
-		$this->types[$column] = [$type, $nativeType];
-	}
-
-
-	/**
-	 * Returns detected column type.
-	 * If column does not exists in resulset, returns NULL.
-	 * @param  string $column
-	 * @return array|NULL
-	 */
-	public function getColumnType($column)
-	{
-		if ($this->types === NULL) {
-			$this->types = $this->adapter->getTypes();
-		}
-
-		return isset($this->types[$column]) ? $this->types[$column] : NULL;
-	}
-
-
-	/** @return Row|NULL */
 	public function fetch()
 	{
 		$data = $this->adapter->fetch();
-		if ($data === NULL) {
-			return NULL;
-		}
-
-		if ($this->types !== FALSE) {
-			if ($this->types === NULL) {
-				$this->types = $this->adapter->getTypes();
-			}
-			$data = $this->normalize($data);
-		}
-
-		return new Row($data);
+		$row = ($data === NULL ? NULL : new Row($this->normalize($data)));
+		$this->iteratorIndex++;
+		return $this->iteratorRow = $row;
 	}
 
 
@@ -118,39 +106,72 @@ class Result implements Iterator
 	}
 
 
-	protected function normalize($data)
+	protected function initColumnConversions()
 	{
-		foreach ($this->types as $key => $typePair) {
+		$types = $this->adapter->getTypes();
+		foreach ($types as $key => $typePair) {
 			list($type, $nativeType) = $typePair;
-			$value = $data[$key];
-
-			if ($value === NULL || $type === IResultAdapter::TYPE_STRING || !is_string($value)) {
-				// nothing to do
-
-			} elseif ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC) {
-				$data[$key] = $this->driver->convertToPhp($value, $nativeType);
+			if ($type === IResultAdapter::TYPE_STRING) {
+				$this->toStringColumns[] = $key;
 
 			} elseif ($type === IResultAdapter::TYPE_INT) {
-				// number is to big for integer type
-				$data[$key] = is_float($tmp = $value * 1) ? $value : $tmp;
+				$this->toIntColumns[] = $key;
+
+			} elseif ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC) {
+				$this->toDriverColumns[] = [$key, $nativeType];
 
 			} elseif ($type === IResultAdapter::TYPE_FLOAT) {
-				// number is to big for float type
-				$pointPos = strpos($value, '.');
-				if ($pointPos !== FALSE) {
-					$value = rtrim(rtrim($pointPos === 0 ? "0{$value}" : $value, '.'), '0');
-				}
-				$float = (float) $value;
-				$data[$key] = number_format($float, $pointPos ? strlen($value) - $pointPos - 1 : 0, '.', '') === $value ? $float : $value;
+				$this->toFloatColumns[] = $key;
 
 			} elseif ($type === IResultAdapter::TYPE_BOOL) {
-				$data[$key] = (bool) $value;
+				$this->toBoolColumns[] = $key;
 
 			} elseif ($type === IResultAdapter::TYPE_DATETIME) {
-				$data[$key] = DateTimeFactory::from($value);
+				$this->toDateTimeColumns[] = $key;
 
 			} elseif (is_callable($type)) {
-				$data[$key] = call_user_func_array($type, [$value]);
+				$this->toCallbackColumns[] = [$key, $type];
+			}
+		}
+	}
+
+
+	protected function normalize($data)
+	{
+		foreach ($this->toIntColumns as $column) {
+			if ($data[$column] !== NULL) {
+				$data[$column] = (int) $data[$column];
+			}
+		}
+
+		foreach ($this->toFloatColumns as $column) {
+			if ($data[$column] !== NULL) {
+				$data[$column] = (float) $data[$column];
+			}
+		}
+
+		foreach ($this->toBoolColumns as $column) {
+			if ($data[$column] !== NULL) {
+				$data[$column] = (bool) $data[$column];
+			}
+		}
+
+		foreach ($this->toStringColumns as $column) {
+			if ($data[$column] !== NULL) {
+				$data[$column] = (string) $data[$column];
+			}
+		}
+
+		foreach ($this->toDateTimeColumns as $column) {
+			if ($data[$column] !== NULL) {
+				$data[$column] = new \DateTime($data[$column]);
+			}
+		}
+
+		foreach ($this->toDriverColumns as $meta) {
+			list($column, $nativeType) = $meta;
+			if ($data[$column] !== NULL) {
+				$data[$column] = $this->driver->convertToPhp($data[$column], $nativeType);
 			}
 		}
 
@@ -158,16 +179,7 @@ class Result implements Iterator
 	}
 
 
-	// === iterator ====================================================================================================
-
-
-	public function rewind()
-	{
-		$this->adapter->seek(0);
-		$this->iteratorIndex = 0;
-		$this->iteratorRow = $this->fetch();
-	}
-
+	// === SeekableIterator ============================================================================================
 
 	public function key()
 	{
@@ -183,8 +195,7 @@ class Result implements Iterator
 
 	public function next()
 	{
-		$this->iteratorIndex++;
-		$this->iteratorRow = $this->fetch();
+		$this->fetch();
 	}
 
 
@@ -193,4 +204,17 @@ class Result implements Iterator
 		return $this->iteratorRow !== NULL;
 	}
 
+
+	public function rewind()
+	{
+		$this->seek(0);
+	}
+
+
+	public function seek($index)
+	{
+		$this->adapter->seek($index);
+		$this->iteratorIndex = $index - 1;
+		$this->fetch();
+	}
 }

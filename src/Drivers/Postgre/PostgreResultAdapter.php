@@ -47,6 +47,10 @@ class PostgreResultAdapter implements IResultAdapter
 	public function __construct($result)
 	{
 		$this->result = $result;
+
+		if (PHP_INT_SIZE < 8) {
+			self::$types['int8'] = self::TYPE_AS_IS;
+		}
 	}
 
 
@@ -78,7 +82,7 @@ class PostgreResultAdapter implements IResultAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$nativeType = pg_field_type($this->result, $i);
 			$types[pg_field_name($this->result, $i)] = [
-				0 => isset(self::$types[$nativeType]) ? self::$types[$nativeType] : self::TYPE_STRING,
+				0 => isset(self::$types[$nativeType]) ? self::$types[$nativeType] : self::TYPE_AS_IS,
 				1 => $nativeType,
 			];
 		}

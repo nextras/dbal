@@ -17,6 +17,7 @@ class ResultTest extends TestCase
 	public function testIterator()
 	{
 		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
@@ -49,6 +50,7 @@ class ResultTest extends TestCase
 	public function testFetchField()
 	{
 		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
@@ -59,6 +61,7 @@ class ResultTest extends TestCase
 
 
 		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
 
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');

@@ -35,6 +35,8 @@ class MysqlResultAdapter implements IResultAdapter
 		MYSQLI_TYPE_NEWDECIMAL  => self::TYPE_FLOAT,
 		MYSQLI_TYPE_DOUBLE      => self::TYPE_FLOAT,
 		MYSQLI_TYPE_FLOAT       => self::TYPE_FLOAT,
+
+		MYSQLI_TYPE_STRING      => self::TYPE_AS_IS,
 	];
 
 	/** @var mysqli_result */
@@ -46,6 +48,10 @@ class MysqlResultAdapter implements IResultAdapter
 		$this->result = $result;
 		if (defined('HHVM_VERSION')) {
 			self::$types[MYSQLI_TYPE_BIT] = self::TYPE_DRIVER_SPECIFIC;
+		}
+
+		if (PHP_INT_SIZE < 8) {
+			self::$types[MYSQLI_TYPE_LONGLONG] = self::TYPE_AS_IS;
 		}
 	}
 
@@ -78,7 +84,7 @@ class MysqlResultAdapter implements IResultAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$field = (array) $this->result->fetch_field_direct($i);
 			$types[$field['name']] = [
-				0 => isset(self::$types[$field['type']]) ? self::$types[$field['type']] : self::TYPE_STRING,
+				0 => isset(self::$types[$field['type']]) ? self::$types[$field['type']] : self::TYPE_AS_IS,
 				1 => $field['type'],
 			];
 		}

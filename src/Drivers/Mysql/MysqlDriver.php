@@ -199,17 +199,17 @@ class MysqlDriver implements IDriver
 
 	public function convertToPhp($value, $nativeType)
 	{
-		if ($nativeType === MYSQLI_TYPE_TIME) {
+		if ($nativeType === MYSQLI_TYPE_DATETIME || $nativeType === MYSQLI_TYPE_DATE) {
+			return new \DateTime($value, $this->simpleStorageTz);
+
+		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
+			return new \DateTime($value, $this->connectionTz);
+
+		} elseif ($nativeType === MYSQLI_TYPE_TIME) {
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
 			$value->invert = $m[1] ? 1 : 0;
 			return $value;
-
-		} elseif ($nativeType === MYSQLI_TYPE_DATE || $nativeType === MYSQLI_TYPE_DATETIME) {
-			return DateTimeFactory::from($value . ' ' . $this->simpleStorageTz->getName());
-
-		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
-			return DateTimeFactory::from($value . ' ' . $this->connectionTz->getName());
 
 		} elseif ($nativeType === MYSQLI_TYPE_BIT) {
 			// called only under HHVM

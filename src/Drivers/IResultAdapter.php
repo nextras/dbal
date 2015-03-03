@@ -20,6 +20,7 @@ interface IResultAdapter
 	const TYPE_FLOAT    = 3;
 	const TYPE_BOOL     = 4;
 	const TYPE_DATETIME = 5;
+	const TYPE_AS_IS    = 6;
 
 
 	/**
