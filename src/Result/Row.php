@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Result;
 
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
+use Nextras\Dbal\Utils\Typos;
 
 
 class Row
@@ -38,7 +39,8 @@ class Row
 	 */
 	public function __get($name)
 	{
-		throw new InvalidArgumentException("Column '$name' does not exist.");
+		$closest = Typos::getClosest($name, array_keys($this->toArray()), 3);
+		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest ? ", did you mean '$closest'?" :  "."));
 	}
 
 }
