@@ -98,7 +98,7 @@ class PostgreDriver implements IDriver
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 
 		$message = $exception->getMessage();
-		$code = (string) $exception->getErrorSQLState();
+		$code = (string) $exception->getErrorSqlState();
 		if ($code === '0A000' && strpos($message, 'truncate') !== FALSE) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.

@@ -17,13 +17,13 @@ use Nextras\Dbal\Result\Result;
 
 class Connection
 {
-	/** @var array of callbacks: function(Connection $connection) */
+	/** @var callable[]: function(Connection $connection) */
 	public $onConnect = [];
 
-	/** @var array of callbacks: function(Connection $connection) */
+	/** @var callable[]: function(Connection $connection) */
 	public $onDisconnect = [];
 
-	/** @var array of callbacks: function(Connection $connection, string $query, Result $result) */
+	/** @var callable[]: function(Connection $connection, string $query, Result $result) */
 	public $onQuery = [];
 
 	/** @var array */
@@ -39,6 +39,9 @@ class Connection
 	private $sqlPreprocessor;
 
 
+	/**
+	 * @param  array $config see drivers for supported options
+	 */
 	public function __construct(array $config)
 	{
 		$this->config = $config;
@@ -47,6 +50,11 @@ class Connection
 	}
 
 
+	/**
+	 * Connects to a database.
+	 * @return void
+	 * @throws DbalException
+	 */
 	public function connect()
 	{
 		if ($this->driver->isConnected()) {
@@ -63,6 +71,10 @@ class Connection
 	}
 
 
+	/**
+	 * Disconnects from a database.
+	 * @return void
+	 */
 	public function disconnect()
 	{
 		$this->driver->disconnect();
@@ -70,6 +82,10 @@ class Connection
 	}
 
 
+	/**
+	 * Reconnects to a database.
+	 * @return void
+	 */
 	public function reconnect()
 	{
 		$this->disconnect();
@@ -77,6 +93,9 @@ class Connection
 	}
 
 
+	/**
+	 * @return IDriver
+	 */
 	public function getDriver()
 	{
 		return $this->driver;
@@ -87,21 +106,24 @@ class Connection
 	 * Returns connection configuration.
 	 * @return array
 	 */
-	public function getConfiguration()
+	public function getConfig()
 	{
 		return $this->config;
 	}
 
 
 	/**
-	 * @param  string $query
+	 * Executes a query.
+	 *
+	 * @param  mixed       ...$args
 	 * @return Result|NULL
 	 * @throws DbalException
 	 */
-	public function query($query)
+	public function query(/*...$args*/)
 	{
 		$this->connect();
-		$sql = $this->sqlPreprocessor->process(func_get_args());
+		$args = func_get_args();
+		$sql = $this->sqlPreprocessor->process($args);
 
 		try {
 			$result = $this->driver->nativeQuery($sql);
@@ -115,6 +137,12 @@ class Connection
 	}
 
 
+	/**
+	 * @param  string $query
+	 * @param  array  $args
+	 * @return Result|NULL
+	 * @throws DbalException
+	 */
 	public function queryArgs($query, array $args)
 	{
 		array_unshift($args, $query);
@@ -122,6 +150,11 @@ class Connection
 	}
 
 
+	/**
+	 * Returns last inserted ID.
+	 * @param  string|NULL $sequenceName
+	 * @return int|string
+	 */
 	public function getLastInsertedId($sequenceName = NULL)
 	{
 		$this->connect();
@@ -129,6 +162,9 @@ class Connection
 	}
 
 
+	/**
+	 * @return IPlatform
+	 */
 	public function getPlatform()
 	{
 		if ($this->platform === NULL) {
@@ -140,6 +176,11 @@ class Connection
 	}
 
 
+	/**
+	 * Starts a transaction.
+	 * @return void
+	 * @throws DbalException
+	 */
 	public function transactionBegin()
 	{
 		$this->connect();
@@ -152,6 +193,11 @@ class Connection
 	}
 
 
+	/**
+	 * Commits the current transaction.
+	 * @return void
+	 * @throws DbalException
+	 */
 	public function transactionCommit()
 	{
 		$this->connect();
@@ -164,6 +210,11 @@ class Connection
 	}
 
 
+	/**
+	 * Cancels any uncommitted changes done during the current transaction.
+	 * @return void
+	 * @throws DbalException
+	 */
 	public function transactionRollback()
 	{
 		$this->connect();
@@ -176,17 +227,27 @@ class Connection
 	}
 
 
+	/**
+	 * Pings a database connection and tries to reconnect it if it is broken.
+	 * @return bool
+	 */
 	public function ping()
 	{
 		$this->connect();
 		try {
 			return $this->driver->ping();
+
 		} catch (DriverException $e) {
 			return FALSE;
 		}
 	}
 
 
+	/**
+	 * Creates a IDriver instance.
+	 * @param  array $config
+	 * @return IDriver
+	 */
 	private function createDriver(array $config)
 	{
 		if ($config['driver'] instanceof IDriver) {
@@ -200,7 +261,12 @@ class Connection
 	}
 
 
-	private function fireEvent($event, $args)
+	/**
+	 * @param  string $event
+	 * @param  array  $args
+	 * @return void
+	 */
+	private function fireEvent($event, array $args)
 	{
 		foreach ($this->$event as $callback) {
 			call_user_func_array($callback, $args);

@@ -78,7 +78,7 @@ class QueryBuilder
 		switch ($this->type) {
 			case self::TYPE_SELECT:
 			default:
-				$sql = $this->getSQLForSelect();
+				$sql = $this->getSqlForSelect();
 				break;
 		}
 
@@ -101,7 +101,7 @@ class QueryBuilder
 	}
 
 
-	private function getSQLForSelect()
+	private function getSqlForSelect()
 	{
 		$query =
 			'SELECT ' . ($this->select !== NULL ? implode(', ', $this->select) : '*')

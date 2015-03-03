@@ -40,7 +40,7 @@ class DriverException extends Exception
 	}
 
 
-	public function getErrorSQLState()
+	public function getErrorSqlState()
 	{
 		return $this->errorSqlState;
 	}

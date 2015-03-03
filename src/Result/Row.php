@@ -36,6 +36,7 @@ class Row
 
 	/**
 	 * @param  string $name
+	 * @return mixed
 	 */
 	public function __get($name)
 	{
