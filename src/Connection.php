@@ -177,6 +177,26 @@ class Connection
 
 
 	/**
+	 * Performs operation in a transaction.
+	 * @param  callable $callback function(Connection $conn): void
+	 * @return void
+	 * @throws DbalException
+	 */
+	public function transactional(callable $callback)
+	{
+		$this->transactionBegin();
+		try {
+			$callback($this);
+			$this->transactionCommit();
+
+		} catch (\Exception $e) {
+			$this->transactionRollback();
+			throw $e;
+		}
+	}
+
+
+	/**
 	 * Starts a transaction.
 	 * @return void
 	 * @throws DbalException
