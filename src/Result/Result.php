@@ -66,7 +66,7 @@ class Result implements \SeekableIterator
 
 
 	/**
-	 * Enabled and disabled column value normalization.
+	 * Enables and disables column value normalization.
 	 * @param  bool $enabled
 	 */
 	public function setColumnValueNormalization($enabled = FALSE)
@@ -93,7 +93,9 @@ class Result implements \SeekableIterator
 	}
 
 
-	/** @return mixed|NULL */
+	/**
+	 * @return mixed|NULL
+	 */
 	public function fetchField()
 	{
 		if ($row = $this->fetch()) { // = intentionally
@@ -181,6 +183,7 @@ class Result implements \SeekableIterator
 
 	// === SeekableIterator ============================================================================================
 
+
 	public function key()
 	{
 		return $this->iteratorIndex;
@@ -217,4 +220,5 @@ class Result implements \SeekableIterator
 		$this->iteratorIndex = $index - 1;
 		$this->fetch();
 	}
+
 }

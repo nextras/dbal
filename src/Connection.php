@@ -117,7 +117,6 @@ class Connection
 
 	/**
 	 * Executes a query.
-	 *
 	 * @param  mixed       ...$args
 	 * @return Result|NULL
 	 * @throws DbalException
