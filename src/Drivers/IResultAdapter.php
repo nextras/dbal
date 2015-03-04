@@ -14,13 +14,13 @@ use Nextras\Dbal\Exceptions\DbalException;
 interface IResultAdapter
 {
 	/** @const field types */
-	const TYPE_DRIVER_SPECIFIC = 0;
-	const TYPE_STRING   = 1;
-	const TYPE_INT      = 2;
-	const TYPE_FLOAT    = 3;
-	const TYPE_BOOL     = 4;
-	const TYPE_DATETIME = 5;
-	const TYPE_AS_IS    = 6;
+	const TYPE_DRIVER_SPECIFIC = 1;
+	const TYPE_STRING   = 2;
+	const TYPE_INT      = 4;
+	const TYPE_FLOAT    = 8;
+	const TYPE_BOOL     = 16;
+	const TYPE_DATETIME = 32;
+	const TYPE_AS_IS    = 64;
 
 
 	/**

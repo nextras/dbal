@@ -113,33 +113,43 @@ class Result implements \SeekableIterator
 		$types = $this->adapter->getTypes();
 		foreach ($types as $key => $typePair) {
 			list($type, $nativeType) = $typePair;
-			if ($type === IResultAdapter::TYPE_STRING) {
+
+			if ($type & IResultAdapter::TYPE_STRING) {
 				$this->toStringColumns[] = $key;
 
-			} elseif ($type === IResultAdapter::TYPE_INT) {
+			} elseif ($type & IResultAdapter::TYPE_INT) {
 				$this->toIntColumns[] = $key;
 
-			} elseif ($type === IResultAdapter::TYPE_DRIVER_SPECIFIC) {
-				$this->toDriverColumns[] = [$key, $nativeType];
-
-			} elseif ($type === IResultAdapter::TYPE_FLOAT) {
+			} elseif ($type & IResultAdapter::TYPE_FLOAT) {
 				$this->toFloatColumns[] = $key;
 
-			} elseif ($type === IResultAdapter::TYPE_BOOL) {
+			} elseif ($type & IResultAdapter::TYPE_BOOL) {
 				$this->toBoolColumns[] = $key;
 
-			} elseif ($type === IResultAdapter::TYPE_DATETIME) {
+			} elseif ($type & IResultAdapter::TYPE_DATETIME) {
 				$this->toDateTimeColumns[] = $key;
 
 			} elseif (is_callable($type)) {
 				$this->toCallbackColumns[] = [$key, $type];
 			}
+
+			if ($type & IResultAdapter::TYPE_DRIVER_SPECIFIC) {
+				$this->toDriverColumns[] = [$key, $nativeType];
+			}
+
 		}
 	}
 
 
 	protected function normalize($data)
 	{
+		foreach ($this->toDriverColumns as $meta) {
+			list($column, $nativeType) = $meta;
+			if ($data[$column] !== NULL) {
+				$data[$column] = $this->driver->convertToPhp($data[$column], $nativeType);
+			}
+		}
+
 		foreach ($this->toIntColumns as $column) {
 			if ($data[$column] !== NULL) {
 				$data[$column] = (int) $data[$column];
@@ -167,13 +177,6 @@ class Result implements \SeekableIterator
 		foreach ($this->toDateTimeColumns as $column) {
 			if ($data[$column] !== NULL) {
 				$data[$column] = new \DateTime($data[$column]);
-			}
-		}
-
-		foreach ($this->toDriverColumns as $meta) {
-			list($column, $nativeType) = $meta;
-			if ($data[$column] !== NULL) {
-				$data[$column] = $this->driver->convertToPhp($data[$column], $nativeType);
 			}
 		}
 
