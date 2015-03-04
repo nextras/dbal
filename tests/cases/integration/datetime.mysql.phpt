@@ -67,11 +67,12 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			'2015-01-01 12:00:00'  // 11:00 UTC
 		);
 
+		date_default_timezone_set('Europe/Kiev');
 		$result = $connection->query('SELECT * FROM dates_read');
 
 		$row = $result->fetch();
-		Assert::same('2015-01-01T12:00:00+00:00', $row->a->format('c'));
-		Assert::same('2015-01-01T12:00:00+01:00', $row->b->format('c'));
+		Assert::same('2015-01-01T14:00:00+02:00', $row->a->format('c'));
+		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
 	}
 
 
@@ -92,15 +93,16 @@ class DateTimeMysqlTest extends IntegrationTestCase
 
 		$connection->query(
 			'INSERT INTO dates_read2 VALUES (%s, %s)',
-			'2015-01-01 12:00:00', // 12:00 UTC
+			'2015-01-01 12:00:00', // 11:00 UTC
 			'2015-01-01 12:00:00'  // 11:00 UTC
 		);
 
+		date_default_timezone_set('Europe/Kiev');
 		$result = $connection->query('SELECT * FROM dates_read2');
 
 		$row = $result->fetch();
-		Assert::same('2015-01-01T12:00:00+01:00', $row->a->format('c'));
-		Assert::same('2015-01-01T12:00:00+01:00', $row->b->format('c'));
+		Assert::same('2015-01-01T13:00:00+02:00', $row->a->format('c'));
+		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
 	}
 
 }

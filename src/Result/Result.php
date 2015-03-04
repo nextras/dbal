@@ -8,6 +8,7 @@
 
 namespace Nextras\Dbal\Result;
 
+use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
 
@@ -47,11 +48,15 @@ class Result implements \SeekableIterator
 	/** @var array[] list of columns which should be casted using callback */
 	private $toCallbackColumns = [];
 
+	/** @var DateTimeZone */
+	private $applicationTimeZone;
+
 
 	public function __construct(IResultAdapter $adapter, IDriver $driver)
 	{
 		$this->adapter = $adapter;
 		$this->driver = $driver;
+		$this->applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 		$this->initColumnConversions();
 	}
 
@@ -176,7 +181,7 @@ class Result implements \SeekableIterator
 
 		foreach ($this->toDateTimeColumns as $column) {
 			if ($data[$column] !== NULL) {
-				$data[$column] = new \DateTime($data[$column]);
+				$data[$column] = (new \DateTime($data[$column]))->setTimezone($this->applicationTimeZone);
 			}
 		}
 
