@@ -18,9 +18,9 @@ class MysqlResultAdapter implements IResultAdapter
 	/** @var array */
 	protected static $types = [
 		MYSQLI_TYPE_TIME        => self::TYPE_DRIVER_SPECIFIC,
-		MYSQLI_TYPE_DATE        => self::TYPE_DRIVER_SPECIFIC,
-		MYSQLI_TYPE_DATETIME    => self::TYPE_DRIVER_SPECIFIC,
-		MYSQLI_TYPE_TIMESTAMP   => self::TYPE_DRIVER_SPECIFIC,
+		MYSQLI_TYPE_DATE        => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		MYSQLI_TYPE_DATETIME    => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		MYSQLI_TYPE_TIMESTAMP   => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
 		MYSQLI_TYPE_BIT         => self::TYPE_INT, // returned as int
 		MYSQLI_TYPE_INT24       => self::TYPE_INT,

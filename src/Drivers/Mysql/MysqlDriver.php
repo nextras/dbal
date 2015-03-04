@@ -200,10 +200,10 @@ class MysqlDriver implements IDriver
 	public function convertToPhp($value, $nativeType)
 	{
 		if ($nativeType === MYSQLI_TYPE_DATETIME || $nativeType === MYSQLI_TYPE_DATE) {
-			return new \DateTime($value, $this->simpleStorageTz);
+			return $value . ' ' . $this->simpleStorageTz->getName();
 
 		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
-			return new \DateTime($value, $this->connectionTz);
+			return $value . ' ' . $this->connectionTz->getName();
 
 		} elseif ($nativeType === MYSQLI_TYPE_TIME) {
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);

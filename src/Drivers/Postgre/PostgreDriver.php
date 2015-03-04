@@ -199,7 +199,7 @@ class PostgreDriver implements IDriver
 			return in_array(strtolower($value), $trues, TRUE);
 
 		} elseif ($nativeType === 'time' || $nativeType === 'date' || $nativeType === 'timestamp') {
-			return DateTimeFactory::from($value . ' ' . $this->simpleStorageTz->getName());
+			return $value . ' ' . $this->simpleStorageTz->getName();
 
 		} elseif ($nativeType === 'interval') {
 			return DateInterval::createFromDateString($value);

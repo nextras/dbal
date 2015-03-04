@@ -25,8 +25,8 @@ class PostgreResultAdapter implements IResultAdapter
 		'bytea'       => self::TYPE_DRIVER_SPECIFIC,
 		'interval'    => self::TYPE_DRIVER_SPECIFIC,
 		'time'        => self::TYPE_DRIVER_SPECIFIC,
-		'date'        => self::TYPE_DRIVER_SPECIFIC,
-		'timestamp'   => self::TYPE_DRIVER_SPECIFIC,
+		'date'        => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		'timestamp'   => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
 		'int8'        => self::TYPE_INT,
 		'int4'        => self::TYPE_INT,
