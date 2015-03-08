@@ -100,21 +100,21 @@ interface IDriver
 	 * Begins a transaction.
 	 * @throws DbalException
 	 */
-	public function transactionBegin();
+	public function beginTransaction();
 
 
 	/**
 	 * Commits a transaction.
 	 * @throws DbalException
 	 */
-	public function transactionCommit();
+	public function commitTransaction();
 
 
 	/**
 	 * Rollback a transaction.
 	 * @throws DbalException
 	 */
-	public function transactionRollback();
+	public function rollbackTransaction();
 
 
 	/**

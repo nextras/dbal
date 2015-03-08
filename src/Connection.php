@@ -185,13 +185,13 @@ class Connection
 	 */
 	public function transactional(callable $callback)
 	{
-		$this->transactionBegin();
+		$this->beginTransaction();
 		try {
 			$callback($this);
-			$this->transactionCommit();
+			$this->commitTransaction();
 
 		} catch (\Exception $e) {
-			$this->transactionRollback();
+			$this->rollbackTransaction();
 			throw $e;
 		}
 	}
@@ -202,11 +202,11 @@ class Connection
 	 * @return void
 	 * @throws DbalException
 	 */
-	public function transactionBegin()
+	public function beginTransaction()
 	{
 		$this->connected || $this->connect();
 		try {
-			$this->driver->transactionBegin();
+			$this->driver->beginTransaction();
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
@@ -219,10 +219,10 @@ class Connection
 	 * @return void
 	 * @throws DbalException
 	 */
-	public function transactionCommit()
+	public function commitTransaction()
 	{
 		try {
-			$this->driver->transactionCommit();
+			$this->driver->commitTransaction();
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}
@@ -235,10 +235,10 @@ class Connection
 	 * @return void
 	 * @throws DbalException
 	 */
-	public function transactionRollback()
+	public function rollbackTransaction()
 	{
 		try {
-			$this->driver->transactionRollback();
+			$this->driver->rollbackTransaction();
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
 		}

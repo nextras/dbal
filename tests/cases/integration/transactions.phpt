@@ -20,7 +20,7 @@ class TransactionsTest extends IntegrationTestCase
 	public function testRollback()
 	{
 		Environment::lock('data', TEMP_DIR);
-		$this->connection->transactionBegin();
+		$this->connection->beginTransaction();
 
 		$this->connection->query('INSERT INTO tags %values', [
 			'name' => '_TRANS_ROLLBACK_'
@@ -28,7 +28,7 @@ class TransactionsTest extends IntegrationTestCase
 
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_ROLLBACK_')->fetchField());
 
-		$this->connection->transactionRollback();
+		$this->connection->rollbackTransaction();
 
 		Assert::same(0, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_ROLLBACK_')->fetchField());
 	}
@@ -37,7 +37,7 @@ class TransactionsTest extends IntegrationTestCase
 	public function testCommit()
 	{
 		Environment::lock('data', TEMP_DIR);
-		$this->connection->transactionBegin();
+		$this->connection->beginTransaction();
 
 		$this->connection->query('INSERT INTO tags %values', [
 			'name' => '_TRANS_COMMIT_'
@@ -45,7 +45,7 @@ class TransactionsTest extends IntegrationTestCase
 
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_COMMIT_')->fetchField());
 
-		$this->connection->transactionCommit();
+		$this->connection->commitTransaction();
 
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_COMMIT_')->fetchField());
 	}
