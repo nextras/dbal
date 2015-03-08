@@ -80,7 +80,7 @@ class Result implements \SeekableIterator
 			$this->initColumnConversions();
 		}
 
-		$enabled = (int) $enabled;
+		$enabled = $enabled === TRUE ? IResultAdapter::ALL_TYPES : (int) $enabled;
 		if (!($enabled & IResultAdapter::TYPE_INT)) $this->toIntColumns = [];
 		if (!($enabled & IResultAdapter::TYPE_FLOAT)) $this->toFloatColumns = [];
 		if (!($enabled & IResultAdapter::TYPE_STRING)) $this->toStringColumns = [];
