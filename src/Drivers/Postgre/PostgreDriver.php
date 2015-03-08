@@ -9,7 +9,6 @@
 namespace Nextras\Dbal\Drivers\Postgre;
 
 use DateInterval;
-use DateTime;
 use DateTimeZone;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
@@ -17,7 +16,6 @@ use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Platforms\PostgrePlatform;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\Utils\DateTimeFactory;
 
 
 class PostgreDriver implements IDriver

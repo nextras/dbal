@@ -9,7 +9,6 @@
 namespace Nextras\Dbal\Drivers\Mysql;
 
 use DateInterval;
-use DateTime;
 use DateTimeZone;
 use mysqli;
 use Nextras\Dbal\Connection;
@@ -18,7 +17,6 @@ use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Platforms\MysqlPlatform;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\Utils\DateTimeFactory;
 
 
 class MysqlDriver implements IDriver
