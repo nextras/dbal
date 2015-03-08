@@ -45,9 +45,6 @@ class Result implements \SeekableIterator
 	/** @var array[] list of columns which should be casted using driver-specific logic */
 	private $toDriverColumns = [];
 
-	/** @var array[] list of columns which should be casted using callback */
-	private $toCallbackColumns = [];
-
 	/** @var DateTimeZone */
 	private $applicationTimeZone;
 
@@ -82,7 +79,6 @@ class Result implements \SeekableIterator
 		$this->toBoolColumns = [];
 		$this->toDateTimeColumns = [];
 		$this->toDriverColumns = [];
-		$this->toCallbackColumns = [];
 	}
 
 
@@ -133,9 +129,6 @@ class Result implements \SeekableIterator
 
 			} elseif ($type & IResultAdapter::TYPE_DATETIME) {
 				$this->toDateTimeColumns[] = $key;
-
-			} elseif (is_callable($type)) {
-				$this->toCallbackColumns[] = [$key, $type];
 			}
 
 			if ($type & IResultAdapter::TYPE_DRIVER_SPECIFIC) {
