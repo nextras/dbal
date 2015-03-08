@@ -205,6 +205,10 @@ class MysqlDriver implements IDriver
 		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
 			return $value . ' ' . $this->connectionTz->getName();
 
+		} elseif ($nativeType === MYSQLI_TYPE_LONGLONG) {
+			// called only on 32bit
+			return is_float($tmp = $value * 1) ? $value : $tmp;
+
 		} elseif ($nativeType === MYSQLI_TYPE_TIME) {
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");

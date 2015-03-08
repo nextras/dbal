@@ -201,6 +201,10 @@ class PostgreDriver implements IDriver
 		} elseif ($nativeType === 'time' || $nativeType === 'date' || $nativeType === 'timestamp') {
 			return $value . ' ' . $this->simpleStorageTz->getName();
 
+		} elseif ($nativeType === 'int8') {
+			// called only on 32bit
+			return is_float($tmp = $value * 1) ? $value : $tmp;
+
 		} elseif ($nativeType === 'interval') {
 			return DateInterval::createFromDateString($value);
 

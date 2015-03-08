@@ -49,7 +49,7 @@ class PostgreResultAdapter implements IResultAdapter
 		$this->result = $result;
 
 		if (PHP_INT_SIZE < 8) {
-			self::$types['int8'] = self::TYPE_AS_IS;
+			self::$types['int8'] = self::TYPE_DRIVER_SPECIFIC;
 		}
 	}
 

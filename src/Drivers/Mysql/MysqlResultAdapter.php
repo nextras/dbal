@@ -51,7 +51,7 @@ class MysqlResultAdapter implements IResultAdapter
 		}
 
 		if (PHP_INT_SIZE < 8) {
-			self::$types[MYSQLI_TYPE_LONGLONG] = self::TYPE_AS_IS;
+			self::$types[MYSQLI_TYPE_LONGLONG] = self::TYPE_DRIVER_SPECIFIC;
 		}
 	}
 
