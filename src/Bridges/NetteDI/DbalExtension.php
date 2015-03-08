@@ -32,13 +32,13 @@ class DbalExtension extends CompilerExtension
 				'config' => $config,
 			]);
 
-		if (isset($config['tracyPanel'])) {
-			$enableTracyPanel = $config['tracyPanel'];
+		if (isset($config['debugger'])) {
+			$debugger = $config['debugger'];
 		} else {
-			$enableTracyPanel = class_exists('Tracy\Debugger') && Debugger::$productionMode === Debugger::DEVELOPMENT;
+			$debugger = class_exists('Tracy\Debugger', FALSE) && Debugger::$productionMode === Debugger::DEVELOPMENT;
 		}
 
-		if ($enableTracyPanel) {
+		if ($debugger) {
 			$definition->addSetup('Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel::install', ['@self']);
 		}
 	}
