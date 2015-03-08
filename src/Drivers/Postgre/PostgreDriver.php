@@ -29,6 +29,9 @@ class PostgreDriver implements IDriver
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
+	/** @var resource */
+	private $affectedRows;
+
 
 	public function __destruct()
 	{
@@ -142,6 +145,7 @@ class PostgreDriver implements IDriver
 			throw new DriverException(pg_result_error($resource), 0, $state);
 		}
 
+		$this->affectedRows = pg_affected_rows($resource);
 		return new Result(new PostgreResultAdapter($resource), $this);
 	}
 
@@ -150,6 +154,12 @@ class PostgreDriver implements IDriver
 	{
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
 		return $this->query($sql)->fetchField();
+	}
+
+
+	public function getAffectedRows()
+	{
+		return $this->affectedRows;
 	}
 
 

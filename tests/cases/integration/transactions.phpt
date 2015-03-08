@@ -26,6 +26,7 @@ class TransactionsTest extends IntegrationTestCase
 			'name' => '_TRANS_ROLLBACK_'
 		]);
 
+		Assert::same(1, $this->connection->getAffectedRows());
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_ROLLBACK_')->fetchField());
 
 		$this->connection->rollbackTransaction();
@@ -43,6 +44,7 @@ class TransactionsTest extends IntegrationTestCase
 			'name' => '_TRANS_COMMIT_'
 		]);
 
+		Assert::same(1, $this->connection->getAffectedRows());
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_COMMIT_')->fetchField());
 
 		$this->connection->commitTransaction();

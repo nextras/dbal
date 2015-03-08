@@ -75,6 +75,13 @@ interface IDriver
 
 
 	/**
+	 * Returns number of affected rows.
+	 * @return int
+	 */
+	public function getAffectedRows();
+
+
+	/**
 	 * Creates database plafrom.
 	 * @param  Connection $connection
 	 * @return IPlatform

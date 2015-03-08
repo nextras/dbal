@@ -133,6 +133,12 @@ class MysqlDriver implements IDriver
 	}
 
 
+	public function getAffectedRows()
+	{
+		return $this->connection->affected_rows;
+	}
+
+
 	public function createPlatform(Connection $connection)
 	{
 		return new MysqlPlatform($connection);

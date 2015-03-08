@@ -159,7 +159,19 @@ class Connection
 	 */
 	public function getLastInsertedId($sequenceName = NULL)
 	{
+		$this->connected || $this->connect();
 		return $this->driver->getLastInsertedId($sequenceName);
+	}
+
+
+	/**
+	 * Returns number of affected rows.
+	 * @return int
+	 */
+	public function getAffectedRows()
+	{
+		$this->connected || $this->connect();
+		return $this->driver->getAffectedRows();
 	}
 
 
