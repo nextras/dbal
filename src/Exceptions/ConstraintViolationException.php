@@ -9,6 +9,6 @@
 namespace Nextras\Dbal\Exceptions;
 
 
-abstract class ConstraintViolationException extends DbalException
+abstract class ConstraintViolationException extends QueryException
 {
 }

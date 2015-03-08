@@ -9,6 +9,6 @@
 namespace Nextras\Dbal\Exceptions;
 
 
-class ConnectionException extends DbalException
+class ConnectionException extends DriverException
 {
 }

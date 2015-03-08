@@ -6,7 +6,7 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers;
+namespace Nextras\Dbal\Exceptions;
 
 use Exception;
 
@@ -26,7 +26,7 @@ class DriverException extends Exception
 	 * @param string    $errorSqlState
 	 * @param Exception $previousException
 	 */
-	public function __construct($message, $errorCode = 0, $errorSqlState = '', $previousException = NULL)
+	public function __construct($message, $errorCode = 0, $errorSqlState = '', Exception $previousException = NULL)
 	{
 		parent::__construct($message, 0, $previousException);
 		$this->errorCode = (int) $errorCode;

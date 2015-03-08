@@ -13,7 +13,6 @@ use DateTimeZone;
 use mysqli;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
 use Nextras\Dbal\Platforms\MysqlPlatform;
 use Nextras\Dbal\Result\Result;
@@ -49,7 +48,7 @@ class MysqlDriver implements IDriver
 		$this->connection = new mysqli();
 
 		if (!$this->connection->real_connect($host, $params['username'], $params['password'], $dbname, $port, $socket, $flags)) {
-			throw new DriverException(
+			throw $this->createException(
 				$this->connection->connect_error,
 				$this->connection->connect_errno,
 				@$this->connection->sqlstate ?: 'HY000'
@@ -75,32 +74,6 @@ class MysqlDriver implements IDriver
 	}
 
 
-	/**
-	 * This method is based on Doctrine\DBAL project.
-	 * @link www.doctrine-project.org
-	 */
-	public function convertException(DriverException $exception)
-	{
-		$message = $exception->getMessage();
-		$code = (int) $exception->getErrorCode();
-		if (in_array($code, [1216, 1217, 1451, 1452, 1701], TRUE)) {
-			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);
-
-		} elseif (in_array($code, [1062, 1557, 1569, 1586], TRUE)) {
-			return new Exceptions\UniqueConstraintViolationException($message, $exception);
-
-		} elseif (in_array($code, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], TRUE)) {
-			return new Exceptions\ConnectionException($message, $exception);
-
-		} elseif (in_array($code, [1048, 1121, 1138, 1171, 1252, 1263, 1566], TRUE)) {
-			return new Exceptions\NotNullConstraintViolationException($message, $exception);
-
-		} else {
-			return new Exceptions\DbalException($message, $exception);
-		}
-	}
-
-
 	/** @return mysqli */
 	public function getResourceHandle()
 	{
@@ -112,10 +85,11 @@ class MysqlDriver implements IDriver
 	{
 		$result = $this->connection->query($query);
 		if ($this->connection->errno) {
-			throw new DriverException(
+			throw $this->createException(
 				$this->connection->error,
 				$this->connection->errno,
-				$this->connection->sqlstate
+				$this->connection->sqlstate,
+				$query
 			);
 		}
 
@@ -274,6 +248,33 @@ class MysqlDriver implements IDriver
 		}
 
 		return $query;
+	}
+
+
+	/**
+	 * This method is based on Doctrine\DBAL project.
+	 * @link www.doctrine-project.org
+	 */
+	protected function createException($error, $errorNo, $sqlState, $query = NULL)
+	{
+		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], TRUE)) {
+			return new Exceptions\ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], TRUE)) {
+			return new Exceptions\UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], TRUE)) {
+			return new Exceptions\ConnectionException($error, $errorNo, $sqlState);
+
+		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], TRUE)) {
+			return new Exceptions\NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif ($query !== NULL) {
+			return new Exceptions\QueryException($error, $errorNo, $sqlState, NULL, $query);
+
+		} else {
+			return new Exceptions\DriverException($error, $errorNo, $sqlState);
+		}
 	}
 
 }

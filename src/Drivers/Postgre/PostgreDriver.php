@@ -12,8 +12,8 @@ use DateInterval;
 use DateTimeZone;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Exceptions;
+use Nextras\Dbal\Drivers\Postgre\PostgreResultAdapter;
 use Nextras\Dbal\Platforms\PostgrePlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -62,7 +62,7 @@ class PostgreDriver implements IDriver
 
 		set_error_handler(function($code, $message) {
 			restore_error_handler();
-			throw new DriverException($message, $code);
+			throw $this->createException($message, $code, NULL);
 		}, E_ALL);
 
 		$this->connection = pg_connect($connectionString, PGSQL_CONNECT_FORCE_NEW);
@@ -90,39 +90,6 @@ class PostgreDriver implements IDriver
 	}
 
 
-	/**
-	 * This method is based on Doctrine\DBAL project.
-	 * @link www.doctrine-project.org
-	 */
-	public function convertException(DriverException $exception)
-	{
-		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-
-		$message = $exception->getMessage();
-		$code = (string) $exception->getErrorSqlState();
-		if ($code === '0A000' && strpos($message, 'truncate') !== FALSE) {
-			// Foreign key constraint violations during a TRUNCATE operation
-			// are considered "feature not supported" in PostgreSQL.
-			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);
-
-		} elseif ($code === '23502') {
-			return new Exceptions\NotNullConstraintViolationException($message, $exception);
-
-		} elseif ($code === '23503') {
-			return new Exceptions\ForeignKeyConstraintViolationException($message, $exception);
-
-		} elseif ($code === '23505') {
-			return new Exceptions\UniqueConstraintViolationException($message, $exception);
-
-		} elseif ($code === '' && stripos($message, 'pg_connect()') !== FALSE) {
-			return new Exceptions\ConnectionException($message, $exception);
-
-		} else {
-			return new Exceptions\DbalException($message, $exception);
-		}
-	}
-
-
 	public function getResourceHandle()
 	{
 		return $this->connection;
@@ -132,17 +99,17 @@ class PostgreDriver implements IDriver
 	public function query($query)
 	{
 		if (!pg_send_query($this->connection, $query)) {
-			throw new DriverException(pg_last_error($this->connection));
+			throw $this->createException(pg_last_error($this->connection), 0, NULL);
 		}
 
 		$resource = pg_get_result($this->connection);
 		if ($resource === FALSE) {
-			throw new DriverException(pg_last_error($this->connection));
+			throw $this->createException(pg_last_error($this->connection), 0, NULL);
 		}
 
 		$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
 		if ($state !== NULL) {
-			throw new DriverException(pg_result_error($resource), 0, $state);
+			throw $this->createException(pg_result_error($resource), 0, $state, $query);
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
@@ -271,6 +238,39 @@ class PostgreDriver implements IDriver
 			$query .= ' OFFSET ' . (int) $offset;
 		}
 		return $query;
+	}
+
+
+	/**
+	 * This method is based on Doctrine\DBAL project.
+	 * @link www.doctrine-project.org
+	 */
+	protected function createException($error, $errorNo, $sqlState, $query = NULL)
+	{
+		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
+		if ($sqlState === '0A000' && strpos($error, 'truncate') !== FALSE) {
+			// Foreign key constraint violations during a TRUNCATE operation
+			// are considered "feature not supported" in PostgreSQL.
+			return new Exceptions\ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif ($sqlState === '23502') {
+			return new Exceptions\NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif ($sqlState === '23503') {
+			return new Exceptions\ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif ($sqlState === '23505') {
+			return new Exceptions\UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif ($sqlState === '' && stripos($error, 'pg_connect()') !== FALSE) {
+			return new Exceptions\ConnectionException($error, $errorNo, $sqlState);
+
+		} elseif ($query !== NULL) {
+			return new Exceptions\QueryException($error, $errorNo, $sqlState, NULL, $query);
+
+		} else {
+			return new Exceptions\DriverException($error, $errorNo, $sqlState);
+		}
 	}
 
 }

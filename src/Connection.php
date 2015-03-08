@@ -8,9 +8,10 @@
 
 namespace Nextras\Dbal;
 
-use Nextras\Dbal\Drivers\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exceptions\DbalException;
+use Nextras\Dbal\Exceptions\ConnectionException;
+use Nextras\Dbal\Exceptions\DriverException;
+use Nextras\Dbal\Exceptions\QueryException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -57,18 +58,12 @@ class Connection
 	/**
 	 * Connects to a database.
 	 * @return void
-	 * @throws DbalException
+	 * @throws ConnectionException
 	 */
 	public function connect()
 	{
-		try {
-			$this->driver->connect($this->config);
-			$this->connected = TRUE;
-
-		} catch (DriverException $e) {
-			throw $this->driver->convertException($e);
-		}
-
+		$this->driver->connect($this->config);
+		$this->connected = TRUE;
 		$this->fireEvent('onConnect', [$this]);
 	}
 
@@ -119,7 +114,7 @@ class Connection
 	 * Executes a query.
 	 * @param  mixed       ...$args
 	 * @return Result|NULL
-	 * @throws DbalException
+	 * @throws QueryException
 	 */
 	public function query(/*...$args*/)
 	{
@@ -127,12 +122,7 @@ class Connection
 		$args = func_get_args();
 		$sql = $this->sqlPreprocessor->process($args);
 
-		try {
-			$result = $this->driver->query($sql);
-
-		} catch (DriverException $e) {
-			throw $this->driver->convertException($e);
-		}
+		$result = $this->driver->query($sql);
 
 		$this->fireEvent('onQuery', [$this, $sql, $result]);
 		return $result;
@@ -143,7 +133,7 @@ class Connection
 	 * @param  string $query
 	 * @param  array  $args
 	 * @return Result|NULL
-	 * @throws DbalException
+	 * @throws QueryException
 	 */
 	public function queryArgs($query, array $args)
 	{
@@ -192,8 +182,7 @@ class Connection
 	/**
 	 * Performs operation in a transaction.
 	 * @param  callable $callback function(Connection $conn): void
-	 * @return void
-	 * @throws DbalException
+	 * @throws \Exception
 	 */
 	public function transactional(callable $callback)
 	{
@@ -212,16 +201,12 @@ class Connection
 	/**
 	 * Starts a transaction.
 	 * @return void
-	 * @throws DbalException
+	 * @throws DriverException
 	 */
 	public function beginTransaction()
 	{
 		$this->connected || $this->connect();
-		try {
-			$this->driver->beginTransaction();
-		} catch (DriverException $e) {
-			throw $this->driver->convertException($e);
-		}
+		$this->driver->beginTransaction();
 		$this->fireEvent('onQuery', [$this, '::TRANSACTION BEGIN::']);
 	}
 
@@ -229,15 +214,11 @@ class Connection
 	/**
 	 * Commits the current transaction.
 	 * @return void
-	 * @throws DbalException
+	 * @throws DriverException
 	 */
 	public function commitTransaction()
 	{
-		try {
-			$this->driver->commitTransaction();
-		} catch (DriverException $e) {
-			throw $this->driver->convertException($e);
-		}
+		$this->driver->commitTransaction();
 		$this->fireEvent('onQuery', [$this, '::TRANSACTION COMMIT::']);
 	}
 
@@ -245,15 +226,11 @@ class Connection
 	/**
 	 * Cancels any uncommitted changes done during the current transaction.
 	 * @return void
-	 * @throws DbalException
+	 * @throws DriverException
 	 */
 	public function rollbackTransaction()
 	{
-		try {
-			$this->driver->rollbackTransaction();
-		} catch (DriverException $e) {
-			throw $this->driver->convertException($e);
-		}
+		$this->driver->rollbackTransaction();
 		$this->fireEvent('onQuery', [$this, '::TRANSACTION ROLLBACK::']);
 	}
 

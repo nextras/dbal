@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Drivers\Postgre;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\Exceptions\DbalException;
+use Nextras\Dbal\Exceptions\InvalidStateException;
 
 
 class PostgreResultAdapter implements IResultAdapter
@@ -63,7 +63,7 @@ class PostgreResultAdapter implements IResultAdapter
 	public function seek($index)
 	{
 		if (pg_num_rows($this->result) !== 0 && !pg_result_seek($this->result, $index)) {
-			throw new DbalException("Unable to seek in row set to {$index} index.");
+			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
 		}
 	}
 

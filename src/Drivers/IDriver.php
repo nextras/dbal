@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Drivers;
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\Exceptions\DbalException;
+use Nextras\Dbal\Exceptions\QueryException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -41,14 +41,6 @@ interface IDriver
 	 * @return bool
 	 */
 	public function isConnected();
-
-
-	/**
-	 * Converts IDriverException to exception representing the database error.
-	 * @param  DriverException $exception
-	 * @return DbalException
-	 */
-	public function convertException(DriverException $exception);
 
 
 	/**
@@ -105,21 +97,21 @@ interface IDriver
 
 	/**
 	 * Begins a transaction.
-	 * @throws DbalException
+	 * @throws QueryException
 	 */
 	public function beginTransaction();
 
 
 	/**
 	 * Commits a transaction.
-	 * @throws DbalException
+	 * @throws QueryException
 	 */
 	public function commitTransaction();
 
 
 	/**
 	 * Rollback a transaction.
-	 * @throws DbalException
+	 * @throws QueryException
 	 */
 	public function rollbackTransaction();
 
