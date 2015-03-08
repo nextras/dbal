@@ -39,6 +39,7 @@ class DbalExtension extends CompilerExtension
 		}
 
 		if ($debugger) {
+			$definition->addSetup('@Tracy\BlueScreen::addPanel', ['Nextras\Dbal\Bridges\NetteTracy\BluescreenQueryPanel::renderBluescreenPanel']);
 			$definition->addSetup('Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel::install', ['@self']);
 		}
 	}
