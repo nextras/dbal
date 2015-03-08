@@ -2,3 +2,4 @@
 *.expected
 /databases.ini
 /php.ini
+/temp
