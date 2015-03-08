@@ -28,22 +28,25 @@ class Result implements \SeekableIterator
 	private $driver;
 
 	/** @var string[] list of columns which should be casted to int */
-	private $toIntColumns = [];
+	private $toIntColumns;
 
 	/** @var string[] list of columns which should be casted to float */
-	private $toFloatColumns = [];
+	private $toFloatColumns;
 
 	/** @var string[] list of columns which should be casted to string */
-	private $toStringColumns = [];
+	private $toStringColumns;
 
 	/** @var string[] list of columns which should be casted to bool */
-	private $toBoolColumns = [];
+	private $toBoolColumns;
 
 	/** @var string[] list of columns which should be casted to DateTime */
-	private $toDateTimeColumns = [];
+	private $toDateTimeColumns;
 
 	/** @var array[] list of columns which should be casted using driver-specific logic */
-	private $toDriverColumns = [];
+	private $toDriverColumns;
+
+	/** @var bool */
+	private $dirtyColumnTypes = FALSE;
 
 	/** @var DateTimeZone */
 	private $applicationTimeZone;
@@ -69,16 +72,23 @@ class Result implements \SeekableIterator
 
 	/**
 	 * Enables and disables column value normalization.
-	 * @param  bool $enabled
+	 * @param  bool|int $enabled
 	 */
-	public function setColumnValueNormalization($enabled = FALSE)
+	public function setValueNormalization($enabled = FALSE)
 	{
-		$this->toIntColumns = [];
-		$this->toFloatColumns = [];
-		$this->toStringColumns = [];
-		$this->toBoolColumns = [];
-		$this->toDateTimeColumns = [];
-		$this->toDriverColumns = [];
+		if ($this->dirtyColumnTypes) {
+			$this->initColumnConversions();
+		}
+
+		$enabled = (int) $enabled;
+		if (!($enabled & IResultAdapter::TYPE_INT)) $this->toIntColumns = [];
+		if (!($enabled & IResultAdapter::TYPE_FLOAT)) $this->toFloatColumns = [];
+		if (!($enabled & IResultAdapter::TYPE_STRING)) $this->toStringColumns = [];
+		if (!($enabled & IResultAdapter::TYPE_BOOL)) $this->toBoolColumns = [];
+		if (!($enabled & IResultAdapter::TYPE_DATETIME)) $this->toDateTimeColumns = [];
+		if (!($enabled & IResultAdapter::TYPE_DRIVER_SPECIFIC)) $this->toDriverColumns = [];
+
+		$this->dirtyColumnTypes = TRUE;
 	}
 
 
@@ -111,6 +121,13 @@ class Result implements \SeekableIterator
 
 	protected function initColumnConversions()
 	{
+		$this->toIntColumns = [];
+		$this->toFloatColumns = [];
+		$this->toStringColumns = [];
+		$this->toBoolColumns = [];
+		$this->toDateTimeColumns = [];
+		$this->toDriverColumns = [];
+
 		$types = $this->adapter->getTypes();
 		foreach ($types as $key => $typePair) {
 			list($type, $nativeType) = $typePair;
@@ -134,8 +151,9 @@ class Result implements \SeekableIterator
 			if ($type & IResultAdapter::TYPE_DRIVER_SPECIFIC) {
 				$this->toDriverColumns[] = [$key, $nativeType];
 			}
-
 		}
+
+		$this->dirtyColumnTypes = FALSE;
 	}
 
 

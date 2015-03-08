@@ -28,7 +28,7 @@ class ResultTest extends TestCase
 
 		$names = [];
 		$result = new Result($adapter, $driver);
-		$result->setColumnValueNormalization(FALSE);
+		$result->setValueNormalization(FALSE);
 		foreach ($result as $row) {
 			$names[] = $row->name;
 		}
@@ -56,7 +56,7 @@ class ResultTest extends TestCase
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 
 		$result = new Result($adapter, $driver);
-		$result->setColumnValueNormalization(FALSE);
+		$result->setValueNormalization(FALSE);
 		Assert::same('First', $result->fetchField());
 
 
@@ -67,7 +67,7 @@ class ResultTest extends TestCase
 		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
 
 		$result = new Result($adapter, $driver);
-		$result->setColumnValueNormalization(FALSE);
+		$result->setValueNormalization(FALSE);
 		Assert::null($result->fetchField());
 	}
 

@@ -21,6 +21,7 @@ interface IResultAdapter
 	const TYPE_BOOL     = 16;
 	const TYPE_DATETIME = 32;
 	const TYPE_AS_IS    = 64;
+	const ALL_TYPES     = 127;
 
 
 	/**

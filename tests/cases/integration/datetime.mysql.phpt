@@ -38,7 +38,7 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
-		$result->setColumnValueNormalization(FALSE);
+		$result->setValueNormalization(FALSE);
 
 		$row = $result->fetch();
 		Assert::same('2015-01-01 11:00:00', $row->a);
