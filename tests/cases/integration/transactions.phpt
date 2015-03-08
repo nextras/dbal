@@ -8,6 +8,8 @@
 namespace NextrasTests\Dbal;
 
 use Tester\Assert;
+use Tester\Environment;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -17,6 +19,7 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testRollback()
 	{
+		Environment::lock('data', TEMP_DIR);
 		$this->connection->transactionBegin();
 
 		$this->connection->query('INSERT INTO tags %values', [
@@ -33,6 +36,7 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testCommit()
 	{
+		Environment::lock('data', TEMP_DIR);
 		$this->connection->transactionBegin();
 
 		$this->connection->query('INSERT INTO tags %values', [

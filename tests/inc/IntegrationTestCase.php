@@ -5,6 +5,8 @@ namespace NextrasTests\Dbal;
 use Mockery;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Exceptions\InvalidArgumentException;
+use Nextras\Dbal\Platforms\PostgrePlatform;
+use Nextras\Dbal\Utils\FileImporter;
 use Tester\Environment;
 
 
@@ -15,6 +17,17 @@ class IntegrationTestCase extends TestCase
 {
 	/** @var Connection */
 	private $defaultConnection;
+
+
+	public function initData(Connection $connection)
+	{
+		Environment::lock('data', TEMP_DIR);
+		if ($connection->getPlatform() instanceof PostgrePlatform) {
+			FileImporter::executeFile($connection, __DIR__ . '/../data/postgre-data.sql');
+		} else {
+			FileImporter::executeFile($connection, __DIR__ . '/../data/mysql-data.sql');
+		}
+	}
 
 
 	protected function createConnection($params = [])
