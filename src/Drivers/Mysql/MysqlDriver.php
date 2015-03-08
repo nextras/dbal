@@ -195,8 +195,8 @@ class MysqlDriver implements IDriver
 			$this->query('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
 		}
 
-		$this->simpleStorageTz = new DateTimeZone(isset($params['simple_storage_tz']) ? $params['simple_storage_tz'] : 'UTC');
-		$this->connectionTz = new DateTimeZone(isset($params['connection_tz']) ? $params['connection_tz'] : date_default_timezone_get());
+		$this->simpleStorageTz = new DateTimeZone(isset($params['simpleStorageTz']) ? $params['simpleStorageTz'] : 'UTC');
+		$this->connectionTz = new DateTimeZone(isset($params['connectionTz']) ? $params['connectionTz'] : date_default_timezone_get());
 		$this->query('SET time_zone = ' . $this->convertToSql($this->connectionTz->getName(), self::TYPE_STRING));
 	}
 

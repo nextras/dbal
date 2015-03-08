@@ -19,8 +19,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testWriteStorageTZUTC()
 	{
 		$connection = $this->createConnection([
-			'simple_storage_tz' => 'UTC',
-			'connection_tz' => 'Europe/Prague',
+			'simpleStorageTz' => 'UTC',
+			'connectionTz' => 'Europe/Prague',
 		]);
 
 		$connection->query('DROP TABLE IF EXISTS dates_write');
@@ -49,8 +49,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testReadStorageTZUTC()
 	{
 		$connection = $this->createConnection([
-			'simple_storage_tz' => 'UTC',
-			'connection_tz' => 'Europe/Prague',
+			'simpleStorageTz' => 'UTC',
+			'connectionTz' => 'Europe/Prague',
 		]);
 
 		$connection->query('DROP TABLE IF EXISTS dates_read');
@@ -79,8 +79,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testReadStorageTZSame()
 	{
 		$connection = $this->createConnection([
-			'simple_storage_tz' => 'Europe/Prague',
-			'connection_tz' => 'Europe/Prague',
+			'simpleStorageTz' => 'Europe/Prague',
+			'connectionTz' => 'Europe/Prague',
 		]);
 
 		$connection->query('DROP TABLE IF EXISTS dates_read2');

@@ -69,8 +69,8 @@ class PostgreDriver implements IDriver
 
 		restore_error_handler();
 
-		$this->simpleStorageTz = new DateTimeZone(isset($params['simple_storage_tz']) ? $params['simple_storage_tz'] : 'UTC');
-		$this->connectionTz = new DateTimeZone(isset($params['connection_tz']) ? $params['connection_tz'] : date_default_timezone_get());
+		$this->simpleStorageTz = new DateTimeZone(isset($params['simpleStorageTz']) ? $params['simpleStorageTz'] : 'UTC');
+		$this->connectionTz = new DateTimeZone(isset($params['connectionTz']) ? $params['connectionTz'] : date_default_timezone_get());
 		$this->query('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
 	}
 
