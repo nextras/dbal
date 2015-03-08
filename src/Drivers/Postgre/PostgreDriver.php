@@ -68,7 +68,7 @@ class PostgreDriver implements IDriver
 
 		$this->simpleStorageTz = new DateTimeZone(isset($params['simple_storage_tz']) ? $params['simple_storage_tz'] : 'UTC');
 		$this->connectionTz = new DateTimeZone(isset($params['connection_tz']) ? $params['connection_tz'] : date_default_timezone_get());
-		$this->nativeQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
+		$this->query('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
 	}
 
 
@@ -126,7 +126,7 @@ class PostgreDriver implements IDriver
 	}
 
 
-	public function nativeQuery($query)
+	public function query($query)
 	{
 		if (!pg_send_query($this->connection, $query)) {
 			throw new DriverException(pg_last_error($this->connection));
@@ -149,7 +149,7 @@ class PostgreDriver implements IDriver
 	public function getLastInsertedId($sequenceName = NULL)
 	{
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
-		return $this->nativeQuery($sql)->fetchField();
+		return $this->query($sql)->fetchField();
 	}
 
 
@@ -173,19 +173,19 @@ class PostgreDriver implements IDriver
 
 	public function beginTransaction()
 	{
-		$this->nativeQuery('START TRANSACTION');
+		$this->query('START TRANSACTION');
 	}
 
 
 	public function commitTransaction()
 	{
-		$this->nativeQuery('COMMIT');
+		$this->query('COMMIT');
 	}
 
 
 	public function rollbackTransaction()
 	{
-		$this->nativeQuery('ROLLBACK');
+		$this->query('ROLLBACK');
 	}
 
 

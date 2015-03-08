@@ -108,7 +108,7 @@ class MysqlDriver implements IDriver
 	}
 
 
-	public function nativeQuery($query)
+	public function query($query)
 	{
 		$result = $this->connection->query($query);
 		if ($this->connection->errno) {
@@ -157,19 +157,19 @@ class MysqlDriver implements IDriver
 
 	public function beginTransaction()
 	{
-		$this->nativeQuery('START TRANSACTION');
+		$this->query('START TRANSACTION');
 	}
 
 
 	public function commitTransaction()
 	{
-		$this->nativeQuery('COMMIT');
+		$this->query('COMMIT');
 	}
 
 
 	public function rollbackTransaction()
 	{
-		$this->nativeQuery('ROLLBACK');
+		$this->query('ROLLBACK');
 	}
 
 
@@ -186,12 +186,12 @@ class MysqlDriver implements IDriver
 		$this->connection->set_charset($charset);
 
 		if (isset($params['sqlMode'])) {
-			$this->nativeQuery('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
+			$this->query('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
 		}
 
 		$this->simpleStorageTz = new DateTimeZone(isset($params['simple_storage_tz']) ? $params['simple_storage_tz'] : 'UTC');
 		$this->connectionTz = new DateTimeZone(isset($params['connection_tz']) ? $params['connection_tz'] : date_default_timezone_get());
-		$this->nativeQuery('SET time_zone = ' . $this->convertToSql($this->connectionTz->getName(), self::TYPE_STRING));
+		$this->query('SET time_zone = ' . $this->convertToSql($this->connectionTz->getName(), self::TYPE_STRING));
 	}
 
 

@@ -63,7 +63,7 @@ interface IDriver
 	 * @param  string $query
 	 * @return Result|NULL
 	 */
-	public function nativeQuery($query);
+	public function query($query);
 
 
 	/**

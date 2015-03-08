@@ -128,7 +128,7 @@ class Connection
 		$sql = $this->sqlPreprocessor->process($args);
 
 		try {
-			$result = $this->driver->nativeQuery($sql);
+			$result = $this->driver->query($sql);
 
 		} catch (DriverException $e) {
 			throw $this->driver->convertException($e);
