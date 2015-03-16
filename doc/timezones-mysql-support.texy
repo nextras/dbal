@@ -1,0 +1,25 @@
+Named timezone support in MySQL
+###############################
+
+MySQL, by default, does not "support" named timezones, therefore you could get errors similar to `Unknown or incorrect time zone: ‚Europe/Prague‘`. In fact, MySQL just does not know the correct timeshift for this name and allows you to import the configuration.
+
+-------
+
+Linux
+=====
+
+Run this command, where `root` is the user name which has access to `mysql` database.
+
+/--code
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+\--
+
+-------
+
+
+Windows
+=======
+
+For MySQL **up to 5.6** downlad tables from http://dev.mysql.com/downloads/timezones.html. Unzip the archive and copy tables to your mysql database in data dir (eg. `C:\<your mysql dir>\data\mysql`).
+
+For MySQL **5.7+** there is an archive with prepared SQL queries. Run them in context of mysql database.
