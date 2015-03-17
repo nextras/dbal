@@ -83,7 +83,10 @@ class MysqlDriver implements IDriver
 
 	public function query($query)
 	{
+		$time = microtime(TRUE);
 		$result = $this->connection->query($query);
+		$time = microtime(TRUE) - $time;
+
 		if ($this->connection->errno) {
 			throw $this->createException(
 				$this->connection->error,
@@ -97,7 +100,7 @@ class MysqlDriver implements IDriver
 			return NULL;
 		}
 
-		return new Result(new MysqlResultAdapter($result), $this);
+		return new Result(new MysqlResultAdapter($result), $this, $time);
 	}
 
 

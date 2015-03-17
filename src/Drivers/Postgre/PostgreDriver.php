@@ -101,7 +101,10 @@ class PostgreDriver implements IDriver
 			throw $this->createException(pg_last_error($this->connection), 0, NULL);
 		}
 
+		$time = microtime(TRUE);
 		$resource = pg_get_result($this->connection);
+		$time = microtime(TRUE) - $time;
+
 		if ($resource === FALSE) {
 			throw $this->createException(pg_last_error($this->connection), 0, NULL);
 		}
@@ -112,7 +115,7 @@ class PostgreDriver implements IDriver
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
-		return new Result(new PostgreResultAdapter($resource), $this);
+		return new Result(new PostgreResultAdapter($resource), $this, $time);
 	}
 
 
