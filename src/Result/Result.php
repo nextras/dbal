@@ -46,9 +46,6 @@ class Result implements \SeekableIterator
 	/** @var array[] list of columns which should be casted using driver-specific logic */
 	private $toDriverColumns;
 
-	/** @var bool */
-	private $dirtyColumnTypes = FALSE;
-
 	/** @var DateTimeZone */
 	private $applicationTimeZone;
 
@@ -72,24 +69,21 @@ class Result implements \SeekableIterator
 
 
 	/**
-	 * Enables and disables column value normalization.
-	 * @param  bool|int $enabled
+	 * Enables and disables value normalization.
+	 * @param  bool $enabled
 	 */
 	public function setValueNormalization($enabled = FALSE)
 	{
-		if ($this->dirtyColumnTypes) {
+		if ($enabled === TRUE) {
 			$this->initColumnConversions();
+		} else {
+			$this->toIntColumns = [];
+			$this->toFloatColumns = [];
+			$this->toStringColumns = [];
+			$this->toBoolColumns = [];
+			$this->toDateTimeColumns = [];
+			$this->toDriverColumns = [];
 		}
-
-		$enabled = $enabled === TRUE ? IResultAdapter::ALL_TYPES : (int) $enabled;
-		if (!($enabled & IResultAdapter::TYPE_INT)) $this->toIntColumns = [];
-		if (!($enabled & IResultAdapter::TYPE_FLOAT)) $this->toFloatColumns = [];
-		if (!($enabled & IResultAdapter::TYPE_STRING)) $this->toStringColumns = [];
-		if (!($enabled & IResultAdapter::TYPE_BOOL)) $this->toBoolColumns = [];
-		if (!($enabled & IResultAdapter::TYPE_DATETIME)) $this->toDateTimeColumns = [];
-		if (!($enabled & IResultAdapter::TYPE_DRIVER_SPECIFIC)) $this->toDriverColumns = [];
-
-		$this->dirtyColumnTypes = TRUE;
 	}
 
 
@@ -153,8 +147,6 @@ class Result implements \SeekableIterator
 				$this->toDriverColumns[] = [$key, $nativeType];
 			}
 		}
-
-		$this->dirtyColumnTypes = FALSE;
 	}
 
 

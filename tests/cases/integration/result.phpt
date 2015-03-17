@@ -7,7 +7,6 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -30,25 +29,22 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$result = $this->connection->query('SELECT * FROM tag_followers ORDER BY tag_id, author_id');
 
 		$result->setValueNormalization(FALSE); // test reenabling
-		$result->setValueNormalization(
-			IResultAdapter::ALL_TYPES & ~IResultAdapter::TYPE_DATETIME
-		);
+		$result->setValueNormalization(TRUE);
 
 		$follower = $result->fetch();
 
 		Assert::same(1, $follower->tag_id);
 		Assert::same(1, $follower->author_id);
-		Assert::type('string', $follower->created_at);
-		Assert::same('2014-01-01 00:10:00', (new \DateTime($follower->created_at))->format('Y-m-d H:i:s'));
+		Assert::type('Nextras\Dbal\Utils\DateTime', $follower->created_at);
+		Assert::same('2014-01-01 00:10:00', $follower->created_at->format('Y-m-d H:i:s'));
 
 
-		$result->setValueNormalization(TRUE);
+		$result->setValueNormalization(FALSE);
 		$follower = $result->fetch();
 
-		Assert::same(2, $follower->tag_id);
-		Assert::same(2, $follower->author_id);
-		Assert::type('DateTime', $follower->created_at);
-		Assert::same('2014-01-01 00:10:00', $follower->created_at->format('Y-m-d H:i:s'));
+		Assert::same('2', $follower->tag_id);
+		Assert::same('2', $follower->author_id);
+		Assert::type('string', $follower->created_at);
 	}
 
 }
