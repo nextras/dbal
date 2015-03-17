@@ -42,8 +42,13 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$result->setValueNormalization(FALSE);
 		$follower = $result->fetch();
 
-		Assert::same('2', $follower->tag_id);
-		Assert::same('2', $follower->author_id);
+		if (defined('HHVM_VERSION')) {
+			Assert::same(2, $follower->tag_id);
+			Assert::same(2, $follower->author_id);
+		} else {
+			Assert::same('2', $follower->tag_id);
+			Assert::same('2', $follower->author_id);
+		}
 		Assert::type('string', $follower->created_at);
 	}
 
