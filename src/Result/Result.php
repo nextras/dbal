@@ -11,6 +11,7 @@ namespace Nextras\Dbal\Result;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
+use Nextras\Dbal\Utils\DateTime;
 
 
 class Result implements \SeekableIterator
@@ -192,7 +193,7 @@ class Result implements \SeekableIterator
 
 		foreach ($this->toDateTimeColumns as $column) {
 			if ($data[$column] !== NULL) {
-				$data[$column] = (new \DateTime($data[$column]))->setTimezone($this->applicationTimeZone);
+				$data[$column] = (new DateTime($data[$column]))->setTimezone($this->applicationTimeZone);
 			}
 		}
 
