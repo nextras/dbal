@@ -13,7 +13,6 @@ use DateTimeZone;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions;
-use Nextras\Dbal\Drivers\Postgre\PostgreResultAdapter;
 use Nextras\Dbal\Platforms\PostgrePlatform;
 use Nextras\Dbal\Result\Result;
 

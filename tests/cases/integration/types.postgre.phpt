@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use DateInterval;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -37,7 +38,7 @@ class TypesPostgreTest extends IntegrationTestCase
 		");
 
 		$row = $result->fetch();
-		Assert::equal(\DateInterval::createFromDateString('1 day 01:00:00'), $row->interval);
+		Assert::equal(DateInterval::createFromDateString('1 day 01:00:00'), $row->interval);
 		Assert::equal(4, $row->bit);
 		Assert::equal(4, $row->varbit);
 		Assert::equal(TRUE, $row->bool);

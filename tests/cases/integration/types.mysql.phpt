@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use DateInterval;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -74,7 +75,7 @@ class TypesMysqlTest extends IntegrationTestCase
 		Assert::same(12.34, $row->float);
 		Assert::same(12.34, $row->double);
 
-		Assert::equal(new \DateInterval('PT32H57M'), $row->time);
+		Assert::equal(new DateInterval('PT32H57M'), $row->time);
 	}
 
 }
