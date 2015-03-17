@@ -4,9 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use DateTime;
-use DateTimeZone;
-use Nextras\Dbal\Utils\DateTimeFactory;
+use Nextras\Dbal\Utils\DateTime;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -20,8 +18,8 @@ class DateTimeTest extends TestCase
 		date_default_timezone_set('Europe/Prague');
 
 		Assert::same(
-			'2015-01-01T04:27:35+00:00',
-			(string) DateTimeFactory::from(new DateTime('2015-01-01T05:27:35+01:00'), new DateTimeZone('Europe/London'))
+			'2015-01-01T05:27:35+01:00',
+			(string) new DateTime('2015-01-01T05:27:35+01:00')
 		);
 	}
 
