@@ -22,6 +22,9 @@ class ConnectionPanel implements IBarPanel
 	/** @var int */
 	private $count = 0;
 
+	/** @var float */
+	private $totalTime;
+
 	/** @var array */
 	private $queries = [];
 
@@ -48,13 +51,19 @@ class ConnectionPanel implements IBarPanel
 		$this->queries[] = [
 			$connection,
 			$sql,
+			$result ? $result->getElapsedTime() : NULL,
 		];
+
+		if ($result) {
+			$this->totalTime += $result->getElapsedTime();
+		}
 	}
 
 
 	public function getTab()
 	{
 		$count = $this->count;
+		$totalTime = $this->totalTime;
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.tab.phtml';
