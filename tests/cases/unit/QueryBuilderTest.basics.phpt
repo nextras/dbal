@@ -30,7 +30,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 		$this->assertBuilder(
 			[
 				'SELECT %i, %i ' .
-				'FROM func(%i) [table] ' .
+				'FROM func(%i) AS [table] ' .
 				'WHERE ((id = %s) OR (id2 = %i)) AND (id3 = %i) ' .
 				'GROUP BY %column, %column ' .
 				'HAVING (id = %s) AND (id2 = %i) ' .

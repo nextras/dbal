@@ -6,7 +6,6 @@ namespace NextrasTests\Dbal;
 
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -17,10 +16,10 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 	{
 		$this->assertBuilder(
 			[
-				'SELECT * FROM one [o] ' .
-				'LEFT JOIN two [t] ON (o.userId = t.userId) ' .
-				'INNER JOIN three [th] ON (t.userId = th.userId) ' .
-				'RIGHT JOIN four [f] ON (th.userId = f.userId)'
+				'SELECT * FROM one AS [o] ' .
+				'LEFT JOIN two AS [t] ON (o.userId = t.userId) ' .
+				'INNER JOIN three AS [th] ON (t.userId = th.userId) ' .
+				'RIGHT JOIN four AS [f] ON (th.userId = f.userId)'
 			],
 			$this->builder()
 				->from('one', 'o')
@@ -55,8 +54,8 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 
 		$this->assertBuilder(
 			[
-				'SELECT * FROM one [o] ' .
-				'INNER JOIN three [t] ON (t.userId = th.userId)'
+				'SELECT * FROM one AS [o] ' .
+				'INNER JOIN three AS [t] ON (t.userId = th.userId)'
 			],
 			$builder
 		);

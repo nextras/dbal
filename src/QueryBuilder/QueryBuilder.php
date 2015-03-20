@@ -123,14 +123,14 @@ class QueryBuilder
 	{
 		$knownAliases = array_flip($this->getKnownAliases());
 
-		$query = $this->from[0] . ($this->from[1] ? " [{$this->from[1]}]" : '');
+		$query = $this->from[0] . ($this->from[1] ? " AS [{$this->from[1]}]" : '');
 		foreach ((array) $this->join as $join) {
 			if (!isset($knownAliases[$join['from']])) {
 				throw new InvalidStateException("Unknown alias '{$join['from']}'.");
 			}
 
 			$query .= ' '
-				. $join['type'] . " JOIN {$join['table']} " . ($join['alias'] ? "[{$join['alias']}] " : '')
+				. $join['type'] . " JOIN {$join['table']} " . ($join['alias'] ? "AS [{$join['alias']}] " : '')
 				. 'ON (' . $join['on'] . ')';
 		}
 
