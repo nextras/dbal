@@ -45,6 +45,31 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 		}, 'Nextras\Dbal\Exceptions\InvalidStateException', "Unknown alias 't'.");
 	}
 
+
+	public function testOverride()
+	{
+		$builder = $this->builder()
+				->from('one', 'o')
+				->leftJoin('o', 'two', 't', 'o.userId = t.userId')
+				->innerJoin('t', 'three', 't', 't.userId = th.userId');
+
+		$this->assertBuilder(
+			[
+				'SELECT * FROM one [o] ' .
+				'INNER JOIN three [t] ON (t.userId = th.userId)'
+			],
+			$builder
+		);
+
+		Assert::same([
+			'type' => 'INNER',
+			'from' => 't',
+			'table' => 'three',
+			'alias' => 't',
+			'on' => 't.userId = th.userId',
+		], $builder->getJoin('t'));
+	}
+
 }
 
 

@@ -186,10 +186,16 @@ class QueryBuilder
 	}
 
 
+	public function getJoin($toAlias)
+	{
+		return isset($this->join[$toAlias]) ? $this->join[$toAlias] : NULL;
+	}
+
+
 	private function join($type, $fromAlias, $toExpression, $toAlias, $onExpression, $args)
 	{
 		$this->dirty();
-		$this->join[] = [
+		$this->join[$toAlias] = [
 			'type' => $type,
 			'from' => $fromAlias,
 			'table' => $toExpression,
