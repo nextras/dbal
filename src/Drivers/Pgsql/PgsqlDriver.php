@@ -13,7 +13,7 @@ use DateTimeZone;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions;
-use Nextras\Dbal\Platforms\PostgrePlatform;
+use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Result;
 
 
@@ -134,7 +134,7 @@ class PgsqlDriver implements IDriver
 
 	public function createPlatform(Connection $connection)
 	{
-		return new PostgrePlatform($connection);
+		return new PostgreSqlPlatform($connection);
 	}
 
 

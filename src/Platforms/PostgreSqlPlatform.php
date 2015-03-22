@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Platforms;
 use Nextras\Dbal\Connection;
 
 
-class PostgrePlatform implements IPlatform
+class PostgreSqlPlatform implements IPlatform
 {
 	/** @var Connection */
 	private $connection;
