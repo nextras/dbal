@@ -28,6 +28,19 @@ class DriverPostgreTest extends IntegrationTestCase
 		Assert::same('"foo"."bar".*', $driver->convertToSql('foo.bar.*', IDriver::TYPE_IDENTIFIER));
 	}
 
+
+	public function testBoolean()
+	{
+		$this->connection->query("
+			CREATE TEMPORARY TABLE [driver_types] (
+				[is_bool] boolean
+			);
+		");
+
+		$result = $this->connection->query('SELECT * FROM [driver_types] WHERE [is_bool] = %b', TRUE);
+		Assert::same(0, iterator_count($result));
+	}
+
 }
 
 

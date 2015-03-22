@@ -204,7 +204,7 @@ class PostgreDriver implements IDriver
 				return pg_escape_literal($this->connection, $value);
 
 			case self::TYPE_BOOL:
-				return $value ? '1' : '0';
+				return $value ? 'TRUE' : 'FALSE';
 
 			case self::TYPE_IDENTIFIER:
 				$parts = explode('.', $value);
