@@ -14,7 +14,7 @@ use mysqli;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions;
-use Nextras\Dbal\Platforms\MysqlPlatform;
+use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Result\Result;
 
 
@@ -118,7 +118,7 @@ class MysqliDriver implements IDriver
 
 	public function createPlatform(Connection $connection)
 	{
-		return new MysqlPlatform($connection);
+		return new MySqlPlatform($connection);
 	}
 
 

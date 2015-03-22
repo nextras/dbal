@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Platforms;
 use Nextras\Dbal\Connection;
 
 
-class MysqlPlatform implements IPlatform
+class MySqlPlatform implements IPlatform
 {
 	/** @var Connection */
 	private $connection;
