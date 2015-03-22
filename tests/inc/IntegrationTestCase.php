@@ -23,7 +23,7 @@ class IntegrationTestCase extends TestCase
 	{
 		Environment::lock('data', TEMP_DIR);
 		if ($connection->getPlatform() instanceof PostgrePlatform) {
-			FileImporter::executeFile($connection, __DIR__ . '/../data/postgre-data.sql');
+			FileImporter::executeFile($connection, __DIR__ . '/../data/pgsql-data.sql');
 		} else {
 			FileImporter::executeFile($connection, __DIR__ . '/../data/mysql-data.sql');
 		}

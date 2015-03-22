@@ -6,7 +6,7 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Postgre;
+namespace Nextras\Dbal\Drivers\Pgsql;
 
 use DateInterval;
 use DateTimeZone;
@@ -17,7 +17,7 @@ use Nextras\Dbal\Platforms\PostgrePlatform;
 use Nextras\Dbal\Result\Result;
 
 
-class PostgreDriver implements IDriver
+class PgsqlDriver implements IDriver
 {
 	/** @var resource */
 	private $connection;
@@ -115,7 +115,7 @@ class PostgreDriver implements IDriver
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
-		return new Result(new PostgreResultAdapter($resource), $this, $time);
+		return new Result(new PgsqlResultAdapter($resource), $this, $time);
 	}
 
 
@@ -192,7 +192,7 @@ class PostgreDriver implements IDriver
 			return pg_unescape_bytea($value);
 
 		} else {
-			throw new Exceptions\NotSupportedException("PostgreDriver does not support '{$nativeType}' type conversion.");
+			throw new Exceptions\NotSupportedException("PgsqlDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 

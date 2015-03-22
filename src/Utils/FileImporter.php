@@ -10,7 +10,7 @@ namespace Nextras\Dbal\Utils;
 
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Mysql\MysqlDriver;
-use Nextras\Dbal\Drivers\Postgre\PostgreDriver;
+use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
 use Nextras\Dbal\Exceptions\IOException;
 
 
@@ -44,7 +44,7 @@ class FileImporter
 		$driver = $connection->getDriver();
 		if ($driver instanceof MysqlDriver) {
 			$parse = '[\'"[]|/\*|-- |$';
-		} elseif ($driver instanceof PostgreDriver) {
+		} elseif ($driver instanceof PgsqlDriver) {
 			$parse = '[\'"]|/\*|-- |$|\$[^$]*\$';
 		} else { // general
 			$parse = '[\'"`#]|/\*|-- |$';
