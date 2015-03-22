@@ -2,7 +2,7 @@
 
 /**
  * @testCase
- * @dataProvider? ../../databases.ini postgre
+ * @dataProvider? ../../databases.ini pgsql
  */
 
 namespace NextrasTests\Dbal;

@@ -6,13 +6,13 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Postgre;
+namespace Nextras\Dbal\Drivers\Pgsql;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exceptions\InvalidStateException;
 
 
-class PostgreResultAdapter implements IResultAdapter
+class PgsqlResultAdapter implements IResultAdapter
 {
 	/**
 	 * @var array

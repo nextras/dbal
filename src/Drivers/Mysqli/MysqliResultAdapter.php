@@ -6,14 +6,14 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Mysql;
+namespace Nextras\Dbal\Drivers\Mysqli;
 
 use mysqli_result;
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exceptions\InvalidStateException;
 
 
-class MysqlResultAdapter implements IResultAdapter
+class MysqliResultAdapter implements IResultAdapter
 {
 	/** @var array */
 	protected static $types = [

@@ -6,7 +6,7 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Mysql;
+namespace Nextras\Dbal\Drivers\Mysqli;
 
 use DateInterval;
 use DateTimeZone;
@@ -14,11 +14,11 @@ use mysqli;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exceptions;
-use Nextras\Dbal\Platforms\MysqlPlatform;
+use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Result\Result;
 
 
-class MysqlDriver implements IDriver
+class MysqliDriver implements IDriver
 {
 	/** @var mysqli */
 	private $connection;
@@ -100,7 +100,7 @@ class MysqlDriver implements IDriver
 			return NULL;
 		}
 
-		return new Result(new MysqlResultAdapter($result), $this, $time);
+		return new Result(new MysqliResultAdapter($result), $this, $time);
 	}
 
 
@@ -118,7 +118,7 @@ class MysqlDriver implements IDriver
 
 	public function createPlatform(Connection $connection)
 	{
-		return new MysqlPlatform($connection);
+		return new MySqlPlatform($connection);
 	}
 
 
@@ -201,7 +201,7 @@ class MysqlDriver implements IDriver
 			return ord($value);
 
 		} else {
-			throw new Exceptions\NotSupportedException("MysqlDriver does not support '{$nativeType}' type conversion.");
+			throw new Exceptions\NotSupportedException("MysqliDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 
