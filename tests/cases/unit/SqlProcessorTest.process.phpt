@@ -32,16 +32,16 @@ class SqlProcessorProcessTest extends TestCase
 	public function testPatternAndCallback()
 	{
 		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('a', 'A')->andReturn('AA');
-		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('b?', 'B')->andReturn('BB');
+		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('?b', 'B')->andReturn('BB');
 		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('c[]', 'C')->andReturn('CC');
-		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('d?[]', 'D')->andReturn('DD');
+		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('?d[]', 'D')->andReturn('DD');
 		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('e', IDriver::TYPE_IDENTIFIER)->andReturn('EE');
 		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('f.f.f', IDriver::TYPE_IDENTIFIER)->andReturn('FF');
 
 		Assert::same(
 			'AA BB CC DD EE FF [1]',
 			$this->parser->process([
-				'%a %b? %c[] %d?[] [e] [f.f.f] [1]',
+				'%a %?b %c[] %?d[] [e] [f.f.f] [1]',
 				'A', 'B', 'C', 'D',
 			])
 		);

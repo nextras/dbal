@@ -72,7 +72,7 @@ class SqlProcessor
 
 			$i = $j;
 			$fragments[] = preg_replace_callback(
-				'#%(\w++\??+(?:\[\]){0,2}+)|\[(.+?)\]#S', // %modifier | [identifier]
+				'#%(\??+\w++(?:\[\]){0,2}+)|\[(.+?)\]#S', // %modifier | [identifier]
 				function ($matches) use ($args, &$j, $last) {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
@@ -111,11 +111,11 @@ class SqlProcessor
 				switch ($type) {
 					case 'any':
 					case 's':
-					case 's?':
+					case '?s':
 						return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
 
 					case 'i':
-					case 'i?':
+					case '?i':
 						if (!preg_match('#^-?[1-9][0-9]*+\z#', $value)) {
 							break;
 						}
@@ -137,7 +137,7 @@ class SqlProcessor
 				switch ($type) {
 					case 'any':
 					case 'i':
-					case 'i?':
+					case '?i':
 						return (string) $value;
 				}
 
@@ -147,7 +147,7 @@ class SqlProcessor
 					switch ($type) {
 						case 'any':
 						case 'f':
-						case 'f?':
+						case '?f':
 							return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
 					}
 				}
@@ -157,7 +157,7 @@ class SqlProcessor
 				switch ($type) {
 					case 'any':
 					case 'b':
-					case 'b?':
+					case '?b':
 						return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
 				}
 
@@ -165,13 +165,13 @@ class SqlProcessor
 			case 'NULL':
 				switch ($type) {
 					case 'any':
-					case 's?':
-					case 'i?':
-					case 'f?':
-					case 'b?':
-					case 'dt?':
-					case 'dts?':
-					case 'di?':
+					case '?s':
+					case '?i':
+					case '?f':
+					case '?b':
+					case '?dt':
+					case '?dts':
+					case '?di':
 						return 'NULL';
 				}
 
@@ -181,11 +181,11 @@ class SqlProcessor
 					switch ($type) {
 						case 'any':
 						case 'dt':
-						case 'dt?':
+						case '?dt':
 							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
 
 						case 'dts':
-						case 'dts?':
+						case '?dts':
 							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
 					}
 
@@ -193,7 +193,7 @@ class SqlProcessor
 					switch ($type) {
 						case 'any':
 						case 'di':
-						case 'di?':
+						case '?di':
 							return $this->driver->convertToSql($value, IDriver::TYPE_DATE_INTERVAL);
 					}
 
@@ -201,7 +201,7 @@ class SqlProcessor
 					switch ($type) {
 						case 'any':
 						case 's':
-						case 's?':
+						case '?s':
 							return $this->driver->convertToSql((string) $value, IDriver::TYPE_STRING);
 					}
 				}
@@ -252,15 +252,15 @@ class SqlProcessor
 				}
 
 				if (substr($type, -1) === ']') {
-					$baseType = rtrim($type, '[]?');
+					$baseType = trim($type, '[]?');
 					if (isset($this->modifiers[$baseType]) && $this->modifiers[$baseType][1]) {
 						return $this->processArray($type, $value);
 					}
 				}
 		}
 
-		$baseType = rtrim($type, '[]?');
-		$typeNullable = strrpos($type, '?');
+		$baseType = trim($type, '[]?');
+		$typeNullable = $type[0] === '?';
 		$typeArray = substr($type, -2) === '[]';
 		if (!isset($this->modifiers[$baseType])) {
 			throw new InvalidArgumentException("Unknown modifier %$type.");
@@ -272,7 +272,7 @@ class SqlProcessor
 			$this->throwInvalidValueTypeException($type, $value, 'array');
 
 		} elseif ($value === NULL && !$typeNullable && $this->modifiers[$baseType][0]) {
-			$this->throwWrongModifierException($type, $value, "$type?");
+			$this->throwWrongModifierException($type, $value, "?$type");
 
 		} elseif (is_array($value) && !$typeArray && $this->modifiers[$baseType][1]) {
 			$this->throwWrongModifierException($type, $value, "{$type}[]");

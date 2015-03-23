@@ -105,7 +105,7 @@ class SqlProcessorWhereTest extends TestCase
 			],
 			[
 				'`col` IS NULL',
-				['col%i?' => NULL],
+				['col%?i' => NULL],
 			],
 			[
 				'`col` IN (1, 2, 3)',
@@ -147,7 +147,7 @@ class SqlProcessorWhereTest extends TestCase
 			$this->parser->processModifier('and', [
 				'a%i' => '1',
 				'b.c' => 2,
-				'd%s?' => NULL,
+				'd%?s' => NULL,
 				'e%s[]' => ['1', 'a'],
 				'f%any' => [1, 'a'],
 			])
@@ -163,9 +163,9 @@ class SqlProcessorWhereTest extends TestCase
 		Assert::same(
 			'(a = 1 AND b IS NULL) OR a = 2 OR (a IS NULL AND b = 1) OR b = 3',
 			$this->parser->processModifier('or', [
-				['%and', ['a%i?' => 1, 'b%i?' => NULL]],
+				['%and', ['a%?i' => 1, 'b%?i' => NULL]],
 				'a' => 2,
-				['%and', ['a%i?' => NULL, 'b%i?' => 1]],
+				['%and', ['a%?i' => NULL, 'b%?i' => 1]],
 				'b' => 3,
 			])
 		);
@@ -213,9 +213,9 @@ class SqlProcessorWhereTest extends TestCase
 			['and', ['a' => new stdClass()], 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 			['and', ['a%foo' => 's'], 'Unknown modifier %foo.'],
 
-			['and?', [], 'Modifier %and does not have %and? variant.'],
+			['?and', [], 'Modifier %and does not have %?and variant.'],
 			['and[]', [], 'Modifier %and does not have %and[] variant.'],
-			['and?[]', [], 'Modifier %and does not have %and?[] variant.'],
+			['?and[]', [], 'Modifier %and does not have %?and[] variant.'],
 
 			['or', 123, 'Modifier %or expects value to be array, integer given.'],
 			['or', NULL, 'Modifier %or expects value to be array, NULL given.'],
@@ -226,9 +226,9 @@ class SqlProcessorWhereTest extends TestCase
 			['or', ['a' => new stdClass()], 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 			['or', ['a%foo' => 's'], 'Unknown modifier %foo.'],
 
-			['or?', [], 'Modifier %or does not have %or? variant.'],
+			['?or', [], 'Modifier %or does not have %?or variant.'],
 			['or[]', [], 'Modifier %or does not have %or[] variant.'],
-			['or?[]', [], 'Modifier %or does not have %or?[] variant.'],
+			['?or[]', [], 'Modifier %or does not have %?or[] variant.'],
 		];
 	}
 

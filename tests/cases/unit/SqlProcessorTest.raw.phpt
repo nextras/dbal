@@ -50,16 +50,16 @@ class SqlProcessorRawTest extends TestCase
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %raw expects value to be string, integer given.');
 
 		Assert::throws(function () {
-			$this->parser->processModifier('raw?', NULL);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %raw does not have %raw? variant.');
+			$this->parser->processModifier('?raw', NULL);
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %raw does not have %?raw variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('raw[]', []);
 		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %raw does not have %raw[] variant.');
 
 		Assert::throws(function () {
-			$this->parser->processModifier('raw?[]', []);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %raw does not have %raw?[] variant.');
+			$this->parser->processModifier('?raw[]', []);
+		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %raw does not have %?raw[] variant.');
 	}
 
 }
