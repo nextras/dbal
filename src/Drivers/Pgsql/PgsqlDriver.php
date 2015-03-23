@@ -218,6 +218,9 @@ class PgsqlDriver implements IDriver
 				}
 				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
+			case self::TYPE_DATE_INTERVAL:
+				return $value->format('P%yY%mM%dDT%hH%iM%sS');
+
 			default:
 				throw new Exceptions\InvalidArgumentException();
 		}

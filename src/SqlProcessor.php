@@ -29,6 +29,7 @@ class SqlProcessor
 		'b' => [TRUE, TRUE, 'bool'],
 		'dt' => [TRUE, TRUE, 'DateTime'],
 		'dts' => [TRUE, TRUE, 'DateTime'],
+		'di' => [TRUE, TRUE, 'DateInterval'],
 		'any' => [FALSE, FALSE, 'pretty much anything'],
 		'and' => [FALSE, FALSE, 'array'],
 		'or' => [FALSE, FALSE, 'array'],
@@ -170,6 +171,7 @@ class SqlProcessor
 					case 'b?':
 					case 'dt?':
 					case 'dts?':
+					case 'di?':
 						return 'NULL';
 				}
 
@@ -185,6 +187,14 @@ class SqlProcessor
 						case 'dts':
 						case 'dts?':
 							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
+					}
+
+				} elseif ($value instanceof \DateInterval) {
+					switch ($type) {
+						case 'any':
+						case 'di':
+						case 'di?':
+							return $this->driver->convertToSql($value, IDriver::TYPE_DATE_INTERVAL);
 					}
 
 				} elseif (method_exists($value, '__toString')) {

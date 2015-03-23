@@ -231,6 +231,14 @@ class MysqliDriver implements IDriver
 				}
 				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
+			case self::TYPE_DATE_INTERVAL:
+				$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
+				if ($totalHours >= 839) {
+					// see https://dev.mysql.com/doc/refman/5.0/en/time.html
+					throw new Exceptions\InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
+				}
+				return $value->format("%r{$totalHours}:%S:%I");
+
 			default:
 				throw new Exceptions\InvalidArgumentException();
 		}

@@ -49,6 +49,7 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('123', $this->parser->processModifier('i', '123')); // required to support large integers
 	}
 
+
 	public function testFloat()
 	{
 		Assert::same('-123.4', $this->parser->processModifier('f', -123.4));
@@ -87,6 +88,7 @@ class SqlProcessorScalarTest extends TestCase
 	public function testAny()
 	{
 		$dt = new DateTime('2012-03-05 12:01');
+		$di = $dt->diff(new DateTime('2012-03-05 08:00'));
 
 		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
 		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
@@ -101,7 +103,8 @@ class SqlProcessorScalarTest extends TestCase
 		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
 		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
 		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME)->andReturn('DT');
-		Assert::same('(B, 123, 123.4, T, DT, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, TRUE, $dt, NULL]));
+		$this->driver->shouldReceive('convertToSql')->once()->with($di, IDriver::TYPE_DATE_INTERVAL)->andReturn('DI');
+		Assert::same('(B, 123, 123.4, T, DT, DI, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, TRUE, $dt, $di, NULL]));
 	}
 
 
@@ -113,6 +116,7 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('NULL', $this->parser->processModifier('b?', NULL));
 		Assert::same('NULL', $this->parser->processModifier('dt?', NULL));
 		Assert::same('NULL', $this->parser->processModifier('dts?', NULL));
+		Assert::same('NULL', $this->parser->processModifier('di?', NULL));
 		Assert::same('NULL', $this->parser->processModifier('any', NULL));
 	}
 
@@ -388,6 +392,48 @@ class SqlProcessorScalarTest extends TestCase
 			['dts?[]', [TRUE], 'Modifier %dts? expects value to be DateTime, boolean given.'],
 			['dts?[]', [[]], 'Modifier %dts? does not allow array value, use modifier %dts?[] instead.'],
 			['dts?[]', [new stdClass()], 'Modifier %dts? expects value to be DateTime, stdClass given.'],
+
+			['di', 'true', 'Modifier %di expects value to be DateInterval, string given.'],
+			['di', 1, 'Modifier %di expects value to be DateInterval, integer given.'],
+			['di', 1.0, 'Modifier %di expects value to be DateInterval, double given.'],
+			['di', TRUE, 'Modifier %di expects value to be DateInterval, boolean given.'],
+			['di', [], 'Modifier %di does not allow array value, use modifier %di[] instead.'],
+			['di', new stdClass(), 'Modifier %di expects value to be DateInterval, stdClass given.'],
+			['di', NULL, 'Modifier %di does not allow NULL value, use modifier %di? instead.'],
+
+			['di?', 'true', 'Modifier %di? expects value to be DateInterval, string given.'],
+			['di?', 1, 'Modifier %di? expects value to be DateInterval, integer given.'],
+			['di?', 1.0, 'Modifier %di? expects value to be DateInterval, double given.'],
+			['di?', TRUE, 'Modifier %di? expects value to be DateInterval, boolean given.'],
+			['di?', [], 'Modifier %di? does not allow array value, use modifier %di?[] instead.'],
+			['di?', new stdClass(), 'Modifier %di? expects value to be DateInterval, stdClass given.'],
+
+			['di[]', '123', 'Modifier %di[] expects value to be array, string given.'],
+			['di[]', 123, 'Modifier %di[] expects value to be array, integer given.'],
+			['di[]', 123.0, 'Modifier %di[] expects value to be array, double given.'],
+			['di[]', TRUE, 'Modifier %di[] expects value to be array, boolean given.'],
+			['di[]', new stdClass(), 'Modifier %di[] expects value to be array, stdClass given.'],
+			['di[]', NULL, 'Modifier %di[] expects value to be array, NULL given.'],
+			['di[]', ['true'], 'Modifier %di expects value to be DateInterval, string given.'],
+			['di[]', [1], 'Modifier %di expects value to be DateInterval, integer given.'],
+			['di[]', [1.0], 'Modifier %di expects value to be DateInterval, double given.'],
+			['di[]', [TRUE], 'Modifier %di expects value to be DateInterval, boolean given.'],
+			['di[]', [[]], 'Modifier %di does not allow array value, use modifier %di[] instead.'],
+			['di[]', [new stdClass()], 'Modifier %di expects value to be DateInterval, stdClass given.'],
+			['di[]', [NULL], 'Modifier %di does not allow NULL value, use modifier %di? instead.'],
+
+			['di?[]', '123', 'Modifier %di?[] expects value to be array, string given.'],
+			['di?[]', 123, 'Modifier %di?[] expects value to be array, integer given.'],
+			['di?[]', 123.0, 'Modifier %di?[] expects value to be array, double given.'],
+			['di?[]', TRUE, 'Modifier %di?[] expects value to be array, boolean given.'],
+			['di?[]', new stdClass(), 'Modifier %di?[] expects value to be array, stdClass given.'],
+			['di?[]', NULL, 'Modifier %di?[] expects value to be array, NULL given.'],
+			['di?[]', ['true'], 'Modifier %di? expects value to be DateInterval, string given.'],
+			['di?[]', [1], 'Modifier %di? expects value to be DateInterval, integer given.'],
+			['di?[]', [1.0], 'Modifier %di? expects value to be DateInterval, double given.'],
+			['di?[]', [TRUE], 'Modifier %di? expects value to be DateInterval, boolean given.'],
+			['di?[]', [[]], 'Modifier %di? does not allow array value, use modifier %di?[] instead.'],
+			['di?[]', [new stdClass()], 'Modifier %di? expects value to be DateInterval, stdClass given.'],
 
 			['any', new stdClass(), 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 		];
