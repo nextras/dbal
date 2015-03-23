@@ -45,13 +45,6 @@ class PgsqlDriver implements IDriver
 			'connect_timeout', 'options', 'sslmode', 'service',
 		];
 
-		if (!isset($params['user']) && isset($params['username'])) {
-			$params['user'] = $params['username'];
-		}
-		if (!isset($params['dbname']) && isset($params['database'])) {
-			$params['dbname'] = $params['database'];
-		}
-
 		$connectionString = '';
 		foreach ($knownKeys as $key) {
 			if (isset($params[$key])) {
@@ -68,8 +61,8 @@ class PgsqlDriver implements IDriver
 
 		restore_error_handler();
 
-		$this->simpleStorageTz = new DateTimeZone(isset($params['simpleStorageTz']) ? $params['simpleStorageTz'] : 'UTC');
-		$this->connectionTz = new DateTimeZone(isset($params['connectionTz']) ? $params['connectionTz'] : date_default_timezone_get());
+		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
+		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		$this->query('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
 	}
 

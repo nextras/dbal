@@ -48,6 +48,7 @@ class Connection
 	 */
 	public function __construct(array $config)
 	{
+		$config = $this->processConfig($config);
 		$this->config = $config;
 		$this->driver = $this->createDriver($config);
 		$this->sqlPreprocessor = new SqlProcessor($this->driver);
@@ -247,6 +248,29 @@ class Connection
 		} catch (DriverException $e) {
 			return FALSE;
 		}
+	}
+
+
+	/**
+	 * Processes config: fills defaults, creates aliases, processes dynamic values.
+	 * @param  array $config
+	 * @return array
+	 */
+	private function processConfig(array $config)
+	{
+		if (!isset($config['dbname']) && isset($config['database'])) {
+			$config['dbname'] = $config['database'];
+		}
+		if (!isset($config['user']) && isset($config['username'])) {
+			$config['user'] = $config['username'];
+		}
+		if (!isset($config['simpleStorageTz'])) {
+			$config['simpleStorageTz'] = 'UTC';
+		}
+		if (!isset($config['connectionTz'])) {
+			$config['connectionTz'] = date_default_timezone_get();
+		}
+		return $config;
 	}
 
 

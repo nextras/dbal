@@ -39,15 +39,14 @@ class MysqliDriver implements IDriver
 	public function connect(array $params)
 	{
 		$host   = isset($params['host']) ? $params['host'] : ini_get('mysqli.default_host');
-		$port   = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
-		$port   = $port ?: 3306;
-		$dbname = isset($params['dbname']) ? $params['dbname'] : (isset($params['database']) ? $params['database'] : NULL);
+		$port   = isset($params['port']) ? $params['port'] : (ini_get('mysqli.default_port') ?: 3306);
+		$dbname = isset($params['dbname']) ? $params['dbname'] : '';
 		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : (ini_get('mysqli.default_socket') ?: NULL);
 		$flags  = isset($params['flags']) ? $params['flags'] : 0;
 
 		$this->connection = new mysqli();
 
-		if (!$this->connection->real_connect($host, $params['username'], $params['password'], $dbname, $port, $socket, $flags)) {
+		if (!$this->connection->real_connect($host, $params['user'], $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,
 				$this->connection->connect_errno,
@@ -172,8 +171,8 @@ class MysqliDriver implements IDriver
 			$this->query('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
 		}
 
-		$this->simpleStorageTz = new DateTimeZone(isset($params['simpleStorageTz']) ? $params['simpleStorageTz'] : 'UTC');
-		$this->connectionTz = new DateTimeZone(isset($params['connectionTz']) ? $params['connectionTz'] : date_default_timezone_get());
+		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
+		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		$this->query('SET time_zone = ' . $this->convertToSql($this->connectionTz->getName(), self::TYPE_STRING));
 	}
 
