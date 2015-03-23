@@ -22,6 +22,9 @@ interface IDriver
 	const TYPE_IDENTIFIER = 4;
 	const TYPE_STRING = 5;
 
+	const TIMEZONE_AUTO_PHP_NAME = 'auto';
+	const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
+
 
 	/**
 	 * Connects the driver to database.

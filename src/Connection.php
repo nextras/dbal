@@ -267,8 +267,10 @@ class Connection
 		if (!isset($config['simpleStorageTz'])) {
 			$config['simpleStorageTz'] = 'UTC';
 		}
-		if (!isset($config['connectionTz'])) {
+		if (!isset($config['connectionTz']) || $config['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_NAME) {
 			$config['connectionTz'] = date_default_timezone_get();
+		} elseif ($config['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_OFFSET) {
+			$config['connectionTz'] = date('P');
 		}
 		return $config;
 	}
