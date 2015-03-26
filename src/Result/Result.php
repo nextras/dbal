@@ -119,6 +119,15 @@ class Result implements \SeekableIterator
 
 
 	/**
+	 * @return Row[]
+	 */
+	public function fetchAll()
+	{
+		return iterator_to_array($this);
+	}
+
+
+	/**
 	 * @return float
 	 */
 	public function getElapsedTime()

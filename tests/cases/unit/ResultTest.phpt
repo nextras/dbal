@@ -6,6 +6,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Result\Row;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -69,6 +70,36 @@ class ResultTest extends TestCase
 		$result = new Result($adapter, $driver, 0);
 		$result->setValueNormalization(FALSE);
 		Assert::null($result->fetchField());
+	}
+
+
+	public function testFetchAll()
+	{
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$adapter->shouldReceive('seek')->once();
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
+		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+		$adapter->shouldReceive('seek')->once();
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
+		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+
+		$result = new Result($adapter, $driver, 0);
+		$result->setValueNormalization(FALSE);
+
+		Assert::equal([
+			new Row(['name' => 'First', 'surname' => 'Two']),
+			new Row(['name' => 'Third', 'surname' => 'Four']),
+		], $result->fetchAll());
+
+		Assert::equal([
+			new Row(['name' => 'First', 'surname' => 'Two']),
+			new Row(['name' => 'Third', 'surname' => 'Four']),
+		], $result->fetchAll());
 	}
 
 }
