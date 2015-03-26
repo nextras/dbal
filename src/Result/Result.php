@@ -11,6 +11,7 @@ namespace Nextras\Dbal\Result;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
+use Nextras\Dbal\Exceptions\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTime;
 
 
@@ -124,6 +125,38 @@ class Result implements \SeekableIterator
 	public function fetchAll()
 	{
 		return iterator_to_array($this);
+	}
+
+
+	/**
+	 * @param  string|NULL $key
+	 * @param  string|NULL $value
+	 * @return array
+	 */
+	public function fetchPairs($key = NULL, $value = NULL)
+	{
+		if ($key === NULL && $value === NULL) {
+			throw new InvalidArgumentException('Result::fetchPairs() requires defined key or value.');
+		}
+
+		$return = [];
+		$this->seek(0);
+
+		if ($key === NULL) {
+			while ($row = $this->fetch()) {
+				$return[] = $row->{$value};
+			}
+		} elseif ($value === NULL) {
+			while ($row = $this->fetch()) {
+				$return[is_object($row->{$key}) ? (string) $row->{$key} : $row->{$key}] = $row;
+			}
+		} else {
+			while ($row = $this->fetch()) {
+				$return[is_object($row->{$key}) ? (string) $row->{$key} : $row->{$key}] = $row->{$value};
+			}
+		}
+
+		return $return;
 	}
 
 
