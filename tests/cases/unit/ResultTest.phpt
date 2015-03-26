@@ -48,6 +48,30 @@ class ResultTest extends TestCase
 	}
 
 
+	public function testSeek()
+	{
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$adapter->shouldReceive('seek')->once();
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
+		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
+		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+
+		$result = new Result($adapter, $driver, 0);
+		$result->setValueNormalization(FALSE);
+
+		$names = [];
+		$result->seek(0);
+		while ($row = $result->fetch()) {
+			$names[] = $row->name;
+		}
+
+		Assert::same(['First', 'Third'], $names);
+	}
+
+
 	public function testFetchField()
 	{
 		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');

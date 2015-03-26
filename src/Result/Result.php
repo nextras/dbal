@@ -245,6 +245,7 @@ class Result implements \SeekableIterator
 	public function rewind()
 	{
 		$this->seek(0);
+		$this->fetch();
 	}
 
 
@@ -252,7 +253,6 @@ class Result implements \SeekableIterator
 	{
 		$this->adapter->seek($index);
 		$this->iteratorIndex = $index - 1;
-		$this->fetch();
 	}
 
 }
