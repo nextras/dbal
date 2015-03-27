@@ -61,6 +61,15 @@ class SqlProcessorProcessTest extends TestCase
 	}
 
 
+	public function testEscape()
+	{
+		Assert::same(
+			'SELECT DATE_FORMAT(publishedDate, "%Y") AS year FROM foo',
+			$this->parser->process(['SELECT DATE_FORMAT(publishedDate, "%%Y") AS year FROM foo'])
+		);
+	}
+
+
 	public function testWrongArguments()
 	{
 		Assert::throws(function() {
