@@ -6,24 +6,21 @@ Nextras\Dbal
 [![Stable version](http://img.shields.io/packagist/v/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![HHVM Status](http://img.shields.io/hhvm/nextras/dbal.svg?style=flat)](http://hhvm.h4cc.de/package/nextras/dbal)
 
-Installation
-------------
+### Installation
 
-Add to your `composer.json`:
+Use composer:
 
 ```bash
 $ composer require nextras/dbal
 ```
 
-Thanks
-------
+### Thanks
 
 This project is inspired by great libraries:
 - [Doctrine\DBAL](http://www.doctrine-project.org) - [GitHub](https://github.com/doctrine/dbal)
 - [dibi](http://dibiphp.org) - [GitHub](https://github.com/dg/dibi)
 - [Nette\Database](http://nette.org) - [GitHub](https://github.com/nette/database)
 
-License
--------
+### License
 
 MIT. See full [license](license.md).
