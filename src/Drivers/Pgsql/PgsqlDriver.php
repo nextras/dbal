@@ -114,6 +114,9 @@ class PgsqlDriver implements IDriver
 
 	public function getLastInsertedId($sequenceName = NULL)
 	{
+		if (empty($sequenceName)) {
+			throw new Exceptions\InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
+		}
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
 		return $this->query($sql)->fetchField();
 	}
