@@ -133,6 +133,27 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 		);
 	}
 
+
+	public function testLimitMethods()
+	{
+		$this->driver->shouldReceive('modifyLimitQuery')->with('SELECT * FROM foo', 10, NULL)->andReturn('X');
+
+		$this->assertBuilder(
+			['X'],
+			$this->builder()
+				->from('foo')
+				->limitBy(10)
+		);
+
+		$this->driver->shouldReceive('modifyLimitQuery')->with('SELECT * FROM foo', 10, 20)->andReturn('Y');
+		$this->assertBuilder(
+			['Y'],
+			$this->builder()
+				->from('foo')
+				->limitBy(10, 20)
+		);
+	}
+
 }
 
 
