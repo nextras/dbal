@@ -243,6 +243,7 @@ class Connection
 	public function ping()
 	{
 		try {
+			$this->connected || $this->connect();
 			return $this->driver->ping();
 
 		} catch (DriverException $e) {
