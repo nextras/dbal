@@ -21,7 +21,8 @@
 		"nette/di": "~2.3"
 	},
 	"autoload": {
-		"psr-4": { "Nextras\\Dbal\\": "src/" }
+		"psr-4": { "Nextras\\Dbal\\": "src/" },
+		"classmap": ["src/exceptions.php"]
 	},
 	"extra": {
 		"branch-alias": {
