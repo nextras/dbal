@@ -219,7 +219,11 @@ class PgsqlDriver implements IDriver
 				return implode('.', $parts);
 
 			case self::TYPE_DATETIME:
-				return "'" . $value->format('Y-m-d H:i:sP') . "'";
+				if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
+					$value = clone $value;
+					$value->setTimezone($this->connectionTz);
+				}
+				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
 			case self::TYPE_DATETIME_SIMPLE:
 				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
