@@ -43,6 +43,21 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$row = $result->fetch();
 		Assert::same('2015-01-01 11:00:00', $row->a);
 		Assert::same('2015-01-01 12:00:00+01', $row->b);
+
+
+		$connection->query('DELETE FROM dates_write');
+		$connection->query(
+			'INSERT INTO dates_write VALUES (%dts, %dt)',
+			new DateTime('2015-01-01 12:00:00'),             // 11:00 UTC
+			new DateTime('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
+		);
+
+		$result = $connection->query('SELECT * FROM dates_write');
+		$result->setValueNormalization(FALSE);
+
+		$row = $result->fetch();
+		Assert::same('2015-01-01 11:00:00', $row->a);
+		Assert::same('2015-01-01 11:00:00+01', $row->b);
 	}
 
 
