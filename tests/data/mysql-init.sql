@@ -10,7 +10,8 @@ CREATE TABLE authors (
 CREATE TABLE publishers (
 	id int NOT NULL AUTO_INCREMENT,
 	name varchar(50) NOT NULL,
-	PRIMARY KEY(id)
+	PRIMARY KEY(id),
+	UNIQUE INDEX (name)
 );
 
 

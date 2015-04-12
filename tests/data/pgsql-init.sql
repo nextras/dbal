@@ -13,6 +13,7 @@ CREATE TABLE "publishers" (
 	PRIMARY KEY("id")
 );
 
+CREATE UNIQUE INDEX ON "public"."publishers" ("name");
 
 CREATE TABLE "tags" (
 	"id" SERIAL4 NOT NULL,
