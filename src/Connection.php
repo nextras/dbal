@@ -270,6 +270,9 @@ class Connection
 		} elseif ($config['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_OFFSET) {
 			$config['connectionTz'] = date('P');
 		}
+		if (!isset($config['sqlMode'])) { // only for MySQL
+			$config['sqlMode'] = 'TRADITIONAL';
+		}
 		return $config;
 	}
 
