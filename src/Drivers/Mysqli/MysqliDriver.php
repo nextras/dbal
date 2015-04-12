@@ -53,7 +53,7 @@ class MysqliDriver implements IDriver
 
 		$this->connection = new mysqli();
 
-		if (!$this->connection->real_connect($host, $params['user'], $params['password'], $dbname, $port, $socket, $flags)) {
+		if (!@$this->connection->real_connect($host, $params['user'], $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,
 				$this->connection->connect_errno,

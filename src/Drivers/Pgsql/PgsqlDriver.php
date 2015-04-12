@@ -270,7 +270,7 @@ class PgsqlDriver implements IDriver
 		} elseif ($sqlState === '23505') {
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
-		} elseif ($sqlState === '' && stripos($error, 'pg_connect()') !== FALSE) {
+		} elseif ($sqlState === NULL && stripos($error, 'pg_connect()') !== FALSE) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif ($query !== NULL) {
