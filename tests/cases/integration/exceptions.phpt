@@ -27,11 +27,6 @@ class ExceptionsTest extends IntegrationTestCase
 			$connection = $this->createConnection(['username' => 'unknown']);
 			$connection->connect();
 		}, 'Nextras\Dbal\ConnectionException');
-
-		Assert::exception(function() {
-			$connection = $this->createConnection(['password' => 'unknown']);
-			$connection->connect();
-		}, 'Nextras\Dbal\ConnectionException');
 	}
 
 
