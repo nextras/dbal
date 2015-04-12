@@ -32,7 +32,11 @@ class IntegrationTestCase extends TestCase
 
 	protected function createConnection($params = [])
 	{
-		$options = array_merge(['user' => NULL, 'password' => NULL], Environment::loadData(), $params);
+		$options = array_merge([
+			'user' => NULL,
+			'password' => NULL,
+			'sqlMode' => 'TRADITIONAL',
+		], Environment::loadData(), $params);
 		return new Connection($options);
 	}
 
