@@ -281,7 +281,10 @@ class Connection
 	 */
 	private function createDriver(array $config)
 	{
-		if ($config['driver'] instanceof IDriver) {
+		if (empty($config['driver'])) {
+			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql.');
+
+		} elseif ($config['driver'] instanceof IDriver) {
 			return $config['driver'];
 
 		} else {

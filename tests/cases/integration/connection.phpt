@@ -41,6 +41,14 @@ class ConnectionTest extends IntegrationTestCase
 		], $log);
 	}
 
+
+	public function testMissingDriver()
+	{
+		Assert::exception(function() {
+			$this->createConnection(['driver' => NULL]);
+		}, 'Nextras\Dbal\InvalidStateException');
+	}
+
 }
 
 
