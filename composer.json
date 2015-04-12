@@ -17,7 +17,8 @@
 	"require-dev": {
 		"nette/tester": "~1.4",
 		"mockery/mockery": "~0.9",
-		"tracy/tracy": "~2.3"
+		"tracy/tracy": "~2.3",
+		"nette/di": "~2.3"
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" }

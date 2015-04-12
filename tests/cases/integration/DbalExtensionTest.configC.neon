@@ -1,0 +1,4 @@
+dbal:
+	driver: mysqli
+	username: bar
+	password: foo
