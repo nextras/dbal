@@ -8,7 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\Exceptions\InvalidStateException;
+use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
 use Tester\Environment;
 
@@ -67,7 +67,7 @@ class TransactionsTest extends IntegrationTestCase
 
 				throw new InvalidStateException('ABORT TRANSACTION');
 			});
-		}, 'Nextras\Dbal\Exceptions\InvalidStateException', 'ABORT TRANSACTION');
+		}, 'Nextras\Dbal\InvalidStateException', 'ABORT TRANSACTION');
 
 		Assert::same(0, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_')->fetchField());
 	}

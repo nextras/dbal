@@ -64,19 +64,19 @@ class SqlProcessorExpandTest extends TestCase
 	{
 		Assert::throws(function () {
 			$this->parser->processModifier('ex', 'abc');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %ex expects value to be array, string given.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex expects value to be array, string given.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('?ex', 'abc');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %ex does not have %?ex variant.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex does not have %?ex variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('ex[]', 'abc');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %ex does not have %ex[] variant.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex does not have %ex[] variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('?ex[]', 'abc');
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Modifier %ex does not have %?ex[] variant.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex does not have %?ex[] variant.');
 	}
 
 }

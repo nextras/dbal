@@ -9,7 +9,6 @@
 namespace  Nextras\Dbal;
 
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
 
 
 class SqlProcessor

@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Drivers;
 
-use Nextras\Dbal\Exceptions\InvalidStateException;
+use Nextras\Dbal\InvalidStateException;
 
 
 interface IResultAdapter

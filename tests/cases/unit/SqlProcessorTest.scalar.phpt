@@ -130,7 +130,7 @@ class SqlProcessorScalarTest extends TestCase
 			function() use ($type, $value) {
 				$this->parser->processModifier($type, $value);
 			},
-			'Nextras\Dbal\Exceptions\InvalidArgumentException', $message
+			'Nextras\Dbal\InvalidArgumentException', $message
 		);
 	}
 

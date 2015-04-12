@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Drivers;
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\Exceptions\QueryException;
+use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 

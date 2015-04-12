@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Drivers\Pgsql;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\Exceptions\InvalidStateException;
+use Nextras\Dbal\InvalidStateException;
 
 
 class PgsqlResultAdapter implements IResultAdapter

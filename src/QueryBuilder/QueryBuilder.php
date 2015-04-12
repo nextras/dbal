@@ -9,8 +9,8 @@
 namespace Nextras\Dbal\QueryBuilder;
 
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
-use Nextras\Dbal\Exceptions\InvalidStateException;
+use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\InvalidStateException;
 
 
 class QueryBuilder

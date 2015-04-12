@@ -10,7 +10,7 @@ namespace Nextras\Dbal\Drivers\Mysqli;
 
 use mysqli_result;
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\Exceptions\InvalidStateException;
+use Nextras\Dbal\InvalidStateException;
 
 
 class MysqliResultAdapter implements IResultAdapter

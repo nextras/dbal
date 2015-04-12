@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Result;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTime;
 
 

@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
-use Nextras\Dbal\Exceptions\QueryException;
+use Nextras\Dbal\QueryException;
 
 
 class BluescreenQueryPanel

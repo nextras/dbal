@@ -42,7 +42,7 @@ class DriverMysqlTest extends IntegrationTestCase
 		Assert::throws(function() use ($driver) {
 			$interval = (new DateTime('2015-02-05 09:59:59'))->diff(new DateTime('2015-01-01 09:00:00'));
 			$driver->convertToSql($interval, IDriver::TYPE_DATE_INTERVAL);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException');
+		}, 'Nextras\Dbal\InvalidArgumentException');
 	}
 
 }

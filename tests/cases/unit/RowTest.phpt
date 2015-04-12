@@ -25,11 +25,11 @@ class RowTest extends TestCase
 
 		Assert::throws(function() use ($row) {
 			$row->NAME;
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', "Column 'NAME' does not exist.");
+		}, 'Nextras\Dbal\InvalidArgumentException', "Column 'NAME' does not exist.");
 
 		Assert::throws(function() use ($row) {
 			$row->suname;
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', "Column 'suname' does not exist, did you mean 'surname'?");
+		}, 'Nextras\Dbal\InvalidArgumentException', "Column 'suname' does not exist, did you mean 'surname'?");
 	}
 
 

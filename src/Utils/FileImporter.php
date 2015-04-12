@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Utils;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
 use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
-use Nextras\Dbal\Exceptions\IOException;
+use Nextras\Dbal\IOException;
 
 
 class FileImporter

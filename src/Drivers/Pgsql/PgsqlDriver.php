@@ -11,10 +11,17 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 use DateInterval;
 use DateTimeZone;
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\ConnectionException;
+use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exceptions;
+use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\NotNullConstraintViolationException;
+use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
+use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\UniqueConstraintViolationException;
 
 
 class PgsqlDriver implements IDriver
@@ -115,7 +122,7 @@ class PgsqlDriver implements IDriver
 	public function getLastInsertedId($sequenceName = NULL)
 	{
 		if (empty($sequenceName)) {
-			throw new Exceptions\InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
+			throw new InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
 		}
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
 		return $this->query($sql)->fetchField();
@@ -188,7 +195,7 @@ class PgsqlDriver implements IDriver
 			return pg_unescape_bytea($value);
 
 		} else {
-			throw new Exceptions\NotSupportedException("PgsqlDriver does not support '{$nativeType}' type conversion.");
+			throw new NotSupportedException("PgsqlDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 
@@ -225,7 +232,7 @@ class PgsqlDriver implements IDriver
 				return $value->format('P%yY%mM%dDT%hH%iM%sS');
 
 			default:
-				throw new Exceptions\InvalidArgumentException();
+				throw new InvalidArgumentException();
 		}
 	}
 
@@ -252,25 +259,25 @@ class PgsqlDriver implements IDriver
 		if ($sqlState === '0A000' && strpos($error, 'truncate') !== FALSE) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.
-			return new Exceptions\ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif ($sqlState === '23502') {
-			return new Exceptions\NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif ($sqlState === '23503') {
-			return new Exceptions\ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif ($sqlState === '23505') {
-			return new Exceptions\UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif ($sqlState === '' && stripos($error, 'pg_connect()') !== FALSE) {
-			return new Exceptions\ConnectionException($error, $errorNo, $sqlState);
+			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif ($query !== NULL) {
-			return new Exceptions\QueryException($error, $errorNo, $sqlState, NULL, $query);
+			return new QueryException($error, $errorNo, $sqlState, NULL, $query);
 
 		} else {
-			return new Exceptions\DriverException($error, $errorNo, $sqlState);
+			return new DriverException($error, $errorNo, $sqlState);
 		}
 	}
 

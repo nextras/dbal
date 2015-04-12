@@ -6,7 +6,7 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Exceptions;
+namespace Nextras\Dbal;
 
 use Exception;
 
@@ -31,34 +31,12 @@ class NotImplementedException extends \LogicException
 }
 
 
-class NotNullConstraintViolationException extends ConstraintViolationException
-{
-}
-
-
 class NotSupportedException extends \LogicException
 {
 }
 
 
 class ConnectionException extends DriverException
-{
-}
-
-
-
-
-abstract class ConstraintViolationException extends QueryException
-{
-}
-
-
-class ForeignKeyConstraintViolationException extends ConstraintViolationException
-{
-}
-
-
-class UniqueConstraintViolationException extends ConstraintViolationException
 {
 }
 
@@ -120,4 +98,25 @@ class QueryException extends DriverException
 		return $this->sqlQuery;
 	}
 
+}
+
+
+
+abstract class ConstraintViolationException extends QueryException
+{
+}
+
+
+class NotNullConstraintViolationException extends ConstraintViolationException
+{
+}
+
+
+class ForeignKeyConstraintViolationException extends ConstraintViolationException
+{
+}
+
+
+class UniqueConstraintViolationException extends ConstraintViolationException
+{
 }

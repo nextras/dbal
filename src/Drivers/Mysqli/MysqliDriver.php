@@ -12,10 +12,17 @@ use DateInterval;
 use DateTimeZone;
 use mysqli;
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\ConnectionException;
+use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exceptions;
+use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\NotNullConstraintViolationException;
+use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\MySqlPlatform;
+use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\UniqueConstraintViolationException;
 
 
 class MysqliDriver implements IDriver
@@ -200,7 +207,7 @@ class MysqliDriver implements IDriver
 			return ord($value);
 
 		} else {
-			throw new Exceptions\NotSupportedException("MysqliDriver does not support '{$nativeType}' type conversion.");
+			throw new NotSupportedException("MysqliDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 
@@ -235,12 +242,12 @@ class MysqliDriver implements IDriver
 				$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
 				if ($totalHours >= 839) {
 					// see https://dev.mysql.com/doc/refman/5.0/en/time.html
-					throw new Exceptions\InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
+					throw new InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
 				}
 				return $value->format("%r{$totalHours}:%S:%I");
 
 			default:
-				throw new Exceptions\InvalidArgumentException();
+				throw new InvalidArgumentException();
 		}
 	}
 
@@ -268,22 +275,22 @@ class MysqliDriver implements IDriver
 	protected function createException($error, $errorNo, $sqlState, $query = NULL)
 	{
 		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], TRUE)) {
-			return new Exceptions\ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], TRUE)) {
-			return new Exceptions\UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], TRUE)) {
-			return new Exceptions\ConnectionException($error, $errorNo, $sqlState);
+			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], TRUE)) {
-			return new Exceptions\NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif ($query !== NULL) {
-			return new Exceptions\QueryException($error, $errorNo, $sqlState, NULL, $query);
+			return new QueryException($error, $errorNo, $sqlState, NULL, $query);
 
 		} else {
-			return new Exceptions\DriverException($error, $errorNo, $sqlState);
+			return new DriverException($error, $errorNo, $sqlState);
 		}
 	}
 

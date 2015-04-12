@@ -74,30 +74,30 @@ class SqlProcessorProcessTest extends TestCase
 	{
 		Assert::throws(function() {
 			$this->parser->process([123]);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Query fragment must be string.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Query fragment must be string.');
 
 		Assert::throws(function() {
 			$this->parser->process([new \stdClass()]);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Query fragment must be string.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Query fragment must be string.');
 
 		Assert::throws(function() {
 			$this->parser->process(['A %xxx']);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Missing query parameter for modifier %xxx.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Missing query parameter for modifier %xxx.');
 
 		Assert::throws(function() {
 			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 2]);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'A %xxx B\'.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'A %xxx B\'.');
 
 		Assert::throws(function() {
 			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 'C', 2]);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 
 		Assert::throws(function() {
 			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 'C', 'D']);
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 	}
 
 }

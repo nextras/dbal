@@ -4,7 +4,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery;
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Utils\FileImporter;
 use Tester\Environment;

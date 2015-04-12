@@ -33,7 +33,7 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 
 		Assert::exception(function() {
 			$this->connection->getLastInsertedId();
-		}, 'Nextras\Dbal\Exceptions\InvalidArgumentException', 'PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
+		}, 'Nextras\Dbal\InvalidArgumentException', 'PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
 	}
 
 }

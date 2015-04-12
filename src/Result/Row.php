@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Result;
 
-use Nextras\Dbal\Exceptions\InvalidArgumentException;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\Typos;
 
 
