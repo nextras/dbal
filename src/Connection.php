@@ -10,6 +10,7 @@ namespace Nextras\Dbal;
 
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
+use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
 
 
@@ -174,6 +175,16 @@ class Connection
 		}
 
 		return $this->platform;
+	}
+
+
+	/**
+	 * Creates new QueryBuilder instance.
+	 * @return QueryBuilder
+	 */
+	public function createQueryBuilder()
+	{
+		return new QueryBuilder($this->driver);
 	}
 
 

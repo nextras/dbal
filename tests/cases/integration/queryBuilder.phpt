@@ -20,7 +20,7 @@ class QueryBuilderIntegrationTest extends IntegrationTestCase
 	{
 		$this->initData($this->connection);
 
-		$queryBuilder = new QueryBuilder($this->connection->getDriver());
+		$queryBuilder = $this->connection->createQueryBuilder();
 		$queryBuilder->from('books')->orderBy('id');
 		$queryBuilder->select('id');
 		$queryBuilder->limitBy(2);
