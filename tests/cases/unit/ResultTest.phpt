@@ -178,6 +178,15 @@ class ResultTest extends TestCase
 			'2014-01-01T00:00:00+01:00' => 'jon snow',
 			'2014-01-03T00:00:00+01:00' => 'oberyn martell',
 		], $createResult()->fetchPairs('born', 'name'));
+
+		Assert::exception(function() {
+			$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+			$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+			$result = new Result($adapter, $driver, 0);
+			$result->setValueNormalization(FALSE);
+			$result->fetchPairs();
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Result::fetchPairs() requires defined key or value.');
 	}
 
 }

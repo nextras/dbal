@@ -85,6 +85,26 @@ class SqlProcessorScalarTest extends TestCase
 	}
 
 
+	public function testColumn()
+	{
+		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('A');
+		$this->driver->shouldReceive('convertToSql')->once()->with('b', IDriver::TYPE_IDENTIFIER)->andReturn('B');
+		$this->driver->shouldReceive('convertToSql')->once()->with('c', IDriver::TYPE_IDENTIFIER)->andReturn('C');
+		Assert::same('(A, B, C)', $this->parser->processModifier('column[]', ['a', 'b', 'c']));
+
+
+		Assert::exception(function() {
+			// test break to process non-string values
+			$this->parser->processModifier('column[]', [1]);
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %column expects value to be string, integer given.');
+
+
+		Assert::exception(function() {
+			$this->parser->processModifier('column', '*');
+		}, 'Nextras\Dbal\InvalidArgumentException', "Modifier %column does not allow '*' value, use modifier %column[] instead.");
+	}
+
+
 	public function testAny()
 	{
 		$dt = new DateTime('2012-03-05 12:01');

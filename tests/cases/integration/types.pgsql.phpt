@@ -34,22 +34,28 @@ class TypesPostgreTest extends IntegrationTestCase
 			-- float
 			'12.04'::numeric,
 			'12.05'::float4,
-			'12.06'::float8
+			'12.06'::float8,
+
+			'foo'::varchar(200),
+			TRUE::bool
 		");
 
 		$row = $result->fetch();
 		Assert::equal(DateInterval::createFromDateString('1 day 01:00:00'), $row->interval);
-		Assert::equal(4, $row->bit);
-		Assert::equal(4, $row->varbit);
-		Assert::equal(TRUE, $row->bool);
+		Assert::same(4, $row->bit);
+		Assert::same(4, $row->varbit);
+		Assert::same(TRUE, $row->bool);
 
-		Assert::equal(1, $row->int8);
-		Assert::equal(2, $row->int4);
-		Assert::equal(3, $row->int2);
+		Assert::same(1, $row->int8);
+		Assert::same(2, $row->int4);
+		Assert::same(3, $row->int2);
 
-		Assert::equal(12.04, $row->numeric);
-		Assert::equal(12.05, $row->float4);
-		Assert::equal(12.06, $row->float8);
+		Assert::same(12.04, $row->numeric);
+		Assert::same(12.05, $row->float4);
+		Assert::same(12.06, $row->float8);
+
+		Assert::same('foo', $row->varchar);
+		Assert::same(TRUE, $row->bool);
 	}
 
 }

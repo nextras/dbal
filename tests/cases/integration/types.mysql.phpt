@@ -35,7 +35,9 @@ class TypesMysqlTest extends IntegrationTestCase
 				[float] float,
 				[double] double,
 
-				[time] time
+				[time] time,
+
+				[string] varchar(200)
 			) ENGINE=InnoDB;
 		");
 		$this->connection->query("
@@ -55,7 +57,9 @@ class TypesMysqlTest extends IntegrationTestCase
 				12.34,
 				12.34,
 
-				'32:57'
+				'32:57',
+
+				'foo'
 			)
 		");
 
@@ -76,6 +80,8 @@ class TypesMysqlTest extends IntegrationTestCase
 		Assert::same(12.34, $row->double);
 
 		Assert::equal(new DateInterval('PT32H57M'), $row->time);
+
+		Assert::same('foo', $row->string);
 	}
 
 }
