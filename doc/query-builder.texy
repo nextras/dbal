@@ -1,0 +1,124 @@
+Query Builder
+#############
+
+Query builder is tool for constructing SQL query. It allows you to define SQL query with fluent API.
+
+From clause
+===========
+
+Let's create Query builder object. Set source table name by `from()` method. You can pass alias. The first argument is considered as SQL expression, you you have to escape table name manually with `[]` brackets, or use modifier. The second argument is optional table alias, other arguments are arguments for used modifiers.
+
+/--php
+$builder = $connection->createQueryBuilder();
+
+// table useres, aliased a
+$builder->from('users', 'a');
+
+// escaping table name
+$builder->from('[orders]', 'o');
+
+// or pass it as argument
+$builder->from('%table', 'o', $tableName);
+
+// table as result of stored function/procedure
+$builder->from('my_orders(%i, %i)', 'orders', $userId, $groupId);
+\--
+
+------------
+
+Where, having and group by clause
+=================================
+
+You can add conditions using `andWhere()` or `orWhere()` methods. `*Where` methods accepts query expression, all other function arguments are optional and are considered as arguments for modifiers passed in expression.
+
+/--php
+$builder->andWhere('order_id = %i', $oderId);
+        ->orWhere('user_id IN %i[] AND group_id = %i', $userIds, $groupId);
+
+// will produce
+// WHERE (order_id = %i) OR (user_id IN %i[] AND group_id = %i)
+\--
+
+Methods `andHaving()` and `orHaving()` have the same signature and logic as where methods. Group by expressions are not connected with logic conjunctions, therefore method is called `addGroupBy()`. The group by method has signature as others, accepts expression and optinal arguments.
+
+Let's see an example: depending on `$cond` we build query which will retrieve daily number of issues created/resolved in last week and was them more than 10..
+/--php
+$column = $cond ? 'created_at' : 'resolved_at';
+
+$builder = $connection->createQueryBuilder();
+$builder->select('DATE(%column), COUNT(*)', $column);
+$builder->from('issues');
+$builder->andWhere('%column > NOW() - INTERVAL 1 WEEK', $column);
+$builder->addGroupBy('DATE(%column)', $column);
+$builder->andHaving('COUNT(*) > 10');
+\--
+
+Query builder has alternative methods named `where()`, `groupBy()` and `having()` which remove previously defined conditions and add new one:
+
+/--php
+$builder = $connection->createQueryBuilder();
+$builder->from('issues');
+$builder->where('created_at > NOW()');
+$builder->where('created_at < NOW()'); // replace previous conditions
+
+// will produce
+// SELECT * FROM issues WHERE created_at < NOW();
+\--
+
+------------
+
+
+Select, orderBy and limit clause
+================================
+
+Builder have also methods for defining select, order by and limit clauses. Use appropriate methods: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. Select and order by methods accepts modifier arguments as earlier mentioned methods.
+
+/--php
+$builder->addSelect('id, %column, [another_ecpaced_column]', $myColumn);
+$builder->addSelect('COALESCE(colmun)');
+
+$builder->addOrderBy('FIELD(type, %s, %s, %s)', "type1", "type2", "type3");
+
+$builder->limitBy(20); // selects the first 20 results
+$builder->limitBy(20, 10); // sets offset to 1O
+\--
+
+
+------------
+
+Joins
+=====
+
+Choose from `innerJoin()`, `leftJoin()`, and `rightJoin()` methods. Each of them has the same signature. Arguments:
+- from source name - from which table should be join created,
+- to expression - target expression, do not forget to escape target table name,
+- to alias - alias of target, you can leave it NULL,
+- on expression - ON clause expression,
+- arguments for expressions.
+
+The from source name is present for better validation. It disallows you to build join on table, which was not defined.
+
+/--php
+$builder->from('[authors]', 'a');
+$builder->leftJoin('a', '[books]', 'b', '[a.id] = [b.authorId] AND [b.title] = %s',
+                   $title);
+
+// will produce
+// FROM [authors] AS [a]
+// LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
+\--
+
+
+------
+
+Execution
+=========
+
+To get builder SQL call `getQuerySql()` method. Passed arguments are available through `getQueryParameters()` method. To execute query use `queryArgs()` method on connection.
+
+/--php
+$result = $this->connection->queryArgs(
+	$builder->getQuerySql(),
+	$builder->getQueryParameters()
+);
+\--

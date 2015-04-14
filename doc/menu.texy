@@ -1,5 +1,6 @@
 - [Introduction | default]
+- [Query Builder | query-builder]
 
 ----
 
-- [MySQL timezone support | timezones-mysql-support]
+- [MySQL Timezone Support | timezones-mysql-support]

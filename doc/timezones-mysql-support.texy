@@ -1,4 +1,4 @@
-Named timezone support in MySQL
+Named Timezone Support in MySQL
 ###############################
 
 MySQL, by default, does not "support" named timezones, therefore you could get errors similar to `Unknown or incorrect time zone: ‚Europe/Prague‘`. In fact, MySQL just does not know the correct timeshift for this name and allows you to import the configuration.
