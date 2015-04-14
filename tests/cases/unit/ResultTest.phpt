@@ -5,6 +5,7 @@
 namespace NextrasTests\Dbal;
 
 use Mockery;
+use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Result\Row;
 use Nextras\Dbal\Utils\DateTime;
@@ -15,6 +16,16 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class ResultTest extends TestCase
 {
+
+	public function testElapsedTime()
+	{
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$result = new Result($adapter, $driver, 123.4);
+		Assert::same(123.4, $result->getElapsedTime());
+	}
+
 
 	public function testIterator()
 	{
@@ -187,6 +198,52 @@ class ResultTest extends TestCase
 			$result->setValueNormalization(FALSE);
 			$result->fetchPairs();
 		}, 'Nextras\Dbal\InvalidArgumentException', 'Result::fetchPairs() requires defined key or value.');
+	}
+
+
+	public function testNormalization()
+	{
+		$one = [
+			'name' => 'jon snow',
+			'age' => '16',
+			'weight' => '90.5',
+			'is_single' => 'Yes',
+			'born' => '2015-01-01 20:00:00',
+		];
+		$two = [
+			'name' => 'oberyn martell',
+			'age' => '20',
+			'weight' => '60.5',
+			'is_single' => '',
+			'born' => '2015-02-01 20:00:00',
+		];
+
+		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter->shouldReceive('getTypes')->once()->andReturn([
+			'name' => [IResultAdapter::TYPE_STRING, NULL],
+			'age' => [IResultAdapter::TYPE_INT, NULL],
+			'weight' => [IResultAdapter::TYPE_FLOAT, NULL],
+			'is_single' => [IResultAdapter::TYPE_BOOL, NULL],
+			'born' => [IResultAdapter::TYPE_DATETIME, NULL],
+		]);
+		$adapter->shouldReceive('fetch')->once()->andReturn($one);
+		$adapter->shouldReceive('fetch')->once()->andReturn($two);
+		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+
+		$result = new Result($adapter, $driver, 0);
+		$row = $result->fetch();
+		Assert::same('jon snow', $row->name);
+		Assert::same(16, $row->age);
+		Assert::same(90.5, $row->weight);
+		Assert::same(TRUE, $row->is_single);
+		Assert::same('2015-01-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
+
+		$row = $result->fetch();
+		Assert::same('oberyn martell', $row->name);
+		Assert::same(20, $row->age);
+		Assert::same(60.5, $row->weight);
+		Assert::same(FALSE, $row->is_single);
+		Assert::same('2015-02-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
 	}
 
 }
