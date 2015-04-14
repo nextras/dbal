@@ -64,7 +64,7 @@ class MysqliResultAdapter implements IResultAdapter
 
 	public function seek($index)
 	{
-		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {
+		if ($this->result->num_rows !== 0 && !@$this->result->data_seek($index)) { // @ - intentionally for HHVM, which triggers E_WARNING
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
 		}
 	}
