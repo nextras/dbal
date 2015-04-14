@@ -21,12 +21,21 @@ class IntegrationTestCase extends TestCase
 
 	public function initData(Connection $connection)
 	{
+		$this->lockConnection($connection);
 		if ($connection->getPlatform() instanceof PostgreSqlPlatform) {
-			Environment::lock('data-pgsql', TEMP_DIR);
 			FileImporter::executeFile($connection, __DIR__ . '/../data/pgsql-data.sql');
 		} else {
-			Environment::lock('data-mysql', TEMP_DIR);
 			FileImporter::executeFile($connection, __DIR__ . '/../data/mysql-data.sql');
+		}
+	}
+
+
+	protected function lockConnection(Connection $connection)
+	{
+		if ($connection->getPlatform() instanceof PostgreSqlPlatform) {
+			Environment::lock('data-pgsql', TEMP_DIR);
+		} else {
+			Environment::lock('data-mysql', TEMP_DIR);
 		}
 	}
 

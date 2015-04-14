@@ -20,7 +20,7 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testRollback()
 	{
-		Environment::lock('data', TEMP_DIR);
+		$this->lockConnection($this->connection);
 		$this->connection->beginTransaction();
 
 		$this->connection->query('INSERT INTO tags %values', [
@@ -38,7 +38,7 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testCommit()
 	{
-		Environment::lock('data', TEMP_DIR);
+		$this->lockConnection($this->connection);
 		$this->connection->beginTransaction();
 
 		$this->connection->query('INSERT INTO tags %values', [
@@ -56,6 +56,7 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testTransactionalFail()
 	{
+		$this->lockConnection($this->connection);
 		Assert::exception(function() {
 			$this->connection->transactional(function(Connection $connection) {
 				$connection->query('INSERT INTO tags %values', [
@@ -75,6 +76,7 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testTransactionalOk()
 	{
+		$this->lockConnection($this->connection);
 		$this->connection->transactional(function(Connection $connection) {
 			$connection->query('INSERT INTO tags %values', [
 				'name' => '_TRANS_TRANSACTIONAL_OK_'
