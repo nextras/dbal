@@ -161,7 +161,7 @@ class QueryBuilder
 	public function getFromAlias()
 	{
 		if ($this->from === NULL) {
-			throw new InvalidArgumentException('From clause has not been set.');
+			throw new InvalidStateException('From clause has not been set.');
 		}
 
 		return $this->from[1];

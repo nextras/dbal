@@ -52,6 +52,17 @@ class ResultIntegrationTest extends IntegrationTestCase
 		Assert::type('string', $follower->created_at);
 	}
 
+
+	public function testSeek()
+	{
+		$this->initData($this->connection);
+		$result = $this->connection->query('SELECT * FROM books');
+
+		Assert::exception(function() use ($result) {
+			$result->seek(10);
+		}, 'Nextras\Dbal\InvalidStateException');
+	}
+
 }
 
 
