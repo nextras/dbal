@@ -1,0 +1,38 @@
+DateTime and timezones support
+##############################
+
+Let us recapitulate some facts:
+
+- databases *do not store* timezone information in columns;
+- database connections can work in different timezone than php environment;
+- databases have two types of columns for time stamps:
+	- with timezone conversion (MySQL: timestamp, PgSQL: timestamptz);
+	- without timezone conversion (MySQL: datetime, PgSQL: timestamp);
+- for columns **with timezone conversion**:
+	- MySQL:
+		- writing: passed time stamp is interpreted as it is in connection timezone;
+		- reading: time stamp is converted to connection timezone;
+	- PgSQL:
+		- writing: passed time stamp can contain timezone; otherwise passed time stamp is interpreted as it is in connection timezone;
+		- reading: time stamp is converted to connection timezone;
+- for column **without timezone conversion**:
+	- MySQL and PgSQL stores passed timestamp as is; reads it as is;
+
+------------------
+
+Dbal offers you three options to configure:
+
+- **application time zone** - is timezone in which every read time stamp from database will be transformed; by default this timezone equals to php default timezone;
+- **connection time zone** - is timezone for database connection communication; by default it equals to php default timezone;
+- **simple storage time zone** - is timezone for column types without automatic timezone conversion; this setting is introduced mainly for backward compatibility, if you migrate from another database abstraction layer, your column values are probably stored in different timezone.
+
+Dbal comes with two query modifiers which are designed for two possible time stamp types:
+
+- **`%dt` modifier** - converts DateTime object to connection working timezone; you can change the timezone by `connectionTz` setting; should be applied to column types with automatic timezone conversion support (timestamp in MySQL, timestamptz in PgSQL);
+- **`%dts` modifier** - converts DateTime object for simple time stamp column types; by default converts them into UTC timezone, you can change it by `simpleStorageTz` setting; should be applied to column types without automatic timezone conversion support (datetime in MySQL, timestamp in PgSQL);
+
+------------------
+
+For better understanding see the workflow chart:
+
+[* datetime.png *]
