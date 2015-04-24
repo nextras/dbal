@@ -1,0 +1,87 @@
+Parameter Placeholders
+######################
+
+Dbal allows you easy way to escape and build your SQL query. You can use powerful placeholders:
+
+|* `%s`, `%?s`, `%s[]`          | string   | not nullable, nullable, array of
+|* `%i`, `%?i`, `%i[]`          | integer  | not nullable, nullable, array of
+|* `%f`, `%?f`, `%f[]`          | float    | not nullable, nullable, array of
+|* `%b`, `%?b`, `%b[]`          | boolean  | not nullable, nullable, array of
+|* `%dt`, `%?dt`, `%dt[]`       | datetime | not nullable, nullable, array of
+|* `%dts`, `%?dts`, `%dts[]`    | datetime | datetime with [conversion to simple storage time zone | datetime]
+|* `%any`, `%any[]`             |          | any value scalary value, array of scalar values
+
+All modifiers require receiving argument of the modifier data type - eg. `%f` accepts only floats and integers.
+
+/--php
+$connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
+// `id` = 1 AND name IN (NULL, 'foo')
+\--
+
+Other available modifiers:
+
+|* `%table`   | escapes string as table name
+|* `%column`  | escapes string as column name
+|* `%ex`      | expands array as processor arguments
+|* `%raw`     | inserts string argument as is
+
+`%ex` modifier expands passed array as arguments of new `query()` method call.
+
+/--php
+$connection->query('%ex', ['id = %i', 1]);
+// equals to
+$connection->query('id = %i', 1);
+\--
+
+Last modifiers are connected with array processing:
+
+|* `%and`                  | AND condition
+|* `%or`                   | OR condition
+|* `%values`, `%values[]`  | expands array for INSERT clause, multi insert
+|* `%set`                  | expands array for SET clause
+
+Let's examine `%and` and `%or` behavior. If array key is numeral and value is array, value is expanded with `%ex` modifier.
+
+/--php
+$connection->query('%and', [
+	'city' => 'Winterfell',
+	'age'  => 23,
+]);
+// `city` = 'Winterfell' AND `age` = 23
+
+
+$connection->query('%or', [
+	'city' => 'Winterfell',
+	'age'  => [23, 25],
+]);
+// `city` = 'Winterfell' OR `age` IN (23, 25)
+
+
+$connection->query('%or', [
+	'city' => 'Winterfell',
+	['[age] IN %i[]', [23, 25]],
+]);
+// `city` = 'Winterfell' OR `age` IN (23, 25)
+\--
+
+Examples for inserting and updating:
+
+/--php
+$connection->query('INSERT INTO [users] %values', [
+    'name' => 'Jon Snow'
+]);
+// INSERT INTO `users` (`name`) VALUES ('Jon Snow')
+
+
+$connection->query('INSERT INTO [users] %values[]', [
+    ['name' => 'Jon Snow'],
+    ['name' => 'The Imp'],
+]);
+// INSERT INTO `users` (`name`) VALUES ('Jon Snow'), ('The Imp')
+
+
+$connection->query('UPDATE [users] %set WHERE [id] = %i', [
+    'name' => 'Jon Snow'
+], 1);
+// UPDATE `users` SET `name` = 'Jon Snow' WHERE `id` = 1
+\--

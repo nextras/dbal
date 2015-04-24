@@ -1,5 +1,87 @@
 Nextras\Dbal
 ############
 
-.[note]
-Documentation is work-in-progress. Please be patient.
+Connection
+==========
+
+Connection instance is starting point for working with database. Connection constructor accepts configuration array. Possible keys depend on the specific driver, although driver share the key names:
+
+|* driver           | driver name, use `mysqli` or `pgsql`
+|* host             | database server name
+|* username         | username for authentication
+|* password         | password for authentication
+|* database         | name of database
+|* charset          | charset encoding of connection
+|* applicationTz    | time zone for returned DateTime objects
+|* connectionTz     | time zone for connection
+|* simpleStorageTz  | time zone for simple time stamp type
+
+/--php
+$connection = new Nextras\Dbal\Connection([
+	'driver'   => 'mysqli',
+	'host'     => 'localhost',
+	'username' => 'root',
+	'password' => '****',
+	'database' => 'test',
+]);
+\--
+
+By default, connection is lazy, it connects to database when needed. However, you can force the connection by calling `connect()` method. Of course, you can `disconnect()` or `reconnect()` your connection. Use `ping()` method to stay in touch with database.
+
+------------
+
+Querying
+========
+
+Use `query()` method to run SQL queries. Query method accepts "pseudo" SQL statement. Dbal support parameter placeholders, which are passed separately and will be properly escaped and sanitized. Take a look on [Parameter Placeholders | param-placeholders] chapter.
+
+/--php
+$connection->query('SELECT * FROM foo WHERE id = %i', 1);
+// SELECT * FROM foo WHERE id = 1
+
+$connection->query('SELECT * FROM foo WHERE title = %s', 'foo" OR 1=1');
+// SELECT * FROM foo WHERE title = "foo\" OR 1=1"
+\--
+
+"Pseudo" SQL support `[]` square brackets for easily escaping of column names. However, if you pass column name from user input as parameter, use proper `%column` placeholder.
+
+/--php
+$connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id, 1);
+// SELECT * FROM `foo` WHERE `id` = 1
+\--
+
+To retrieve last inserted id use `getLastInsertedId()` method. For PostgreSQL method accepts a sequence name. Number of affected rows is available through `getAffectedRows()` method.
+
+Each `query()` return new `Nextras\Dbal\Result\Result` object. Result object allows you to iterate over fetched data and fetch each row into `Nextras\Dbal\Result\Row` object:
+
+/--php
+$users = $connection->query('SELECT * FROM [users]');
+foreach ($users as $row) {
+	$row->name;
+}
+\--
+
+Result object implements `SeekableIterator`. You can use `fetch()` method to fetch rows, `fetchField()` to fetch the first field form the first row, or `fetchAll()` method to return array of row objects.
+
+/--php
+$maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
+\--
+
+------------
+
+Transactions
+============
+
+Connection object provide convenient API for working with transaction. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually you need to react to exception by calling rollback, otherwise commit it. For such use case there is `transactional()` method.
+
+/--php
+$connection->transactional(function(Connection $connection) {
+	$connection->query('INSERT INTO users %values', [
+		'name' => 'new user'
+	]);
+	$connection->query('INSERT INTO urls %values', [
+		'url' => 'new-user',
+		'user_id' => $connection->getLastInsertedId();
+	]);
+});
+\--

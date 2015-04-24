@@ -1,7 +1,9 @@
-- [Introduction | default]
+- [Connection | default]
+- [Param Placeholders | param-placeholders]
 - [Query Builder | query-builder]
-- [DateTime and TimeZones | datetime]
+- [DateTime TimeZones | datetime]
 
-----
-
+/---div .[tuts]
+Tutorials:
 - [MySQL Timezone Support | timezones-mysql-support]
+\--
