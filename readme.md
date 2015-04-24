@@ -15,6 +15,10 @@ Use composer:
 $ composer require nextras/dbal
 ```
 
+### Docs & sources
+
+- [Documentation](http://nextras.cz/dbal/docs)
+
 ### Thanks
 
 This project is inspired by great libraries:
