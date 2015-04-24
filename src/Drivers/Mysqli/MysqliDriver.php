@@ -90,7 +90,7 @@ class MysqliDriver implements IDriver
 	public function query($query)
 	{
 		$time = microtime(TRUE);
-		$result = $this->connection->query($query);
+		$result = @$this->connection->query($query);
 		$time = microtime(TRUE) - $time;
 
 		if ($this->connection->errno) {
