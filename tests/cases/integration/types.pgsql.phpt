@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 class TypesPostgreTest extends IntegrationTestCase
 {
 
-	public function testBasics()
+	public function testRead()
 	{
 		$result = $this->connection->query("
 			SELECT
@@ -56,6 +56,23 @@ class TypesPostgreTest extends IntegrationTestCase
 
 		Assert::same('foo', $row->varchar);
 		Assert::same(TRUE, $row->bool);
+	}
+
+
+	public function testWrite()
+	{
+		$this->connection->query("
+			CREATE TEMPORARY TABLE [types_write] (
+				[blob] bytea
+			);
+		");
+
+		$file = file_get_contents(__DIR__ . '/nextras.png');
+		$this->connection->query('INSERT INTO [types_write] %values', [
+			'blob%blob' => $file,
+		]);
+		$row = $this->connection->query('SELECT * FROM [types_write]')->fetch();
+		Assert::same($file, $row->blob);
 	}
 
 }

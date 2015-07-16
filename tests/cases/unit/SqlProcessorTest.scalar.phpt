@@ -85,6 +85,13 @@ class SqlProcessorScalarTest extends TestCase
 	}
 
 
+	public function testBlob()
+	{
+		$this->driver->shouldReceive('convertToSql')->once()->with('a10b', IDriver::TYPE_BLOB)->andReturn('B');
+		Assert::same('B', $this->parser->processModifier('blob', 'a10b'));
+	}
+
+
 	public function testColumn()
 	{
 		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('FOO');
@@ -487,6 +494,32 @@ class SqlProcessorScalarTest extends TestCase
 			['?di[]', [TRUE], 'Modifier %?di expects value to be DateInterval, boolean given.'],
 			['?di[]', [[]], 'Modifier %?di does not allow array value, use modifier %?di[] instead.'],
 			['?di[]', [new stdClass()], 'Modifier %?di expects value to be DateInterval, stdClass given.'],
+
+			['blob', 123, 'Modifier %blob expects value to be blob string, integer given.'],
+			['blob', 123.0, 'Modifier %blob expects value to be blob string, double given.'],
+			['blob', TRUE, 'Modifier %blob expects value to be blob string, boolean given.'],
+			['blob', [], 'Modifier %blob does not allow array value, use modifier %blob[] instead.'],
+			['blob', new stdClass(), 'Modifier %blob expects value to be blob string, stdClass given.'],
+			['blob', NULL, 'Modifier %blob does not allow NULL value, use modifier %?blob instead.'],
+
+			['?blob', 123, 'Modifier %?blob expects value to be blob string, integer given.'],
+			['?blob', 123.0, 'Modifier %?blob expects value to be blob string, double given.'],
+			['?blob', TRUE, 'Modifier %?blob expects value to be blob string, boolean given.'],
+			['?blob', [], 'Modifier %?blob does not allow array value, use modifier %?blob[] instead.'],
+			['?blob', new stdClass(), 'Modifier %?blob expects value to be blob string, stdClass given.'],
+
+			['blob[]', '123', 'Modifier %blob[] expects value to be array, string given.'],
+			['blob[]', 123, 'Modifier %blob[] expects value to be array, integer given.'],
+			['blob[]', 123.0, 'Modifier %blob[] expects value to be array, double given.'],
+			['blob[]', TRUE, 'Modifier %blob[] expects value to be array, boolean given.'],
+			['blob[]', new stdClass(), 'Modifier %blob[] expects value to be array, stdClass given.'],
+			['blob[]', $file, 'Modifier %blob[] expects value to be array, SplFileInfo given.'],
+			['blob[]', NULL, 'Modifier %blob[] expects value to be array, NULL given.'],
+			['blob[]', [123.0], 'Modifier %blob expects value to be blob string, double given.'],
+			['blob[]', [TRUE], 'Modifier %blob expects value to be blob string, boolean given.'],
+			['blob[]', [[]], 'Modifier %blob does not allow array value, use modifier %blob[] instead.'],
+			['blob[]', [new stdClass()], 'Modifier %blob expects value to be blob string, stdClass given.'],
+			['blob[]', [NULL], 'Modifier %blob does not allow NULL value, use modifier %?blob instead.'],
 
 			['any', new stdClass(), 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 		];

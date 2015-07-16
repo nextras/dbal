@@ -246,6 +246,9 @@ class MysqliDriver implements IDriver
 				}
 				return $value->format("%r{$totalHours}:%S:%I");
 
+			case self::TYPE_BLOB:
+				return "_binary'" . $this->connection->escape_string($value) . "'";
+
 			default:
 				throw new InvalidArgumentException();
 		}

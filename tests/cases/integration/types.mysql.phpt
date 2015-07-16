@@ -16,10 +16,10 @@ require_once __DIR__ . '/../../bootstrap.php';
 class TypesMysqlTest extends IntegrationTestCase
 {
 
-	public function testBasics()
+	public function testRead()
 	{
 		$this->connection->query("
-			CREATE TEMPORARY TABLE [types] (
+			CREATE TEMPORARY TABLE [types_read] (
 				[bit] bit(4),
 
 				[unsigned_int] int(11) unsigned,
@@ -41,7 +41,7 @@ class TypesMysqlTest extends IntegrationTestCase
 			) ENGINE=InnoDB;
 		");
 		$this->connection->query("
-			INSERT INTO [types] VALUES (
+			INSERT INTO [types_read] VALUES (
 				b'0100',
 
 				12,
@@ -63,7 +63,7 @@ class TypesMysqlTest extends IntegrationTestCase
 			)
 		");
 
-		$row = $this->connection->query('SELECT * FROM [types]')->fetch();
+		$row = $this->connection->query('SELECT * FROM [types_read]')->fetch();
 		Assert::same(4, $row->bit);
 
 		Assert::same(12, $row->unsigned_int);
@@ -82,6 +82,23 @@ class TypesMysqlTest extends IntegrationTestCase
 		Assert::equal(new DateInterval('PT32H57M'), $row->time);
 
 		Assert::same('foo', $row->string);
+	}
+
+
+	public function testWrite()
+	{
+		$this->connection->query("
+			CREATE TEMPORARY TABLE [types_write] (
+				[blob] blob
+			) ENGINE=InnoDB;
+		");
+
+		$file = file_get_contents(__DIR__ . '/nextras.png');
+		$this->connection->query('INSERT INTO [types_write] %values', [
+			'blob%blob' => $file,
+		]);
+		$row = $this->connection->query('SELECT * FROM [types_write]')->fetch();
+		Assert::same($file, $row->blob);
 	}
 
 }

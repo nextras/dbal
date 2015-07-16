@@ -9,7 +9,8 @@ Dbal allows you easy way to escape and build your SQL query. You can use powerfu
 |* `%b`, `%?b`, `%b[]`          | boolean  | not nullable, nullable, array of
 |* `%dt`, `%?dt`, `%dt[]`       | datetime | not nullable, nullable, array of
 |* `%dts`, `%?dts`, `%dts[]`    | datetime | datetime with [conversion to simple storage time zone | datetime]
-|* `%any`, `%any[]`             |          | any value scalary value, array of scalar values
+|* `%blob`, `%?blob`, `%blob[]` | binary string | not nullable, nullable, array of
+|* `%any`, `%any[]`             |               | any value scalary value, array of scalar values
 
 All modifiers require receiving argument of the modifier data type - eg. `%f` accepts only floats and integers.
 

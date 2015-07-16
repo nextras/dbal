@@ -235,6 +235,9 @@ class PgsqlDriver implements IDriver
 			case self::TYPE_DATE_INTERVAL:
 				return $value->format('P%yY%mM%dDT%hH%iM%sS');
 
+			case self::TYPE_BLOB:
+				return "'" . pg_escape_bytea($this->connection, $value) . "'";
+
 			default:
 				throw new InvalidArgumentException();
 		}
