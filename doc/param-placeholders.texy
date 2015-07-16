@@ -12,7 +12,7 @@ Dbal allows you easy way to escape and build your SQL query. You can use powerfu
 |* `%blob`, `%?blob`, `%blob[]` | binary string | not nullable, nullable, array of
 |* `%any`, `%any[]`             |               | any value scalary value, array of scalar values
 
-All modifiers require receiving argument of the modifier data type - eg. `%f` accepts only floats and integers.
+All modifiers require receiving an argument of the specific modifier data type - eg. `%f` accepts only floats and integers.
 
 /--php
 $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
