@@ -4,7 +4,7 @@ Nextras\Dbal
 Connection
 ==========
 
-Connection instance is starting point for working with database. Connection constructor accepts configuration array. Possible keys depend on the specific driver, although driver share the key names:
+The connection instance is the main object which provides API for working with your database. Connection's constructor accepts a configuration array. The possible keys depend on the current driver, although some configuration keys are the same for all drivers:
 
 |* driver           | driver name, use `mysqli` or `pgsql`
 |* host             | database server name
@@ -26,14 +26,14 @@ $connection = new Nextras\Dbal\Connection([
 ]);
 \--
 
-By default, connection is lazy, it connects to database when needed. However, you can force the connection by calling `connect()` method. Of course, you can `disconnect()` or `reconnect()` your connection. Use `ping()` method to stay in touch with database.
+By default, the connection is lazy; it connects to database when needed. You can force the connection by calling `connect()` method; you can also `disconnect()` or `reconnect()` your connection. Use `ping()` method to stay in touch.
 
 ------------
 
 Querying
 ========
 
-Use `query()` method to run SQL queries. Query method accepts "pseudo" SQL statement. Dbal support parameter placeholders, which are passed separately and will be properly escaped and sanitized. Take a look on [Parameter Placeholders | param-placeholders] chapter.
+Use `query()` method to run SQL queries. Query method accepts "pseudo SQL" statement. Dbal support parameter placeholders, which are passed separately and will be properly escaped and sanitized. Take a look on [Parameter Placeholders | param-placeholders] chapter.
 
 /--php
 $connection->query('SELECT * FROM foo WHERE id = %i', 1);
@@ -43,16 +43,16 @@ $connection->query('SELECT * FROM foo WHERE title = %s', 'foo" OR 1=1');
 // SELECT * FROM foo WHERE title = "foo\" OR 1=1"
 \--
 
-"Pseudo" SQL support `[]` square brackets for easily escaping of column names. However, if you pass column name from user input as parameter, use proper `%column` placeholder.
+"Pseudo SQL" supports `[]` square brackets for easily escaping of column names. However, if you pass a column name as parameter retrieved from user, use the proper `%column` placeholder.
 
 /--php
 $connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id, 1);
 // SELECT * FROM `foo` WHERE `id` = 1
 \--
 
-To retrieve last inserted id use `getLastInsertedId()` method. For PostgreSQL method accepts a sequence name. Number of affected rows is available through `getAffectedRows()` method.
+To retrieve the last inserted id use `getLastInsertedId()` method. For PostgreSQL, the method accepts a sequence name. The number of affected rows is available through `getAffectedRows()` method.
 
-Each `query()` return new `Nextras\Dbal\Result\Result` object. Result object allows you to iterate over fetched data and fetch each row into `Nextras\Dbal\Result\Row` object:
+Each `query()` returns a new `Nextras\Dbal\Result\Result` object. Result object allows you to iterate over the fetched data and fetch each row into `Nextras\Dbal\Result\Row` object:
 
 /--php
 $users = $connection->query('SELECT * FROM [users]');
@@ -61,7 +61,7 @@ foreach ($users as $row) {
 }
 \--
 
-Result object implements `SeekableIterator`. You can use `fetch()` method to fetch rows, `fetchField()` to fetch the first field form the first row, or `fetchAll()` method to return array of row objects.
+Result object implements `SeekableIterator`. You can use `fetch()` method to fetch a row, `fetchField()` to fetch the first field form the first row, or `fetchAll()` to return array of rows' objects.
 
 /--php
 $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
@@ -72,7 +72,7 @@ $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
 Transactions
 ============
 
-Connection object provide convenient API for working with transaction. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually you need to react to exception by calling rollback, otherwise commit it. For such use case there is `transactional()` method.
+The connection object provides convenient API for working with transactions. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually, you need to react to an exception by calling rollback method. For such use case there is a `transactional()` method that make its callback atomic.
 
 /--php
 $connection->transactional(function(Connection $connection) {
