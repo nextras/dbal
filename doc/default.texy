@@ -46,7 +46,7 @@ $connection->query('SELECT * FROM foo WHERE title = %s', 'foo" OR 1=1');
 "Pseudo SQL" supports `[]` square brackets for easily escaping of column names. However, if you pass a column name as parameter retrieved from user, use the proper `%column` placeholder.
 
 /--php
-$connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id, 1);
+$connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id', 1);
 // SELECT * FROM `foo` WHERE `id` = 1
 \--
 
