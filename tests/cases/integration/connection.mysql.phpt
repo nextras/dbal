@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -30,6 +31,22 @@ class ConnectionMysqlTest extends IntegrationTestCase
 
 		$this->connection->query('INSERT INTO publishers %values', ['name' => 'FOO']);
 		Assert::same(2, $this->connection->getLastInsertedId());
+	}
+
+
+	public function testReconnectWithConfig()
+	{
+		$config = $this->connection->getConfig();
+		$this->connection->connect();
+
+		Assert::true($this->connection->getDriver()->isConnected());
+		$oldDriver = $this->connection->getDriver();
+
+		$config['driver'] = new MysqliDriver($config);
+		$this->connection->reconnectWithConfig($config);
+
+		$newDriver = $this->connection->getDriver();
+		Assert::notSame($oldDriver, $newDriver);
 	}
 
 }

@@ -91,6 +91,19 @@ class Connection
 
 
 	/**
+	 * Reconnects to a database with new configration.
+	 * @param  array $config
+	 */
+	public function reconnectWithConfig(array $config)
+	{
+		$this->disconnect();
+		$this->config = $this->processConfig($config);
+		$this->driver = $this->createDriver($this->config);
+		$this->connect();
+	}
+
+
+	/**
 	 * @return IDriver
 	 */
 	public function getDriver()
