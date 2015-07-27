@@ -91,6 +91,16 @@ class Connection
 
 
 	/**
+	 * @param  array $config see drivers for supported options
+	 */
+	public function reconnectWithConfig(array $config)
+	{
+		$this->config = $config;
+		$this->reconnect();
+	}
+
+
+	/**
 	 * @return IDriver
 	 */
 	public function getDriver()
