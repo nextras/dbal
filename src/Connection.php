@@ -61,6 +61,9 @@ class Connection
 	 */
 	public function connect()
 	{
+		if ($this->connected) {
+			return;
+		}
 		$this->driver->connect($this->config);
 		$this->connected = TRUE;
 		$this->fireEvent('onConnect', [$this]);
@@ -73,6 +76,9 @@ class Connection
 	 */
 	public function disconnect()
 	{
+		if (!$this->connected) {
+			return;
+		}
 		$this->driver->disconnect();
 		$this->connected = FALSE;
 		$this->fireEvent('onDisconnect', [$this]);

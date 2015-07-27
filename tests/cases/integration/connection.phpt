@@ -42,6 +42,19 @@ class ConnectionTest extends IntegrationTestCase
 	}
 
 
+	public function testFireEvent2()
+	{
+		$log = [];
+		$this->connection->onConnect[] = function() use (& $log) { $log[] = 'connect'; };
+		$this->connection->onDisconnect[] = function() use (& $log) { $log[] = 'disconnect'; };
+
+		$this->connection->disconnect();
+		$this->connection->reconnect();
+		$this->connection->connect();
+		Assert::same(['connect'], $log);
+	}
+
+
 	public function testMissingDriver()
 	{
 		Assert::exception(function() {
