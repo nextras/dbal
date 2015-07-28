@@ -105,6 +105,7 @@ class Connection
 		$this->disconnect();
 		$this->config = $this->processConfig($config);
 		$this->driver = $this->createDriver($this->config);
+		$this->sqlPreprocessor = new SqlProcessor($this->driver);
 		$this->connect();
 	}
 
