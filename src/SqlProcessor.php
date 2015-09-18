@@ -370,10 +370,10 @@ class SqlProcessor
 				$key = explode('%', $_key, 2);
 				$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 			}
-			$values[] = '(' . implode(', ', $subValues) . ')';
+			$values[] = '(' . ($subValues ? implode(', ', $subValues) : 'DEFAULT') . ')';
 		}
 
-		return '(' . implode(', ', $keys) . ') VALUES ' . implode(', ', $values);
+		return ($keys ? '(' . implode(', ', $keys) . ')' : NULL) . ' VALUES ' . implode(', ', $values);
 	}
 
 
@@ -391,7 +391,7 @@ class SqlProcessor
 			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 		}
 
-		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
+		return ($keys ? '(' . implode(', ', $keys) . ')' : NULL) . ' VALUES (' . ($values ? implode(', ', $values) : 'DEFAULT') . ')';
 	}
 
 
