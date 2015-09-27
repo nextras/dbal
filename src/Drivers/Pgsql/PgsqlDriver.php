@@ -220,15 +220,23 @@ class PgsqlDriver implements IDriver
 
 			case self::TYPE_DATETIME:
 				if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
-					$value = clone $value;
-					$value->setTimezone($this->connectionTz);
+					if ($value instanceof \DateTimeImmutable) {
+						$value = $value->setTimezone($this->connectionTz);
+					} else {
+						$value = clone $value;
+						$value->setTimezone($this->connectionTz);
+					}
 				}
 				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
 			case self::TYPE_DATETIME_SIMPLE:
 				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
-					$value = clone $value;
-					$value->setTimezone($this->simpleStorageTz);
+					if ($value instanceof \DateTimeImmutable) {
+						$value = $value->setTimezone($this->simpleStorageTz);
+					} else {
+						$value = clone $value;
+						$value->setTimezone($this->simpleStorageTz);
+					}
 				}
 				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
