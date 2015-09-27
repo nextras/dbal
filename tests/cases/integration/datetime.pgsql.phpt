@@ -8,7 +8,10 @@
 namespace NextrasTests\Dbal;
 
 use DateTime;
+use DateTimeImmutable;
 use Tester\Assert;
+use Tester\Environment;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -53,6 +56,55 @@ class DateTimePostgreTest extends IntegrationTestCase
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
+		$result->setValueNormalization(FALSE);
+
+		$row = $result->fetch();
+		Assert::same('2015-01-01 11:00:00', $row->a);
+		Assert::same('2015-01-01 11:00:00+01', $row->b);
+	}
+
+
+	public function testWriteStorageTZUTCImmutable()
+	{
+		if (PHP_VERSION_ID < 50500) {
+			Environment::skip('DateTimeImmutable tested only in PHP >= 5.5');
+		}
+
+		$connection = $this->createConnection([
+			'simpleStorageTz' => 'UTC',
+			'connectionTz' => 'Europe/Prague',
+		]);
+
+		$connection->query('DROP TABLE IF EXISTS dates_write2');
+		$connection->query('
+			CREATE TABLE dates_write2 (
+				a timestamp,
+				b timestamptz
+			);
+		');
+
+		$connection->query(
+			'INSERT INTO dates_write2 VALUES (%dts, %dt)',
+			new DateTimeImmutable('2015-01-01 12:00:00'), // 11:00 UTC
+			new DateTimeImmutable('2015-01-01 12:00:00')  // 11:00 UTC
+		);
+
+		$result = $connection->query('SELECT * FROM dates_write2');
+		$result->setValueNormalization(FALSE);
+
+		$row = $result->fetch();
+		Assert::same('2015-01-01 11:00:00', $row->a);
+		Assert::same('2015-01-01 12:00:00+01', $row->b);
+
+
+		$connection->query('DELETE FROM dates_write2');
+		$connection->query(
+			'INSERT INTO dates_write2 VALUES (%dts, %dt)',
+			new DateTimeImmutable('2015-01-01 12:00:00'),             // 11:00 UTC
+			new DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
+		);
+
+		$result = $connection->query('SELECT * FROM dates_write2');
 		$result->setValueNormalization(FALSE);
 
 		$row = $result->fetch();
