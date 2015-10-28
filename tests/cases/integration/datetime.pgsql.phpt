@@ -174,6 +174,19 @@ class DateTimePostgreTest extends IntegrationTestCase
 		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
 	}
 
+
+	public function testUsageWithInterval()
+	{
+		$connection = $this->createConnection();
+
+		Assert::noError(function() use ($connection) {
+			$connection->query(
+				'SELECT Now() <= %dt + (INTERVAL \'2 DAYS\')',
+				new DateTime()
+			);
+		});
+	}
+
 }
 
 

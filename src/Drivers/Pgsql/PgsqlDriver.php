@@ -227,7 +227,7 @@ class PgsqlDriver implements IDriver
 						$value->setTimezone($this->connectionTz);
 					}
 				}
-				return "'" . $value->format('Y-m-d H:i:s') . "'";
+				return "'" . $value->format('Y-m-d H:i:s') . "'::timestamptz";
 
 			case self::TYPE_DATETIME_SIMPLE:
 				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
@@ -238,7 +238,7 @@ class PgsqlDriver implements IDriver
 						$value->setTimezone($this->simpleStorageTz);
 					}
 				}
-				return "'" . $value->format('Y-m-d H:i:s') . "'";
+				return "'" . $value->format('Y-m-d H:i:s') . "'::timestamp";
 
 			case self::TYPE_DATE_INTERVAL:
 				return $value->format('P%yY%mM%dDT%hH%iM%sS');
