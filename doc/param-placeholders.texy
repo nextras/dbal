@@ -21,10 +21,10 @@ $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
 
 Other available modifiers:
 
-|* `%table`   | escapes string as table name
-|* `%column`  | escapes string as column name
-|* `%ex`      | expands array as processor arguments
-|* `%raw`     | inserts string argument as is
+|* `%table`, `%table[]`    | escapes string as table name
+|* `%column`, `%column[]`  | escapes string as column name
+|* `%ex`                   | expands array as processor arguments
+|* `%raw`                  | inserts string argument as is
 
 `%ex` modifier expands passed array as arguments of new `query()` method call.
 
