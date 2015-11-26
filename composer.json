@@ -15,7 +15,7 @@
 		"php": ">=5.4"
 	},
 	"require-dev": {
-		"nette/tester": "~1.4",
+		"nette/tester": "dev-pull-268-recursive-error#d545e288",
 		"mockery/mockery": "~0.9",
 		"tracy/tracy": "~2.3",
 		"nette/di": "~2.3"
@@ -28,5 +28,11 @@
 		"branch-alias": {
 			"dev-master": "1.0-dev"
 		}
-	}
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/Milo/tester.git"
+		}
+	]
 }
