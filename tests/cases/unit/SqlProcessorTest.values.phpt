@@ -32,10 +32,10 @@ class SqlProcessorValuesTest extends TestCase
 
 	public function testArray()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
-		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
-		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('id')->andReturn('id');
+		$this->driver->shouldReceive('convertStringToSql')->once()->with("'foo'")->andReturn("'\\'foo\\''");
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('title')->andReturn('title');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('foo');
 
 		Assert::same(
 			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', 2)",
@@ -50,12 +50,12 @@ class SqlProcessorValuesTest extends TestCase
 
 	public function testMultiInsert()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
-		$this->driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
-		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('id')->andReturn('id');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('title')->andReturn('title');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('foo');
 
-		$this->driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$this->driver->shouldReceive('convertToSql')->once()->with("'foo2'", IDriver::TYPE_STRING)->andReturn("'\\'foo2\\''");
+		$this->driver->shouldReceive('convertStringToSql')->once()->with("'foo'")->andReturn("'\\'foo\\''");
+		$this->driver->shouldReceive('convertStringToSql')->once()->with("'foo2'")->andReturn("'\\'foo2\\''");
 
 		Assert::same(
 			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', 2), (2, '\\'foo2\\'', 3)",

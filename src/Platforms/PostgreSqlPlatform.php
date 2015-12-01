@@ -112,5 +112,4 @@ class PostgreSqlPlatform implements IPlatform
 		}
 		return $keys;
 	}
-
 }

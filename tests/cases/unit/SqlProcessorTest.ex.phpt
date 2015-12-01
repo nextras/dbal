@@ -53,7 +53,7 @@ class SqlProcessorExpandTest extends TestCase
 			$this->parser->processModifier('ex', ['IS NULL'])
 		);
 
-		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_IDENTIFIER)->andReturn('B');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('A')->andReturn('B');
 		Assert::same(
 			'= B + 123',
 			$this->parser->processModifier('ex', ['= [A] + 123'])

@@ -48,7 +48,7 @@ class SqlProcessor
 	{
 		$this->driver = $driver;
 		$this->identifiers = new LazyHashMap(function($key) {
-			return $this->driver->convertToSql($key, IDriver::TYPE_IDENTIFIER);
+			return $this->driver->convertIdentifierToSql($key);
 		});
 	}
 
@@ -115,7 +115,7 @@ class SqlProcessor
 					case 'any':
 					case 's':
 					case '?s':
-						return $this->driver->convertToSql($value, IDriver::TYPE_STRING);
+						return $this->driver->convertStringToSql($value);
 
 					case 'i':
 					case '?i':
@@ -132,7 +132,7 @@ class SqlProcessor
 						return $this->identifiers->$value;
 
 					case 'blob':
-						return $this->driver->convertToSql($value, IDriver::TYPE_BLOB);
+						return $this->driver->convertBlobToSql($value);
 
 					case 'raw':
 						return $value;
@@ -164,7 +164,7 @@ class SqlProcessor
 					case 'any':
 					case 'b':
 					case '?b':
-						return $this->driver->convertToSql($value, IDriver::TYPE_BOOL);
+						return $this->driver->convertBoolToSql($value);
 				}
 
 			break;
@@ -189,11 +189,11 @@ class SqlProcessor
 						case 'any':
 						case 'dt':
 						case '?dt':
-							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME);
+							return $this->driver->convertDateTimeToSql($value);
 
 						case 'dts':
 						case '?dts':
-							return $this->driver->convertToSql($value, IDriver::TYPE_DATETIME_SIMPLE);
+							return $this->driver->convertDateTimeSimpleToSql($value);
 					}
 
 				} elseif ($value instanceof \DateInterval) {
@@ -201,7 +201,7 @@ class SqlProcessor
 						case 'any':
 						case 'di':
 						case '?di':
-							return $this->driver->convertToSql($value, IDriver::TYPE_DATE_INTERVAL);
+							return $this->driver->convertDateIntervalToSql($value);
 					}
 
 				} elseif (method_exists($value, '__toString')) {
@@ -209,7 +209,7 @@ class SqlProcessor
 						case 'any':
 						case 's':
 						case '?s':
-							return $this->driver->convertToSql((string) $value, IDriver::TYPE_STRING);
+							return $this->driver->convertStringToSql((string) $value);
 					}
 				}
 
@@ -225,13 +225,13 @@ class SqlProcessor
 						foreach ($value as $v) {
 							if (is_int($v)) $nonInt--;
 						}
-						if ($nonInt > 0) break; // fallback to processArray 
+						if ($nonInt > 0) break; // fallback to processArray
 						return '(' . implode(', ', $value) . ')';
 
 					case 's[]':
 						foreach ($value as &$subValue) {
 							if (!is_string($subValue)) break 2; // fallback to processArray
-							$subValue = $this->driver->convertToSql($subValue, IDriver::TYPE_STRING);
+							$subValue = $this->driver->convertStringToSql($subValue);
 						}
 						return '(' . implode(', ', $value) . ')';
 

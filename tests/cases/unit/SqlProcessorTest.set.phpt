@@ -21,10 +21,10 @@ class SqlProcessorSetTest extends TestCase
 	{
 		parent::setUp();
 		$driver = \Mockery::mock(IDriver::class);
-		$driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
-		$driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
-		$driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');
-		$driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('foo');
+		$driver->shouldReceive('convertIdentifierToSql')->once()->with('id')->andReturn('id');
+		$driver->shouldReceive('convertStringToSql')->once()->with("'foo'")->andReturn("'\\'foo\\''");
+		$driver->shouldReceive('convertIdentifierToSql')->once()->with('title')->andReturn('title');
+		$driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('foo');
 		$this->parser = new SqlProcessor($driver);
 	}
 

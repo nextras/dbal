@@ -36,8 +36,8 @@ class SqlProcessorProcessTest extends TestCase
 		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('?b', 'B')->andReturn('BB');
 		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('c[]', 'C')->andReturn('CC');
 		$this->parser->shouldReceive('processModifier')->once()->globally()->ordered()->with('?d[]', 'D')->andReturn('DD');
-		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('e', IDriver::TYPE_IDENTIFIER)->andReturn('EE');
-		$this->driver->shouldReceive('convertToSql')->once()->globally()->ordered()->with('f.f.f', IDriver::TYPE_IDENTIFIER)->andReturn('FF');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->globally()->ordered()->with('e')->andReturn('EE');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->globally()->ordered()->with('f.f.f')->andReturn('FF');
 
 		Assert::same(
 			'AA BB CC DD EE FF [1]',

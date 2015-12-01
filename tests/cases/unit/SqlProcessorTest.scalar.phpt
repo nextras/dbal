@@ -34,12 +34,12 @@ class SqlProcessorScalarTest extends TestCase
 
 	public function testString()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
+		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
 		Assert::same('B', $this->parser->processModifier('s', 'A'));
 
 		// object with __toString
 		$file = new \SplFileInfo('C');
-		$this->driver->shouldReceive('convertToSql')->once()->with('C', IDriver::TYPE_STRING)->andReturn('D');
+		$this->driver->shouldReceive('convertStringToSql')->once()->with('C')->andReturn('D');
 		Assert::same('D', $this->parser->processModifier('s', $file));
 	}
 
@@ -62,10 +62,10 @@ class SqlProcessorScalarTest extends TestCase
 
 	public function testBool()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(TRUE)->andReturn('T');
 		Assert::same('T', $this->parser->processModifier('b', TRUE));
 
-		$this->driver->shouldReceive('convertToSql')->once()->with(FALSE, IDriver::TYPE_BOOL)->andReturn('F');
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(FALSE)->andReturn('F');
 		Assert::same('F', $this->parser->processModifier('b', FALSE));
 	}
 
@@ -73,7 +73,7 @@ class SqlProcessorScalarTest extends TestCase
 	public function testDateTime()
 	{
 		$dt = new DateTime('2012-03-05 12:01');
-		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME)->andReturn('DT');
+		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
 		Assert::same('DT', $this->parser->processModifier('dt', $dt));
 	}
 
@@ -81,27 +81,27 @@ class SqlProcessorScalarTest extends TestCase
 	public function testDateTimeSimple()
 	{
 		$dt = new DateTime('2012-03-05 12:01');
-		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME_SIMPLE)->andReturn('DTS');
+		$this->driver->shouldReceive('convertDateTimeSimpleToSql')->once()->with($dt)->andReturn('DTS');
 		Assert::same('DTS', $this->parser->processModifier('dts', $dt));
 	}
 
 
 	public function testBlob()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('a10b', IDriver::TYPE_BLOB)->andReturn('B');
+		$this->driver->shouldReceive('convertBlobToSql')->once()->with('a10b')->andReturn('B');
 		Assert::same('B', $this->parser->processModifier('blob', 'a10b'));
 	}
 
 
 	public function testColumn()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('foo', IDriver::TYPE_IDENTIFIER)->andReturn('FOO');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('FOO');
 		Assert::same('FOO', $this->parser->processModifier('column', 'foo'));
 
 
-		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('A');
-		$this->driver->shouldReceive('convertToSql')->once()->with('b', IDriver::TYPE_IDENTIFIER)->andReturn('B');
-		$this->driver->shouldReceive('convertToSql')->once()->with('c', IDriver::TYPE_IDENTIFIER)->andReturn('C');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('B');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('c')->andReturn('C');
 		Assert::same('(A, B, C)', $this->parser->processModifier('column[]', ['a', 'b', 'c']));
 
 
@@ -122,9 +122,9 @@ class SqlProcessorScalarTest extends TestCase
 		$dt = new DateTime('2012-03-05 12:01');
 		$di = $dt->diff(new DateTime('2012-03-05 08:00'));
 
-		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
-		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
-		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME)->andReturn('DT');
+		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(TRUE)->andReturn('T');
+		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
 		Assert::same('B', $this->parser->processModifier('any', 'A'));
 		Assert::same('123', $this->parser->processModifier('any', 123));
 		Assert::same('123.4', $this->parser->processModifier('any', 123.4));
@@ -132,10 +132,10 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('DT', $this->parser->processModifier('any', $dt));
 		Assert::same('NULL', $this->parser->processModifier('any', NULL));
 
-		$this->driver->shouldReceive('convertToSql')->once()->with('A', IDriver::TYPE_STRING)->andReturn('B');
-		$this->driver->shouldReceive('convertToSql')->once()->with(TRUE, IDriver::TYPE_BOOL)->andReturn('T');
-		$this->driver->shouldReceive('convertToSql')->once()->with($dt, IDriver::TYPE_DATETIME)->andReturn('DT');
-		$this->driver->shouldReceive('convertToSql')->once()->with($di, IDriver::TYPE_DATE_INTERVAL)->andReturn('DI');
+		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(TRUE)->andReturn('T');
+		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
+		$this->driver->shouldReceive('convertDateIntervalToSql')->once()->with($di)->andReturn('DI');
 		Assert::same('(B, 123, 123.4, T, DT, DI, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, TRUE, $dt, $di, NULL]));
 	}
 

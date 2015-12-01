@@ -200,55 +200,67 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertToSql($value, $type)
+	public function convertStringToSql($value)
 	{
-		switch ($type) {
-			case self::TYPE_STRING:
-				return pg_escape_literal($this->connection, $value);
+		return pg_escape_literal($this->connection, $value);
+	}
 
-			case self::TYPE_BOOL:
-				return $value ? 'TRUE' : 'FALSE';
 
-			case self::TYPE_IDENTIFIER:
-				$parts = explode('.', $value);
-				foreach ($parts as &$part) {
-					if ($part !== '*') {
-						$part = pg_escape_identifier($this->connection, $part);
-					}
-				}
-				return implode('.', $parts);
+	public function convertBoolToSql($value)
+	{
+		return $value ? 'TRUE' : 'FALSE';
+	}
 
-			case self::TYPE_DATETIME:
-				if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
-					if ($value instanceof \DateTimeImmutable) {
-						$value = $value->setTimezone($this->connectionTz);
-					} else {
-						$value = clone $value;
-						$value->setTimezone($this->connectionTz);
-					}
-				}
-				return "'" . $value->format('Y-m-d H:i:s') . "'::timestamptz";
 
-			case self::TYPE_DATETIME_SIMPLE:
-				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
-					if ($value instanceof \DateTimeImmutable) {
-						$value = $value->setTimezone($this->simpleStorageTz);
-					} else {
-						$value = clone $value;
-						$value->setTimezone($this->simpleStorageTz);
-					}
-				}
-				return "'" . $value->format('Y-m-d H:i:s') . "'::timestamp";
-
-			case self::TYPE_DATE_INTERVAL:
-				return $value->format('P%yY%mM%dDT%hH%iM%sS');
-
-			case self::TYPE_BLOB:
-				return "'" . pg_escape_bytea($this->connection, $value) . "'";
-
-			default:
-				throw new InvalidArgumentException();
+	public function convertIdentifierToSql($value)
+	{
+		$parts = explode('.', $value);
+		foreach ($parts as &$part) {
+			if ($part !== '*') {
+				$part = pg_escape_identifier($this->connection, $part);
+			}
 		}
+		return implode('.', $parts);
+	}
+
+
+	public function convertDateTimeToSql($value)
+	{
+		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
+			if ($value instanceof \DateTimeImmutable) {
+				$value = $value->setTimezone($this->connectionTz);
+			} else {
+				$value = clone $value;
+				$value->setTimezone($this->connectionTz);
+			}
+		}
+		return "'" . $value->format('Y-m-d H:i:s') . "'::timestamptz";
+	}
+
+
+	public function convertDateTimeSimpleToSql($value)
+	{
+		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
+			if ($value instanceof \DateTimeImmutable) {
+				$value = $value->setTimezone($this->simpleStorageTz);
+			} else {
+				$value = clone $value;
+				$value->setTimezone($this->simpleStorageTz);
+			}
+		}
+		return "'" . $value->format('Y-m-d H:i:s') . "'::timestamp";
+	}
+
+
+	public function convertDateIntervalToSql($value)
+	{
+		return $value->format('P%yY%mM%dDT%hH%iM%sS');
+	}
+
+
+	public function convertBlobToSql($value)
+	{
+		return "'" . pg_escape_bytea($this->connection, $value) . "'";
 	}
 
 
@@ -295,5 +307,4 @@ class PgsqlDriver implements IDriver
 			return new DriverException($error, $errorNo, $sqlState);
 		}
 	}
-
 }

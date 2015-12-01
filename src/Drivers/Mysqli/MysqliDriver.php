@@ -175,12 +175,12 @@ class MysqliDriver implements IDriver
 		$this->connection->set_charset($charset);
 
 		if (isset($params['sqlMode'])) {
-			$this->query('SET sql_mode = ' . $this->convertToSql($params['sqlMode'], self::TYPE_STRING));
+			$this->query('SET sql_mode = ' . $this->convertStringToSql($params['sqlMode']));
 		}
 
 		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
-		$this->query('SET time_zone = ' . $this->convertToSql($this->connectionTz->getName(), self::TYPE_STRING));
+		$this->query('SET time_zone = ' . $this->convertStringToSql($this->connectionTz->getName()));
 	}
 
 
@@ -212,54 +212,66 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertToSql($value, $type)
+	public function convertStringToSql($value)
 	{
-		switch ($type) {
-			case self::TYPE_STRING:
-				return "'" . $this->connection->escape_string($value) . "'";
+		return "'" . $this->connection->escape_string($value) . "'";
+	}
 
-			case self::TYPE_BOOL:
-				return $value ? '1' : '0';
 
-			case self::TYPE_IDENTIFIER:
-				return str_replace('`*`', '*', '`' . str_replace(['`', '.'], ['``', '`.`'], $value) . '`');
+	public function convertBoolToSql($value)
+	{
+		return $value ? '1' : '0';
+	}
 
-			case self::TYPE_DATETIME:
-				if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
-					if ($value instanceof \DateTimeImmutable) {
-						$value = $value->setTimezone($this->connectionTz);
-					} else {
-						$value = clone $value;
-						$value->setTimezone($this->connectionTz);
-					}
-				}
-				return "'" . $value->format('Y-m-d H:i:s') . "'";
 
-			case self::TYPE_DATETIME_SIMPLE:
-				if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
-					if ($value instanceof \DateTimeImmutable) {
-						$value = $value->setTimezone($this->simpleStorageTz);
-					} else {
-						$value = clone $value;
-						$value->setTimeZone($this->simpleStorageTz);
-					}
-				}
-				return "'" . $value->format('Y-m-d H:i:s') . "'";
+	public function convertIdentifierToSql($value)
+	{
+		return str_replace('`*`', '*', '`' . str_replace(['`', '.'], ['``', '`.`'], $value) . '`');
+	}
 
-			case self::TYPE_DATE_INTERVAL:
-				$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
-				if ($totalHours >= 839) {
-					// see https://dev.mysql.com/doc/refman/5.0/en/time.html
-					throw new InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
-				}
-				return $value->format("%r{$totalHours}:%S:%I");
 
-			case self::TYPE_BLOB:
-				return "_binary'" . $this->connection->escape_string($value) . "'";
-
-			default:
-				throw new InvalidArgumentException();
+	public function convertDatetimeToSql($value)
+	{
+		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
+			if ($value instanceof \DateTimeImmutable) {
+				$value = $value->setTimezone($this->connectionTz);
+			} else {
+				$value = clone $value;
+				$value->setTimezone($this->connectionTz);
+			}
 		}
+		return "'" . $value->format('Y-m-d H:i:s') . "'";
+	}
+
+
+	public function convertDatetimeSimpleToSql($value)
+	{
+		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
+			if ($value instanceof \DateTimeImmutable) {
+				$value = $value->setTimezone($this->simpleStorageTz);
+			} else {
+				$value = clone $value;
+				$value->setTimeZone($this->simpleStorageTz);
+			}
+		}
+		return "'" . $value->format('Y-m-d H:i:s') . "'";
+	}
+
+
+	public function convertDateIntervalToSql($value)
+	{
+		$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
+		if ($totalHours >= 839) {
+			// see https://dev.mysql.com/doc/refman/5.0/en/time.html
+			throw new InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
+		}
+		return $value->format("%r{$totalHours}:%S:%I");
+	}
+
+
+	public function convertBlobToSql($value)
+	{
+		return "_binary'" . $this->connection->escape_string($value) . "'";
 	}
 
 
@@ -304,5 +316,4 @@ class MysqliDriver implements IDriver
 			return new DriverException($error, $errorNo, $sqlState);
 		}
 	}
-
 }

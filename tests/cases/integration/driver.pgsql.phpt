@@ -22,11 +22,11 @@ class DriverPostgreTest extends IntegrationTestCase
 		$driver = $this->connection->getDriver();
 		$this->connection->connect();
 
-		Assert::same('"foo"', $driver->convertToSql('foo', IDriver::TYPE_IDENTIFIER));
-		Assert::same('"foo"."bar"', $driver->convertToSql('foo.bar', IDriver::TYPE_IDENTIFIER));
-		Assert::same('"foo".*', $driver->convertToSql('foo.*', IDriver::TYPE_IDENTIFIER));
-		Assert::same('"foo"."bar"."baz"', $driver->convertToSql('foo.bar.baz', IDriver::TYPE_IDENTIFIER));
-		Assert::same('"foo"."bar".*', $driver->convertToSql('foo.bar.*', IDriver::TYPE_IDENTIFIER));
+		Assert::same('"foo"', $driver->convertIdentifierToSql('foo'));
+		Assert::same('"foo"."bar"', $driver->convertIdentifierToSql('foo.bar'));
+		Assert::same('"foo".*', $driver->convertIdentifierToSql('foo.*'));
+		Assert::same('"foo"."bar"."baz"', $driver->convertIdentifierToSql('foo.bar.baz'));
+		Assert::same('"foo"."bar".*', $driver->convertIdentifierToSql('foo.bar.*'));
 	}
 
 
@@ -50,8 +50,8 @@ class DriverPostgreTest extends IntegrationTestCase
 		$interval1 = (new DateTime('2015-01-03 12:01:01'))->diff(new DateTime('2015-01-01 09:00:00'));
 		$interval2 = (new DateTime('2015-01-01 09:00:00'))->diff(new DateTime('2015-01-03 12:01:01'));
 
-		Assert::same('P0Y0M2DT3H1M1S', $driver->convertToSql($interval1, IDriver::TYPE_DATE_INTERVAL));
-		Assert::same('P0Y0M2DT3H1M1S', $driver->convertToSql($interval2, IDriver::TYPE_DATE_INTERVAL));
+		Assert::same('P0Y0M2DT3H1M1S', $driver->convertDateIntervalToSql($interval1));
+		Assert::same('P0Y0M2DT3H1M1S', $driver->convertDateIntervalToSql($interval2));
 	}
 
 }

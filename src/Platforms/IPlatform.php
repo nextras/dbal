@@ -31,5 +31,4 @@ interface IPlatform
 	 * @return array
 	 */
 	public function getForeignKeys($table);
-
 }

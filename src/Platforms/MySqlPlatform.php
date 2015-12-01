@@ -81,5 +81,4 @@ class MySqlPlatform implements IPlatform
 		}
 		return $keys;
 	}
-
 }

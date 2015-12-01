@@ -31,9 +31,9 @@ class SqlProcessorIdentifiersTest extends TestCase
 
 	public function testBasic()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('`a`');
-		$this->driver->shouldReceive('convertToSql')->once()->with('b.c', IDriver::TYPE_IDENTIFIER)->andReturn('`b`.`c`');
-		$this->driver->shouldReceive('convertToSql')->once()->with('d.e', IDriver::TYPE_IDENTIFIER)->andReturn('`d`.`e`');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('`a`');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b.c')->andReturn('`b`.`c`');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('d.e')->andReturn('`d`.`e`');
 
 		Assert::same(
 			'SELECT `a`, `b`.`c` FROM `d`.`e`',

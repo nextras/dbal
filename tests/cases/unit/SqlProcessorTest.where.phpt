@@ -38,9 +38,9 @@ class SqlProcessorWhereTest extends TestCase
 	 */
 	public function testImplicitAndExplicitTypes($expected, $operands)
 	{
-		$this->driver->shouldReceive('convertToSql')->with('col', IDriver::TYPE_IDENTIFIER)->andReturn('`col`');
-		$this->driver->shouldReceive('convertToSql')->with('x', IDriver::TYPE_STRING)->andReturn('"x"');
-		$this->driver->shouldReceive('convertToSql')->with(Mockery::type('DateTime'), IDriver::TYPE_DATETIME)->andReturn('DT');
+		$this->driver->shouldReceive('convertIdentifierToSql')->with('col')->andReturn('`col`');
+		$this->driver->shouldReceive('convertStringToSql')->with('x')->andReturn('"x"');
+		$this->driver->shouldReceive('convertDateTimeToSql')->with(Mockery::type('DateTime'))->andReturn('DT');
 
 		Assert::same($expected, $this->parser->processModifier('and', $operands));
 	}
@@ -134,14 +134,14 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testAssoc()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('A');
-		$this->driver->shouldReceive('convertToSql')->once()->with('b.c', IDriver::TYPE_IDENTIFIER)->andReturn('BC');
-		$this->driver->shouldReceive('convertToSql')->once()->with('d', IDriver::TYPE_IDENTIFIER)->andReturn('D');
-		$this->driver->shouldReceive('convertToSql')->once()->with('e', IDriver::TYPE_IDENTIFIER)->andReturn('E');
-		$this->driver->shouldReceive('convertToSql')->once()->with('f', IDriver::TYPE_IDENTIFIER)->andReturn('F');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b.c')->andReturn('BC');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('d')->andReturn('D');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('e')->andReturn('E');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('f')->andReturn('F');
 
-		$this->driver->shouldReceive('convertToSql')->once()->with(1, IDriver::TYPE_STRING)->andReturn("'1'");
-		$this->driver->shouldReceive('convertToSql')->twice()->with('a', IDriver::TYPE_STRING)->andReturn("'a'");
+		$this->driver->shouldReceive('convertStringToSql')->once()->with(1)->andReturn("'1'");
+		$this->driver->shouldReceive('convertStringToSql')->twice()->with('a')->andReturn("'a'");
 
 		Assert::same(
 			'A = 1 AND BC = 2 AND D IS NULL AND E IN (\'1\', \'a\') AND F IN (1, \'a\')',
@@ -158,8 +158,8 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testComplex()
 	{
-		$this->driver->shouldReceive('convertToSql')->once()->with('a', IDriver::TYPE_IDENTIFIER)->andReturn('a');
-		$this->driver->shouldReceive('convertToSql')->once()->with('b', IDriver::TYPE_IDENTIFIER)->andReturn('b');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('a');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('b');
 
 		Assert::same(
 			'(a = 1 AND b IS NULL) OR a = 2 OR (a IS NULL AND b = 1) OR b = 3',

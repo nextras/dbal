@@ -131,12 +131,52 @@ interface IDriver
 
 
 	/**
-	 * Converts php value to database value.
-	 * @param  mixed $value
-	 * @param  mixed $type
+	 * @param  string $value
 	 * @return string
 	 */
-	public function convertToSql($value, $type);
+	public function convertStringToSql($value);
+
+
+	/**
+	 * @param  bool $value
+	 * @return string
+	 */
+	public function convertBoolToSql($value);
+
+
+	/**
+	 * @param  string $value
+	 * @return string
+	 */
+	public function convertIdentifierToSql($value);
+
+
+	/**
+	 * @param  \DateTime|\DateTimeImmutable|\DateTimeInterface $value
+	 * @return string
+	 */
+	public function convertDateTimeToSql($value);
+
+
+	/**
+	 * @param  \DateTime|\DateTimeImmutable|\DateTimeInterface $value
+	 * @return string
+	 */
+	public function convertDateTimeSimpleToSql($value);
+
+
+	/**
+	 * @param  \DateInterval $value
+	 * @return string
+	 */
+	public function convertDateIntervalToSql($value);
+
+
+	/**
+	 * @param  string $value
+	 * @return string
+	 */
+	public function convertBlobToSql($value);
 
 
 	/**
@@ -147,5 +187,4 @@ interface IDriver
 	 * @return string
 	 */
 	public function modifyLimitQuery($query, $limit, $offset);
-
 }

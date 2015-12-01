@@ -22,11 +22,11 @@ class DriverMysqlTest extends IntegrationTestCase
 	{
 		$driver = $this->connection->getDriver();
 
-		Assert::same('`foo`', $driver->convertToSql('foo', IDriver::TYPE_IDENTIFIER));
-		Assert::same('`foo`.`bar`', $driver->convertToSql('foo.bar', IDriver::TYPE_IDENTIFIER));
-		Assert::same('`foo`.*', $driver->convertToSql('foo.*', IDriver::TYPE_IDENTIFIER));
-		Assert::same('`foo`.`bar`.`baz`', $driver->convertToSql('foo.bar.baz', IDriver::TYPE_IDENTIFIER));
-		Assert::same('`foo`.`bar`.*', $driver->convertToSql('foo.bar.*', IDriver::TYPE_IDENTIFIER));
+		Assert::same('`foo`', $driver->convertIdentifierToSql('foo'));
+		Assert::same('`foo`.`bar`', $driver->convertIdentifierToSql('foo.bar'));
+		Assert::same('`foo`.*', $driver->convertIdentifierToSql('foo.*'));
+		Assert::same('`foo`.`bar`.`baz`', $driver->convertIdentifierToSql('foo.bar.baz'));
+		Assert::same('`foo`.`bar`.*', $driver->convertIdentifierToSql('foo.bar.*'));
 	}
 
 
@@ -37,12 +37,12 @@ class DriverMysqlTest extends IntegrationTestCase
 		$interval1 = (new DateTime('2015-01-03 12:01:01'))->diff(new DateTime('2015-01-01 09:00:00'));
 		$interval2 = (new DateTime('2015-01-01 09:00:00'))->diff(new DateTime('2015-01-03 12:01:01'));
 
-		Assert::same('-51:01:01', $driver->convertToSql($interval1, IDriver::TYPE_DATE_INTERVAL));
-		Assert::same('51:01:01', $driver->convertToSql($interval2, IDriver::TYPE_DATE_INTERVAL));
+		Assert::same('-51:01:01', $driver->convertDateIntervalToSql($interval1));
+		Assert::same('51:01:01', $driver->convertDateIntervalToSql($interval2));
 
 		Assert::throws(function() use ($driver) {
 			$interval = (new DateTime('2015-02-05 09:59:59'))->diff(new DateTime('2015-01-01 09:00:00'));
-			$driver->convertToSql($interval, IDriver::TYPE_DATE_INTERVAL);
+			$driver->convertDateIntervalToSql($interval);
 		}, InvalidArgumentException::class);
 	}
 
