@@ -6,6 +6,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
@@ -24,7 +25,7 @@ class SqlProcessorProcessTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = Mockery::mock(IDriver::class);
 		$this->parser = Mockery::mock('Nextras\Dbal\SqlProcessor[processModifier]', [$this->driver]);
 	}
 
@@ -74,30 +75,30 @@ class SqlProcessorProcessTest extends TestCase
 	{
 		Assert::throws(function() {
 			$this->parser->process([123]);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Query fragment must be string.');
+		}, InvalidArgumentException::class, 'Query fragment must be string.');
 
 		Assert::throws(function() {
 			$this->parser->process([new \stdClass()]);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Query fragment must be string.');
+		}, InvalidArgumentException::class, 'Query fragment must be string.');
 
 		Assert::throws(function() {
 			$this->parser->process(['A %xxx']);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Missing query parameter for modifier %xxx.');
+		}, InvalidArgumentException::class, 'Missing query parameter for modifier %xxx.');
 
 		Assert::throws(function() {
 			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 2]);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'A %xxx B\'.');
+		}, InvalidArgumentException::class, 'Redundant query parameter or missing modifier in query fragment \'A %xxx B\'.');
 
 		Assert::throws(function() {
 			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 'C', 2]);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
+		}, InvalidArgumentException::class, 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 
 		Assert::throws(function() {
 			$this->parser->shouldReceive('processModifier')->once()->with('xxx', 1)->andReturn('i1');
 			$this->parser->process(['A %xxx B', 1, 'C', 'D']);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Redundant query parameter or missing modifier in query fragment \'C\'.');
+		}, InvalidArgumentException::class, 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 	}
 
 }

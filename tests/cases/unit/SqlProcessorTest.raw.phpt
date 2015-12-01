@@ -6,6 +6,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
@@ -24,7 +25,7 @@ class SqlProcessorRawTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = Mockery::mock(IDriver::class);
 		$this->parser = new SqlProcessor($this->driver);
 	}
 
@@ -47,19 +48,19 @@ class SqlProcessorRawTest extends TestCase
 	{
 		Assert::throws(function () {
 			$this->parser->processModifier('raw', 123);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %raw expects value to be string, integer given.');
+		}, InvalidArgumentException::class, 'Modifier %raw expects value to be string, integer given.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('?raw', NULL);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %raw does not have %?raw variant.');
+		}, InvalidArgumentException::class, 'Modifier %raw does not have %?raw variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('raw[]', []);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %raw does not have %raw[] variant.');
+		}, InvalidArgumentException::class, 'Modifier %raw does not have %raw[] variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('?raw[]', []);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %raw does not have %?raw[] variant.');
+		}, InvalidArgumentException::class, 'Modifier %raw does not have %?raw[] variant.');
 	}
 
 }

@@ -68,7 +68,7 @@ class TransactionsTest extends IntegrationTestCase
 
 				throw new InvalidStateException('ABORT TRANSACTION');
 			});
-		}, 'Nextras\Dbal\InvalidStateException', 'ABORT TRANSACTION');
+		}, InvalidStateException::class, 'ABORT TRANSACTION');
 
 		Assert::same(0, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_')->fetchField());
 	}

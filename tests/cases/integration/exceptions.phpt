@@ -7,7 +7,11 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\ConnectionException;
+use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\QueryException;
+use Nextras\Dbal\UniqueConstraintViolationException;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -21,12 +25,12 @@ class ExceptionsTest extends IntegrationTestCase
 		Assert::exception(function() {
 			$connection = $this->createConnection(['database' => 'unknown']);
 			$connection->connect();
-		}, 'Nextras\Dbal\ConnectionException');
+		}, ConnectionException::class);
 
 		Assert::exception(function() {
 			$connection = $this->createConnection(['username' => 'unknown']);
 			$connection->connect();
-		}, 'Nextras\Dbal\ConnectionException');
+		}, ConnectionException::class);
 	}
 
 
@@ -35,7 +39,7 @@ class ExceptionsTest extends IntegrationTestCase
 		Assert::exception(function() {
 			$this->initData($this->connection);
 			$this->connection->query('UPDATE books SET author_id = 999');
-		}, 'Nextras\Dbal\ForeignKeyConstraintViolationException');
+		}, ForeignKeyConstraintViolationException::class);
 	}
 
 
@@ -44,7 +48,7 @@ class ExceptionsTest extends IntegrationTestCase
 		Assert::exception(function() {
 			$this->initData($this->connection);
 			$this->connection->query('INSERT INTO publishers %values', ['name' => 'Nextras publisher']);
-		}, 'Nextras\Dbal\UniqueConstraintViolationException');
+		}, UniqueConstraintViolationException::class);
 	}
 
 
@@ -53,7 +57,7 @@ class ExceptionsTest extends IntegrationTestCase
 		Assert::exception(function() {
 			$this->initData($this->connection);
 			$this->connection->query('UPDATE books SET title = NULL');
-		}, 'Nextras\Dbal\NotNullConstraintViolationException');
+		}, NotNullConstraintViolationException::class);
 	}
 
 
@@ -62,7 +66,7 @@ class ExceptionsTest extends IntegrationTestCase
 		/** @var QueryException $e */
 		$e = Assert::exception(function() {
 			$this->connection->query('SELECT FROM FROM foo');
-		}, 'Nextras\Dbal\QueryException');
+		}, QueryException::class);
 
 		Assert::same('SELECT FROM FROM foo', $e->getSqlQuery());
 	}

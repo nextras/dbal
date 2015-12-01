@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -41,7 +42,7 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 				->rightJoin('th', 'four', 'f', 'th.userId = f.userId')
 				->getQuerySql();
 
-		}, 'Nextras\Dbal\InvalidStateException', "Unknown alias 't'.");
+		}, InvalidStateException::class, "Unknown alias 't'.");
 	}
 
 

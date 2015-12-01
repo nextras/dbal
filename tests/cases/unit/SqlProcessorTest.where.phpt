@@ -7,6 +7,7 @@ namespace NextrasTests\Dbal;
 use DateTime;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
@@ -26,7 +27,7 @@ class SqlProcessorWhereTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = Mockery::mock(IDriver::class);
 		$this->parser = new SqlProcessor($this->driver);
 	}
 
@@ -196,7 +197,7 @@ class SqlProcessorWhereTest extends TestCase
 			function() use ($type, $value) {
 				$this->parser->processModifier($type, $value);
 			},
-			'Nextras\Dbal\InvalidArgumentException', $message
+			InvalidArgumentException::class, $message
 		);
 	}
 

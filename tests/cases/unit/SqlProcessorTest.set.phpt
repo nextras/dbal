@@ -20,7 +20,7 @@ class SqlProcessorSetTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = \Mockery::mock(IDriver::class);
 		$driver->shouldReceive('convertToSql')->once()->with('id', IDriver::TYPE_IDENTIFIER)->andReturn('id');
 		$driver->shouldReceive('convertToSql')->once()->with("'foo'", IDriver::TYPE_STRING)->andReturn("'\\'foo\\''");
 		$driver->shouldReceive('convertToSql')->once()->with('title', IDriver::TYPE_IDENTIFIER)->andReturn('title');

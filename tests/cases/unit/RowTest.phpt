@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
 
@@ -25,11 +26,11 @@ class RowTest extends TestCase
 
 		Assert::throws(function() use ($row) {
 			$row->NAME;
-		}, 'Nextras\Dbal\InvalidArgumentException', "Column 'NAME' does not exist.");
+		}, InvalidArgumentException::class, "Column 'NAME' does not exist.");
 
 		Assert::throws(function() use ($row) {
 			$row->suname;
-		}, 'Nextras\Dbal\InvalidArgumentException', "Column 'suname' does not exist, did you mean 'surname'?");
+		}, InvalidArgumentException::class, "Column 'suname' does not exist, did you mean 'surname'?");
 	}
 
 

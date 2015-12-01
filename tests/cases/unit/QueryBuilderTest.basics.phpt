@@ -4,6 +4,8 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
 
 
@@ -173,28 +175,28 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 
 		Assert::exception(function() {
 			$this->builder()->getFromAlias();
-		}, 'Nextras\Dbal\InvalidStateException');
+		}, InvalidStateException::class);
 	}
 
 
 	public function testExceptions()
 	{
-		Assert::exception(function() { $this->builder()->select(1); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->addSelect(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
+		Assert::exception(function() { $this->builder()->select(1); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->addSelect(NULL); }, InvalidArgumentException::class);
 
-		Assert::exception(function() { $this->builder()->where(1); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->andWhere(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->orWhere(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
+		Assert::exception(function() { $this->builder()->where(1); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->andWhere(NULL); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->orWhere(NULL); }, InvalidArgumentException::class);
 
-		Assert::exception(function() { $this->builder()->groupBy(1); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->addGroupBy(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
+		Assert::exception(function() { $this->builder()->groupBy(1); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->addGroupBy(NULL); }, InvalidArgumentException::class);
 
-		Assert::exception(function() { $this->builder()->having(1); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->andHaving(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->orHaving(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
+		Assert::exception(function() { $this->builder()->having(1); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->andHaving(NULL); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->orHaving(NULL); }, InvalidArgumentException::class);
 
-		Assert::exception(function() { $this->builder()->orderBy(1); }, 'Nextras\Dbal\InvalidArgumentException');
-		Assert::exception(function() { $this->builder()->addOrderBy(NULL); }, 'Nextras\Dbal\InvalidArgumentException');
+		Assert::exception(function() { $this->builder()->orderBy(1); }, InvalidArgumentException::class);
+		Assert::exception(function() { $this->builder()->addOrderBy(NULL); }, InvalidArgumentException::class);
 	}
 
 

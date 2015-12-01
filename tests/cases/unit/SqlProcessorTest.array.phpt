@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
@@ -19,7 +20,7 @@ class SqlProcessorArrayTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = \Mockery::mock(IDriver::class);
 		$this->parser = new SqlProcessor($driver);
 	}
 

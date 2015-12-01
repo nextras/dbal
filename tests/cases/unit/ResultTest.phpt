@@ -5,7 +5,9 @@
 namespace NextrasTests\Dbal;
 
 use Mockery;
+use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Result\Row;
 use Nextras\Dbal\Utils\DateTime;
@@ -19,9 +21,9 @@ class ResultTest extends TestCase
 
 	public function testElapsedTime()
 	{
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 		$result = new Result($adapter, $driver, 123.4);
 		Assert::same(123.4, $result->getElapsedTime());
 	}
@@ -29,7 +31,7 @@ class ResultTest extends TestCase
 
 	public function testIterator()
 	{
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
@@ -37,7 +39,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 
 		$names = [];
 		$result = new Result($adapter, $driver, 0);
@@ -62,14 +64,14 @@ class ResultTest extends TestCase
 
 	public function testSeek()
 	{
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once();
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
 
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
 		$result->setValueNormalization(FALSE);
@@ -86,22 +88,22 @@ class ResultTest extends TestCase
 
 	public function testFetchField()
 	{
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
 		$result->setValueNormalization(FALSE);
 		Assert::same('First', $result->fetchField());
 
 
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
 
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
 		$result->setValueNormalization(FALSE);
@@ -111,7 +113,7 @@ class ResultTest extends TestCase
 
 	public function testFetchAll()
 	{
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once();
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
@@ -122,7 +124,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
 
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
 		$result->setValueNormalization(FALSE);
@@ -152,14 +154,14 @@ class ResultTest extends TestCase
 			'n' => 12,
 		];
 		$createResult = function() use ($one, $two) {
-			$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+			$adapter = Mockery::mock(IResultAdapter::class);
 			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 			$adapter->shouldReceive('seek')->once();
 			$adapter->shouldReceive('fetch')->once()->andReturn($one);
 			$adapter->shouldReceive('fetch')->once()->andReturn($two);
 			$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
 
-			$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+			$driver = Mockery::mock(IDriver::class);
 			$result = new Result($adapter, $driver, 0);
 			$result->setValueNormalization(FALSE);
 			return $result;
@@ -191,13 +193,13 @@ class ResultTest extends TestCase
 		], $createResult()->fetchPairs('born', 'name'));
 
 		Assert::exception(function() {
-			$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+			$adapter = Mockery::mock(IResultAdapter::class);
 			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-			$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+			$driver = Mockery::mock(IDriver::class);
 			$result = new Result($adapter, $driver, 0);
 			$result->setValueNormalization(FALSE);
 			$result->fetchPairs();
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Result::fetchPairs() requires defined key or value.');
+		}, InvalidArgumentException::class, 'Result::fetchPairs() requires defined key or value.');
 	}
 
 
@@ -218,7 +220,7 @@ class ResultTest extends TestCase
 			'born' => '2015-02-01 20:00:00',
 		];
 
-		$adapter = Mockery::mock('Nextras\Dbal\Drivers\IResultAdapter');
+		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([
 			'name' => [IResultAdapter::TYPE_STRING, NULL],
 			'age' => [IResultAdapter::TYPE_INT, NULL],
@@ -228,7 +230,7 @@ class ResultTest extends TestCase
 		]);
 		$adapter->shouldReceive('fetch')->once()->andReturn($one);
 		$adapter->shouldReceive('fetch')->once()->andReturn($two);
-		$driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
 		$row = $result->fetch();

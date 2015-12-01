@@ -7,6 +7,7 @@ namespace NextrasTests\Dbal;
 use DateTime;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
@@ -26,7 +27,7 @@ class SqlProcessorScalarTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = Mockery::mock(IDriver::class);
 		$this->parser = new SqlProcessor($this->driver);
 	}
 
@@ -107,12 +108,12 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::exception(function() {
 			// test break to process non-string values
 			$this->parser->processModifier('column[]', [1]);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %column expects value to be string, integer given.');
+		}, InvalidArgumentException::class, 'Modifier %column expects value to be string, integer given.');
 
 
 		Assert::exception(function() {
 			$this->parser->processModifier('column', '*');
-		}, 'Nextras\Dbal\InvalidArgumentException', "Modifier %column does not allow '*' value, use modifier %column[] instead.");
+		}, InvalidArgumentException::class, "Modifier %column does not allow '*' value, use modifier %column[] instead.");
 	}
 
 
@@ -161,7 +162,7 @@ class SqlProcessorScalarTest extends TestCase
 			function() use ($type, $value) {
 				$this->parser->processModifier($type, $value);
 			},
-			'Nextras\Dbal\InvalidArgumentException', $message
+			InvalidArgumentException::class, $message
 		);
 	}
 

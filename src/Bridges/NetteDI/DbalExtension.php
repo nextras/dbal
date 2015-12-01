@@ -9,6 +9,9 @@
 namespace Nextras\Dbal\Bridges\NetteDI;
 
 use Nette\DI\CompilerExtension;
+use Nextras\Dbal\Bridges\NetteTracy\BluescreenQueryPanel;
+use Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel;
+use Nextras\Dbal\Connection;
 use Tracy\Debugger;
 
 
@@ -27,7 +30,7 @@ class DbalExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$definition = $builder->addDefinition($this->prefix('connection'))
-			->setClass('Nextras\Dbal\Connection')
+			->setClass(Connection::class)
 			->setArguments([
 				'config' => $config,
 			]);
@@ -39,8 +42,8 @@ class DbalExtension extends CompilerExtension
 		}
 
 		if ($debugger) {
-			$definition->addSetup('@Tracy\BlueScreen::addPanel', ['Nextras\Dbal\Bridges\NetteTracy\BluescreenQueryPanel::renderBluescreenPanel']);
-			$definition->addSetup('Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel::install', ['@self']);
+			$definition->addSetup('@Tracy\BlueScreen::addPanel', [BluescreenQueryPanel::class . '::renderBluescreenPanel']);
+			$definition->addSetup(ConnectionPanel::class . '::install', ['@self']);
 		}
 	}
 

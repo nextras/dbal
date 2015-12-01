@@ -8,6 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -34,7 +35,7 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 
 		Assert::exception(function() {
 			$this->connection->getLastInsertedId();
-		}, 'Nextras\Dbal\InvalidArgumentException', 'PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
+		}, InvalidArgumentException::class, 'PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
 	}
 
 

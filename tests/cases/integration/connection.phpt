@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -59,7 +60,7 @@ class ConnectionTest extends IntegrationTestCase
 	{
 		Assert::exception(function() {
 			$this->createConnection(['driver' => NULL]);
-		}, 'Nextras\Dbal\InvalidStateException');
+		}, InvalidStateException::class);
 	}
 
 }

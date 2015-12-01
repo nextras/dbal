@@ -6,6 +6,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery\MockInterface;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
@@ -24,7 +25,7 @@ class SqlProcessorValuesTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = \Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = \Mockery::mock(IDriver::class);
 		$this->parser = new SqlProcessor($this->driver);
 	}
 
@@ -93,7 +94,7 @@ class SqlProcessorValuesTest extends TestCase
 
 		Assert::throws(function () {
 			$this->convert('INSERT INTO test %values[]', []);
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %values[] must contain at least one array element.');
+		}, InvalidArgumentException::class, 'Modifier %values[] must contain at least one array element.');
 	}
 
 

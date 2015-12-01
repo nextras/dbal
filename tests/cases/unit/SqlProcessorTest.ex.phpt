@@ -7,6 +7,7 @@ namespace NextrasTests\Dbal;
 use Mockery;
 use Mockery\MockInterface;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
@@ -25,7 +26,7 @@ class SqlProcessorExpandTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->driver = Mockery::mock(IDriver::class);
 		$this->parser = new SqlProcessor($this->driver);
 	}
 
@@ -64,19 +65,19 @@ class SqlProcessorExpandTest extends TestCase
 	{
 		Assert::throws(function () {
 			$this->parser->processModifier('ex', 'abc');
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex expects value to be array, string given.');
+		}, InvalidArgumentException::class, 'Modifier %ex expects value to be array, string given.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('?ex', 'abc');
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex does not have %?ex variant.');
+		}, InvalidArgumentException::class, 'Modifier %ex does not have %?ex variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('ex[]', 'abc');
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex does not have %ex[] variant.');
+		}, InvalidArgumentException::class, 'Modifier %ex does not have %ex[] variant.');
 
 		Assert::throws(function () {
 			$this->parser->processModifier('?ex[]', 'abc');
-		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %ex does not have %?ex[] variant.');
+		}, InvalidArgumentException::class, 'Modifier %ex does not have %?ex[] variant.');
 	}
 
 }

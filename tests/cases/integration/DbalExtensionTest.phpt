@@ -10,6 +10,7 @@ use Nette\DI\Compiler;
 use Nette\DI\Container;
 use Nette\DI\ContainerLoader;
 use Nextras\Dbal\Bridges\NetteDI\DbalExtension;
+use Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel;
 use Nextras\Dbal\Connection;
 use Tester\Assert;
 use Tracy\Bridges\Nette\TracyExtension;
@@ -42,7 +43,7 @@ class DbalExtensionTest extends IntegrationTestCase
 
 		if ($expectTracyPanel) {
 			Assert::type(
-				'Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel',
+				ConnectionPanel::class,
 				Debugger::getBar()->getPanel('Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel')
 			);
 		}
