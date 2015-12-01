@@ -74,6 +74,29 @@ class SqlProcessorValuesTest extends TestCase
 	}
 
 
+	public function testInsertWithDefaults()
+	{
+		Assert::same(
+			"INSERT INTO test VALUES (DEFAULT)",
+			$this->convert('INSERT INTO test %values', [])
+		);
+
+		Assert::same(
+			"INSERT INTO test VALUES (DEFAULT)",
+			$this->convert('INSERT INTO test %values[]', [[]])
+		);
+
+		Assert::same(
+			"INSERT INTO test VALUES (DEFAULT), (DEFAULT)",
+			$this->convert('INSERT INTO test %values[]', [[], []])
+		);
+
+		Assert::throws(function () {
+			$this->convert('INSERT INTO test %values[]', []);
+		}, 'Nextras\Dbal\InvalidArgumentException', 'Modifier %values[] must contain at least one array element.');
+	}
+
+
 	private function convert($sql)
 	{
 		return $this->parser->process(func_get_args());

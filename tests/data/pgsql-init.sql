@@ -61,3 +61,7 @@ CREATE TABLE "tag_followers" (
 	CONSTRAINT "tag_followers_tag" FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT "tag_followers_author" FOREIGN KEY ("author_id") REFERENCES "authors" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE "table_with_defaults" (
+	"name" VARCHAR(255) DEFAULT 'Jon Snow'
+);

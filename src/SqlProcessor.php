@@ -360,6 +360,12 @@ class SqlProcessor
 	 */
 	protected function processMultiValues($type, array $value)
 	{
+		if (empty($value)) {
+			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
+		} elseif (empty($value[0])) {
+			return 'VALUES ' . str_repeat('(DEFAULT), ', count($value) - 1) . '(DEFAULT)';
+		}
+
 		$keys = $values = [];
 		foreach (array_keys($value[0]) as $key) {
 			$keys[] = $this->identifiers->{explode('%', $key, 2)[0]};
@@ -384,6 +390,10 @@ class SqlProcessor
 	 */
 	private function processValues($type, array $value)
 	{
+		if (empty($value)) {
+			return 'VALUES (DEFAULT)';
+		}
+
 		$keys = $values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
