@@ -28,7 +28,7 @@ class DbalExtension extends CompilerExtension
 
 		$definition = $builder->addDefinition($this->prefix('connection'))
 			->setClass('Nextras\Dbal\Connection')
-			->setAutowired(isset($config['autowired']) ? $config['autowired'] : TRUE)
+			//->setAutowired(isset($config['autowired']) ? $config['autowired'] : TRUE)
 			->setArguments([
 				'config' => $config,
 			]);
