@@ -18,7 +18,8 @@
 		"nette/tester": "~1.4 != 1.6.1",
 		"mockery/mockery": "~0.9",
 		"tracy/tracy": "~2.3",
-		"nette/di": "~2.3"
+		"nette/di": "~2.3",
+		"satooshi/php-coveralls": "dev-master"
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" },
