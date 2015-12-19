@@ -31,10 +31,10 @@ class DbalExtensionTest extends IntegrationTestCase
 		$dic = $this->buildDic($config, $debug);
 
 		Assert::type('Nette\DI\Container', $dic);
-		Assert::count(1, $dic->findByType('Nextras\Dbal\Connection'));
+		Assert::count(1, $dic->findByType(Connection::class));
 
 		/** @var Connection $connection */
-		$connection = $dic->getByType('Nextras\Dbal\Connection');
+		$connection = $dic->getByType(Connection::class);
 
 		$conf = $connection->getConfig();
 		Assert::same('mysqli', $conf['driver']);
@@ -50,13 +50,16 @@ class DbalExtensionTest extends IntegrationTestCase
 	}
 
 
-	private function buildDic($config, $debug)
+	private function buildDic($config, $debug, callable $compilerCb = NULL)
 	{
 		$loader = new ContainerLoader(TEMP_DIR);
 		$key = __FILE__ . ':' . __LINE__ . ':' . $config;
-		$className = $loader->load($key, function (Compiler $compiler) use ($config, $debug) {
+		$className = $loader->load($key, function (Compiler $compiler) use ($config, $debug, $compilerCb) {
 			if ($debug) {
 				Debugger::enable(Debugger::DEVELOPMENT);
+			}
+			if ($compilerCb) {
+				$compilerCb($compiler);
 			}
 			$compiler->addExtension('tracy', new TracyExtension($debug));
 			$compiler->addExtension('dbal', new DbalExtension());
@@ -78,6 +81,22 @@ class DbalExtensionTest extends IntegrationTestCase
 		];
 	}
 
+
+	public function testAutowired()
+	{
+		$dic = $this->buildDic('configD', FALSE, function (Compiler $compiler) {
+			$compiler->addExtension('dbal2', new DbalExtension());
+		});
+
+		Assert::count(2, $dic->findByType(Connection::class));
+		$connection = $dic->getByType(Connection::class);
+		Assert::type(Connection::class, $connection);
+		Assert::equal('bar', $connection->getConfig()['username']);
+
+		$connection = $dic->getService('dbal2.connection');
+		Assert::type(Connection::class, $connection);
+		Assert::equal('bar2', $connection->getConfig()['username']);
+	}
 }
 
 

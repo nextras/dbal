@@ -33,7 +33,8 @@ class DbalExtension extends CompilerExtension
 			->setClass(Connection::class)
 			->setArguments([
 				'config' => $config,
-			]);
+			])
+			->setAutowired(isset($config['autowired']) ? $config['autowired'] : TRUE);
 
 		if (isset($config['debugger'])) {
 			$debugger = $config['debugger'];

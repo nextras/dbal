@@ -1,0 +1,10 @@
+dbal:
+	driver: mysqli
+	username: bar
+	password: foo
+
+dbal2:
+	driver: mysqli
+	username: bar2
+	password: foo2
+	autowired: false
