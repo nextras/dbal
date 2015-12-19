@@ -8,7 +8,6 @@
 namespace NextrasTests\Dbal;
 
 use DateTime;
-use Nextras\Dbal\Drivers\IDriver;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -16,7 +15,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class DriverPostgreTest extends IntegrationTestCase
 {
-
 	public function testDelimite()
 	{
 		$driver = $this->connection->getDriver();
@@ -54,6 +52,31 @@ class DriverPostgreTest extends IntegrationTestCase
 		Assert::same('P0Y0M2DT3H1M1S', $driver->convertDateIntervalToSql($interval2));
 	}
 
+
+	public function testLike()
+	{
+		$c = $this->connection;
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A'B")->fetchField());
+		Assert::true( $c->query("SELECT 'AA''BB' LIKE %_like_", "A'B")->fetchField());
+
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A\\B")->fetchField());
+		Assert::true( $c->query("SELECT 'AA\\BB' LIKE %_like_", "A\\B")->fetchField());
+
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A%B")->fetchField());
+		Assert::true( $c->query("SELECT %raw     LIKE %_like_", "'AA%BB'", "A%B")->fetchField());
+
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A_B")->fetchField());
+		Assert::true( $c->query("SELECT 'AA_BB'  LIKE %_like_", "A_B")->fetchField());
+
+
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", "AAAxBB")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", "AxB")->fetchField());
+		Assert::true( $c->query("SELECT 'AAxBB'  LIKE %_like", "AxBB")->fetchField());
+
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxBBB")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", "AxB")->fetchField());
+		Assert::true( $c->query("SELECT 'AAxBB'  LIKE %like_", "AAxB")->fetchField());
+	}
 }
 
 

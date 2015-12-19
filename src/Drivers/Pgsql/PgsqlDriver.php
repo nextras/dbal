@@ -206,6 +206,18 @@ class PgsqlDriver implements IDriver
 	}
 
 
+	public function convertLikeToSql($value, $mode)
+	{
+		$value = strtr($value, [
+			"'" => "''",
+			'\\' => '\\\\',
+			'%' => '\\%',
+			'_' => '\\_',
+		]);
+		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
+	}
+
+
 	public function convertBoolToSql($value)
 	{
 		return $value ? 'TRUE' : 'FALSE';

@@ -218,6 +218,13 @@ class MysqliDriver implements IDriver
 	}
 
 
+	public function convertLikeToSql($value, $mode)
+	{
+		$value = addcslashes(str_replace('\\', '\\\\', $value), "\x00\n\r\\'%_");
+		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
+	}
+
+
 	public function convertBoolToSql($value)
 	{
 		return $value ? '1' : '0';

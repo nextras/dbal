@@ -11,12 +11,17 @@ Dbal allows you easy way to escape and build your SQL query. You can use powerfu
 |* `%dts`, `%?dts`, `%dts[]`    | datetime | datetime with [conversion to simple storage time zone | datetime]
 |* `%blob`, `%?blob`, `%blob[]` | binary string | not nullable, nullable, array of
 |* `%any`, `%any[]`             |               | any value scalary value, array of scalar values
+|* `%_like`, `%like_`, `%_like_`| string   | like left, like right, like both sides
 
 All modifiers require receiving an argument of the specific modifier data type - eg. `%f` accepts only floats and integers.
 
 /--php
 $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
 // `id` = 1 AND name IN (NULL, 'foo')
+
+$connection->query('name LIKE %_like_', $query);
+// escapes query and adds % to both sides
+// name LIKE '%escaped query expression%'
 \--
 
 Other available modifiers:

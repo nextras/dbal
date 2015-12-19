@@ -30,6 +30,9 @@ class SqlProcessor
 		'dts' => [TRUE, TRUE, 'DateTime'],
 		'di' => [TRUE, TRUE, 'DateInterval'],
 		'blob' => [TRUE, TRUE, 'blob string'],
+		'_like' => [TRUE, FALSE, 'string'],
+		'like_' => [TRUE, FALSE, 'string'],
+		'_like_' => [TRUE, FALSE, 'string'],
 		'any' => [FALSE, FALSE, 'pretty much anything'],
 		'and' => [FALSE, FALSE, 'array'],
 		'or' => [FALSE, FALSE, 'array'],
@@ -124,6 +127,13 @@ class SqlProcessor
 						}
 						return (string) $value;
 
+					case '_like':
+						return $this->driver->convertLikeToSql($value, -1);
+					case 'like_':
+						return $this->driver->convertLikeToSql($value, 1);
+					case '_like_':
+						return $this->driver->convertLikeToSql($value, 0);
+
 					case 'table':
 					case 'column':
 						if ($value === '*') {
@@ -210,6 +220,13 @@ class SqlProcessor
 						case 's':
 						case '?s':
 							return $this->driver->convertStringToSql((string) $value);
+
+						case '_like':
+							return $this->driver->convertLikeToSql($value, -1);
+						case 'like_':
+							return $this->driver->convertLikeToSql($value, 1);
+						case '_like_':
+							return $this->driver->convertLikeToSql($value, 0);
 					}
 				}
 

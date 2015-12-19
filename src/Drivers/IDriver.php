@@ -138,6 +138,14 @@ interface IDriver
 
 
 	/**
+	 * @param  string $value
+	 * @param  int $mode -1 = left, 0 = both, 1 = right
+	 * @return mixed
+	 */
+	public function convertLikeToSql($value, $mode);
+
+
+	/**
 	 * @param  bool $value
 	 * @return string
 	 */
