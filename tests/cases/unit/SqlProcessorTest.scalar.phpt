@@ -109,11 +109,6 @@ class SqlProcessorScalarTest extends TestCase
 			// test break to process non-string values
 			$this->parser->processModifier('column[]', [1]);
 		}, InvalidArgumentException::class, 'Modifier %column expects value to be string, integer given.');
-
-
-		Assert::exception(function() {
-			$this->parser->processModifier('column', '*');
-		}, InvalidArgumentException::class, "Modifier %column does not allow '*' value, use modifier %column[] instead.");
 	}
 
 

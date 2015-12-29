@@ -137,7 +137,7 @@ class SqlProcessor
 					case 'table':
 					case 'column':
 						if ($value === '*') {
-							$this->throwWrongModifierException($type, $value, "{$type}[]");
+							return '*';
 						}
 						return $this->identifiers->$value;
 
