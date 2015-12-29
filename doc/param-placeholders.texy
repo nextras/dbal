@@ -26,8 +26,8 @@ $connection->query('name LIKE %_like_', $query);
 
 Other available modifiers:
 
-|* `%table`, `%table[]`    | escapes string as table name
-|* `%column`, `%column[]`  | escapes string as column name
+|* `%table`, `%table[]`    | escapes string as table name, surrounding parentheses are not added to `%table[]` modifier
+|* `%column`, `%column[]`  | escapes string as column name, surrounding parentheses are not added to `%column[]` modifier
 |* `%ex`                   | expands array as processor arguments
 |* `%raw`                  | inserts string argument as is
 

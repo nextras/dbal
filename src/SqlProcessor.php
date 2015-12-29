@@ -134,11 +134,12 @@ class SqlProcessor
 					case '_like_':
 						return $this->driver->convertLikeToSql($value, 0);
 
-					case 'table':
 					case 'column':
 						if ($value === '*') {
-							$this->throwWrongModifierException($type, $value, "{$type}[]");
+							return '*';
 						}
+						// intential pass-through
+					case 'table':
 						return $this->identifiers->$value;
 
 					case 'blob':
@@ -250,14 +251,15 @@ class SqlProcessor
 						}
 						return '(' . implode(', ', $value) . ')';
 
-					case 'column[]':
-						foreach ($value as &$subValue) {
-							if (!is_string($subValue)) break 2; // fallback to processArray
-							$subValue = $this->identifiers->$subValue;
-						}
-						return '(' . implode(', ', $value) . ')';
-
 					// normal
+					case 'column[]':
+					case 'table[]':
+						$subType = substr($type, 0, -2);
+						foreach ($value as &$subValue) {
+							$subValue = $this->processModifier($subType, $subValue);
+						}
+						return implode(', ', $value);
+
 					case 'and':
 					case 'or':
 						return $this->processWhere($type, $value);

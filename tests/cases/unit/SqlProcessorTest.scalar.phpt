@@ -102,18 +102,32 @@ class SqlProcessorScalarTest extends TestCase
 		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
 		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('B');
 		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('c')->andReturn('C');
-		Assert::same('(A, B, C)', $this->parser->processModifier('column[]', ['a', 'b', 'c']));
+		Assert::same('A, B, C', $this->parser->processModifier('column[]', ['a', 'b', 'c']));
 
 
 		Assert::exception(function() {
 			// test break to process non-string values
 			$this->parser->processModifier('column[]', [1]);
 		}, InvalidArgumentException::class, 'Modifier %column expects value to be string, integer given.');
+	}
+
+
+	public function testTable()
+	{
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('FOO');
+		Assert::same('FOO', $this->parser->processModifier('table', 'foo'));
+
+
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('B');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('c')->andReturn('C');
+		Assert::same('A, B, C', $this->parser->processModifier('table[]', ['a', 'b', 'c']));
 
 
 		Assert::exception(function() {
-			$this->parser->processModifier('column', '*');
-		}, InvalidArgumentException::class, "Modifier %column does not allow '*' value, use modifier %column[] instead.");
+			// test break to process non-string values
+			$this->parser->processModifier('table[]', [1]);
+		}, InvalidArgumentException::class, 'Modifier %table expects value to be string, integer given.');
 	}
 
 
