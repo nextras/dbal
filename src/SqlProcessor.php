@@ -238,11 +238,9 @@ class SqlProcessor
 						return $this->processArray("any[]", $value);
 
 					case 'i[]':
-						$nonInt = count($value);
 						foreach ($value as $v) {
-							if (is_int($v)) $nonInt--;
+							if (!is_int($v)) break 2; // fallback to processArray
 						}
-						if ($nonInt > 0) break; // fallback to processArray
 						return '(' . implode(', ', $value) . ')';
 
 					case 's[]':
