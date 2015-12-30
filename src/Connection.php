@@ -149,14 +149,18 @@ class Connection
 
 
 	/**
-	 * @param  string $query
+	 * @param  string|array $query
 	 * @param  array  $args
 	 * @return Result|NULL
 	 * @throws QueryException
 	 */
-	public function queryArgs($query, array $args)
+	public function queryArgs($query, array $args = [])
 	{
-		array_unshift($args, $query);
+		if (!is_array($query)) {
+			array_unshift($args, $query);
+		} else {
+			$args = $query;
+		}
 		return call_user_func_array([$this, 'query'], $args);
 	}
 
