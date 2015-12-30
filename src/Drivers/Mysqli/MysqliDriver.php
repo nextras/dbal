@@ -93,7 +93,7 @@ class MysqliDriver implements IDriver
 		$result = @$this->connection->query($query);
 		$time = microtime(TRUE) - $time;
 
-		if ($this->connection->errno) {
+		if ($result === FALSE) {
 			throw $this->createException(
 				$this->connection->error,
 				$this->connection->errno,
