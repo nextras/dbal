@@ -42,7 +42,7 @@ class Connection
 
 
 	/**
-	 * @param  array $config see drivers for supported options
+	 * @param  array        $config       see drivers for supported options
 	 */
 	public function __construct(array $config)
 	{
@@ -343,6 +343,15 @@ class Connection
 		foreach ($this->$event as $callback) {
 			call_user_func_array($callback, $args);
 		}
+	}
+
+
+	/**
+	 * @return SqlProcessor
+	 */
+	public function getSqlPreprocessor()
+	{
+		return $this->sqlPreprocessor;
 	}
 
 }
