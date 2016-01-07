@@ -89,5 +89,4 @@ class PgsqlResultAdapter implements IResultAdapter
 
 		return $types;
 	}
-
 }

@@ -57,7 +57,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param  mixed[]
+	 * @param  mixed[] $args
 	 * @return string
 	 */
 	public function process(array $args)
@@ -107,7 +107,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  mixed  $value
+	 * @param  mixed $value
 	 * @return string
 	 */
 	public function processModifier($type, $value)
@@ -311,7 +311,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  mixed  $value
+	 * @param  mixed $value
 	 * @param  string $expectedType
 	 * @return void
 	 */
@@ -324,7 +324,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  mixed  $value
+	 * @param  mixed $value
 	 * @param  string $hint
 	 * @return void
 	 */
@@ -353,7 +353,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  array  $value
+	 * @param  array $value
 	 * @return string
 	 */
 	protected function processSet($type, array $value)
@@ -372,7 +372,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  array  $value
+	 * @param  array $value
 	 * @return string
 	 */
 	protected function processMultiValues($type, array $value)
@@ -402,7 +402,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  array  $value
+	 * @param  array $value
 	 * @return string
 	 */
 	private function processValues($type, array $value)
@@ -424,7 +424,7 @@ class SqlProcessor
 
 	/**
 	 * @param  string $type
-	 * @param  array  $value
+	 * @param  array $value
 	 * @return string
 	 */
 	private function processWhere($type, array $value)
@@ -467,12 +467,11 @@ class SqlProcessor
 
 
 	/**
-	 * @param $value
+	 * @param  $value
 	 * @return float|string
 	 */
 	protected function getVariableTypeName($value)
 	{
 		return is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
 	}
-
 }

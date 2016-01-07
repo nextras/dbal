@@ -105,5 +105,4 @@ class ConnectionPanel implements IBarPanel
 
 		return trim($sql);
 	}
-
 }

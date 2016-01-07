@@ -287,5 +287,4 @@ class Result implements \SeekableIterator
 		$this->adapter->seek($index);
 		$this->iteratorIndex = $index - 1;
 	}
-
 }

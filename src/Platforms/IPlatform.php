@@ -11,7 +11,6 @@ namespace Nextras\Dbal\Platforms;
 
 interface IPlatform
 {
-
 	/**
 	 * Returns list of tables names indexed by table name.
 	 * @return array

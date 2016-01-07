@@ -11,7 +11,6 @@ namespace Nextras\Dbal\Utils;
 
 class PostgreArrayConverter
 {
-
 	/**
 	 * Converts Postgre string to PHP.
 	 * @param  string $string
@@ -107,5 +106,4 @@ class PostgreArrayConverter
 
 		return '{' . implode(',', $result) . '}';
 	}
-
 }

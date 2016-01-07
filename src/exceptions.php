@@ -53,10 +53,10 @@ class DriverException extends Exception
 
 
 	/**
-	 * @param string    $message
-	 * @param int       $errorCode
-	 * @param string    $errorSqlState
-	 * @param Exception $previousException
+	 * @param  string $message
+	 * @param  int $errorCode
+	 * @param  string $errorSqlState
+	 * @param  Exception $previousException
 	 */
 	public function __construct($message, $errorCode = 0, $errorSqlState = '', Exception $previousException = NULL)
 	{

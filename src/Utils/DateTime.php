@@ -11,7 +11,6 @@ namespace Nextras\Dbal\Utils;
 
 class DateTime extends \DateTime
 {
-
 	public function __toString()
 	{
 		return $this->format('c');
@@ -24,5 +23,4 @@ class DateTime extends \DateTime
 		$this->__construct('@' . $timestamp);
 		return $this->setTimeZone($zone);
 	}
-
 }

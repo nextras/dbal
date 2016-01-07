@@ -210,7 +210,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as SELECT clause. Passing NULL sets clause to the default state.
 	 * @param  string|NULL $expression
-	 * @param  mixed       ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function select($expression)
@@ -228,7 +228,7 @@ class QueryBuilder
 	/**
 	 * Adds expression to SELECT clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function addSelect($expression)
@@ -246,7 +246,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as WHERE clause. Passing NULL sets clause to the default state.
 	 * @param  string|NULL $expression
-	 * @param  mixed       ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function where($expression)
@@ -264,7 +264,7 @@ class QueryBuilder
 	/**
 	 * Adds expression with AND to WHERE clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function andWhere($expression)
@@ -282,7 +282,7 @@ class QueryBuilder
 	/**
 	 * Adds expression with OR to WHERE clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function orWhere($expression)
@@ -300,7 +300,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as GROUP BY clause. Passing NULL sets clause to the default state.
 	 * @param  string|NULL $expression
-	 * @param  mixed       ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function groupBy($expression)
@@ -318,7 +318,7 @@ class QueryBuilder
 	/**
 	 * Adds expression to GROUP BY clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function addGroupBy($expression)
@@ -336,7 +336,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as HAVING clause. Passing NULL sets clause to the default state.
 	 * @param  string|NULL $expression
-	 * @param  mixed       ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function having($expression)
@@ -354,7 +354,7 @@ class QueryBuilder
 	/**
 	 * Adds expression with AND to HAVING clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function andHaving($expression)
@@ -372,7 +372,7 @@ class QueryBuilder
 	/**
 	 * Adds expression with OR to HAVING clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function orHaving($expression)
@@ -390,7 +390,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as ORDER BY clause. Passing NULL sets clause to the default state.
 	 * @param  string|NULL $expression
-	 * @param  mixed       ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function orderBy($expression)
@@ -408,7 +408,7 @@ class QueryBuilder
 	/**
 	 * Adds expression to ORDER BY clause.
 	 * @param  string $expression
-	 * @param  mixed  ...$arg
+	 * @param  mixed ...$arg
 	 * @return self
 	 */
 	public function addOrderBy($expression)
@@ -459,7 +459,9 @@ class QueryBuilder
 	}
 
 
-	/** @return string[] */
+	/**
+	 * @return string[]
+	 */
 	private function getKnownAliases()
 	{
 		$knownAliases = [];
@@ -472,5 +474,4 @@ class QueryBuilder
 
 		return $knownAliases;
 	}
-
 }

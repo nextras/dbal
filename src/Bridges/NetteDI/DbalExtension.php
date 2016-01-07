@@ -17,7 +17,6 @@ use Tracy\Debugger;
 
 class DbalExtension extends CompilerExtension
 {
-
 	public function loadConfiguration()
 	{
 		$config = $this->getConfig();
@@ -47,5 +46,4 @@ class DbalExtension extends CompilerExtension
 			$definition->addSetup(ConnectionPanel::class . '::install', ['@self']);
 		}
 	}
-
 }

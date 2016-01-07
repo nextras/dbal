@@ -80,7 +80,9 @@ class MysqliDriver implements IDriver
 	}
 
 
-	/** @return mysqli */
+	/**
+	 * @return mysqli
+	 */
 	public function getResourceHandle()
 	{
 		return $this->connection;

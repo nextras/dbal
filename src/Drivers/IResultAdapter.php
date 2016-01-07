@@ -41,5 +41,4 @@ interface IResultAdapter
 	 * @return array
 	 */
 	public function getTypes();
-
 }

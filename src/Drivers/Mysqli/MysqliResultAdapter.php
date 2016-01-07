@@ -91,5 +91,4 @@ class MysqliResultAdapter implements IResultAdapter
 
 		return $types;
 	}
-
 }

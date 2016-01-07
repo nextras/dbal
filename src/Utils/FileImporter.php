@@ -16,18 +16,17 @@ use Nextras\Dbal\IOException;
 
 class FileImporter
 {
-
 	/**
 	 * Imports & executes queries from sql file.
 	 * Code taken from Adminer (http://www.adminer.org) & modified,
-	 * @author   Jakub Vrána
-	 * @author   Jan Tvrdík
-	 * @author   Michael Moravec
-	 * @author   Jan Škrášek
-	 * @license  Apache License
+	 * @author Jakub Vrána
+	 * @author Jan Tvrdík
+	 * @author Michael Moravec
+	 * @author Jan Škrášek
+	 * @license Apache License
 	 *
 	 * @param  Connection $connection
-	 * @param  string     $file path to imported file
+	 * @param  string $file path to imported file
 	 * @return int number of executed queries
 	 */
 	public static function executeFile(Connection $connection, $file)
@@ -87,5 +86,4 @@ class FileImporter
 
 		return $queries;
 	}
-
 }

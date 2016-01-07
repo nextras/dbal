@@ -65,7 +65,7 @@ interface IDriver
 
 	/**
 	 * Returns the last inseted id.
-	 * @param  string|NULL  $sequenceName
+	 * @param  string|NULL $sequenceName
 	 * @return mixed
 	 */
 	public function getLastInsertedId($sequenceName = NULL);
@@ -124,7 +124,7 @@ interface IDriver
 	/**
 	 * Converts database value to php boolean.
 	 * @param  string $value
-	 * @param  mixed  $nativeType
+	 * @param  mixed $nativeType
 	 * @return mixed
 	 */
 	public function convertToPhp($value, $nativeType);
@@ -189,7 +189,7 @@ interface IDriver
 
 	/**
 	 * Adds driver-specific limit clause to the query.
-	 * @param  string   $query
+	 * @param  string $query
 	 * @param  int|NULL $limit
 	 * @param  int|NULL $offset
 	 * @return string

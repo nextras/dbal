@@ -43,5 +43,4 @@ class Row
 		$closest = Typos::getClosest($name, array_keys($this->toArray()), 3);
 		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest ? ", did you mean '$closest'?" :  "."));
 	}
-
 }

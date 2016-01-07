@@ -131,7 +131,7 @@ class Connection
 
 	/**
 	 * Executes a query.
-	 * @param  mixed       ...$args
+	 * @param  mixed ...$args
 	 * @return Result|NULL
 	 * @throws QueryException
 	 */
@@ -150,7 +150,7 @@ class Connection
 
 	/**
 	 * @param  string|array $query
-	 * @param  array  $args
+	 * @param  array $args
 	 * @return Result|NULL
 	 * @throws QueryException
 	 */
@@ -335,7 +335,7 @@ class Connection
 
 	/**
 	 * @param  string $event
-	 * @param  array  $args
+	 * @param  array $args
 	 * @return void
 	 */
 	private function fireEvent($event, array $args)
@@ -344,5 +344,4 @@ class Connection
 			call_user_func_array($callback, $args);
 		}
 	}
-
 }

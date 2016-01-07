@@ -13,11 +13,10 @@ use Nextras\Dbal\QueryException;
 
 class BluescreenQueryPanel
 {
-
 	public static function renderBluescreenPanel($exception)
 	{
 		if (!$exception instanceof QueryException || !($query = $exception->getSqlQuery())) {
-			return;
+			return null;
 		}
 
 		return [
@@ -25,5 +24,4 @@ class BluescreenQueryPanel
 			'panel' => '<pre class="sql">' . ConnectionPanel::highlight($query) . "</pre>",
 		];
 	}
-
 }
