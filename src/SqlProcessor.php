@@ -19,6 +19,9 @@ class SqlProcessor
 	/** @var LazyHashMap */
 	private $identifiers;
 
+	/** @var callable[] (string $name => callable $handler) */
+	private $handlers;
+
 	/** @var array (name => [supports ?, supports [], expected type]) */
 	protected $modifiers = [
 		// expressions
@@ -112,6 +115,11 @@ class SqlProcessor
 	 */
 	public function processModifier($type, $value)
 	{
+		if (isset($this->handlers[$value])) {
+			$handler = $this->handlers[$type];
+			return call_user_func_array($handler, func_get_args());
+		}
+
 		switch (gettype($value)) {
 			case 'string':
 				switch ($type) {
@@ -473,6 +481,23 @@ class SqlProcessor
 	protected function getVariableTypeName($value)
 	{
 		return is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+	}
+
+
+	/**
+	 * Invoked from processModifier.
+	 * Overrides existing modifiers.
+	 *
+	 * @param string   $type
+	 * @param callable $handler (string $type, mixed  $value)
+	 */
+	public function registerModifierProcessor($type, callable $handler)
+	{
+		if (!is_string($type) && !is_int($type)) {
+			$type = gettype($type);
+			throw new InvalidArgumentException("Modifier type expected to be string-like scalar, '$type' given.");
+		}
+		$this->handlers[$type] = $handler;
 	}
 
 }
