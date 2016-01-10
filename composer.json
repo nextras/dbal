@@ -16,6 +16,7 @@
 	},
 	"require-dev": {
 		"nette/tester": "~1.4 != 1.6.1",
+		"nette/caching": "~2.2",
 		"mockery/mockery": "~0.9",
 		"tracy/tracy": "~2.3",
 		"nette/di": "~2.3",
