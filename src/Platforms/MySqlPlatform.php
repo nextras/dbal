@@ -23,6 +23,12 @@ class MySqlPlatform implements IPlatform
 	}
 
 
+	public function getName()
+	{
+		return 'mysql';
+	}
+
+
 	public function getTables()
 	{
 		$tables = [];

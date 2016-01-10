@@ -12,6 +12,13 @@ namespace Nextras\Dbal\Platforms;
 interface IPlatform
 {
 	/**
+	 * Returns platform name.
+	 * @return string
+	 */
+	public function getName();
+
+
+	/**
 	 * Returns list of tables names indexed by table name.
 	 * @return array
 	 */

@@ -23,6 +23,12 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
+	public function getName()
+	{
+        return 'postgresql';
+	}
+
+
 	public function getTables()
 	{
 		$result = $this->connection->query("

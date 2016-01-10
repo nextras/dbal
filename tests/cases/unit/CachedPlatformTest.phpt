@@ -164,6 +164,13 @@ class CachedPlatformTest extends TestCase
 		$cols = $this->platform->getPrimarySequenceName('foo');
 		Assert::same($expectedPs, $cols);
 	}
+
+
+	public function testName()
+	{
+		$this->platformMock->shouldReceive('getName')->once()->andReturn('foo');
+		Assert::same('foo', $this->platform->getName());
+	}
 }
 
 

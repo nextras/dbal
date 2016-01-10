@@ -145,6 +145,12 @@ class PlatformPostgreTest extends IntegrationTestCase
 	{
 		Assert::same('books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
 	}
+
+
+	public function testName()
+	{
+		Assert::same('postgresql', $this->connection->getPlatform()->getName());
+	}
 }
 
 

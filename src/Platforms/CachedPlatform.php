@@ -30,6 +30,12 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	public function getName()
+	{
+		return $this->platform->getName();
+	}
+
+
 	public function getTables()
 	{
 		return $this->cache->load('tables', function () {
