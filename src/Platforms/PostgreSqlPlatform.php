@@ -112,4 +112,15 @@ class PostgreSqlPlatform implements IPlatform
 		}
 		return $keys;
 	}
+
+
+	public function getPrimarySequenceName($table)
+	{
+		foreach ($this->getColumns($table) as $column) {
+			if ($column['is_primary']) {
+				return $column['sequence'];
+			}
+		}
+		return null;
+	}
 }

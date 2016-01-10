@@ -30,4 +30,13 @@ interface IPlatform
 	 * @return array
 	 */
 	public function getForeignKeys($table);
+
+
+	/**
+	 * Returns primary sequence name for the table.
+	 * If not supported nor present, returns a null.
+	 * @param  string $table
+	 * @return string|null
+	 */
+	public function getPrimarySequenceName($table);
 }

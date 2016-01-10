@@ -132,6 +132,11 @@ class PlatformMysqlTest extends IntegrationTestCase
 		], $keys);
 	}
 
+
+	public function testPrimarySequence()
+	{
+		Assert::null($this->connection->getPlatform()->getPrimarySequenceName('books'));
+	}
 }
 
 

@@ -140,6 +140,11 @@ class PlatformPostgreTest extends IntegrationTestCase
 		], $keys);
 	}
 
+
+	public function testPrimarySequence()
+	{
+		Assert::same('books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
+	}
 }
 
 

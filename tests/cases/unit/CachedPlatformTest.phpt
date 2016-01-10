@@ -137,6 +137,33 @@ class CachedPlatformTest extends TestCase
 		$cols = $this->platform->getForeignKeys('foo');
 		Assert::same($expectedFk, $cols);
 	}
+
+
+	public function testQueryPS()
+	{
+		$expectedPs = 'ps_name';
+		$this->storageMock
+			->shouldReceive('read')
+			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00bd00c4ff6d83b5c76532c1ed83cb7855")
+			->once()
+			->andReturnNull();
+		$this->storageMock
+			->shouldReceive('lock')
+			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00bd00c4ff6d83b5c76532c1ed83cb7855")
+			->once();
+		$this->storageMock
+			->shouldReceive('write')
+			->with(
+				"nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00bd00c4ff6d83b5c76532c1ed83cb7855",
+				$expectedPs,
+				[]
+			)
+			->once();
+		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn($expectedPs);
+
+		$cols = $this->platform->getPrimarySequenceName('foo');
+		Assert::same($expectedPs, $cols);
+	}
 }
 
 

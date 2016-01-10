@@ -81,4 +81,10 @@ class MySqlPlatform implements IPlatform
 		}
 		return $keys;
 	}
+
+
+	public function getPrimarySequenceName($table)
+	{
+		return null;
+	}
 }

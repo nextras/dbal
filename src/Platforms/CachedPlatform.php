@@ -54,6 +54,14 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	public function getPrimarySequenceName($table)
+	{
+		return $this->cache->load('seq.' . md5($table), function () use ($table) {
+			return $this->platform->getPrimarySequenceName($table);
+		});
+	}
+
+
 	public function clearCache()
 	{
 		$this->cache->clean();
