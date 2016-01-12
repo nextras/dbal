@@ -447,6 +447,16 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * Returns limit and offset clause arguments.
+	 * @return array|NULL
+	 */
+	public function getLimitOffsetClause()
+	{
+		return $this->limit;
+	}
+
+
 	private function dirty()
 	{
 		$this->generatedSql = NULL;
