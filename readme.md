@@ -1,4 +1,4 @@
-Nextras\Dbal
+Nextras Dbal
 ============
 
 [![Build Status](https://travis-ci.org/nextras/dbal.svg?branch=master)](https://travis-ci.org/nextras/dbal)
