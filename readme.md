@@ -17,7 +17,7 @@ $ composer require nextras/dbal
 
 ### Docs & sources
 
-- [Documentation](http://nextras.cz/dbal/docs)
+- [Documentation](https://nextras.org/dbal/docs)
 
 ### Thanks
 
