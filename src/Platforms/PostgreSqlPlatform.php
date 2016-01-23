@@ -25,7 +25,7 @@ class PostgreSqlPlatform implements IPlatform
 
 	public function getName()
 	{
-        return 'postgresql';
+		return 'postgresql';
 	}
 
 
