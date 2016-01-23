@@ -9,7 +9,6 @@
 namespace Nextras\Dbal\Platforms;
 
 use Nette\Caching\Cache;
-use Nette\Caching\IStorage;
 use Nextras\Dbal\Connection;
 
 
@@ -22,11 +21,10 @@ class CachedPlatform implements IPlatform
 	private $cache;
 
 
-	public function __construct(Connection $connection, IStorage $storage)
+	public function __construct(Connection $connection, Cache $cache)
 	{
-		$key = md5(json_encode($connection->getConfig()));
 		$this->platform = $connection->getPlatform();
-		$this->cache = new Cache($storage, "nextras.dbal.platform.$key");
+		$this->cache = $cache;
 	}
 
 
@@ -46,7 +44,7 @@ class CachedPlatform implements IPlatform
 
 	public function getColumns($table)
 	{
-		return $this->cache->load('column.' . md5($table), function () use ($table) {
+		return $this->cache->load('columns.' . $table, function () use ($table) {
 			return $this->platform->getColumns($table);
 		});
 	}
@@ -54,7 +52,7 @@ class CachedPlatform implements IPlatform
 
 	public function getForeignKeys($table)
 	{
-		return $this->cache->load('fk.' . md5($table), function () use ($table) {
+		return $this->cache->load('foreign_keys.' . $table, function () use ($table) {
 			return $this->platform->getForeignKeys($table);
 		});
 	}
@@ -62,7 +60,7 @@ class CachedPlatform implements IPlatform
 
 	public function getPrimarySequenceName($table)
 	{
-		return $this->cache->load('seq.' . md5($table), function () use ($table) {
+		return $this->cache->load('sequence.' . $table, function () use ($table) {
 			return $this->platform->getPrimarySequenceName($table);
 		});
 	}

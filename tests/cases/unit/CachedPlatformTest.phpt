@@ -8,6 +8,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery;
 use Mockery\MockInterface;
+use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Platforms\CachedPlatform;
@@ -35,9 +36,8 @@ class CachedPlatformTest extends TestCase
 		$this->storageMock = Mockery::mock(IStorage::class);
 		$this->platformMock = Mockery::mock(IPlatform::class);
 		$connection = Mockery::mock(Connection::class)->makePartial();
-		$connection->shouldReceive('getConfig')->once()->andReturn('config');
 		$connection->shouldReceive('getPlatform')->once()->andReturn($this->platformMock);
-		$this->platform = new CachedPlatform($connection, $this->storageMock);
+		$this->platform = new CachedPlatform($connection, new Cache($this->storageMock));
 	}
 
 
@@ -46,7 +46,7 @@ class CachedPlatformTest extends TestCase
 		$expectedCols = ['one', 'two'];
 		$this->storageMock
 			->shouldReceive('read')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x000985fd27fe963fac675ad2583368ec15")
+			->with("\x0005ea2f805e9af249b1ac88227bef0153")
 			->once()
 			->andReturn($expectedCols);
 
@@ -63,17 +63,17 @@ class CachedPlatformTest extends TestCase
 		$expectedCols = ['one', 'two'];
 		$this->storageMock
 			->shouldReceive('read')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x000985fd27fe963fac675ad2583368ec15")
+			->with("\x0005ea2f805e9af249b1ac88227bef0153")
 			->once()
 			->andReturnNull();
 		$this->storageMock
 			->shouldReceive('lock')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x000985fd27fe963fac675ad2583368ec15")
+			->with("\x0005ea2f805e9af249b1ac88227bef0153")
 			->once();
 		$this->storageMock
 			->shouldReceive('write')
 			->with(
-				"nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x000985fd27fe963fac675ad2583368ec15",
+				"\x0005ea2f805e9af249b1ac88227bef0153",
 				$expectedCols,
 				[]
 			)
@@ -90,17 +90,17 @@ class CachedPlatformTest extends TestCase
 		$expectedTables = ['one', 'two'];
 		$this->storageMock
 			->shouldReceive('read')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x009ab2ec7ea4a2041306f7bdf150fcd453")
+			->with("\x009ab2ec7ea4a2041306f7bdf150fcd453")
 			->once()
 			->andReturnNull();
 		$this->storageMock
 			->shouldReceive('lock')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x009ab2ec7ea4a2041306f7bdf150fcd453")
+			->with("\x009ab2ec7ea4a2041306f7bdf150fcd453")
 			->once();
 		$this->storageMock
 			->shouldReceive('write')
 			->with(
-				"nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x009ab2ec7ea4a2041306f7bdf150fcd453",
+				"\x009ab2ec7ea4a2041306f7bdf150fcd453",
 				$expectedTables,
 				[]
 			)
@@ -117,17 +117,17 @@ class CachedPlatformTest extends TestCase
 		$expectedFk = ['one', 'two'];
 		$this->storageMock
 			->shouldReceive('read')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00d2838f5cf9b11857f7b84b4f490b4227")
+			->with("\x00863afe09d043892931f27823c1905607")
 			->once()
 			->andReturnNull();
 		$this->storageMock
 			->shouldReceive('lock')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00d2838f5cf9b11857f7b84b4f490b4227")
+			->with("\x00863afe09d043892931f27823c1905607")
 			->once();
 		$this->storageMock
 			->shouldReceive('write')
 			->with(
-				"nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00d2838f5cf9b11857f7b84b4f490b4227",
+				"\x00863afe09d043892931f27823c1905607",
 				$expectedFk,
 				[]
 			)
@@ -144,17 +144,17 @@ class CachedPlatformTest extends TestCase
 		$expectedPs = 'ps_name';
 		$this->storageMock
 			->shouldReceive('read')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00bd00c4ff6d83b5c76532c1ed83cb7855")
+			->with("\x007d7dae355d8345dd9301de988fd0eff7")
 			->once()
 			->andReturnNull();
 		$this->storageMock
 			->shouldReceive('lock')
-			->with("nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00bd00c4ff6d83b5c76532c1ed83cb7855")
+			->with("\x007d7dae355d8345dd9301de988fd0eff7")
 			->once();
 		$this->storageMock
 			->shouldReceive('write')
 			->with(
-				"nextras.dbal.platform.b5ad707c2b9f71ed843ba3004e50b37d\x00bd00c4ff6d83b5c76532c1ed83cb7855",
+				"\x007d7dae355d8345dd9301de988fd0eff7",
 				$expectedPs,
 				[]
 			)
