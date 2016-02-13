@@ -90,13 +90,17 @@ class ResultTest extends TestCase
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
+		$adapter->shouldReceive('fetch')->times(3)->andReturn(['name' => 'First', 'surname' => 'Two']);
 
 		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
 		$result->setValueNormalization(FALSE);
 		Assert::same('First', $result->fetchField());
+		Assert::same('Two', $result->fetchField(1));
+		Assert::throws(function () use ($result) {
+			$result->fetchField(2);
+		}, InvalidArgumentException::class);
 
 
 		$adapter = Mockery::mock(IResultAdapter::class);

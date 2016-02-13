@@ -1,0 +1,54 @@
+Result
+######
+
+Connection::query() methods returns `Nextras\Dbal\Result\Result` instance. You can call fetching methods to get the fetched data.
+
+- `Result::fetchAll()` returns array of `Nextras\Dbal\Result\Row` instances.
+- `Result::fetch()` returns the next unfetched `Row` instance.
+- `Result::fetchField($column)` returns nth column of the next unfetched `Row` instance.
+- `Result::fetchPairs($key, $value)` allows to transform all fetcher `Row` instances into associative array.
+
+/--php
+$result = $connection->query('SELECT ...');
+foreach ($result as $row) { // equals to $result->fetchAll() as $row
+}
+
+
+$result = $connection->query('SELECT ...');
+$row = $result->fetch();
+
+
+$result = $connection->query('SELECT name FROM ...');
+$name = $result->fetchField();
+
+
+$result = $connection->query('SELECT name, age FROM ...');
+$assoc = $result->fetchPairs('name', 'age');
+// ['peter' => 20, 'john' => 13]
+
+$assoc = $result->fetchPairs(null, 'age');
+// [20, 13]
+
+$assoc = $result->fetchPairs('name', null);
+// [
+//  'peter' => ['name' => 'peter', 'age' => 20],
+//  'john' => ['name' => 'john', 'age' => 13],
+// ]
+\--
+
+
+Row
+===
+
+Row instances holds the data of specific fetched result-row. You can access data by property access and the column name. Optionally, you can use array access for the indexed read.
+
+/--php
+$row = $connection->query('SELECT name, age FROM ...')->fetch();
+
+echo $row->name;
+echo $row->age;
+
+echo $row[0]; // prints name
+isset($row[1]) // true
+isset($row[2]) // false
+\--

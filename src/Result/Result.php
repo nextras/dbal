@@ -105,14 +105,13 @@ class Result implements \SeekableIterator
 
 
 	/**
+	 * @param  int $column
 	 * @return mixed|NULL
 	 */
-	public function fetchField()
+	public function fetchField($column = 0)
 	{
 		if ($row = $this->fetch()) { // = intentionally
-			foreach ($row as $value) {
-				return $value;
-			}
+			return $row[$column];
 		}
 
 		return NULL;
