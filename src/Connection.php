@@ -214,15 +214,17 @@ class Connection
 
 	/**
 	 * Performs operation in a transaction.
-	 * @param  callable $callback function(Connection $conn): void
+	 * @param  callable $callback function(Connection $conn): mixed
+	 * @return mixed value returned by callback
 	 * @throws \Exception
 	 */
 	public function transactional(callable $callback)
 	{
 		$this->beginTransaction();
 		try {
-			$callback($this);
+			$returnValue = $callback($this);
 			$this->commitTransaction();
+			return $returnValue;
 
 		} catch (\Exception $e) {
 			$this->rollbackTransaction();

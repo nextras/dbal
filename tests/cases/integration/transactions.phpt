@@ -77,17 +77,20 @@ class TransactionsTest extends IntegrationTestCase
 	public function testTransactionalOk()
 	{
 		$this->lockConnection($this->connection);
-		$this->connection->transactional(function(Connection $connection) {
+		$returnValue = $this->connection->transactional(function(Connection $connection) {
 			$connection->query('INSERT INTO tags %values', [
 				'name' => '_TRANS_TRANSACTIONAL_OK_'
 			]);
 
 			Assert::same(1, $connection->getAffectedRows());
 			Assert::same(1, $connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_OK_')->fetchField());
+
+			return 42;
 		});
 
 		$this->connection->reconnect();
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_OK_')->fetchField());
+		Assert::same(42, $returnValue);
 	}
 
 }
