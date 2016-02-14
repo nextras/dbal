@@ -214,8 +214,8 @@ class Connection
 
 	/**
 	 * Performs operation in a transaction.
-	 * @param  callable $callback function(Connection $conn): void
-	 * @return mixed
+	 * @param  callable $callback function(Connection $conn): mixed
+	 * @return mixed value returned by callback
 	 * @throws \Exception
 	 */
 	public function transactional(callable $callback)
