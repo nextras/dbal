@@ -5,7 +5,6 @@ Nextras Dbal
 [![Downloads this Month](https://img.shields.io/packagist/dm/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Stable version](http://img.shields.io/packagist/v/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Code coverage](https://img.shields.io/coveralls/nextras/dbal.svg?style=flat)](https://coveralls.io/r/nextras/dbal)
-[![HHVM Status](http://img.shields.io/hhvm/nextras/dbal.svg?style=flat)](http://hhvm.h4cc.de/package/nextras/dbal)
 
 ### Installation
 
@@ -18,6 +17,7 @@ $ composer require nextras/dbal
 ### Docs & sources
 
 - [Documentation](https://nextras.org/dbal/docs)
+- [Api Documentation](https://codedoc.pub/nextras/dbal)
 
 ### Thanks
 
