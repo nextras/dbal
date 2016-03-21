@@ -86,7 +86,7 @@ $connection->query('INSERT INTO [users] %values[]', [
 // INSERT INTO `users` (`name`) VALUES ('Jon Snow'), ('The Imp')
 
 
-$connection->query('UPDATE [users] %set WHERE [id] = %i', [
+$connection->query('UPDATE [users] SET %set WHERE [id] = %i', [
     'name' => 'Jon Snow'
 ], 1);
 // UPDATE `users` SET `name` = 'Jon Snow' WHERE `id` = 1
