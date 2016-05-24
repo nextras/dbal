@@ -30,6 +30,7 @@ Other available modifiers:
 |* `%column`, `%column[]`  | escapes string as column name, surrounding parentheses are not added to `%column[]` modifier
 |* `%ex`                   | expands array as processor arguments
 |* `%raw`                  | inserts string argument as is
+|* `%%`                    | escapes to single `%` (useful in `date_format()`, etc.)
 
 `%ex` modifier expands passed array as arguments of new `query()` method call.
 
