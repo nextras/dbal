@@ -379,12 +379,15 @@ class SqlProcessor
 	{
 		if (empty($value)) {
 			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
-		} elseif (empty($value[0])) {
+		}
+
+		$firstSubValue = reset($value);
+		if (empty($firstSubValue)) {
 			return 'VALUES ' . str_repeat('(DEFAULT), ', count($value) - 1) . '(DEFAULT)';
 		}
 
 		$keys = $values = [];
-		foreach (array_keys($value[0]) as $key) {
+		foreach (array_keys($firstSubValue) as $key) {
 			$keys[] = $this->identifiers->{explode('%', $key, 2)[0]};
 		}
 		foreach ($value as $subValue) {
