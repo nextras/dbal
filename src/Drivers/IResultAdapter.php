@@ -24,21 +24,19 @@ interface IResultAdapter
 
 
 	/**
-	 * @param  int $index
 	 * @throws InvalidStateException
 	 */
-	public function seek($index);
+	public function seek(int $index);
 
 
 	/**
-	 * @return array
+	 * @return array|null
 	 */
 	public function fetch();
 
 
 	/**
 	 * Returns rowset set column types, array of [type, nativeType]
-	 * @return array
 	 */
-	public function getTypes();
+	public function getTypes(): array;
 }

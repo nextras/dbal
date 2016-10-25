@@ -58,9 +58,8 @@ class SqlProcessor
 
 	/**
 	 * @param  mixed[] $args
-	 * @return string
 	 */
-	public function process(array $args)
+	public function process(array $args): string
 	{
 		$last = count($args) - 1;
 		$fragments = [];
@@ -106,11 +105,9 @@ class SqlProcessor
 
 
 	/**
-	 * @param  string $type
 	 * @param  mixed $value
-	 * @return string
 	 */
-	public function processModifier($type, $value)
+	public function processModifier(string $type, $value): string
 	{
 		switch (gettype($value)) {
 			case 'string':
@@ -138,7 +135,7 @@ class SqlProcessor
 						if ($value === '*') {
 							return '*';
 						}
-						// intential pass-through
+						// intentional pass-through
 					case 'table':
 						return $this->identifiers->$value;
 
@@ -310,12 +307,10 @@ class SqlProcessor
 
 
 	/**
-	 * @param  string $type
 	 * @param  mixed $value
-	 * @param  string $expectedType
 	 * @return void
 	 */
-	protected function throwInvalidValueTypeException($type, $value, $expectedType)
+	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType)
 	{
 		$actualType = $this->getVariableTypeName($value);
 		throw new InvalidArgumentException("Modifier %$type expects value to be $expectedType, $actualType given.");
@@ -323,24 +318,17 @@ class SqlProcessor
 
 
 	/**
-	 * @param  string $type
 	 * @param  mixed $value
-	 * @param  string $hint
 	 * @return void
 	 */
-	protected function throwWrongModifierException($type, $value, $hint)
+	protected function throwWrongModifierException(string $type, $value, string $hint)
 	{
 		$valueLabel = is_scalar($value) ? var_export($value, TRUE) : gettype($value);
 		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");
 	}
 
 
-	/**
-	 * @param  string $type
-	 * @param  array  $value
-	 * @return string
-	 */
-	protected function processArray($type, array $value)
+	protected function processArray(string $type, array $value): string
 	{
 		$subType = substr($type, 0, -2);
 		foreach ($value as &$subValue) {
@@ -351,12 +339,7 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param  string $type
-	 * @param  array $value
-	 * @return string
-	 */
-	protected function processSet($type, array $value)
+	protected function processSet(string $type, array $value): string
 	{
 		$values = [];
 		foreach ($value as $_key => $val) {
@@ -370,12 +353,7 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param  string $type
-	 * @param  array $value
-	 * @return string
-	 */
-	protected function processMultiValues($type, array $value)
+	protected function processMultiValues(string $type, array $value): string
 	{
 		if (empty($value)) {
 			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
@@ -400,12 +378,7 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param  string $type
-	 * @param  array $value
-	 * @return string
-	 */
-	private function processValues($type, array $value)
+	private function processValues(string $type, array $value): string
 	{
 		if (empty($value)) {
 			return 'VALUES (DEFAULT)';
@@ -422,12 +395,7 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param  string $type
-	 * @param  array $value
-	 * @return string
-	 */
-	private function processWhere($type, array $value)
+	private function processWhere(string $type, array $value): string
 	{
 		if (count($value) === 0) {
 			return '1=1';
@@ -467,7 +435,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param  $value
+	 * @param  mixed $value
 	 * @return float|string
 	 */
 	protected function getVariableTypeName($value)

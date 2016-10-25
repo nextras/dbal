@@ -13,37 +13,32 @@ interface IPlatform
 {
 	/**
 	 * Returns platform name.
-	 * @return string
 	 */
-	public function getName();
+	public function getName(): string;
 
 
 	/**
 	 * Returns list of tables names indexed by table name.
-	 * @return array
 	 */
-	public function getTables();
+	public function getTables(): array;
 
 
 	/**
 	 * Returns list of table columns metadata, indexed by column name.
-	 * @return array
 	 */
-	public function getColumns($table);
+	public function getColumns(string $table): array;
 
 
 	/**
 	 * Returns list of table foreign keys, indexed by column name.
-	 * @return array
 	 */
-	public function getForeignKeys($table);
+	public function getForeignKeys(string $table): array;
 
 
 	/**
 	 * Returns primary sequence name for the table.
 	 * If not supported nor present, returns a null.
-	 * @param  string $table
 	 * @return string|null
 	 */
-	public function getPrimarySequenceName($table);
+	public function getPrimarySequenceName(string $table);
 }

@@ -16,9 +16,6 @@ use Nextras\Dbal\Utils\Typos;
 
 class Row implements ArrayAccess
 {
-	/**
-	 * @param  array $data
-	 */
 	public function __construct(array $data)
 	{
 		foreach ($data as $key => $value) {
@@ -27,20 +24,16 @@ class Row implements ArrayAccess
 	}
 
 
-	/**
-	 * @return array
-	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return (array) $this;
 	}
 
 
 	/**
-	 * @param  string $name
 	 * @return mixed
 	 */
-	public function __get($name)
+	public function __get(string $name)
 	{
 		$closest = Typos::getClosest($name, array_keys($this->toArray()), 3);
 		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest ? ", did you mean '$closest'?" :  "."));

@@ -20,7 +20,7 @@ class Typos
 	 * @param  int $maxDistance
 	 * @return string|NULL
 	 */
-	public static function getClosest($current, array $words, $maxDistance)
+	public static function getClosest(string $current, array $words, int $maxDistance)
 	{
 		$shortest = $maxDistance + 1;
 		$closest = NULL;

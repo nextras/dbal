@@ -16,7 +16,7 @@ class PostgreArrayConverter
 	 * @param  string $string
 	 * @return array|NULL
 	 */
-	public static function toPhp($string, $start = 0, & $end = NULL)
+	public static function toPhp(string $string, $start = 0, & $end = NULL)
 	{
 		if (empty($string) || $string[0] != '{') {
 			return NULL;
@@ -82,7 +82,7 @@ class PostgreArrayConverter
 	 * @param  array|NULL $array
 	 * @return string
 	 */
-	public static function toSql($array)
+	public static function toSql($array): string
 	{
 		if ($array === NULL) {
 			return '';

@@ -192,6 +192,7 @@ class SqlProcessorWhereTest extends TestCase
 	 */
 	public function testInvalid($type, $value, $message)
 	{
+		$this->driver->shouldReceive('convertIdentifierToSql')->andReturn('`col`');
 		$this->driver->shouldIgnoreMissing();
 		Assert::throws(
 			function() use ($type, $value) {

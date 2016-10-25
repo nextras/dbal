@@ -52,27 +52,21 @@ class DriverException extends Exception
 	private $errorSqlState;
 
 
-	/**
-	 * @param  string $message
-	 * @param  int $errorCode
-	 * @param  string $errorSqlState
-	 * @param  Exception $previousException
-	 */
-	public function __construct($message, $errorCode = 0, $errorSqlState = '', Exception $previousException = NULL)
+	public function __construct(string $message, int $errorCode = 0, string $errorSqlState = NULL, Exception $previousException = NULL)
 	{
 		parent::__construct($message, 0, $previousException);
-		$this->errorCode = (int) $errorCode;
-		$this->errorSqlState = $errorSqlState;
+		$this->errorCode = $errorCode;
+		$this->errorSqlState = (string) $errorSqlState;
 	}
 
 
-	public function getErrorCode()
+	public function getErrorCode(): int
 	{
 		return $this->errorCode;
 	}
 
 
-	public function getErrorSqlState()
+	public function getErrorSqlState(): string
 	{
 		return $this->errorSqlState;
 	}
@@ -86,14 +80,14 @@ class QueryException extends DriverException
 	private $sqlQuery;
 
 
-	public function __construct($message, $errorCode = 0, $errorSqlState = '', $previousException = NULL, $sqlQuery = NULL)
+	public function __construct(string $message, int $errorCode = 0, string $errorSqlState = '', Exception $previousException = NULL, string $sqlQuery = NULL)
 	{
 		parent::__construct($message, $errorCode, $errorSqlState, $previousException);
 		$this->sqlQuery = (string) $sqlQuery;
 	}
 
 
-	public function getSqlQuery()
+	public function getSqlQuery(): string
 	{
 		return $this->sqlQuery;
 	}

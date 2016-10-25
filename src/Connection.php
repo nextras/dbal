@@ -110,10 +110,7 @@ class Connection
 	}
 
 
-	/**
-	 * @return IDriver
-	 */
-	public function getDriver()
+	public function getDriver(): IDriver
 	{
 		return $this->driver;
 	}
@@ -121,9 +118,8 @@ class Connection
 
 	/**
 	 * Returns connection configuration.
-	 * @return array
 	 */
-	public function getConfig()
+	public function getConfig(): array
 	{
 		return $this->config;
 	}
@@ -135,10 +131,9 @@ class Connection
 	 * @return Result|NULL
 	 * @throws QueryException
 	 */
-	public function query(/*...$args*/)
+	public function query(...$args)
 	{
 		$this->connected || $this->connect();
-		$args = func_get_args();
 		$sql = $this->sqlPreprocessor->process($args);
 
 		$result = $this->driver->query($sql);
@@ -167,10 +162,9 @@ class Connection
 
 	/**
 	 * Returns last inserted ID.
-	 * @param  string|NULL $sequenceName
 	 * @return int|string
 	 */
-	public function getLastInsertedId($sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = NULL)
 	{
 		$this->connected || $this->connect();
 		return $this->driver->getLastInsertedId($sequenceName);
@@ -179,19 +173,15 @@ class Connection
 
 	/**
 	 * Returns number of affected rows.
-	 * @return int
 	 */
-	public function getAffectedRows()
+	public function getAffectedRows(): int
 	{
 		$this->connected || $this->connect();
 		return $this->driver->getAffectedRows();
 	}
 
 
-	/**
-	 * @return IPlatform
-	 */
-	public function getPlatform()
+	public function getPlatform(): IPlatform
 	{
 		if ($this->platform === NULL) {
 			$this->connected || $this->connect();
@@ -202,11 +192,7 @@ class Connection
 	}
 
 
-	/**
-	 * Creates new QueryBuilder instance.
-	 * @return QueryBuilder
-	 */
-	public function createQueryBuilder()
+	public function createQueryBuilder(): QueryBuilder
 	{
 		return new QueryBuilder($this->driver);
 	}
@@ -274,7 +260,7 @@ class Connection
 	 * Pings a database connection and tries to reconnect it if it is broken.
 	 * @return bool
 	 */
-	public function ping()
+	public function ping(): bool
 	{
 		try {
 			$this->connected || $this->connect();
@@ -288,10 +274,8 @@ class Connection
 
 	/**
 	 * Processes config: fills defaults, creates aliases, processes dynamic values.
-	 * @param  array $config
-	 * @return array
 	 */
-	private function processConfig(array $config)
+	private function processConfig(array $config): array
 	{
 		if (!isset($config['dbname']) && isset($config['database'])) {
 			$config['dbname'] = $config['database'];
@@ -316,10 +300,8 @@ class Connection
 
 	/**
 	 * Creates a IDriver instance.
-	 * @param  array $config
-	 * @return IDriver
 	 */
-	private function createDriver(array $config)
+	private function createDriver(array $config): IDriver
 	{
 		if (empty($config['driver'])) {
 			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql.');
@@ -336,11 +318,9 @@ class Connection
 
 
 	/**
-	 * @param  string $event
-	 * @param  array $args
 	 * @return void
 	 */
-	private function fireEvent($event, array $args)
+	private function fireEvent(string $event, array $args)
 	{
 		foreach ($this->$event as $callback) {
 			call_user_func_array($callback, $args);

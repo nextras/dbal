@@ -23,13 +23,13 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getName()
+	public function getName(): string
 	{
 		return 'mysql';
 	}
 
 
-	public function getTables()
+	public function getTables(): array
 	{
 		$tables = [];
 		foreach ($this->connection->query('SHOW FULL TABLES') as $row) {
@@ -43,7 +43,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getColumns($table)
+	public function getColumns(string $table): array
 	{
 		$columns = [];
 		foreach ($this->connection->query('SHOW FULL COLUMNS FROM %table', $table) as $row) {
@@ -63,7 +63,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getForeignKeys($table)
+	public function getForeignKeys(string $table): array
 	{
 		$result = $this->connection->query('
 			SELECT
@@ -91,7 +91,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName($table)
+	public function getPrimarySequenceName(string $table)
 	{
 		return null;
 	}

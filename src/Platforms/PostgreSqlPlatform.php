@@ -23,13 +23,13 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function getName()
+	public function getName(): string
 	{
 		return 'postgresql';
 	}
 
 
-	public function getTables()
+	public function getTables(): array
 	{
 		$result = $this->connection->query("
 			SELECT
@@ -55,7 +55,7 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function getColumns($table)
+	public function getColumns(string $table): array
 	{
 		$result = $this->connection->query("
 			SELECT
@@ -91,7 +91,7 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function getForeignKeys($table)
+	public function getForeignKeys(string $table): array
 	{
 		$result = $this->connection->query("
 			SELECT
@@ -120,7 +120,7 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName($table)
+	public function getPrimarySequenceName(string $table)
 	{
 		foreach ($this->getColumns($table) as $column) {
 			if ($column['is_primary']) {

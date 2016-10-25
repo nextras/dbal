@@ -18,17 +18,16 @@ abstract class LazyHashMapBase
 	private $callback;
 
 
-	public function __construct($callback)
+	public function __construct(callable $callback)
 	{
 		$this->callback = $callback;
 	}
 
 
 	/**
-	 * @param  string $key
 	 * @return mixed
 	 */
-	protected function load($key)
+	protected function load(string $key)
 	{
 		return call_user_func($this->callback, $key);
 	}
@@ -46,7 +45,7 @@ final class LazyHashMap extends LazyHashMapBase
 	 * @param  string $key
 	 * @return mixed
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		return $this->$key = $this->load($key);
 	}

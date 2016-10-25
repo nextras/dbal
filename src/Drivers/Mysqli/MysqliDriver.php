@@ -19,6 +19,7 @@ use Nextras\Dbal\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
@@ -74,22 +75,19 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function isConnected()
+	public function isConnected(): bool
 	{
 		return $this->connection !== NULL;
 	}
 
 
-	/**
-	 * @return mysqli
-	 */
-	public function getResourceHandle()
+	public function getResourceHandle(): mysqli
 	{
 		return $this->connection;
 	}
 
 
-	public function query($query)
+	public function query(string $query)
 	{
 		$time = microtime(TRUE);
 		$result = @$this->connection->query($query);
@@ -112,25 +110,25 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId($sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = NULL)
 	{
 		return $this->connection->insert_id;
 	}
 
 
-	public function getAffectedRows()
+	public function getAffectedRows(): int
 	{
 		return $this->connection->affected_rows;
 	}
 
 
-	public function createPlatform(Connection $connection)
+	public function createPlatform(Connection $connection): IPlatform
 	{
 		return new MySqlPlatform($connection);
 	}
 
 
-	public function getServerVersion()
+	public function getServerVersion(): string
 	{
 		$version = $this->connection->server_version;
 		$majorVersion = floor($version / 10000);
@@ -140,7 +138,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function ping()
+	public function ping(): bool
 	{
 		return $this->connection->ping();
 	}
@@ -186,7 +184,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertToPhp($value, $nativeType)
+	public function convertToPhp(string $value, $nativeType)
 	{
 		if ($nativeType === MYSQLI_TYPE_DATETIME || $nativeType === MYSQLI_TYPE_DATE) {
 			return $value . ' ' . $this->simpleStorageTz->getName();
@@ -214,32 +212,32 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertStringToSql($value)
+	public function convertStringToSql(string $value): string
 	{
 		return "'" . $this->connection->escape_string($value) . "'";
 	}
 
 
-	public function convertLikeToSql($value, $mode)
+	public function convertLikeToSql(string $value, int $mode): string
 	{
 		$value = addcslashes(str_replace('\\', '\\\\', $value), "\x00\n\r\\'%_");
 		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
 	}
 
 
-	public function convertBoolToSql($value)
+	public function convertBoolToSql(bool $value): string
 	{
 		return $value ? '1' : '0';
 	}
 
 
-	public function convertIdentifierToSql($value)
+	public function convertIdentifierToSql(string $value): string
 	{
 		return str_replace('`*`', '*', '`' . str_replace(['`', '.'], ['``', '`.`'], $value) . '`');
 	}
 
 
-	public function convertDatetimeToSql($value)
+	public function convertDatetimeToSql(\DateTimeInterface $value): string
 	{
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
@@ -253,7 +251,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertDatetimeSimpleToSql($value)
+	public function convertDatetimeSimpleToSql(\DateTimeInterface $value): string
 	{
 		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
@@ -267,7 +265,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertDateIntervalToSql($value)
+	public function convertDateIntervalToSql(\DateInterval $value): string
 	{
 		$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
 		if ($totalHours >= 839) {
@@ -278,13 +276,13 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertBlobToSql($value)
+	public function convertBlobToSql(string $value): string
 	{
 		return "_binary'" . $this->connection->escape_string($value) . "'";
 	}
 
 
-	public function modifyLimitQuery($query, $limit, $offset)
+	public function modifyLimitQuery(string $query, $limit, $offset): string
 	{
 		if ($limit !== NULL || $offset !== NULL) {
 			// 18446744073709551615 is maximum of unsigned BIGINT

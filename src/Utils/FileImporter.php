@@ -29,7 +29,7 @@ class FileImporter
 	 * @param  string $file path to imported file
 	 * @return int number of executed queries
 	 */
-	public static function executeFile(Connection $connection, $file)
+	public static function executeFile(Connection $connection, string $file): int
 	{
 		$query = @file_get_contents($file);
 		if ($query === FALSE) {

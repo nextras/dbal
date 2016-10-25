@@ -179,27 +179,6 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 	}
 
 
-	public function testExceptions()
-	{
-		Assert::exception(function() { $this->builder()->select(1); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->addSelect(NULL); }, InvalidArgumentException::class);
-
-		Assert::exception(function() { $this->builder()->where(1); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->andWhere(NULL); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->orWhere(NULL); }, InvalidArgumentException::class);
-
-		Assert::exception(function() { $this->builder()->groupBy(1); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->addGroupBy(NULL); }, InvalidArgumentException::class);
-
-		Assert::exception(function() { $this->builder()->having(1); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->andHaving(NULL); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->orHaving(NULL); }, InvalidArgumentException::class);
-
-		Assert::exception(function() { $this->builder()->orderBy(1); }, InvalidArgumentException::class);
-		Assert::exception(function() { $this->builder()->addOrderBy(NULL); }, InvalidArgumentException::class);
-	}
-
-
 	public function testNulling()
 	{
 		$this->assertBuilder(

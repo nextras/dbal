@@ -18,6 +18,7 @@ use Nextras\Dbal\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
@@ -35,8 +36,8 @@ class PgsqlDriver implements IDriver
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
-	/** @var resource */
-	private $affectedRows;
+	/** @var int */
+	private $affectedRows = 0;
 
 
 	public function __destruct()
@@ -83,7 +84,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function isConnected()
+	public function isConnected(): bool
 	{
 		return $this->connection !== NULL;
 	}
@@ -95,7 +96,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function query($query)
+	public function query(string $query)
 	{
 		if (!pg_send_query($this->connection, $query)) {
 			throw $this->createException(pg_last_error($this->connection), 0, NULL);
@@ -119,7 +120,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId($sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = NULL)
 	{
 		if (empty($sequenceName)) {
 			throw new InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
@@ -129,25 +130,25 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getAffectedRows()
+	public function getAffectedRows(): int
 	{
 		return $this->affectedRows;
 	}
 
 
-	public function createPlatform(Connection $connection)
+	public function createPlatform(Connection $connection): IPlatform
 	{
 		return new PostgreSqlPlatform($connection);
 	}
 
 
-	public function getServerVersion()
+	public function getServerVersion(): string
 	{
 		return pg_version($this->connection)['server'];
 	}
 
 
-	public function ping()
+	public function ping(): bool
 	{
 		return pg_ping($this->connection);
 	}
@@ -171,7 +172,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertToPhp($value, $nativeType)
+	public function convertToPhp(string $value, $nativeType)
 	{
 		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
 
@@ -200,13 +201,13 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertStringToSql($value)
+	public function convertStringToSql(string $value): string
 	{
 		return pg_escape_literal($this->connection, $value);
 	}
 
 
-	public function convertLikeToSql($value, $mode)
+	public function convertLikeToSql(string $value, int $mode)
 	{
 		$value = strtr($value, [
 			"'" => "''",
@@ -218,13 +219,13 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertBoolToSql($value)
+	public function convertBoolToSql(bool $value): string
 	{
 		return $value ? 'TRUE' : 'FALSE';
 	}
 
 
-	public function convertIdentifierToSql($value)
+	public function convertIdentifierToSql(string $value): string
 	{
 		$parts = explode('.', $value);
 		foreach ($parts as &$part) {
@@ -236,7 +237,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertDateTimeToSql($value)
+	public function convertDateTimeToSql(\DateTimeInterface $value): string
 	{
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
@@ -250,7 +251,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertDateTimeSimpleToSql($value)
+	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string
 	{
 		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
@@ -264,19 +265,19 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertDateIntervalToSql($value)
+	public function convertDateIntervalToSql(\DateInterval $value): string
 	{
 		return $value->format('P%yY%mM%dDT%hH%iM%sS');
 	}
 
 
-	public function convertBlobToSql($value)
+	public function convertBlobToSql(string $value): string
 	{
 		return "'" . pg_escape_bytea($this->connection, $value) . "'";
 	}
 
 
-	public function modifyLimitQuery($query, $limit, $offset)
+	public function modifyLimitQuery(string $query, $limit, $offset): string
 	{
 		if ($limit !== NULL) {
 			$query .= ' LIMIT ' . (int) $limit;
