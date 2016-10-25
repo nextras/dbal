@@ -111,10 +111,10 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'ref_table' => 'authors',
 				'ref_column' => 'id',
 			],
-			'translator_id' => [
-      			'name' => 'books_translator',
-				'column' => 'translator_id',
-				'ref_table' => 'authors',
+			'ean_id' => [
+				'name' => 'books_ean',
+				'column' => 'ean_id',
+				'ref_table' => 'eans',
 				'ref_column' => 'id',
 			],
 			'publisher_id' => [
@@ -123,12 +123,12 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'ref_table' => 'publishers',
 				'ref_column' => 'id',
 			],
-			'ean_id' => [
-				'name' => 'books_ean',
-				'column' => 'ean_id',
-				'ref_table' => 'eans',
+			'translator_id' => [
+				'name' => 'books_translator',
+				'column' => 'translator_id',
+				'ref_table' => 'authors',
 				'ref_column' => 'id',
-			]
+			],
 		], $keys);
 	}
 

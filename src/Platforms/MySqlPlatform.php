@@ -74,6 +74,8 @@ class MySqlPlatform implements IPlatform
 				TABLE_SCHEMA = DATABASE()
 				AND REFERENCED_TABLE_NAME IS NOT NULL
 				AND TABLE_NAME = %s
+			ORDER BY
+				CONSTRAINT_NAME
 		', $table);
 
 		$keys = [];
