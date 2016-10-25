@@ -54,7 +54,7 @@ class DbalExtensionTest extends IntegrationTestCase
 	{
 		$loader = new ContainerLoader(TEMP_DIR);
 		$key = __FILE__ . ':' . __LINE__ . ':' . $config;
-		$className = $loader->load($key, function (Compiler $compiler) use ($config, $debug, $compilerCb) {
+		$className = $loader->load(function (Compiler $compiler) use ($config, $debug, $compilerCb) {
 			if ($debug) {
 				Debugger::enable(Debugger::DEVELOPMENT);
 			}
@@ -64,7 +64,7 @@ class DbalExtensionTest extends IntegrationTestCase
 			$compiler->addExtension('tracy', new TracyExtension($debug));
 			$compiler->addExtension('dbal', new DbalExtension());
 			$compiler->loadConfig(__DIR__ . "/DbalExtensionTest.$config.neon");
-		});
+		}, $key);
 
 		/** @var Container $dic */
 		$dic = new $className;
