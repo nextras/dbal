@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -47,9 +47,9 @@ class MysqliDriver implements IDriver
 	public function connect(array $params)
 	{
 		$host   = isset($params['host']) ? $params['host'] : ini_get('mysqli.default_host');
-		$port   = isset($params['port']) ? $params['port'] : (ini_get('mysqli.default_port') ?: 3306);
+		$port   = isset($params['port']) ? $params['port'] : (int) (ini_get('mysqli.default_port') ?: 3306);
 		$dbname = isset($params['dbname']) ? $params['dbname'] : '';
-		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : (ini_get('mysqli.default_socket') ?: NULL);
+		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : (ini_get('mysqli.default_socket') ?: '');
 		$flags  = isset($params['flags']) ? $params['flags'] : 0;
 
 		$this->connection = new mysqli();
