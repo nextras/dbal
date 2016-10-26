@@ -33,16 +33,16 @@ class DriverMysqlTest extends IntegrationTestCase
 	{
 		$driver = $this->connection->getDriver();
 
-		$interval1 = (new DateTime('2015-01-03 12:01:01'))->diff(new DateTime('2015-01-01 09:00:00'));
-		$interval2 = (new DateTime('2015-01-01 09:00:00'))->diff(new DateTime('2015-01-03 12:01:01'));
+		$interval1 = (new DateTime('2015-01-03 12:01:01'))->diff(new DateTime('2015-01-01 09:00:01'));
+		$interval2 = (new DateTime('2015-01-01 09:00:00'))->diff(new DateTime('2015-01-03 12:01:05'));
 
-		Assert::same('-51:01:01', $driver->convertDateIntervalToSql($interval1));
-		Assert::same('51:01:01', $driver->convertDateIntervalToSql($interval2));
+		Assert::same("-51:01:00", trim($driver->convertDateIntervalToSql($interval1), "'"));
+		Assert::same("51:01:05", trim($driver->convertDateIntervalToSql($interval2), "'"));
 
 		Assert::throws(function() use ($driver) {
 			$interval = (new DateTime('2015-02-05 09:59:59'))->diff(new DateTime('2015-01-01 09:00:00'));
 			$driver->convertDateIntervalToSql($interval);
-		}, InvalidArgumentException::class);
+		}, InvalidArgumentException::class, 'Mysql cannot store interval bigger than 839h:59m:59s.');
 	}
 
 
