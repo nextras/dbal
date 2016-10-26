@@ -274,7 +274,7 @@ class MysqliDriver implements IDriver
 			// see https://dev.mysql.com/doc/refman/5.0/en/time.html
 			throw new InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
 		}
-		return $value->format("%r{$totalHours}:%S:%I");
+		return "'" . $value->format("%r{$totalHours}:%I:%S") . "'";
 	}
 
 
