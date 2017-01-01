@@ -239,6 +239,7 @@ class PgsqlDriver implements IDriver
 
 	public function convertDateTimeToSql(\DateTimeInterface $value): string
 	{
+		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
 				$value = $value->setTimezone($this->connectionTz);
@@ -253,6 +254,7 @@ class PgsqlDriver implements IDriver
 
 	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string
 	{
+		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
 				$value = $value->setTimezone($this->simpleStorageTz);

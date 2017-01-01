@@ -239,6 +239,7 @@ class MysqliDriver implements IDriver
 
 	public function convertDatetimeToSql(\DateTimeInterface $value): string
 	{
+		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
 				$value = $value->setTimezone($this->connectionTz);
@@ -253,12 +254,13 @@ class MysqliDriver implements IDriver
 
 	public function convertDatetimeSimpleToSql(\DateTimeInterface $value): string
 	{
+		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
 			if ($value instanceof \DateTimeImmutable) {
 				$value = $value->setTimezone($this->simpleStorageTz);
 			} else {
 				$value = clone $value;
-				$value->setTimeZone($this->simpleStorageTz);
+				$value->setTimezone($this->simpleStorageTz);
 			}
 		}
 		return "'" . $value->format('Y-m-d H:i:s') . "'";
