@@ -1,3 +1,4 @@
+dist: trusty
 language: php
 php:
     - 7.0
@@ -5,6 +6,9 @@ php:
 
 matrix:
     fast_finish: true
+
+addons:
+  postgresql: "9.6"
 
 sudo: false
 
@@ -14,23 +18,22 @@ cache:
         - vendor
 
 before_script:
-    # Create php.ini & sections.ini
+    # Create php.ini & databases.ini
     - cp ./tests/php.unix-sample.ini ./tests/php.ini
 
     - if [ "$TRAVIS_PHP_VERSION" == "7.0" ]; then cat ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini >> ./tests/php.ini; fi
     - if [ "$TRAVIS_PHP_VERSION" == "7.0" ]; then NTESTER_FLAGS="--coverage ./coverage.xml --coverage-src ./src"; else TESTER_FLAGS=""; fi
-
-    - if [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then cp ./tests/databases.hhvm.ini ./tests/databases.ini; fi
-    - if ! [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then cp ./tests/databases.sample.ini ./tests/databases.ini; fi
+    - cp ./tests/databases.sample.ini ./tests/databases.ini
 
     # Create MySQL & Postgre database
     - psql -c 'CREATE DATABASE nextras_dbal_test' -U postgres
     - mysql -e 'CREATE DATABASE nextras_dbal_test;'
-
     - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+    # https://github.com/travis-ci/travis-ci/issues/6961#issuecomment-264283390
+    - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
 
     # Install dependencies
-    - if ! [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then phpenv config-rm xdebug.ini; fi
+    - phpenv config-rm xdebug.ini
     - travis_retry composer update --no-interaction
 
 script: ./tests/run.sh -s $NTESTER_FLAGS ./tests/cases
