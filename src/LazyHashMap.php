@@ -12,7 +12,7 @@ namespace  Nextras\Dbal;
 /**
  * @internal
  */
-abstract class LazyHashMapBase
+final class LazyHashMap
 {
 	/** @var callable */
 	private $callback;
@@ -25,23 +25,6 @@ abstract class LazyHashMapBase
 
 
 	/**
-	 * @return mixed
-	 */
-	protected function load(string $key)
-	{
-		return call_user_func($this->callback, $key);
-	}
-
-}
-
-
-/**
- * @internal
- */
-final class LazyHashMap extends LazyHashMapBase
-{
-
-	/**
 	 * @param  string $key
 	 * @return mixed
 	 */
@@ -50,4 +33,13 @@ final class LazyHashMap extends LazyHashMapBase
 		return $this->$key = $this->load($key);
 	}
 
+
+
+	/**
+	 * @return mixed
+	 */
+	protected function load(string $key)
+	{
+		return call_user_func($this->callback, $key);
+	}
 }
