@@ -218,6 +218,16 @@ class MysqliDriver implements IDriver
 	}
 
 
+	public function convertJsonToSql($value): string
+	{
+		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
+		if (json_last_error()) {
+			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
+		}
+		return $this->convertStringToSql($encoded);
+	}
+
+
 	public function convertLikeToSql(string $value, int $mode): string
 	{
 		$value = addcslashes(str_replace('\\', '\\\\', $value), "\x00\n\r\\'%_");
