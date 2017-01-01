@@ -8,8 +8,9 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\InvalidStateException;
-use Nextras\Dbal\Utils\DateTime;
+use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -37,7 +38,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 
 		Assert::same(1, $follower->tag_id);
 		Assert::same(1, $follower->author_id);
-		Assert::type(DateTime::class, $follower->created_at);
+		Assert::type(DateTimeImmutable::class, $follower->created_at);
 		Assert::same('2014-01-01 00:10:00', $follower->created_at->format('Y-m-d H:i:s'));
 
 

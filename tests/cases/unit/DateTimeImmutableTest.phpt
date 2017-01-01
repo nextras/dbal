@@ -4,13 +4,13 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Utils\DateTime;
+use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class DateTimeTest extends TestCase
+class DateTimeImmutableTest extends TestCase
 {
 
 	public function testToString()
@@ -19,12 +19,12 @@ class DateTimeTest extends TestCase
 
 		Assert::same(
 			'2015-01-01T05:27:35+01:00',
-			(string) new DateTime('2015-01-01T05:27:35+01:00')
+			(string) new DateTimeImmutable('2015-01-01T05:27:35+01:00')
 		);
 	}
 
 }
 
 
-$test = new DateTimeTest();
+$test = new DateTimeImmutableTest();
 $test->run();

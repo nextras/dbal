@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Utils;
 
 
-class DateTime extends \DateTime
+class DateTimeImmutable extends \DateTimeImmutable
 {
 	public function __toString()
 	{
@@ -20,7 +20,7 @@ class DateTime extends \DateTime
 	public function setTimestamp($timestamp)
 	{
 		$zone = $this->getTimezone();
-		$this->__construct('@' . $timestamp);
-		return $this->setTimeZone($zone);
+		$datetime = new static('@' . $timestamp);
+		return $datetime->setTimezone($zone);
 	}
 }

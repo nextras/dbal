@@ -10,7 +10,7 @@ use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Result\Row;
-use Nextras\Dbal\Utils\DateTime;
+use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -149,12 +149,12 @@ class ResultTest extends TestCase
 	{
 		$one = [
 			'name' => 'jon snow',
-			'born' => new DateTime('2014-01-01'),
+			'born' => new DateTimeImmutable('2014-01-01'),
 			'n' => 10
 		];
 		$two = [
 			'name' => 'oberyn martell',
-			'born' => new DateTime('2014-01-03'),
+			'born' => new DateTimeImmutable('2014-01-03'),
 			'n' => 12,
 		];
 		$createResult = function() use ($one, $two) {
