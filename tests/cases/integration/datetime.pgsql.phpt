@@ -66,10 +66,6 @@ class DateTimePostgreTest extends IntegrationTestCase
 
 	public function testWriteStorageTZUTCImmutable()
 	{
-		if (PHP_VERSION_ID < 50500) {
-			Environment::skip('DateTimeImmutable tested only in PHP >= 5.5');
-		}
-
 		$connection = $this->createConnection([
 			'simpleStorageTz' => 'UTC',
 			'connectionTz' => 'Europe/Prague',
