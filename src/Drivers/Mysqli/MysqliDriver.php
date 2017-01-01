@@ -46,11 +46,11 @@ class MysqliDriver implements IDriver
 
 	public function connect(array $params)
 	{
-		$host   = isset($params['host']) ? $params['host'] : ini_get('mysqli.default_host');
-		$port   = isset($params['port']) ? $params['port'] : (int) (ini_get('mysqli.default_port') ?: 3306);
-		$dbname = isset($params['dbname']) ? $params['dbname'] : '';
-		$socket = isset($params['unix_socket']) ? $params['unix_socket'] : (ini_get('mysqli.default_socket') ?: '');
-		$flags  = isset($params['flags']) ? $params['flags'] : 0;
+		$host = $params['host'] ?? ini_get('mysqli.default_host');
+		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
+		$dbname = $params['dbname'] ?? '';
+		$socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket') ?? '';
+		$flags = $params['flags'] ?? 0;
 
 		$this->connection = new mysqli();
 
