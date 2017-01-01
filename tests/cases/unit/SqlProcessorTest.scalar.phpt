@@ -56,7 +56,11 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('-123.4', $this->parser->processModifier('f', -123.4));
 		Assert::same('-123.0', $this->parser->processModifier('f', -123.0));
 		Assert::same('0.123', $this->parser->processModifier('f', 0.123));
-		Assert::same('1.0e+15', $this->parser->processModifier('f', 1e15));
+		if (PHP_VERSION_ID >= 70100) {
+			Assert::same('1000000000000000.0', $this->parser->processModifier('f', 1e15));
+		} else {
+			Assert::same('1.0e+15', $this->parser->processModifier('f', 1e15));
+		}
 	}
 
 
