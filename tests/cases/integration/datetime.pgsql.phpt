@@ -8,7 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use DateTime;
-use DateTimeImmutable;
+use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 use Tester\Environment;
 
@@ -85,8 +85,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 
 		$connection->query(
 			'INSERT INTO dates_write2 VALUES (%dts, %dt)',
-			new DateTimeImmutable('2015-01-01 12:00:00'), // 11:00 UTC
-			new DateTimeImmutable('2015-01-01 12:00:00')  // 11:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:00:00'), // 11:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:00:00')  // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -100,8 +100,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection->query('DELETE FROM dates_write2');
 		$connection->query(
 			'INSERT INTO dates_write2 VALUES (%dts, %dt)',
-			new DateTimeImmutable('2015-01-01 12:00:00'),             // 11:00 UTC
-			new DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:00:00'),             // 11:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -138,7 +138,7 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$result = $connection->query('SELECT * FROM dates_read');
 
 		$row = $result->fetch();
-		Assert::type('Nextras\Dbal\Utils\DateTime', $row->a);
+		Assert::type(DateTimeImmutable::class, $row->a);
 		Assert::same('2015-01-01T14:00:00+02:00', $row->a->format('c'));
 		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
 	}
@@ -169,7 +169,7 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$result = $connection->query('SELECT * FROM dates_read2');
 
 		$row = $result->fetch();
-		Assert::type('Nextras\Dbal\Utils\DateTime', $row->a);
+		Assert::type(DateTimeImmutable::class, $row->a);
 		Assert::same('2015-01-01T13:00:00+02:00', $row->a->format('c'));
 		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
 	}
