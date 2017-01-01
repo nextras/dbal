@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -54,7 +54,7 @@ class Result implements \SeekableIterator
 	private $elapsedTime;
 
 
-	public function __construct(IResultAdapter $adapter, IDriver $driver, $elapsedTime)
+	public function __construct(IResultAdapter $adapter, IDriver $driver, float $elapsedTime)
 	{
 		$this->adapter = $adapter;
 		$this->driver = $driver;
@@ -64,10 +64,7 @@ class Result implements \SeekableIterator
 	}
 
 
-	/**
-	 * @return IResultAdapter
-	 */
-	public function getAdapter()
+	public function getAdapter(): IResultAdapter
 	{
 		return $this->adapter;
 	}
@@ -75,9 +72,8 @@ class Result implements \SeekableIterator
 
 	/**
 	 * Enables and disables value normalization.
-	 * @param  bool $enabled
 	 */
-	public function setValueNormalization($enabled = FALSE)
+	public function setValueNormalization(bool $enabled = FALSE)
 	{
 		if ($enabled === TRUE) {
 			$this->initColumnConversions();
@@ -105,10 +101,9 @@ class Result implements \SeekableIterator
 
 
 	/**
-	 * @param  int $column
 	 * @return mixed|NULL
 	 */
-	public function fetchField($column = 0)
+	public function fetchField(int $column = 0)
 	{
 		if ($row = $this->fetch()) { // = intentionally
 			return $row[$column];
@@ -121,18 +116,13 @@ class Result implements \SeekableIterator
 	/**
 	 * @return Row[]
 	 */
-	public function fetchAll()
+	public function fetchAll(): array
 	{
 		return iterator_to_array($this);
 	}
 
 
-	/**
-	 * @param  string|NULL $key
-	 * @param  string|NULL $value
-	 * @return array
-	 */
-	public function fetchPairs($key = NULL, $value = NULL)
+	public function fetchPairs(string $key = NULL, string $value = NULL): array
 	{
 		if ($key === NULL && $value === NULL) {
 			throw new InvalidArgumentException('Result::fetchPairs() requires defined key or value.');
@@ -159,10 +149,7 @@ class Result implements \SeekableIterator
 	}
 
 
-	/**
-	 * @return float
-	 */
-	public function getElapsedTime()
+	public function getElapsedTime(): float
 	{
 		return $this->elapsedTime;
 	}
@@ -204,7 +191,7 @@ class Result implements \SeekableIterator
 	}
 
 
-	protected function normalize($data)
+	protected function normalize(array $data): array
 	{
 		foreach ($this->toDriverColumns as $meta) {
 			list($column, $nativeType) = $meta;

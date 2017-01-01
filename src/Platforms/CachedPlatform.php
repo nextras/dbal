@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -28,13 +28,13 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getName()
+	public function getName(): string
 	{
 		return $this->platform->getName();
 	}
 
 
-	public function getTables()
+	public function getTables(): array
 	{
 		return $this->cache->load('tables', function () {
 			return $this->platform->getTables();
@@ -42,7 +42,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getColumns($table)
+	public function getColumns(string $table): array
 	{
 		return $this->cache->load('columns.' . $table, function () use ($table) {
 			return $this->platform->getColumns($table);
@@ -50,7 +50,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getForeignKeys($table)
+	public function getForeignKeys(string $table): array
 	{
 		return $this->cache->load('foreign_keys.' . $table, function () use ($table) {
 			return $this->platform->getForeignKeys($table);
@@ -58,7 +58,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName($table)
+	public function getPrimarySequenceName(string $table)
 	{
 		return $this->cache->load('sequence.' . $table, function () use ($table) {
 			return $this->platform->getPrimarySequenceName($table);

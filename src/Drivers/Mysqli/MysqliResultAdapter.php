@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -62,7 +62,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek($index)
+	public function seek(int $index)
 	{
 		if ($this->result->num_rows !== 0 && !@$this->result->data_seek($index)) { // @ - intentionally for HHVM, which triggers E_WARNING
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -76,7 +76,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function getTypes()
+	public function getTypes(): array
 	{
 		$types = [];
 		$count = $this->result->field_count;

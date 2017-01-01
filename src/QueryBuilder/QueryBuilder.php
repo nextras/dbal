@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -69,7 +69,7 @@ class QueryBuilder
 	}
 
 
-	public function getQuerySql()
+	public function getQuerySql(): string
 	{
 		if ($this->generatedSql !== NULL) {
 			return $this->generatedSql;
@@ -87,7 +87,7 @@ class QueryBuilder
 	}
 
 
-	public function getQueryParameters()
+	public function getQueryParameters(): array
 	{
 		return array_merge(
 			(array) $this->args['select'],
@@ -101,7 +101,7 @@ class QueryBuilder
 	}
 
 
-	private function getSqlForSelect()
+	private function getSqlForSelect(): string
 	{
 		$query =
 			'SELECT ' . ($this->select !== NULL ? implode(', ', $this->select) : '*')
@@ -119,7 +119,7 @@ class QueryBuilder
 	}
 
 
-	private function getFromClauses()
+	private function getFromClauses(): string
 	{
 		$knownAliases = array_flip($this->getKnownAliases());
 
@@ -138,7 +138,7 @@ class QueryBuilder
 	}
 
 
-	public function getClause($part)
+	public function getClause(string $part): array
 	{
 		if (!isset($this->args[$part]) && !array_key_exists($part, $this->args)) {
 			throw new InvalidArgumentException("Unknown '$part' clause type.");
@@ -148,7 +148,7 @@ class QueryBuilder
 	}
 
 
-	public function from($fromExpression, $alias = NULL)
+	public function from($fromExpression, $alias = NULL): self
 	{
 		$this->dirty();
 		$this->type = self::TYPE_SELECT;
@@ -168,31 +168,31 @@ class QueryBuilder
 	}
 
 
-	public function innerJoin($fromAlias, $toExpression, $toAlias, $onExpression)
+	public function innerJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		return $this->join('INNER', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
+		return $this->join('INNER', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
 	}
 
 
-	public function leftJoin($fromAlias, $toExpression, $toAlias, $onExpression)
+	public function leftJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		return $this->join('LEFT', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
+		return $this->join('LEFT', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
 	}
 
 
-	public function rightJoin($fromAlias, $toExpression, $toAlias, $onExpression)
+	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		return $this->join('RIGHT', $fromAlias, $toExpression, $toAlias, $onExpression, array_slice(func_get_args(), 4));
+		return $this->join('RIGHT', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
 	}
 
 
-	public function getJoin($toAlias)
+	public function getJoin(string $toAlias)
 	{
 		return isset($this->join[$toAlias]) ? $this->join[$toAlias] : NULL;
 	}
 
 
-	private function join($type, $fromAlias, $toExpression, $toAlias, $onExpression, $args)
+	private function join(string $type, string $fromAlias, string $toExpression, string $toAlias, string $onExpression, array $args): self
 	{
 		$this->dirty();
 		$this->join[$toAlias] = [
@@ -209,72 +209,51 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as SELECT clause. Passing NULL sets clause to the default state.
-	 * @param  string|NULL $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function select($expression)
+	public function select(string $expression = NULL, ...$args): self
 	{
-		if (!($expression === NULL || is_string($expression))) {
-			throw new InvalidArgumentException('Select expression has to be a string or NULL.');
-		}
 		$this->dirty();
 		$this->select = $expression === NULL ? NULL : [$expression];
-		$this->args['select'] = array_slice(func_get_args(), 1);
+		$this->args['select'] = $args;
 		return $this;
 	}
 
 
 	/**
 	 * Adds expression to SELECT clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function addSelect($expression)
+	public function addSelect(string $expression, ...$args): self
 	{
 		if (!is_string($expression)) {
 			throw new InvalidArgumentException('Select expression has to be a string.');
 		}
 		$this->dirty();
 		$this->select[] = $expression;
-		$this->pushArgs('select', array_slice(func_get_args(), 1));
+		$this->pushArgs('select', $args);
 		return $this;
 	}
 
 
 	/**
 	 * Sets expression as WHERE clause. Passing NULL sets clause to the default state.
-	 * @param  string|NULL $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function where($expression)
+	public function where(string $expression = NULL, ...$args): self
 	{
-		if (!($expression === NULL || is_string($expression))) {
-			throw new InvalidArgumentException('Where expression has to be a string or NULL.');
-		}
 		$this->dirty();
 		$this->where = $expression;
-		$this->args['where'] = array_slice(func_get_args(), 1);
+		$this->args['where'] = $args;
 		return $this;
 	}
 
 
 	/**
 	 * Adds expression with AND to WHERE clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function andWhere($expression)
+	public function andWhere(string $expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Where expression has to be a string.');
-		}
 		$this->dirty();
 		$this->where = $this->where ? '(' . $this->where . ') AND (' . $expression . ')' : $expression;
-		$this->pushArgs('where', array_slice(func_get_args(), 1));
+		$this->pushArgs('where', $args);
 		return $this;
 	}
 
@@ -285,140 +264,95 @@ class QueryBuilder
 	 * @param  mixed ...$arg
 	 * @return self
 	 */
-	public function orWhere($expression)
+	public function orWhere(string $expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Where expression has to be a string.');
-		}
 		$this->dirty();
 		$this->where = $this->where ? '(' . $this->where . ') OR (' . $expression . ')' : $expression;
-		$this->pushArgs('where', array_slice(func_get_args(), 1));
+		$this->pushArgs('where', $args);
 		return $this;
 	}
 
 
 	/**
 	 * Sets expression as GROUP BY clause. Passing NULL sets clause to the default state.
-	 * @param  string|NULL $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function groupBy($expression)
+	public function groupBy(string $expression = NULL, ...$args): self
 	{
-		if (!($expression === NULL || is_string($expression))) {
-			throw new InvalidArgumentException('Group by expression has to be a string or NULL.');
-		}
 		$this->dirty();
 		$this->group = $expression === NULL ? NULL : [$expression];
-		$this->args['group'] = array_slice(func_get_args(), 1);
+		$this->args['group'] = $args;
 		return $this;
 	}
 
 
 	/**
 	 * Adds expression to GROUP BY clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function addGroupBy($expression)
+	public function addGroupBy($expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Group by expression has to be a string.');
-		}
 		$this->dirty();
 		$this->group[] = $expression;
-		$this->pushArgs('group', array_slice(func_get_args(), 1));
+		$this->pushArgs('group', $args);
 		return $this;
 	}
 
 
 	/**
 	 * Sets expression as HAVING clause. Passing NULL sets clause to the default state.
-	 * @param  string|NULL $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function having($expression)
+	public function having(string $expression = NULL, ...$args): self
 	{
-		if (!($expression === NULL || is_string($expression))) {
-			throw new InvalidArgumentException('Having expression has to be a string or NULL.');
-		}
 		$this->dirty();
 		$this->having = $expression;
-		$this->args['having'] = array_slice(func_get_args(), 1);
+		$this->args['having'] = $args;
 		return $this;
 	}
 
 
 	/**
 	 * Adds expression with AND to HAVING clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function andHaving($expression)
+	public function andHaving(string $expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Having expression has to be a string.');
-		}
 		$this->dirty();
 		$this->having = $this->having ? '(' . $this->having . ') AND (' . $expression . ')' : $expression;
-		$this->pushArgs('having', array_slice(func_get_args(), 1));
+		$this->pushArgs('having', $args);
 		return $this;
 	}
 
 
 	/**
 	 * Adds expression with OR to HAVING clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function orHaving($expression)
+	public function orHaving(string $expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Having expression has to be a string.');
-		}
 		$this->dirty();
 		$this->having = $this->having ? '(' . $this->having . ') OR (' . $expression . ')' : $expression;
-		$this->pushArgs('having', array_slice(func_get_args(), 1));
+		$this->pushArgs('having', $args);
 		return $this;
 	}
 
 
 	/**
 	 * Sets expression as ORDER BY clause. Passing NULL sets clause to the default state.
-	 * @param  string|NULL $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function orderBy($expression)
+	public function orderBy(string $expression = NULL, ...$args): self
 	{
-		if (!($expression === NULL || is_string($expression))) {
-			throw new InvalidArgumentException('Order by expression has to be a string or NULL.');
-		}
 		$this->dirty();
 		$this->order = $expression === NULL ? NULL : [$expression];
-		$this->args['order'] = array_slice(func_get_args(), 1);
+		$this->args['order'] = $args;
 		return $this;
 	}
 
 
 	/**
 	 * Adds expression to ORDER BY clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
-	public function addOrderBy($expression)
+	public function addOrderBy(string $expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Order by expression has to be a string.');
-		}
 		$this->dirty();
 		$this->order[] = $expression;
-		$this->pushArgs('order', array_slice(func_get_args(), 1));
+		$this->pushArgs('order', $args);
 		return $this;
 	}
 
@@ -426,10 +360,8 @@ class QueryBuilder
 	/**
 	 * Sets LIMIT and OFFSET clause.
 	 * @param  int|NULL $limit
-	 * @param  int|NULL $offset
-	 * @return self
 	 */
-	public function limitBy($limit, $offset = NULL)
+	public function limitBy($limit, int $offset = NULL): self
 	{
 		$this->dirty();
 		$this->limit = $limit || $offset ? [$limit, $offset] : NULL;
@@ -439,9 +371,8 @@ class QueryBuilder
 
 	/**
 	 * Returns true if LIMIT or OFFSET clause is set.
-	 * @return bool
 	 */
-	public function hasLimitOffsetClause()
+	public function hasLimitOffsetClause(): bool
 	{
 		return $this->limit !== NULL;
 	}
@@ -472,7 +403,7 @@ class QueryBuilder
 	/**
 	 * @return string[]
 	 */
-	private function getKnownAliases()
+	private function getKnownAliases(): array
 	{
 		$knownAliases = [];
 		if (isset($this->from)) {

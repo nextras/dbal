@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -30,7 +30,6 @@ interface IDriver
 
 	/**
 	 * Connects the driver to database.
-	 * @param  array $params
 	 */
 	public function connect(array $params);
 
@@ -43,9 +42,8 @@ interface IDriver
 
 	/**
 	 * Returns true, if there is created connection.
-	 * @return bool
 	 */
-	public function isConnected();
+	public function isConnected(): bool;
 
 
 	/**
@@ -57,47 +55,41 @@ interface IDriver
 
 	/**
 	 * Runs query and returns the result. Returns NULL if query does not select data.
-	 * @param  string $query
 	 * @return Result|NULL
 	 */
-	public function query($query);
+	public function query(string $query);
 
 
 	/**
-	 * Returns the last inseted id.
-	 * @param  string|NULL $sequenceName
+	 * Returns the last inserted id.
 	 * @return mixed
 	 */
-	public function getLastInsertedId($sequenceName = NULL);
+	public function getLastInsertedId(string $sequenceName = NULL);
 
 
 	/**
 	 * Returns number of affected rows.
 	 * @return int
 	 */
-	public function getAffectedRows();
+	public function getAffectedRows(): int;
 
 
 	/**
-	 * Creates database plafrom.
-	 * @param  Connection $connection
-	 * @return IPlatform
+	 * Creates database platform.
 	 */
-	public function createPlatform(Connection $connection);
+	public function createPlatform(Connection $connection): IPlatform;
 
 
 	/**
 	 * Returns server version in X.Y.Z format.
-	 * @return string
 	 */
-	public function getServerVersion();
+	public function getServerVersion(): string;
 
 
 	/**
 	 * Pings server.
-	 * @return bool
 	 */
-	public function ping();
+	public function ping(): bool;
 
 
 	/**
@@ -127,72 +119,41 @@ interface IDriver
 	 * @param  mixed $nativeType
 	 * @return mixed
 	 */
-	public function convertToPhp($value, $nativeType);
+	public function convertToPhp(string $value, $nativeType);
+
+
+	public function convertStringToSql(string $value): string;
 
 
 	/**
-	 * @param  string $value
-	 * @return string
-	 */
-	public function convertStringToSql($value);
-
-
-	/**
-	 * @param  string $value
 	 * @param  int $mode -1 = left, 0 = both, 1 = right
 	 * @return mixed
 	 */
-	public function convertLikeToSql($value, $mode);
+	public function convertLikeToSql(string $value, int $mode);
 
 
-	/**
-	 * @param  bool $value
-	 * @return string
-	 */
-	public function convertBoolToSql($value);
+	public function convertBoolToSql(bool $value): string;
 
 
-	/**
-	 * @param  string $value
-	 * @return string
-	 */
-	public function convertIdentifierToSql($value);
+	public function convertIdentifierToSql(string $value): string;
 
 
-	/**
-	 * @param  \DateTime|\DateTimeImmutable|\DateTimeInterface $value
-	 * @return string
-	 */
-	public function convertDateTimeToSql($value);
+	public function convertDateTimeToSql(\DateTimeInterface $value): string;
 
 
-	/**
-	 * @param  \DateTime|\DateTimeImmutable|\DateTimeInterface $value
-	 * @return string
-	 */
-	public function convertDateTimeSimpleToSql($value);
+	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string;
 
 
-	/**
-	 * @param  \DateInterval $value
-	 * @return string
-	 */
-	public function convertDateIntervalToSql($value);
+	public function convertDateIntervalToSql(\DateInterval $value): string;
 
 
-	/**
-	 * @param  string $value
-	 * @return string
-	 */
-	public function convertBlobToSql($value);
+	public function convertBlobToSql(string $value): string;
 
 
 	/**
 	 * Adds driver-specific limit clause to the query.
-	 * @param  string $query
 	 * @param  int|NULL $limit
 	 * @param  int|NULL $offset
-	 * @return string
 	 */
-	public function modifyLimitQuery($query, $limit, $offset);
+	public function modifyLimitQuery(string $query, $limit, $offset): string;
 }

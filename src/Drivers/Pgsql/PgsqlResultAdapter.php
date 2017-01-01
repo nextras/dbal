@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -60,7 +60,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek($index)
+	public function seek(int $index)
 	{
 		if (pg_num_rows($this->result) !== 0 && !pg_result_seek($this->result, $index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -74,7 +74,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function getTypes()
+	public function getTypes(): array
 	{
 		$types = [];
 		$count = pg_num_fields($this->result);
