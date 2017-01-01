@@ -233,6 +233,7 @@ class Connection implements IConnection
 			return $this->driver->ping();
 
 		} catch (DriverException $e) {
+			$this->reconnect();
 			return FALSE;
 		}
 	}
