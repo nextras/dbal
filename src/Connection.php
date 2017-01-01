@@ -11,10 +11,9 @@ namespace Nextras\Dbal;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
-use Nextras\Dbal\Result\Result;
 
 
-class Connection
+class Connection implements IConnection
 {
 	/** @var callable[]: function(Connection $connection) */
 	public $onConnect = [];
@@ -125,12 +124,7 @@ class Connection
 	}
 
 
-	/**
-	 * Executes a query.
-	 * @param  mixed ...$args
-	 * @return Result|NULL
-	 * @throws QueryException
-	 */
+	/** @inheritdoc */
 	public function query(...$args)
 	{
 		$this->connected || $this->connect();
@@ -143,12 +137,7 @@ class Connection
 	}
 
 
-	/**
-	 * @param  string|array $query
-	 * @param  array $args
-	 * @return Result|NULL
-	 * @throws QueryException
-	 */
+	/** @inheritdoc */
 	public function queryArgs($query, array $args = [])
 	{
 		if (!is_array($query)) {
@@ -160,10 +149,7 @@ class Connection
 	}
 
 
-	/**
-	 * Returns last inserted ID.
-	 * @return int|string
-	 */
+	/** @inheritdoc */
 	public function getLastInsertedId(string $sequenceName = NULL)
 	{
 		$this->connected || $this->connect();
@@ -171,9 +157,7 @@ class Connection
 	}
 
 
-	/**
-	 * Returns number of affected rows.
-	 */
+	/** @inheritdoc */
 	public function getAffectedRows(): int
 	{
 		$this->connected || $this->connect();
@@ -181,6 +165,7 @@ class Connection
 	}
 
 
+	/** @inheritdoc */
 	public function getPlatform(): IPlatform
 	{
 		if ($this->platform === NULL) {
@@ -192,18 +177,14 @@ class Connection
 	}
 
 
+	/** @inheritdoc */
 	public function createQueryBuilder(): QueryBuilder
 	{
 		return new QueryBuilder($this->driver);
 	}
 
 
-	/**
-	 * Performs operation in a transaction.
-	 * @param  callable $callback function(Connection $conn): mixed
-	 * @return mixed value returned by callback
-	 * @throws \Exception
-	 */
+	/** @inheritdoc */
 	public function transactional(callable $callback)
 	{
 		$this->beginTransaction();
@@ -219,11 +200,7 @@ class Connection
 	}
 
 
-	/**
-	 * Starts a transaction.
-	 * @return void
-	 * @throws DriverException
-	 */
+	/** @inheritdoc */
 	public function beginTransaction()
 	{
 		$this->connected || $this->connect();
@@ -232,11 +209,7 @@ class Connection
 	}
 
 
-	/**
-	 * Commits the current transaction.
-	 * @return void
-	 * @throws DriverException
-	 */
+	/** @inheritdoc */
 	public function commitTransaction()
 	{
 		$this->driver->commitTransaction();
@@ -244,11 +217,7 @@ class Connection
 	}
 
 
-	/**
-	 * Cancels any uncommitted changes done during the current transaction.
-	 * @return void
-	 * @throws DriverException
-	 */
+	/** @inheritdoc */
 	public function rollbackTransaction()
 	{
 		$this->driver->rollbackTransaction();
@@ -256,10 +225,7 @@ class Connection
 	}
 
 
-	/**
-	 * Pings a database connection and tries to reconnect it if it is broken.
-	 * @return bool
-	 */
+	/** @inheritdoc */
 	public function ping(): bool
 	{
 		try {
