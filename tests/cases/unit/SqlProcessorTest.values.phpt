@@ -60,7 +60,7 @@ class SqlProcessorValuesTest extends TestCase
 		Assert::same(
 			"INSERT INTO test (id, title, foo) VALUES (1, '\\'foo\\'', 2), (2, '\\'foo2\\'', 3)",
 			$this->convert('INSERT INTO test %values[]', [
-				[
+				1 => [
 					'id%i' => 1,
 					'title%s' => "'foo'",
 					'foo' => 2,
