@@ -125,6 +125,9 @@ interface IDriver
 	public function convertStringToSql(string $value): string;
 
 
+	public function convertJsonToSql($value): string;
+
+
 	/**
 	 * @param  int $mode -1 = left, 0 = both, 1 = right
 	 * @return mixed

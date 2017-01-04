@@ -89,16 +89,19 @@ class TypesMysqlTest extends IntegrationTestCase
 	{
 		$this->connection->query("
 			CREATE TEMPORARY TABLE [types_write] (
-				[blob] blob
+				[blob] blob,
+				[json] text
 			) ENGINE=InnoDB;
 		");
 
 		$file = file_get_contents(__DIR__ . '/nextras.png');
 		$this->connection->query('INSERT INTO [types_write] %values', [
 			'blob%blob' => $file,
+			'json%json' => [1, '2', true, null],
 		]);
 		$row = $this->connection->query('SELECT * FROM [types_write]')->fetch();
 		Assert::same($file, $row->blob);
+		Assert::same('[1,"2",true,null]', $row->json);
 	}
 
 }

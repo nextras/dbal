@@ -23,6 +23,7 @@ class SqlProcessor
 	protected $modifiers = [
 		// expressions
 		's' => [TRUE, TRUE, 'string'],
+		'json' => [TRUE, TRUE, 'pretty much anything'],
 		'i' => [TRUE, TRUE, 'int'],
 		'f' => [TRUE, TRUE, '(finite) float'],
 		'b' => [TRUE, TRUE, 'bool'],
@@ -114,6 +115,10 @@ class SqlProcessor
 					case '?s':
 						return $this->driver->convertStringToSql($value);
 
+					case 'json':
+					case '?json':
+						return $this->driver->convertJsonToSql($value);
+
 					case 'i':
 					case '?i':
 						if (!preg_match('#^-?[1-9][0-9]*+\z#', $value)) {
@@ -150,6 +155,10 @@ class SqlProcessor
 					case 'i':
 					case '?i':
 						return (string) $value;
+
+					case 'json':
+					case '?json':
+						return $this->driver->convertJsonToSql($value);
 				}
 
 			break;
@@ -160,6 +169,10 @@ class SqlProcessor
 						case 'f':
 						case '?f':
 							return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
+
+						case 'json':
+						case '?json':
+							return $this->driver->convertJsonToSql($value);
 					}
 				}
 
@@ -170,6 +183,10 @@ class SqlProcessor
 					case 'b':
 					case '?b':
 						return $this->driver->convertBoolToSql($value);
+
+					case 'json':
+					case '?json':
+						return $this->driver->convertJsonToSql($value);
 				}
 
 			break;
@@ -184,11 +201,16 @@ class SqlProcessor
 					case '?dts':
 					case '?di':
 					case '?blob':
+					case '?json':
 						return 'NULL';
 				}
 
 			break;
 			case 'object':
+				if ($type === 'json' || $type === '?json') {
+					return $this->driver->convertJsonToSql($value);
+				}
+
 				if ($value instanceof \DateTimeImmutable || $value instanceof \DateTime) {
 					switch ($type) {
 						case 'any':
@@ -244,6 +266,10 @@ class SqlProcessor
 							$subValue = $this->driver->convertStringToSql($subValue);
 						}
 						return '(' . implode(', ', $value) . ')';
+
+					case 'json':
+					case '?json':
+						return $this->driver->convertJsonToSql($value);
 
 					// normal
 					case 'column[]':

@@ -44,6 +44,24 @@ class SqlProcessorScalarTest extends TestCase
 	}
 
 
+	public function testJson()
+	{
+		$this->driver->shouldReceive('convertJsonToSql')->once()->with('A')->andReturn('{}');
+		Assert::same('{}', $this->parser->processModifier('json', 'A'));
+		$this->driver->shouldReceive('convertJsonToSql')->once()->with(1)->andReturn('{}');
+		Assert::same('{}', $this->parser->processModifier('json', 1));
+		$this->driver->shouldReceive('convertJsonToSql')->once()->with(1.2)->andReturn('{}');
+		Assert::same('{}', $this->parser->processModifier('json', 1.2));
+		$this->driver->shouldReceive('convertJsonToSql')->once()->with(true)->andReturn('{}');
+		Assert::same('{}', $this->parser->processModifier('json', true));
+		$this->driver->shouldReceive('convertJsonToSql')->once()->with([])->andReturn('{}');
+		Assert::same('{}', $this->parser->processModifier('json', []));
+		$object = (object) [];
+		$this->driver->shouldReceive('convertJsonToSql')->once()->with($object)->andReturn('{}');
+		Assert::same('{}', $this->parser->processModifier('json', $object));
+	}
+
+
 	public function testInt()
 	{
 		Assert::same('123', $this->parser->processModifier('i', 123));
@@ -167,6 +185,7 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('NULL', $this->parser->processModifier('?dt', NULL));
 		Assert::same('NULL', $this->parser->processModifier('?dts', NULL));
 		Assert::same('NULL', $this->parser->processModifier('?di', NULL));
+		Assert::same('NULL', $this->parser->processModifier('?json', NULL));
 		Assert::same('NULL', $this->parser->processModifier('any', NULL));
 	}
 
@@ -230,6 +249,9 @@ class SqlProcessorScalarTest extends TestCase
 			['?s[]', [TRUE], 'Modifier %?s expects value to be string, boolean given.'],
 			['?s[]', [[]], 'Modifier %?s does not allow array value, use modifier %?s[] instead.'],
 			['?s[]', [new stdClass()], 'Modifier %?s expects value to be string, stdClass given.'],
+
+			['json', NULL, 'Modifier %json does not allow NULL value, use modifier %?json instead.'],
+			['json[]', [NULL], 'Modifier %json does not allow NULL value, use modifier %?json instead.'],
 
 			['i', '123x', 'Modifier %i expects value to be int, string given.'],
 			['i', '0123', 'Modifier %i expects value to be int, string given.'],
