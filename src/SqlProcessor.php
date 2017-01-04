@@ -16,7 +16,7 @@ class SqlProcessor
 	/** @var IDriver */
 	private $driver;
 
-	/** @var LazyHashMap */
+	/** @var array */
 	private $identifiers;
 
 	/** @var array (name => [supports ?, supports [], expected type]) */
@@ -50,9 +50,6 @@ class SqlProcessor
 	public function __construct(IDriver $driver)
 	{
 		$this->driver = $driver;
-		$this->identifiers = new LazyHashMap(function($key) {
-			return $this->driver->convertIdentifierToSql($key);
-		});
 	}
 
 
@@ -86,7 +83,7 @@ class SqlProcessor
 						return '%';
 
 					} elseif (!ctype_digit($matches[3])) {
-						return $this->identifiers->{$matches[3]};
+						return $this->identifiers[$matches[3]] ?? $this->identifierToSql($matches[3]);
 
 					} else {
 						return "[$matches[3]]";
@@ -137,7 +134,7 @@ class SqlProcessor
 						}
 						// intentional pass-through
 					case 'table':
-						return $this->identifiers->$value;
+						return $this->identifiers[$value] ?? $this->identifierToSql($value);
 
 					case 'blob':
 						return $this->driver->convertBlobToSql($value);
@@ -344,7 +341,7 @@ class SqlProcessor
 		$values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$column = $this->identifiers->{$key{0}};
+			$column = $this->identifiers[$key{0}] ?? $this->identifierToSql($key{0});
 			$expr = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 			$values[] = "$column = $expr";
 		}
@@ -363,7 +360,7 @@ class SqlProcessor
 
 		$keys = $values = [];
 		foreach (array_keys($value[0]) as $key) {
-			$keys[] = $this->identifiers->{explode('%', $key, 2)[0]};
+			$keys[] = $this->identifiers[$key = explode('%', $key, 2)[0]] ?? $this->identifierToSql($key);
 		}
 		foreach ($value as $subValue) {
 			$subValues = [];
@@ -387,7 +384,7 @@ class SqlProcessor
 		$keys = $values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$keys[] = $this->identifiers->{$key[0]};
+			$keys[] = $this->identifiers[$key[0]] ?? $this->identifierToSql($key[0]);
 			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 		}
 
@@ -413,7 +410,7 @@ class SqlProcessor
 
 			} else {
 				$key = explode('%', $_key, 2);
-				$column = $this->identifiers->{$key[0]};
+				$column = $this->identifiers[$key[0]] ?? $this->identifierToSql($key[0]);
 				$subType = isset($key[1]) ? $key[1] : 'any';
 
 				if ($subValue === NULL) {
@@ -441,5 +438,11 @@ class SqlProcessor
 	protected function getVariableTypeName($value)
 	{
 		return is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+	}
+
+
+	protected function identifierToSql(string $key): string
+	{
+		return $this->identifiers[$key] = $this->driver->convertIdentifierToSql($key); // = intentionally
 	}
 }
