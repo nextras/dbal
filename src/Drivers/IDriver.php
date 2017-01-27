@@ -92,6 +92,9 @@ interface IDriver
 	public function ping(): bool;
 
 
+	public function setTransactionIsolationLevel(int $level);
+
+
 	/**
 	 * Begins a transaction.
 	 * @throws QueryException

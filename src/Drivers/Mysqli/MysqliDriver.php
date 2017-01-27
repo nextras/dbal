@@ -144,6 +144,21 @@ class MysqliDriver implements IDriver
 	}
 
 
+	public function setTransactionIsolationLevel(int $level)
+	{
+		static $levels = [
+			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
+			Connection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
+			Connection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
+			Connection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
+		];
+		if (isset($levels[$level])) {
+			throw new NotSupportedException("Unsupported transation level $level");
+		}
+		$this->query("SET SESSION TRANSACTION ISOLATION LEVEL {$levels[$level]}");
+	}
+
+
 	public function beginTransaction()
 	{
 		$this->query('START TRANSACTION');

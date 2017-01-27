@@ -184,6 +184,12 @@ class Connection implements IConnection
 	}
 
 
+	public function setTransactionIsolationLevel(int $level)
+	{
+		$this->driver->setTransactionIsolationLevel($level);
+	}
+
+
 	/** @inheritdoc */
 	public function transactional(callable $callback)
 	{

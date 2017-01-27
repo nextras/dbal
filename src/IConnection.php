@@ -15,6 +15,12 @@ use Nextras\Dbal\Result\Result;
 
 interface IConnection
 {
+	const TRANSACTION_READ_UNCOMMITTED = 1;
+	const TRANSACTION_READ_COMMITTED = 2;
+	const TRANSACTION_REPEATABLE_READ = 3;
+	const TRANSACTION_SERIALIZABLE = 4;
+
+
 	/**
 	 * Executes a query.
 	 * @param  mixed ...$args
@@ -50,6 +56,9 @@ interface IConnection
 
 
 	public function createQueryBuilder(): QueryBuilder;
+
+
+	public function setTransactionIsolationLevel(int $level);
 
 
 	/**
