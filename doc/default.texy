@@ -6,15 +6,16 @@ Connection
 
 The connection instance is the main object which provides API for working with your database. Connection's constructor accepts a configuration array. The possible keys depend on the current driver, although some configuration keys are the same for all drivers:
 
-|* driver           | driver name, use `mysqli` or `pgsql`
-|* host             | database server name
-|* username         | username for authentication
-|* password         | password for authentication
-|* database         | name of database
-|* charset          | charset encoding of connection
-|* applicationTz    | time zone for returned DateTime objects
-|* connectionTz     | time zone for connection
-|* simpleStorageTz  | time zone for simple time stamp type
+|* driver                               | driver name, use `mysqli` or `pgsql`
+|* host                                 | database server name
+|* username                             | username for authentication
+|* password                             | password for authentication
+|* database                             | name of database
+|* charset                              | charset encoding of connection
+|* applicationTz                        | time zone for returned DateTime objects
+|* connectionTz                         | time zone for connection
+|* simpleStorageTz                      | time zone for simple time stamp type
+|* nestedTransactionsWithSavepoint      | boolean which indicates whether use savepoints for nested transactions; enabled by default
 
 /--php
 $connection = new Nextras\Dbal\Connection([
@@ -69,8 +70,8 @@ $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
 
 ------------
 
-Transactions
-============
+Transactions & savepoints
+=========================
 
 The connection object provides convenient API for working with transactions. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually, you need to react to an exception by calling rollback method. For such use case there is a `transactional()` method that make its callback atomic.
 
@@ -84,4 +85,28 @@ $connection->transactional(function(Connection $connection) {
 		'user_id' => $connection->getLastInsertedId();
 	]);
 });
+\--
+
+If you call `beginTransaction()` repeatedly (without commiting or rollbacking), connection will use savepoints for nested transaction simulation. It is possible to disable such behavior by `nestedTransactionsWithSavepoint` configuration option.
+
+You may create, release and rollback savepoints directly through appropriate methods.
+
+/--php
+$connection->createSavepoint('beforeUpdate');
+$isOk = ...;
+if ($isOk) {
+	$connection->releaseSavepoint('beforeUpdate');
+} else {
+	$connection->rollbackSavepoint('beforeUpdate');
+}
+\--
+
+Connection also supports setting a transaction isolation level. The default isolation level depends on your database.
+
+/--php
+$connection->setTransactionIsolationLevel(IConnection::TRANSACTION_SERIALIZABLE);
+// other available constants:
+// IConnection::TRANSACTION_READ_UNCOMMITTED
+// IConnection::TRANSACTION_READ_COMMITTED
+// IConnection::TRANSACTION_REPEATABLE_READ
 \--
