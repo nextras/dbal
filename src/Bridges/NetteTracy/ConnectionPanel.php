@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Result\Result;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
@@ -41,22 +42,19 @@ class ConnectionPanel implements IBarPanel
 	}
 
 
-	public function logQuery(Connection $connection, $sql, Result $result = NULL)
+	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = NULL, DriverException $exception = NULL)
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
 			return;
 		}
 
+		$this->totalTime += $elapsedTime;
 		$this->queries[] = [
 			$connection,
 			$sql,
-			$result ? $result->getElapsedTime() : NULL,
+			$elapsedTime,
 		];
-
-		if ($result) {
-			$this->totalTime += $result->getElapsedTime();
-		}
 	}
 
 

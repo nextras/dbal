@@ -36,8 +36,14 @@ class PgsqlDriver implements IDriver
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
+	/** @var callable */
+	private $loggedQueryCallback;
+
 	/** @var int */
 	private $affectedRows = 0;
+
+	/** @var float */
+	private $timeTaken = 0.0;
 
 
 	public function __destruct()
@@ -46,12 +52,14 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function connect(array $params)
+	public function connect(array $params, callable $loggedQueryCallback)
 	{
 		static $knownKeys = [
 			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
 			'connect_timeout', 'options', 'sslmode', 'service',
 		];
+
+		$this->loggedQueryCallback = $loggedQueryCallback;
 
 		$connectionString = '';
 		foreach ($knownKeys as $key) {
@@ -71,7 +79,7 @@ class PgsqlDriver implements IDriver
 
 		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
-		$this->query('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
+		$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
 	}
 
 
@@ -104,7 +112,7 @@ class PgsqlDriver implements IDriver
 
 		$time = microtime(TRUE);
 		$resource = pg_get_result($this->connection);
-		$time = microtime(TRUE) - $time;
+		$this->timeTaken = microtime(TRUE) - $time;
 
 		if ($resource === FALSE) {
 			throw $this->createException(pg_last_error($this->connection), 0, NULL);
@@ -116,7 +124,7 @@ class PgsqlDriver implements IDriver
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
-		return new Result(new PgsqlResultAdapter($resource), $this, $time);
+		return new Result(new PgsqlResultAdapter($resource), $this);
 	}
 
 
@@ -126,13 +134,19 @@ class PgsqlDriver implements IDriver
 			throw new InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
 		}
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
-		return $this->query($sql)->fetchField();
+		return $this->loggedQuery($sql)->fetchField();
 	}
 
 
 	public function getAffectedRows(): int
 	{
 		return $this->affectedRows;
+	}
+
+
+	public function getQueryElapsedTime(): float
+	{
+		return $this->timeTaken;
 	}
 
 
@@ -165,43 +179,43 @@ class PgsqlDriver implements IDriver
 		if (isset($levels[$level])) {
 			throw new NotSupportedException("Unsupported transation level $level");
 		}
-		$this->query("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL {$levels[$level]}");
+		$this->loggedQuery("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL {$levels[$level]}");
 	}
 
 
 	public function beginTransaction()
 	{
-		$this->query('START TRANSACTION');
+		$this->loggedQuery('START TRANSACTION');
 	}
 
 
 	public function commitTransaction()
 	{
-		$this->query('COMMIT');
+		$this->loggedQuery('COMMIT');
 	}
 
 
 	public function rollbackTransaction()
 	{
-		$this->query('ROLLBACK');
+		$this->loggedQuery('ROLLBACK');
 	}
 
 
 	public function createSavepoint(string $name)
 	{
-		$this->query('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function releaseSavepoint(string $name)
 	{
-		$this->query('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function rollbackSavepoint(string $name)
 	{
-		$this->query('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
@@ -364,5 +378,11 @@ class PgsqlDriver implements IDriver
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);
 		}
+	}
+
+
+	protected function loggedQuery(string $sql)
+	{
+		return ($this->loggedQueryCallback)($sql);
 	}
 }

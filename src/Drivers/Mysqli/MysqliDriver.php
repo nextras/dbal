@@ -37,6 +37,12 @@ class MysqliDriver implements IDriver
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
+	/** @var callable */
+	private $loggedQueryCallback;
+
+	/** @var float */
+	private $timeTaken = 0.0;
+
 
 	public function __destruct()
 	{
@@ -44,8 +50,10 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function connect(array $params)
+	public function connect(array $params, callable $loggedQueryCallback)
 	{
+		$this->loggedQueryCallback = $loggedQueryCallback;
+
 		$host = $params['host'] ?? ini_get('mysqli.default_host');
 		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
 		$dbname = $params['dbname'] ?? '';
@@ -91,7 +99,7 @@ class MysqliDriver implements IDriver
 	{
 		$time = microtime(TRUE);
 		$result = @$this->connection->query($query);
-		$time = microtime(TRUE) - $time;
+		$this->timeTaken = microtime(TRUE) - $time;
 
 		if ($result === FALSE) {
 			throw $this->createException(
@@ -106,7 +114,7 @@ class MysqliDriver implements IDriver
 			return NULL;
 		}
 
-		return new Result(new MysqliResultAdapter($result), $this, $time);
+		return new Result(new MysqliResultAdapter($result), $this);
 	}
 
 
@@ -119,6 +127,12 @@ class MysqliDriver implements IDriver
 	public function getAffectedRows(): int
 	{
 		return $this->connection->affected_rows;
+	}
+
+
+	public function getQueryElapsedTime(): float
+	{
+		return $this->timeTaken;
 	}
 
 
@@ -155,43 +169,43 @@ class MysqliDriver implements IDriver
 		if (isset($levels[$level])) {
 			throw new NotSupportedException("Unsupported transation level $level");
 		}
-		$this->query("SET SESSION TRANSACTION ISOLATION LEVEL {$levels[$level]}");
+		$this->loggedQuery("SET SESSION TRANSACTION ISOLATION LEVEL {$levels[$level]}");
 	}
 
 
 	public function beginTransaction()
 	{
-		$this->query('START TRANSACTION');
+		$this->loggedQuery('START TRANSACTION');
 	}
 
 
 	public function commitTransaction()
 	{
-		$this->query('COMMIT');
+		$this->loggedQuery('COMMIT');
 	}
 
 
 	public function rollbackTransaction()
 	{
-		$this->query('ROLLBACK');
+		$this->loggedQuery('ROLLBACK');
 	}
 
 
 	public function createSavepoint(string $name)
 	{
-		$this->query('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function releaseSavepoint(string $name)
 	{
-		$this->query('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function rollbackSavepoint(string $name)
 	{
-		$this->query('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
@@ -208,12 +222,12 @@ class MysqliDriver implements IDriver
 		$this->connection->set_charset($charset);
 
 		if (isset($params['sqlMode'])) {
-			$this->query('SET sql_mode = ' . $this->convertStringToSql($params['sqlMode']));
+			$this->loggedQuery('SET sql_mode = ' . $this->convertStringToSql($params['sqlMode']));
 		}
 
 		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
-		$this->query('SET time_zone = ' . $this->convertStringToSql($this->connectionTz->getName()));
+		$this->loggedQuery('SET time_zone = ' . $this->convertStringToSql($this->connectionTz->getName()));
 	}
 
 
@@ -367,5 +381,11 @@ class MysqliDriver implements IDriver
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);
 		}
+	}
+
+
+	protected function loggedQuery(string $sql)
+	{
+		return ($this->loggedQueryCallback)($sql);
 	}
 }

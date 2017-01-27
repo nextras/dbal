@@ -50,17 +50,13 @@ class Result implements \SeekableIterator
 	/** @var DateTimeZone */
 	private $applicationTimeZone;
 
-	/** @var float */
-	private $elapsedTime;
 
-
-	public function __construct(IResultAdapter $adapter, IDriver $driver, float $elapsedTime)
+	public function __construct(IResultAdapter $adapter, IDriver $driver)
 	{
 		$this->adapter = $adapter;
 		$this->driver = $driver;
 		$this->applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 		$this->initColumnConversions();
-		$this->elapsedTime = $elapsedTime;
 	}
 
 
@@ -146,12 +142,6 @@ class Result implements \SeekableIterator
 		}
 
 		return $return;
-	}
-
-
-	public function getElapsedTime(): float
-	{
-		return $this->elapsedTime;
 	}
 
 
