@@ -15,6 +15,12 @@ use Nextras\Dbal\Result\Result;
 
 interface IConnection
 {
+	const TRANSACTION_READ_UNCOMMITTED = 1;
+	const TRANSACTION_READ_COMMITTED = 2;
+	const TRANSACTION_REPEATABLE_READ = 3;
+	const TRANSACTION_SERIALIZABLE = 4;
+
+
 	/**
 	 * Executes a query.
 	 * @param  mixed ...$args
@@ -52,6 +58,9 @@ interface IConnection
 	public function createQueryBuilder(): QueryBuilder;
 
 
+	public function setTransactionIsolationLevel(int $level);
+
+
 	/**
 	 * Performs operation in a transaction.
 	 * @param  callable $callback function(Connection $conn): mixed
@@ -62,7 +71,7 @@ interface IConnection
 
 
 	/**
-	 * Starts a transaction.
+	 * Begins a transaction.
 	 * @return void
 	 * @throws DriverException
 	 */
@@ -78,11 +87,35 @@ interface IConnection
 
 
 	/**
-	 * Cancels any uncommitted changes done during the current transaction.
+	 * Cancels the current transaction.
 	 * @return void
 	 * @throws DriverException
 	 */
 	public function rollbackTransaction();
+
+
+	/**
+	 * Creates a savepoint.
+	 * @return void
+	 * @throws DriverException
+	 */
+	public function createSavepoint(string $name);
+
+
+	/**
+	 * Releases the savepoint.
+	 * @return void
+	 * @throws DriverException
+	 */
+	public function releaseSavepoint(string $name);
+
+
+	/**
+	 * Rollbacks the savepoint.
+	 * @return void
+	 * @throws DriverException
+	 */
+	public function rollbackSavepoint(string $name);
 
 
 	/**
