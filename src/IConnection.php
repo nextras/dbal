@@ -71,7 +71,7 @@ interface IConnection
 
 
 	/**
-	 * Starts a transaction.
+	 * Begins a transaction.
 	 * @return void
 	 * @throws DriverException
 	 */
@@ -87,11 +87,35 @@ interface IConnection
 
 
 	/**
-	 * Cancels any uncommitted changes done during the current transaction.
+	 * Cancels the current transaction.
 	 * @return void
 	 * @throws DriverException
 	 */
 	public function rollbackTransaction();
+
+
+	/**
+	 * Creates a savepoint.
+	 * @return void
+	 * @throws DriverException
+	 */
+	public function createSavepoint(string $name);
+
+
+	/**
+	 * Releases the savepoint.
+	 * @return void
+	 * @throws DriverException
+	 */
+	public function releaseSavepoint(string $name);
+
+
+	/**
+	 * Rollbacks the savepoint.
+	 * @return void
+	 * @throws DriverException
+	 */
+	public function rollbackSavepoint(string $name);
 
 
 	/**

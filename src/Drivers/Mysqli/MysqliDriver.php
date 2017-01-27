@@ -177,6 +177,24 @@ class MysqliDriver implements IDriver
 	}
 
 
+	public function createSavepoint(string $name)
+	{
+		$this->query('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
+	public function releaseSavepoint(string $name)
+	{
+		$this->query('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
+	public function rollbackSavepoint(string $name)
+	{
+		$this->query('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
 	protected function processInitialSettings(array $params)
 	{
 		if (isset($params['charset'])) {

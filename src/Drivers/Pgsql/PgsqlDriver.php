@@ -187,6 +187,24 @@ class PgsqlDriver implements IDriver
 	}
 
 
+	public function createSavepoint(string $name)
+	{
+		$this->query('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
+	public function releaseSavepoint(string $name)
+	{
+		$this->query('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
+	public function rollbackSavepoint(string $name)
+	{
+		$this->query('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
 	public function convertToPhp(string $value, $nativeType)
 	{
 		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];

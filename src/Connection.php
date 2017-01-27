@@ -39,6 +39,9 @@ class Connection implements IConnection
 	/** @var bool */
 	private $connected;
 
+	/** @var int */
+	private $nestedTransactionIndex = 0;
+
 
 	/**
 	 * @param  array $config see drivers for supported options
@@ -210,24 +213,57 @@ class Connection implements IConnection
 	public function beginTransaction()
 	{
 		$this->connected || $this->connect();
-		$this->driver->beginTransaction();
-		$this->fireEvent('onQuery', [$this, '::TRANSACTION BEGIN::']);
+		$this->nestedTransactionIndex++;
+		if ($this->nestedTransactionIndex === 1) {
+			$this->driver->beginTransaction();
+		} elseif ($this->config['nestedTransactionsWithSavepoint']) {
+			$this->driver->createSavepoint($this->getSavepointName());
+		}
 	}
 
 
 	/** @inheritdoc */
 	public function commitTransaction()
 	{
-		$this->driver->commitTransaction();
-		$this->fireEvent('onQuery', [$this, '::TRANSACTION COMMIT::']);
+		if ($this->nestedTransactionIndex === 1) {
+			$this->driver->commitTransaction();
+		} elseif ($this->config['nestedTransactionsWithSavepoint']) {
+			$this->driver->releaseSavepoint($this->getSavepointName());
+		}
+		$this->nestedTransactionIndex--;
 	}
 
 
 	/** @inheritdoc */
 	public function rollbackTransaction()
 	{
-		$this->driver->rollbackTransaction();
-		$this->fireEvent('onQuery', [$this, '::TRANSACTION ROLLBACK::']);
+		if ($this->nestedTransactionIndex === 1) {
+			$this->driver->rollbackTransaction();
+		} elseif ($this->config['nestedTransactionsWithSavepoint']) {
+			$this->driver->rollbackSavepoint($this->getSavepointName());
+		}
+		$this->nestedTransactionIndex--;
+	}
+
+
+	/** @inheritdoc */
+	public function createSavepoint(string $name)
+	{
+		$this->driver->createSavepoint($name);
+	}
+
+
+	/** @inheritdoc */
+	public function releaseSavepoint(string $name)
+	{
+		$this->driver->releaseSavepoint($name);
+	}
+
+
+	/** @inheritdoc */
+	public function rollbackSavepoint(string $name)
+	{
+		$this->driver->rollbackSavepoint($name);
 	}
 
 
@@ -242,6 +278,12 @@ class Connection implements IConnection
 			$this->reconnect();
 			return FALSE;
 		}
+	}
+
+
+	protected function getSavepointName(): string
+	{
+		return "NEXTRAS_SAVEPOINT_{$this->nestedTransactionIndex}";
 	}
 
 
@@ -267,6 +309,7 @@ class Connection implements IConnection
 		if (!isset($config['sqlMode'])) { // only for MySQL
 			$config['sqlMode'] = 'TRADITIONAL';
 		}
+		$config['nestedTransactionsWithSavepoint'] = (bool) ($config['nestedTransactionsWithSavepoint'] ?? true);
 		return $config;
 	}
 

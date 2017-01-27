@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Drivers;
 
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\DriverException;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
@@ -97,23 +98,45 @@ interface IDriver
 
 	/**
 	 * Begins a transaction.
-	 * @throws QueryException
+	 * @throws DriverException
 	 */
 	public function beginTransaction();
 
 
 	/**
-	 * Commits a transaction.
-	 * @throws QueryException
+	 * Commits the current transaction.
+	 * @throws DriverException
 	 */
 	public function commitTransaction();
 
 
 	/**
-	 * Rollback a transaction.
-	 * @throws QueryException
+	 * Rollbacks the current transaction.
+	 * @throws DriverException
 	 */
 	public function rollbackTransaction();
+
+
+	/**
+	 * Creates a savepoint.
+	 * @throws DriverException
+	 * @return void
+	 */
+	public function createSavepoint(string $name);
+
+
+	/**
+	 * Releases the savepoint.
+	 * @throws DriverException
+	 */
+	public function releaseSavepoint(string $name);
+
+
+	/**
+	 * Rollbacks the savepoint.
+	 * @throws DriverException
+	 */
+	public function rollbackSavepoint(string $name);
 
 
 	/**
