@@ -46,10 +46,6 @@ class MysqliResultAdapter implements IResultAdapter
 	public function __construct(mysqli_result $result)
 	{
 		$this->result = $result;
-		if (defined('HHVM_VERSION')) {
-			self::$types[MYSQLI_TYPE_BIT] = self::TYPE_DRIVER_SPECIFIC;
-		}
-
 		if (PHP_INT_SIZE < 8) {
 			self::$types[MYSQLI_TYPE_LONGLONG] = self::TYPE_DRIVER_SPECIFIC;
 		}
@@ -64,7 +60,7 @@ class MysqliResultAdapter implements IResultAdapter
 
 	public function seek(int $index)
 	{
-		if ($this->result->num_rows !== 0 && !@$this->result->data_seek($index)) { // @ - intentionally for HHVM, which triggers E_WARNING
+		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
 		}
 	}

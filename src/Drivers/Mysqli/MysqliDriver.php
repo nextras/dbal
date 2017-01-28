@@ -249,10 +249,6 @@ class MysqliDriver implements IDriver
 			$value->invert = $m[1] ? 1 : 0;
 			return $value;
 
-		} elseif ($nativeType === MYSQLI_TYPE_BIT) {
-			// called only under HHVM
-			return ord($value);
-
 		} else {
 			throw new NotSupportedException("MysqliDriver does not support '{$nativeType}' type conversion.");
 		}

@@ -11,13 +11,11 @@ use Nextras\Dbal\InvalidStateException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class ResultIntegrationTest extends IntegrationTestCase
 {
-
 	public function testEmptyResult()
 	{
 		$result = $this->connection->query('SELECT * FROM books WHERE 1=2');
@@ -45,13 +43,8 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$result->setValueNormalization(FALSE);
 		$follower = $result->fetch();
 
-		if (defined('HHVM_VERSION')) {
-			Assert::same(2, $follower->tag_id);
-			Assert::same(2, $follower->author_id);
-		} else {
-			Assert::same('2', $follower->tag_id);
-			Assert::same('2', $follower->author_id);
-		}
+		Assert::same('2', $follower->tag_id);
+		Assert::same('2', $follower->author_id);
 		Assert::type('string', $follower->created_at);
 	}
 
@@ -65,7 +58,6 @@ class ResultIntegrationTest extends IntegrationTestCase
 			$result->seek(10);
 		}, InvalidStateException::class);
 	}
-
 }
 
 
