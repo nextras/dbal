@@ -4,20 +4,21 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 
 ?>
 <style class="tracy-debug">
-	#tracy-debug td.nextras-dbal-panel-sql { background: white !important }
+	#tracy-debug td.nextras-dbal-panel-sql { background: white !important; }
+	#tracy-debug td.nextras-dbal-panel-time { text-align: right !important; }
 </style>
 
 <h1>Queries: <?php echo $count ?></h1>
 <div class="tracy-inner nextras-dbal-panel">
 	<table>
-		<tr><th>SQL query</th><th>Time (ms)</th></tr>
+		<tr><th>SQL query</th><th>ms</th></tr>
 		<?php
 		foreach ($queries as $query):
 			list($connection, $sql, $elapsedTime) = $query;
 		?>
 		<tr>
 		<td class="nextras-dbal-panel-sql"><?php echo $sql ?></td>
-		<td><?php echo $elapsedTime ? sprintf('%0.3f', $elapsedTime * 1000) : '' ?></td>
+		<td class="nextras-dbal-panel-time"><?php echo $elapsedTime ? sprintf('%0.2f', $elapsedTime * 1000) : '' ?></td>
 		</tr>
 		<?php endforeach ?>
 	</table>
