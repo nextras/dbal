@@ -18,17 +18,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class ResultTest extends TestCase
 {
-
-	public function testElapsedTime()
-	{
-		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-		$driver = Mockery::mock(IDriver::class);
-		$result = new Result($adapter, $driver, 123.4);
-		Assert::same(123.4, $result->getElapsedTime());
-	}
-
-
 	public function testIterator()
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
@@ -251,7 +240,6 @@ class ResultTest extends TestCase
 		Assert::same(FALSE, $row->is_single);
 		Assert::same('2015-02-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
 	}
-
 }
 
 

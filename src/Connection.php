@@ -21,7 +21,7 @@ class Connection implements IConnection
 	/** @var callable[]: function(Connection $connection) */
 	public $onDisconnect = [];
 
-	/** @var callable[]: function(Connection $connection, string $query, Result $result) */
+	/** @var callable[]: function(Connection $connection, string $query, float $time, ?Result $result, ?DriverException $exception) */
 	public $onQuery = [];
 
 	/** @var array */
@@ -66,7 +66,9 @@ class Connection implements IConnection
 		if ($this->connected) {
 			return;
 		}
-		$this->driver->connect($this->config);
+		$this->driver->connect($this->config, function (string $sql) {
+			return $this->nativeQuery($sql);
+		});
 		$this->connected = TRUE;
 		$this->fireEvent('onConnect', [$this]);
 	}
@@ -132,11 +134,7 @@ class Connection implements IConnection
 	{
 		$this->connected || $this->connect();
 		$sql = $this->sqlPreprocessor->process($args);
-
-		$result = $this->driver->query($sql);
-
-		$this->fireEvent('onQuery', [$this, $sql, $result]);
-		return $result;
+		return $this->nativeQuery($sql);
 	}
 
 
@@ -284,6 +282,31 @@ class Connection implements IConnection
 	protected function getSavepointName(): string
 	{
 		return "NEXTRAS_SAVEPOINT_{$this->nestedTransactionIndex}";
+	}
+
+
+	private function nativeQuery(string $sql)
+	{
+		try {
+			$result = $this->driver->query($sql);
+			$this->fireEvent('onQuery', [
+				$this,
+				$sql,
+				$this->driver->getQueryElapsedTime(),
+				$result,
+				null, // exception
+			]);
+			return $result;
+		} catch (DriverException $exception) {
+			$this->fireEvent('onQuery', [
+				$this,
+				$sql,
+				$this->driver->getQueryElapsedTime(),
+				null, // result
+				$exception
+			]);
+			throw $exception;
+		}
 	}
 
 

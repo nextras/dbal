@@ -4,20 +4,45 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 
 ?>
 <style class="tracy-debug">
-	#tracy-debug td.nextras-dbal-panel-sql { background: white !important }
+	#tracy-debug .nextras-dbal-panel-sql { background: white !important; }
+	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle { color: #777 !important; }
+	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle:hover { color: #fff !important; }
+	#tracy-debug .nextras-dbal-panel-time { text-align: right !important; }
 </style>
 
 <h1>Queries: <?php echo $count ?></h1>
 <div class="tracy-inner nextras-dbal-panel">
 	<table>
-		<tr><th>SQL query</th><th>Time (ms)</th></tr>
+		<tr>
+			<th class="nextras-dbal-panel-time">ms</th>
+			<th>SQL query</th>
+		</tr>
 		<?php
 		foreach ($queries as $query):
-			list($connection, $sql, $elapsedTime) = $query;
+			list(, $sql, $elapsedTime, $explain) = $query;
 		?>
 		<tr>
-		<td class="nextras-dbal-panel-sql"><?php echo $sql ?></td>
-		<td><?php echo $elapsedTime ? sprintf('%0.3f', $elapsedTime * 1000) : '' ?></td>
+		<td class="nextras-dbal-panel-time"><?php echo $elapsedTime ? sprintf('%0.2f', $elapsedTime * 1000) : '' ?></td>
+		<td class="nextras-dbal-panel-sql">
+			<?php echo $sql ?>
+			<?php if ($explain !== null): ?>
+				<br><a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .nextras-dbal-explain">explain</a>
+				<table class="tracy-collapsed nextras-dbal-explain">
+					<tr>
+					<?php foreach ($explain[0] as $col => $foo): ?>
+						<th><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></th>
+					<?php endforeach ?>
+					</tr>
+					<?php foreach ($explain as $row): ?>
+					<tr>
+						<?php foreach ($row as $col): ?>
+						<td><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></td>
+						<?php endforeach ?>
+					</tr>
+					<?php endforeach ?>
+				</table>
+			<?php endif; ?>
+		</td>
 		</tr>
 		<?php endforeach ?>
 	</table>

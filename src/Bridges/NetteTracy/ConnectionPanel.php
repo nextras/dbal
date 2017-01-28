@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Result\Result;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
@@ -28,35 +29,40 @@ class ConnectionPanel implements IBarPanel
 	/** @var array */
 	private $queries = [];
 
+	/** @var Connection */
+	private $connection;
 
-	public static function install(Connection $connection)
+	/** @var bool */
+	private $doExplain;
+
+
+	public static function install(Connection $connection, bool $doExplain = true)
 	{
-		Debugger::getBar()->addPanel(new ConnectionPanel($connection));
+		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
 	}
 
 
-	public function __construct(Connection $connection)
+	public function __construct(Connection $connection, bool $doExplain)
 	{
 		$connection->onQuery[] = [$this, 'logQuery'];
+		$this->connection = $connection;
+		$this->doExplain = $doExplain;
 	}
 
 
-	public function logQuery(Connection $connection, $sql, Result $result = NULL)
+	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = NULL, DriverException $exception = NULL)
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
 			return;
 		}
 
+		$this->totalTime += $elapsedTime;
 		$this->queries[] = [
 			$connection,
 			$sql,
-			$result ? $result->getElapsedTime() : NULL,
+			$elapsedTime,
 		];
-
-		if ($result) {
-			$this->totalTime += $result->getElapsedTime();
-		}
 	}
 
 
@@ -76,6 +82,12 @@ class ConnectionPanel implements IBarPanel
 		$count = $this->count;
 		$queries = $this->queries;
 		$queries = array_map(function($row) {
+			try {
+				$row[3] = $this->doExplain ? $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll() : null;
+			} catch (\Throwable $e) {
+				$row[3] = null;
+			}
+
 			$row[1] = self::highlight($row[1]);
 			return $row;
 		}, $queries);
@@ -88,7 +100,7 @@ class ConnectionPanel implements IBarPanel
 
 	public static function highlight($sql)
 	{
-		static $keywords1 = 'SELECT|(?:ON\s+DUPLICATE\s+KEY)?UPDATE|INSERT(?:\s+INTO)?|REPLACE(?:\s+INTO)?|SHOW|DELETE|CALL|UNION|FROM|WHERE|HAVING|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|SET|VALUES|LEFT\s+JOIN|INNER\s+JOIN|TRUNCATE';
+		static $keywords1 = 'SELECT|(?:ON\s+DUPLICATE\s+KEY)?UPDATE|INSERT(?:\s+INTO)?|REPLACE(?:\s+INTO)?|SHOW|DELETE|CALL|UNION|FROM|WHERE|HAVING|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|SET|VALUES|LEFT\s+JOIN|INNER\s+JOIN|TRUNCATE|START\s+TRANSACTION|COMMIT|ROLLBACK|(?:RELEASE\s+|ROLLBACK\s+TO\s+)?SAVEPOINT';
 		static $keywords2 = 'ALL|DISTINCT|DISTINCTROW|IGNORE|AS|USING|ON|AND|OR|IN|IS|NOT|NULL|[RI]?LIKE|REGEXP|TRUE|FALSE';
 
 		$sql = " $sql ";

@@ -10,7 +10,6 @@ namespace Nextras\Dbal\Drivers;
 
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\DriverException;
-use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -32,7 +31,7 @@ interface IDriver
 	/**
 	 * Connects the driver to database.
 	 */
-	public function connect(array $params);
+	public function connect(array $params, callable $loggedQueryCallback);
 
 
 	/**
@@ -70,9 +69,14 @@ interface IDriver
 
 	/**
 	 * Returns number of affected rows.
-	 * @return int
 	 */
 	public function getAffectedRows(): int;
+
+
+	/**
+	 * Returns time taken by the last query.
+	 */
+	public function getQueryElapsedTime(): float;
 
 
 	/**
