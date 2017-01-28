@@ -32,17 +32,21 @@ class ConnectionPanel implements IBarPanel
 	/** @var Connection */
 	private $connection;
 
+	/** @var bool */
+	private $doExplain;
 
-	public static function install(Connection $connection)
+
+	public static function install(Connection $connection, bool $doExplain = true)
 	{
-		Debugger::getBar()->addPanel(new ConnectionPanel($connection));
+		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
 	}
 
 
-	public function __construct(Connection $connection)
+	public function __construct(Connection $connection, bool $doExplain)
 	{
 		$connection->onQuery[] = [$this, 'logQuery'];
 		$this->connection = $connection;
+		$this->doExplain = $doExplain;
 	}
 
 
@@ -79,7 +83,7 @@ class ConnectionPanel implements IBarPanel
 		$queries = $this->queries;
 		$queries = array_map(function($row) {
 			try {
-				$row[3] = $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll();
+				$row[3] = $this->doExplain ? $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll() : null;
 			} catch (\Throwable $e) {
 				$row[3] = null;
 			}
