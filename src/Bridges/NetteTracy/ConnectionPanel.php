@@ -29,6 +29,9 @@ class ConnectionPanel implements IBarPanel
 	/** @var array */
 	private $queries = [];
 
+	/** @var Connection */
+	private $connection;
+
 
 	public static function install(Connection $connection)
 	{
@@ -39,6 +42,7 @@ class ConnectionPanel implements IBarPanel
 	public function __construct(Connection $connection)
 	{
 		$connection->onQuery[] = [$this, 'logQuery'];
+		$this->connection = $connection;
 	}
 
 
@@ -74,6 +78,12 @@ class ConnectionPanel implements IBarPanel
 		$count = $this->count;
 		$queries = $this->queries;
 		$queries = array_map(function($row) {
+			try {
+				$row[3] = $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll();
+			} catch (\Throwable $e) {
+				$row[3] = null;
+			}
+
 			$row[1] = self::highlight($row[1]);
 			return $row;
 		}, $queries);
