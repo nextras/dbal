@@ -1,7 +1,7 @@
-Parameter Placeholders
-######################
+Parameter Modifiers
+###################
 
-Dbal allows you easy way to escape and build your SQL query. You can use powerful placeholders:
+Dbal allows you easy way to escape and build your SQL query. You can use powerful modifiers:
 
 |* `%s`, `%?s`, `%s[]`          | string   | not nullable, nullable, array of
 |* `%i`, `%?i`, `%i[]`          | integer  | not nullable, nullable, array of
