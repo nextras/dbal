@@ -93,3 +93,23 @@ $connection->query('UPDATE [users] SET %set WHERE [id] = %i', [
 ], 1);
 // UPDATE `users` SET `name` = 'Jon Snow' WHERE `id` = 1
 \--
+
+Custom Modifiers
+================
+
+You may add support for own modifier. To do that, create new factory class for SqlProcessor and use `setCustomModifier()` method:
+
+/--php
+class SqlProcessorFactory implements Nextras\Dbal\ISqlProcessorFactory
+{
+	public function create(Nextras\Dbal\IDriver $driver, array $config)
+		: Nextras\Dbal\SqlProcessor
+	{
+		$processor = new Nextras\Dbal\SqlProcessor($driver);
+		$processor->setCustomModifier('mybool', function ($bool, $modifier) use ($driver) {
+			return $driver->convertStringToSql($bool ? 'yes' : 'no');
+		});
+		return $processor;
+	}
+}
+\--
