@@ -16,6 +16,7 @@ The connection instance is the main object which provides API for working with y
 |* connectionTz                         | time zone for connection
 |* simpleStorageTz                      | time zone for simple time stamp type
 |* nestedTransactionsWithSavepoint      | boolean which indicates whether use savepoints for nested transactions; enabled by default
+|* sqlProcessorFactory                  | factory implementing ISqlProcessorFactory interface; use for adding custom modifiers; null by default;
 
 /--php
 $connection = new Nextras\Dbal\Connection([

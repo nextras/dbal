@@ -48,10 +48,9 @@ class Connection implements IConnection
 	 */
 	public function __construct(array $config)
 	{
-		$config = $this->processConfig($config);
-		$this->config = $config;
-		$this->driver = $this->createDriver($config);
-		$this->sqlPreprocessor = new SqlProcessor($this->driver);
+		$this->config = $this->processConfig($config);
+		$this->driver = $this->createDriver();
+		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connected = $this->driver->isConnected();
 	}
 
@@ -102,14 +101,13 @@ class Connection implements IConnection
 
 	/**
 	 * Reconnects to a database with new configration.
-	 * @param  array $config
 	 */
 	public function reconnectWithConfig(array $config)
 	{
 		$this->disconnect();
 		$this->config = $this->processConfig($config);
-		$this->driver = $this->createDriver($this->config);
-		$this->sqlPreprocessor = new SqlProcessor($this->driver);
+		$this->driver = $this->createDriver();
+		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connect();
 	}
 
@@ -337,21 +335,30 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Creates a IDriver instance.
-	 */
-	private function createDriver(array $config): IDriver
+	private function createDriver(): IDriver
 	{
-		if (empty($config['driver'])) {
+		if (empty($this->config['driver'])) {
 			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql.');
 
-		} elseif ($config['driver'] instanceof IDriver) {
-			return $config['driver'];
+		} elseif ($this->config['driver'] instanceof IDriver) {
+			return $this->config['driver'];
 
 		} else {
-			$name = ucfirst($config['driver']);
+			$name = ucfirst($this->config['driver']);
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
 			return new $class;
+		}
+	}
+
+
+	private function createSqlProcessor(): SqlProcessor
+	{
+		if (isset($this->config['sqlProcessorFactory'])) {
+			$factory = $this->config['sqlProcessorFactory'];
+			assert($factory instanceof ISqlProcessorFactory);
+			return $factory->create($this->driver, $this->config);
+		} else {
+			return new SqlProcessor($this->driver);
 		}
 	}
 
