@@ -1,5 +1,5 @@
 - [Connection | default]
-- [Param Placeholders | param-placeholders]
+- [Param Modifiers | param-modifiers]
 - [Result | result]
 - [Query Builder | query-builder]
 - [DateTime TimeZones | datetime]

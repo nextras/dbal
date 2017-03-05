@@ -47,10 +47,27 @@ class SqlProcessor
 		'ex' => [FALSE, FALSE, 'array'],
 	];
 
+	/** @var array (modifier => callable) */
+	protected $customModifiers = [];
+
 
 	public function __construct(IDriver $driver)
 	{
 		$this->driver = $driver;
+	}
+
+
+	/**
+	 * @param callable $callback (mixed $value, string $modifier): mixed
+	 */
+	public function setCustomModifier(string $modifier, callable $callback)
+	{
+		$baseModifier = trim($modifier, '[]?');
+		if (isset($this->modifiers[$baseModifier])) {
+			throw new InvalidArgumentException("Cannot override core modifier '$baseModifier'.");
+		}
+
+		$this->customModifiers[$modifier] = $callback;
 	}
 
 
@@ -303,6 +320,10 @@ class SqlProcessor
 						return $this->processArray($type, $value);
 					}
 				}
+		}
+
+		if (isset($this->customModifiers[$type])) {
+			return $this->customModifiers[$type]($value, $type);
 		}
 
 		$baseType = trim($type, '[]?');

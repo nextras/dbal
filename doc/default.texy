@@ -1,4 +1,4 @@
-Nextras\Dbal
+Nextras Dbal
 ############
 
 Connection
@@ -16,6 +16,7 @@ The connection instance is the main object which provides API for working with y
 |* connectionTz                         | time zone for connection
 |* simpleStorageTz                      | time zone for simple time stamp type
 |* nestedTransactionsWithSavepoint      | boolean which indicates whether use savepoints for nested transactions; enabled by default
+|* sqlProcessorFactory                  | factory implementing ISqlProcessorFactory interface; use for adding custom modifiers; null by default;
 
 /--php
 $connection = new Nextras\Dbal\Connection([
@@ -34,7 +35,7 @@ By default, the connection is lazy; it connects to database when needed. You can
 Querying
 ========
 
-Use `query()` method to run SQL queries. Query method accepts "pseudo SQL" statement. Dbal support parameter placeholders, which are passed separately and will be properly escaped and sanitized. Take a look on [Parameter Placeholders | param-placeholders] chapter.
+Use `query()` method to run SQL queries. Query method accepts "pseudo SQL" statement. Dbal supports parameter modifiers that works as parameter placeholder - values are passed separately and its modifier will be replaced by properly escaped and sanitized value. Take a look on [Parameter Modifiers| param-modifiers] chapter.
 
 /--php
 $connection->query('SELECT * FROM foo WHERE id = %i', 1);
@@ -44,7 +45,7 @@ $connection->query('SELECT * FROM foo WHERE title = %s', 'foo" OR 1=1');
 // SELECT * FROM foo WHERE title = "foo\" OR 1=1"
 \--
 
-"Pseudo SQL" supports `[]` square brackets for easily escaping of column names. However, if you pass a column name as parameter retrieved from user, use the proper `%column` placeholder.
+"Pseudo SQL" supports `[]` square brackets for easily escaping of column/table names. However, if you pass a column name as parameter retrieved from an user, use the proper `%column` modifier.
 
 /--php
 $connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id', 1);
