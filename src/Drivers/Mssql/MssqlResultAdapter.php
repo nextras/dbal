@@ -14,6 +14,9 @@ use Nextras\Dbal\InvalidStateException;
 
 class MssqlResultAdapter implements IResultAdapter
 {
+	/** @var int */
+	private $index;
+
 	const
 		SQLTYPE_TIME = -154,
 		SQLTYPE_DATE = 91,
@@ -59,15 +62,21 @@ class MssqlResultAdapter implements IResultAdapter
 
 	public function seek(int $index)
 	{
-		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && !sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index + 0)) {
+		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && !sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
 		}
+		$this->index = $index;
 	}
 
 
 	public function fetch()
 	{
-		return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC);
+		if ($this->index !== null) {
+			$index = $this->index;
+			$this->index = null;
+			return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_ABSOLUTE, $index);
+		}
+		return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_NEXT);
 	}
 
 
