@@ -392,7 +392,7 @@ class MssqlDriver implements IDriver
 	 */
 	protected function createException($error, $errorNo, $sqlState, $query = NULL)
 	{
-		if (in_array($sqlState, ['HYT00', '08001', '28000', '42000'])) {
+		if (in_array($sqlState, ['HYT00', '08001', '28000'])) {
 			return new ConnectionException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif (in_array($errorNo, [2627], TRUE)) {
