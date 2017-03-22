@@ -11,7 +11,7 @@ namespace Nextras\Dbal\Platforms;
 use Nextras\Dbal\Connection;
 
 
-class MssqlSqlPlatform implements IPlatform
+class SqlsrvSqlPlatform implements IPlatform
 {
 	/** @var Connection */
 	private $connection;
@@ -25,7 +25,7 @@ class MssqlSqlPlatform implements IPlatform
 
 	public function getName(): string
 	{
-		return 'mssql';
+		return 'sqlsrv';
 	}
 
 
@@ -127,6 +127,6 @@ class MssqlSqlPlatform implements IPlatform
 
 	public function getPrimarySequenceName(string $table)
 	{
-		return null;
+		return NULL;
 	}
 }

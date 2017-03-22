@@ -6,13 +6,13 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Mssql;
+namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidStateException;
 
 
-class MssqlResultAdapter implements IResultAdapter
+class SqlsrvResultAdapter implements IResultAdapter
 {
 	/** @var int */
 	private $index;
@@ -71,9 +71,9 @@ class MssqlResultAdapter implements IResultAdapter
 
 	public function fetch()
 	{
-		if ($this->index !== null) {
+		if ($this->index !== NULL) {
 			$index = $this->index;
-			$this->index = null;
+			$this->index = NULL;
 			return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_ABSOLUTE, $index);
 		}
 		return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_NEXT);

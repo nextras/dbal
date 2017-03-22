@@ -6,7 +6,7 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Drivers\Mssql;
+namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 use DateInterval;
 use DateTime;
@@ -19,15 +19,16 @@ use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\IPlatform;
-use Nextras\Dbal\Platforms\MssqlSqlPlatform;
+use Nextras\Dbal\Platforms\SqlsrvSqlPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
-use Tracy\Debugger;
+use Nextras\Dbal\UniqueConstraintViolationException;
 
 
-class MssqlDriver implements IDriver
+class SqlsrvDriver implements IDriver
 {
 	/** @var resource */
 	private $connection;
@@ -71,24 +72,25 @@ class MssqlDriver implements IDriver
 
 		$connectionOptions = [];
 		foreach ($params as $key => $value) {
-			if ($key === 'user')
+			if ($key === 'user') {
 				$connectionOptions['UID'] = $value;
-			elseif ($key === 'password')
-				$connectionOptions['PWD'] = $value ?? '';
-			elseif ($key === 'dbname')
+			} elseif ($key === 'password') {
+				$connectionOptions['PWD'] = $value ?: '';
+			} elseif ($key === 'dbname') {
 				$connectionOptions['Database'] = $value;
-			elseif ($key === 'simpleStorageTz')
+			} elseif ($key === 'simpleStorageTz') {
 				$this->simpleStorageTz = new DateTimeZone($value);
-			elseif ($key === 'connectionTz')
+			} elseif ($key === 'connectionTz') {
 				$this->connectionTz = new DateTimeZone($value);
-			elseif (in_array($key, $knownConnectionOptions))
+			} elseif (in_array($key, $knownConnectionOptions, TRUE)) {
 				$connectionOptions[$key] = $value;
+			}
 		}
 
-		if (isset($connectionInfo['ReturnDatesAsStrings']))
-			throw new NotSupportedException("MssqlDriver does not allow to modify 'ReturnDatesAsStrings' parameter.");
-		else
-			$connectionOptions['ReturnDatesAsStrings'] = true;
+		if (isset($connectionInfo['ReturnDatesAsStrings'])) {
+			throw new NotSupportedException("SqlsrvDriver does not allow to modify 'ReturnDatesAsStrings' parameter.");
+		}
+		$connectionOptions['ReturnDatesAsStrings'] = TRUE;
 
 		$this->connection = sqlsrv_connect($connectionString, $connectionOptions);
 		if (!$this->connection) {
@@ -137,14 +139,6 @@ class MssqlDriver implements IDriver
 			$this->throwErrors($query);
 		}
 
-		$this->setLastAffectedRows();
-
-		return new Result(new MssqlResultAdapter($statement), $this);
-	}
-
-
-	private function setLastAffectedRows()
-	{
 		if (!$result = sqlsrv_query($this->connection, 'SELECT @@ROWCOUNT')) {
 			$this->throwErrors();
 		}
@@ -154,6 +148,8 @@ class MssqlDriver implements IDriver
 		} else {
 			$this->throwErrors();
 		}
+
+		return new Result(new SqlsrvResultAdapter($statement), $this);
 	}
 
 
@@ -177,7 +173,7 @@ class MssqlDriver implements IDriver
 
 	public function createPlatform(Connection $connection): IPlatform
 	{
-		return new MssqlSqlPlatform($connection);
+		return new SqlsrvSqlPlatform($connection);
 	}
 
 
@@ -255,22 +251,22 @@ class MssqlDriver implements IDriver
 			return is_float($tmp = $value * 1) ? $value : $tmp;
 
 		} elseif (
-			$nativeType === MssqlResultAdapter::SQLTYPE_DECIMAL_MONEY_SMALLMONEY ||
-			$nativeType === MssqlResultAdapter::SQLTYPE_NUMERIC
+			$nativeType === SqlsrvResultAdapter::SQLTYPE_DECIMAL_MONEY_SMALLMONEY ||
+			$nativeType === SqlsrvResultAdapter::SQLTYPE_NUMERIC
 		) {
-			$float = (float)$value;
-			$string = (string)$float;
+			$float = (float) $value;
+			$string = (string) $float;
 			return $value === $string ? $float : $value;
 
 		} elseif (
-			$nativeType === MssqlResultAdapter::SQLTYPE_DATE ||
-			$nativeType === MssqlResultAdapter::SQLTYPE_DATETIME_DATETIME2_SMALLDATETIME ||
-			$nativeType === MssqlResultAdapter::SQLTYPE_TIME
+			$nativeType === SqlsrvResultAdapter::SQLTYPE_DATE ||
+			$nativeType === SqlsrvResultAdapter::SQLTYPE_DATETIME_DATETIME2_SMALLDATETIME ||
+			$nativeType === SqlsrvResultAdapter::SQLTYPE_TIME
 		) {
 			return $value . ' ' . $this->simpleStorageTz->getName();
 
 		} else {
-			throw new NotSupportedException("MssqlDriver does not support '{$nativeType}' type conversion.");
+			throw new NotSupportedException("SqldrvDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 
@@ -359,14 +355,15 @@ class MssqlDriver implements IDriver
 
 	public function modifyLimitQuery(string $query, $limit, $offset): string
 	{
-		$query .= ' OFFSET ' . (int)($offset ?? 0) . ' ROWS';
+		$query .= ' OFFSET ' . (int) ($offset ?? 0) . ' ROWS';
 		if ($limit !== NULL) {
-			$query .= ' FETCH NEXT ' . (int)$limit . ' ROWS ONLY';
+			$query .= ' FETCH NEXT ' . (int) $limit . ' ROWS ONLY';
 		}
 		return $query;
 	}
 
-	private function throwErrors($query = null)
+
+	private function throwErrors($query = NULL)
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
 		$errors = array_unique($errors, SORT_REGULAR);
@@ -398,11 +395,11 @@ class MssqlDriver implements IDriver
 		} elseif (in_array($errorNo, [2627], TRUE)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
-//		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], TRUE)) {
-//			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
-//
-//		} elseif (in_array($errorNo, [207], TRUE)) {
-//			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif (in_array($errorNo, [2601], TRUE)) {
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+
+		} elseif (in_array($errorNo, [515], TRUE)) {
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif ($query !== NULL) {
 			return new QueryException($error, $errorNo, $sqlState, NULL, $query);
