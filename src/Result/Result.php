@@ -69,7 +69,7 @@ class Result implements \SeekableIterator
 	/**
 	 * Enables and disables value normalization.
 	 */
-	public function setValueNormalization(bool $enabled = FALSE)
+	public function setValueNormalization(bool $enabled = FALSE): void
 	{
 		if ($enabled === TRUE) {
 			$this->initColumnConversions();
@@ -84,10 +84,7 @@ class Result implements \SeekableIterator
 	}
 
 
-	/**
-	 * @return Row|NULL
-	 */
-	public function fetch()
+	public function fetch(): ?Row
 	{
 		$data = $this->adapter->fetch();
 		$row = ($data === NULL ? NULL : new Row($this->normalize($data)));

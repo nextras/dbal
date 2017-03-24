@@ -352,9 +352,8 @@ class SqlProcessor
 
 	/**
 	 * @param  mixed $value
-	 * @return void
 	 */
-	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType)
+	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType): void
 	{
 		$actualType = $this->getVariableTypeName($value);
 		throw new InvalidArgumentException("Modifier %$type expects value to be $expectedType, $actualType given.");
@@ -363,9 +362,8 @@ class SqlProcessor
 
 	/**
 	 * @param  mixed $value
-	 * @return void
 	 */
-	protected function throwWrongModifierException(string $type, $value, string $hint)
+	protected function throwWrongModifierException(string $type, $value, string $hint): void
 	{
 		$valueLabel = is_scalar($value) ? var_export($value, TRUE) : gettype($value);
 		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");

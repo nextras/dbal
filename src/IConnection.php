@@ -15,28 +15,26 @@ use Nextras\Dbal\Result\Result;
 
 interface IConnection
 {
-	const TRANSACTION_READ_UNCOMMITTED = 1;
-	const TRANSACTION_READ_COMMITTED = 2;
-	const TRANSACTION_REPEATABLE_READ = 3;
-	const TRANSACTION_SERIALIZABLE = 4;
+	public const TRANSACTION_READ_UNCOMMITTED = 1;
+	public const TRANSACTION_READ_COMMITTED = 2;
+	public const TRANSACTION_REPEATABLE_READ = 3;
+	public const TRANSACTION_SERIALIZABLE = 4;
 
 
 	/**
 	 * Executes a query.
 	 * @param  mixed ...$args
-	 * @return Result|null
 	 * @throws QueryException
 	 */
-	public function query(...$args);
+	public function query(...$args): ?Result;
 
 
 	/**
 	 * @param  string|array $query
 	 * @param  array $args
-	 * @return Result|null
 	 * @throws QueryException
 	 */
-	public function queryArgs($query, array $args = []);
+	public function queryArgs($query, array $args = []): ?Result;
 
 
 	/**
@@ -58,7 +56,7 @@ interface IConnection
 	public function createQueryBuilder(): QueryBuilder;
 
 
-	public function setTransactionIsolationLevel(int $level);
+	public function setTransactionIsolationLevel(int $level): void;
 
 
 	/**
@@ -72,55 +70,48 @@ interface IConnection
 
 	/**
 	 * Begins a transaction.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function beginTransaction();
+	public function beginTransaction(): void;
 
 
 	/**
 	 * Commits the current transaction.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function commitTransaction();
+	public function commitTransaction(): void;
 
 
 	/**
 	 * Cancels the current transaction.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function rollbackTransaction();
+	public function rollbackTransaction(): void;
 
 
 	/**
 	 * Creates a savepoint.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function createSavepoint(string $name);
+	public function createSavepoint(string $name): void;
 
 
 	/**
 	 * Releases the savepoint.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function releaseSavepoint(string $name);
+	public function releaseSavepoint(string $name): void;
 
 
 	/**
 	 * Rollbacks the savepoint.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function rollbackSavepoint(string $name);
+	public function rollbackSavepoint(string $name): void;
 
 
 	/**
 	 * Pings a database connection and tries to reconnect it if it is broken.
-	 * @return bool
 	 */
 	public function ping(): bool;
 }

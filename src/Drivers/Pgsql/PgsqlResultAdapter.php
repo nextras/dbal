@@ -25,8 +25,8 @@ class PgsqlResultAdapter implements IResultAdapter
 		'bytea'       => self::TYPE_DRIVER_SPECIFIC,
 		'interval'    => self::TYPE_DRIVER_SPECIFIC,
 		'time'        => self::TYPE_DRIVER_SPECIFIC,
-		'date'        => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		'timestamp'   => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		'date'        => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		'timestamp'   => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
 		'int8'        => self::TYPE_INT,
 		'int4'        => self::TYPE_INT,
@@ -60,7 +60,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index)
+	public function seek(int $index): void
 	{
 		if (pg_num_rows($this->result) !== 0 && !pg_result_seek($this->result, $index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -68,7 +68,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch()
+	public function fetch(): ?array
 	{
 		return pg_fetch_array($this->result, NULL, PGSQL_ASSOC) ?: NULL;
 	}
@@ -82,7 +82,7 @@ class PgsqlResultAdapter implements IResultAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$nativeType = pg_field_type($this->result, $i);
 			$types[pg_field_name($this->result, $i)] = [
-				0 => isset(self::$types[$nativeType]) ? self::$types[$nativeType] : self::TYPE_AS_IS,
+				0 => self::$types[$nativeType] ?? self::TYPE_AS_IS,
 				1 => $nativeType,
 			];
 		}

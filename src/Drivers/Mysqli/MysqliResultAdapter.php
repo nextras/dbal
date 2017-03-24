@@ -18,9 +18,9 @@ class MysqliResultAdapter implements IResultAdapter
 	/** @var array */
 	protected static $types = [
 		MYSQLI_TYPE_TIME        => self::TYPE_DRIVER_SPECIFIC,
-		MYSQLI_TYPE_DATE        => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		MYSQLI_TYPE_DATETIME    => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		MYSQLI_TYPE_TIMESTAMP   => 33, // self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		MYSQLI_TYPE_DATE        => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		MYSQLI_TYPE_DATETIME    => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		MYSQLI_TYPE_TIMESTAMP   => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
 		MYSQLI_TYPE_BIT         => self::TYPE_INT, // returned as int
 		MYSQLI_TYPE_INT24       => self::TYPE_INT,
@@ -58,7 +58,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index)
+	public function seek(int $index): void
 	{
 		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -66,7 +66,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch()
+	public function fetch(): ?array
 	{
 		return $this->result->fetch_assoc();
 	}
@@ -80,7 +80,7 @@ class MysqliResultAdapter implements IResultAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$field = (array) $this->result->fetch_field_direct($i);
 			$types[$field['name']] = [
-				0 => isset(self::$types[$field['type']]) ? self::$types[$field['type']] : self::TYPE_AS_IS,
+				0 => self::$types[$field['type']] ?? self::TYPE_AS_IS,
 				1 => $field['type'],
 			];
 		}

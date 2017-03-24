@@ -55,7 +55,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $loggedQueryCallback)
+	public function connect(array $params, callable $loggedQueryCallback): void
 	{
 		$this->loggedQueryCallback = $loggedQueryCallback;
 
@@ -101,7 +101,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if ($this->connection) {
 			sqlsrv_close($this->connection);
@@ -122,7 +122,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function query(string $query)
+	public function query(string $query): ?Result
 	{
 		/**
 		 * @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx
@@ -191,7 +191,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function setTransactionIsolationLevel(int $level)
+	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
@@ -206,7 +206,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function beginTransaction()
+	public function beginTransaction(): void
 	{
 		if (!sqlsrv_begin_transaction($this->connection)) {
 			$this->throwErrors();
@@ -214,7 +214,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function commitTransaction()
+	public function commitTransaction(): void
 	{
 		if (!sqlsrv_commit($this->connection)) {
 			$this->throwErrors();
@@ -222,7 +222,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function rollbackTransaction()
+	public function rollbackTransaction(): void
 	{
 		if (!sqlsrv_rollback($this->connection)) {
 			$this->throwErrors();
@@ -230,23 +230,24 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function createSavepoint(string $name)
+	public function createSavepoint(string $name): void
 	{
 		$this->loggedQuery('SAVE TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function releaseSavepoint(string $name)
+	public function releaseSavepoint(string $name): void
 	{
 		// transaction are released automatically
 		// http://stackoverflow.com/questions/3101312/sql-server-2008-no-release-savepoint-for-current-transaction
 	}
 
 
-	public function rollbackSavepoint(string $name)
+	public function rollbackSavepoint(string $name): void
 	{
 		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
+
 
 	public function convertToPhp(string $value, $nativeType)
 	{
@@ -347,7 +348,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function modifyLimitQuery(string $query, $limit, $offset): string
+	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
 		$query .= ' OFFSET ' . (int) ($offset ?? 0) . ' ROWS';
 		if ($limit !== NULL) {

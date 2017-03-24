@@ -11,6 +11,7 @@ namespace Nextras\Dbal;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
+use Nextras\Dbal\Result\Result;
 
 
 class Connection implements IConnection
@@ -57,10 +58,9 @@ class Connection implements IConnection
 
 	/**
 	 * Connects to a database.
-	 * @return void
 	 * @throws ConnectionException
 	 */
-	public function connect()
+	public function connect(): void
 	{
 		if ($this->connected) {
 			return;
@@ -75,9 +75,8 @@ class Connection implements IConnection
 
 	/**
 	 * Disconnects from a database.
-	 * @return void
 	 */
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if (!$this->connected) {
 			return;
@@ -90,9 +89,8 @@ class Connection implements IConnection
 
 	/**
 	 * Reconnects to a database.
-	 * @return void
 	 */
-	public function reconnect()
+	public function reconnect(): void
 	{
 		$this->disconnect();
 		$this->connect();
@@ -102,7 +100,7 @@ class Connection implements IConnection
 	/**
 	 * Reconnects to a database with new configration.
 	 */
-	public function reconnectWithConfig(array $config)
+	public function reconnectWithConfig(array $config): void
 	{
 		$this->disconnect();
 		$this->config = $this->processConfig($config);
@@ -128,7 +126,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function query(...$args)
+	public function query(...$args): ?Result
 	{
 		$this->connected || $this->connect();
 		$sql = $this->sqlPreprocessor->process($args);
@@ -137,7 +135,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function queryArgs($query, array $args = [])
+	public function queryArgs($query, array $args = []): ?Result
 	{
 		if (!is_array($query)) {
 			array_unshift($args, $query);
@@ -183,7 +181,7 @@ class Connection implements IConnection
 	}
 
 
-	public function setTransactionIsolationLevel(int $level)
+	public function setTransactionIsolationLevel(int $level): void
 	{
 		$this->driver->setTransactionIsolationLevel($level);
 	}
@@ -206,7 +204,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function beginTransaction()
+	public function beginTransaction(): void
 	{
 		$this->connected || $this->connect();
 		$this->nestedTransactionIndex++;
@@ -219,7 +217,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function commitTransaction()
+	public function commitTransaction(): void
 	{
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->commitTransaction();
@@ -231,7 +229,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function rollbackTransaction()
+	public function rollbackTransaction(): void
 	{
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->rollbackTransaction();
@@ -243,21 +241,21 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function createSavepoint(string $name)
+	public function createSavepoint(string $name): void
 	{
 		$this->driver->createSavepoint($name);
 	}
 
 
 	/** @inheritdoc */
-	public function releaseSavepoint(string $name)
+	public function releaseSavepoint(string $name): void
 	{
 		$this->driver->releaseSavepoint($name);
 	}
 
 
 	/** @inheritdoc */
-	public function rollbackSavepoint(string $name)
+	public function rollbackSavepoint(string $name): void
 	{
 		$this->driver->rollbackSavepoint($name);
 	}
@@ -363,10 +361,7 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * @return void
-	 */
-	private function fireEvent(string $event, array $args)
+	private function fireEvent(string $event, array $args): void
 	{
 		foreach ($this->$event as $callback) {
 			call_user_func_array($callback, $args);

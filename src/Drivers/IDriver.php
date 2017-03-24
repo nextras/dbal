@@ -16,28 +16,28 @@ use Nextras\Dbal\Result\Result;
 
 interface IDriver
 {
-	const TYPE_BOOL = 1;
-	const TYPE_DATETIME = 2;
-	const TYPE_DATETIME_SIMPLE = 3;
-	const TYPE_IDENTIFIER = 4;
-	const TYPE_STRING = 5;
-	const TYPE_DATE_INTERVAL = 6;
-	const TYPE_BLOB = 7;
+	public const TYPE_BOOL = 1;
+	public const TYPE_DATETIME = 2;
+	public const TYPE_DATETIME_SIMPLE = 3;
+	public const TYPE_IDENTIFIER = 4;
+	public const TYPE_STRING = 5;
+	public const TYPE_DATE_INTERVAL = 6;
+	public const TYPE_BLOB = 7;
 
-	const TIMEZONE_AUTO_PHP_NAME = 'auto';
-	const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
+	public const TIMEZONE_AUTO_PHP_NAME = 'auto';
+	public const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
 
 
 	/**
 	 * Connects the driver to database.
 	 */
-	public function connect(array $params, callable $loggedQueryCallback);
+	public function connect(array $params, callable $loggedQueryCallback): void;
 
 
 	/**
 	 * Disconnects from the database.
 	 */
-	public function disconnect();
+	public function disconnect(): void;
 
 
 	/**
@@ -55,9 +55,8 @@ interface IDriver
 
 	/**
 	 * Runs query and returns the result. Returns NULL if query does not select data.
-	 * @return Result|NULL
 	 */
-	public function query(string $query);
+	public function query(string $query): ?Result;
 
 
 	/**
@@ -97,55 +96,53 @@ interface IDriver
 	public function ping(): bool;
 
 
-	public function setTransactionIsolationLevel(int $level);
+	public function setTransactionIsolationLevel(int $level): void;
 
 
 	/**
 	 * Begins a transaction.
 	 * @throws DriverException
 	 */
-	public function beginTransaction();
+	public function beginTransaction(): void;
 
 
 	/**
 	 * Commits the current transaction.
 	 * @throws DriverException
 	 */
-	public function commitTransaction();
+	public function commitTransaction(): void;
 
 
 	/**
 	 * Rollbacks the current transaction.
 	 * @throws DriverException
 	 */
-	public function rollbackTransaction();
+	public function rollbackTransaction(): void;
 
 
 	/**
 	 * Creates a savepoint.
 	 * @throws DriverException
-	 * @return void
 	 */
-	public function createSavepoint(string $name);
+	public function createSavepoint(string $name): void;
 
 
 	/**
 	 * Releases the savepoint.
 	 * @throws DriverException
 	 */
-	public function releaseSavepoint(string $name);
+	public function releaseSavepoint(string $name): void;
 
 
 	/**
 	 * Rollbacks the savepoint.
 	 * @throws DriverException
 	 */
-	public function rollbackSavepoint(string $name);
+	public function rollbackSavepoint(string $name): void;
 
 
 	/**
 	 * Converts database value to php boolean.
-	 * @param  string $value
 	 * @param  mixed $nativeType
 	 * @return mixed
 	 */
@@ -185,8 +182,6 @@ interface IDriver
 
 	/**
 	 * Adds driver-specific limit clause to the query.
-	 * @param  int|NULL $limit
-	 * @param  int|NULL $offset
 	 */
-	public function modifyLimitQuery(string $query, $limit, $offset): string;
+	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string;
 }

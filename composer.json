@@ -12,7 +12,7 @@
 		"issues": "https://github.com/nextras/dbal/issues"
 	},
 	"require": {
-		"php": ">=7.0"
+		"php": ">=7.1"
 	},
 	"require-dev": {
 		"nette/tester": "~1.7",
