@@ -14,30 +14,20 @@ use Nextras\Dbal\InvalidStateException;
 
 class SqlsrvResultAdapter implements IResultAdapter
 {
+	/** @var array */
+	protected static $types = [
+		SqlsrvTypes::TYPE_INT => self::TYPE_INT,
+		SqlsrvTypes::TYPE_BIT => self::TYPE_BOOL,
+		SqlsrvTypes::TYPE_NUMERIC => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvTypes::TYPE_DECIMAL_MONEY_SMALLMONEY => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvTypes::TYPE_TIME => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvTypes::TYPE_DATE => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvTypes::TYPE_DATETIMEOFFSET => self::TYPE_DATETIME,
+	];
+
 	/** @var int */
 	private $index;
-
-	const
-		SQLTYPE_TIME = -154,
-		SQLTYPE_DATE = 91,
-		SQLTYPE_DATETIME_DATETIME2_SMALLDATETIME = 93,
-		SQLTYPE_DATETIMEOFFSET = -155,
-		SQLTYPE_NUMERIC = 2,
-		SQLTYPE_DECIMAL_MONEY_SMALLMONEY = 3;
-
-	/**
-	 * @var array
-	 * @see https://docs.microsoft.com/en-us/sql/connect/php/sqlsrv-field-metadata
-	 */
-	protected static $types = [
-		SQLSRV_SQLTYPE_BIGINT => self::TYPE_INT,
-		SQLSRV_SQLTYPE_BIT => self::TYPE_BOOL,
-		self::SQLTYPE_NUMERIC => self::TYPE_DRIVER_SPECIFIC,
-		self::SQLTYPE_DECIMAL_MONEY_SMALLMONEY => self::TYPE_DRIVER_SPECIFIC,
-		self::SQLTYPE_TIME => self::TYPE_DRIVER_SPECIFIC,
-		self::SQLTYPE_DATE => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		self::SQLTYPE_DATETIME_DATETIME2_SMALLDATETIME => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-	];
 
 	/** @var resource */
 	private $statement;
@@ -86,8 +76,8 @@ class SqlsrvResultAdapter implements IResultAdapter
 		foreach ($fields as $field) {
 			$nativeType = $field['Type'];
 			$types[$field['Name']] = [
-				0 => isset(self::$types[$nativeType]) ? self::$types[$nativeType] : self::TYPE_AS_IS,
-				1 => $nativeType
+				0 => self::$types[$nativeType] ?? self::TYPE_AS_IS,
+				1 => $nativeType,
 			];
 		}
 		return $types;

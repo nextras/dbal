@@ -254,22 +254,22 @@ class SqlsrvDriver implements IDriver
 			return is_float($tmp = $value * 1) ? $value : $tmp;
 
 		} elseif (
-			$nativeType === SqlsrvResultAdapter::SQLTYPE_DECIMAL_MONEY_SMALLMONEY ||
-			$nativeType === SqlsrvResultAdapter::SQLTYPE_NUMERIC
+			$nativeType === SqlsrvTypes::TYPE_DECIMAL_MONEY_SMALLMONEY ||
+			$nativeType === SqlsrvTypes::TYPE_NUMERIC
 		) {
 			$float = (float) $value;
 			$string = (string) $float;
 			return $value === $string ? $float : $value;
 
 		} elseif (
-			$nativeType === SqlsrvResultAdapter::SQLTYPE_DATE ||
-			$nativeType === SqlsrvResultAdapter::SQLTYPE_DATETIME_DATETIME2_SMALLDATETIME ||
-			$nativeType === SqlsrvResultAdapter::SQLTYPE_TIME
+			$nativeType === SqlsrvTypes::TYPE_DATE ||
+			$nativeType === SqlsrvTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME ||
+			$nativeType === SqlsrvTypes::TYPE_TIME
 		) {
 			return $value . ' ' . $this->simpleStorageTz->getName();
 
 		} else {
-			throw new NotSupportedException("SqldrvDriver does not support '{$nativeType}' type conversion.");
+			throw new NotSupportedException("SqlsrvDriver does not support '{$nativeType}' type conversion.");
 		}
 	}
 
@@ -377,10 +377,6 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	/**
-	 * This method is based on Doctrine\DBAL project.
-	 * @link www.doctrine-project.org
-	 */
 	protected function createException($error, $errorNo, $sqlState, $query = NULL)
 	{
 		if (in_array($sqlState, ['HYT00', '08001', '28000'])) {
