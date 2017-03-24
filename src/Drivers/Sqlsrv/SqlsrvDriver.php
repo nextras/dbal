@@ -57,6 +57,8 @@ class SqlsrvDriver implements IDriver
 
 	public function connect(array $params, callable $loggedQueryCallback)
 	{
+		$this->loggedQueryCallback = $loggedQueryCallback;
+
 		/**
 		 * @see https://msdn.microsoft.com/en-us/library/ff628167.aspx
 		 */
@@ -230,19 +232,20 @@ class SqlsrvDriver implements IDriver
 
 	public function createSavepoint(string $name)
 	{
-		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('SAVE TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function releaseSavepoint(string $name)
 	{
-		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		// transaction are released automatically
+		// http://stackoverflow.com/questions/3101312/sql-server-2008-no-release-savepoint-for-current-transaction
 	}
 
 
 	public function rollbackSavepoint(string $name)
 	{
-		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
 	public function convertToPhp(string $value, $nativeType)
@@ -313,16 +316,7 @@ class SqlsrvDriver implements IDriver
 
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
-		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
-		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
-			if ($value instanceof DateTimeImmutable) {
-				$value = $value->setTimezone($this->connectionTz);
-			} else {
-				$value = clone $value;
-				$value->setTimezone($this->connectionTz);
-			}
-		}
-		return "'" . $value->format('Y-m-d\TH:i:s') . "'";
+		return $this->convertDateTimeSimpleToSql($value);
 	}
 
 
@@ -392,7 +386,7 @@ class SqlsrvDriver implements IDriver
 		if (in_array($sqlState, ['HYT00', '08001', '28000'])) {
 			return new ConnectionException($error, $errorNo, $sqlState, NULL, $query);
 
-		} elseif (in_array($errorNo, [2627], TRUE)) {
+		} elseif (in_array($errorNo, [2627, 547], TRUE)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
 
 		} elseif (in_array($errorNo, [2601], TRUE)) {
