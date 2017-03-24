@@ -5,7 +5,10 @@ namespace NextrasTests\Dbal;
 use Mockery;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
+use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\FileImporter;
 use Tester\Environment;
 
@@ -22,10 +25,15 @@ class IntegrationTestCase extends TestCase
 	public function initData(Connection $connection)
 	{
 		$this->lockConnection($connection);
-		if ($connection->getPlatform() instanceof PostgreSqlPlatform) {
+		$platform = $connection->getPlatform();
+		if ($platform instanceof PostgreSqlPlatform) {
 			FileImporter::executeFile($connection, __DIR__ . '/../data/pgsql-data.sql');
-		} else {
+		} elseif ($platform instanceof SqlServerPlatform) {
+			FileImporter::executeFile($connection, __DIR__ . '/../data/sqlsrv-data.sql');
+		} elseif ($platform instanceof MySqlPlatform) {
 			FileImporter::executeFile($connection, __DIR__ . '/../data/mysql-data.sql');
+		} else {
+			throw new InvalidStateException();
 		}
 	}
 
