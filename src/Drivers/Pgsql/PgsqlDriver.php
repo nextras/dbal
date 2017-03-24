@@ -49,7 +49,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $loggedQueryCallback): void
+	public function connect(array $params, callable $loggedQueryCallback)
 	{
 		static $knownKeys = [
 			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
@@ -80,7 +80,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function disconnect(): void
+	public function disconnect()
 	{
 		if ($this->connection) {
 			pg_close($this->connection);
@@ -101,7 +101,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function query(string $query): ?Result
+	public function query(string $query)
 	{
 		if (!pg_send_query($this->connection, $query)) {
 			throw $this->createException(pg_last_error($this->connection), 0, null);
@@ -165,7 +165,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function setTransactionIsolationLevel(int $level): void
+	public function setTransactionIsolationLevel(int $level)
 	{
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
@@ -180,37 +180,37 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function beginTransaction(): void
+	public function beginTransaction()
 	{
 		$this->loggedQuery('START TRANSACTION');
 	}
 
 
-	public function commitTransaction(): void
+	public function commitTransaction()
 	{
 		$this->loggedQuery('COMMIT');
 	}
 
 
-	public function rollbackTransaction(): void
+	public function rollbackTransaction()
 	{
 		$this->loggedQuery('ROLLBACK');
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string $name)
 	{
 		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string $name)
 	{
 		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string $name)
 	{
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -321,7 +321,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
+	public function modifyLimitQuery(string $query, $limit, $offset): string
 	{
 		if ($limit !== null) {
 			$query .= ' LIMIT ' . (int) $limit;

@@ -47,7 +47,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $loggedQueryCallback): void
+	public function connect(array $params, callable $loggedQueryCallback)
 	{
 		$this->loggedQueryCallback = $loggedQueryCallback;
 
@@ -71,7 +71,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function disconnect(): void
+	public function disconnect()
 	{
 		if ($this->connection) {
 			$this->connection->close();
@@ -92,7 +92,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function query(string $query): ?Result
+	public function query(string $query)
 	{
 		$time = microtime(true);
 		$result = @$this->connection->query($query);
@@ -155,7 +155,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function setTransactionIsolationLevel(int $level): void
+	public function setTransactionIsolationLevel(int $level)
 	{
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
@@ -170,37 +170,37 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function beginTransaction(): void
+	public function beginTransaction()
 	{
 		$this->loggedQuery('START TRANSACTION');
 	}
 
 
-	public function commitTransaction(): void
+	public function commitTransaction()
 	{
 		$this->loggedQuery('COMMIT');
 	}
 
 
-	public function rollbackTransaction(): void
+	public function rollbackTransaction()
 	{
 		$this->loggedQuery('ROLLBACK');
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string $name)
 	{
 		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string $name)
 	{
 		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string $name)
 	{
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -330,7 +330,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
+	public function modifyLimitQuery(string $query, $limit, $offset): string
 	{
 		if ($limit !== null || $offset !== null) {
 			// 18446744073709551615 is maximum of unsigned BIGINT

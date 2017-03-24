@@ -91,7 +91,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table): ?string
+	public function getPrimarySequenceName(string $table)
 	{
 		return null;
 	}

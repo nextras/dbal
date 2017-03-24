@@ -58,7 +58,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index): void
+	public function seek(int $index)
 	{
 		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -66,7 +66,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch(): ?array
+	public function fetch()
 	{
 		return $this->result->fetch_assoc();
 	}

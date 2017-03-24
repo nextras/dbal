@@ -45,7 +45,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index): void
+	public function seek(int $index)
 	{
 		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && !sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -54,7 +54,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch(): ?array
+	public function fetch()
 	{
 		if ($this->index !== null) {
 			$index = $this->index;
@@ -69,7 +69,6 @@ class SqlsrvResultAdapter implements IResultAdapter
 	{
 		$types = [];
 		$fields = sqlsrv_field_metadata($this->statement);
-
 		foreach ($fields as $field) {
 			$nativeType = $field['Type'];
 			$types[$field['Name']] = [
@@ -77,7 +76,6 @@ class SqlsrvResultAdapter implements IResultAdapter
 				1 => $nativeType,
 			];
 		}
-
 		return $types;
 	}
 }
