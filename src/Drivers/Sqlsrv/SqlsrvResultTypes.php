@@ -12,10 +12,10 @@ namespace Nextras\Dbal\Drivers\Sqlsrv;
 /**
  * @see https://docs.microsoft.com/en-us/sql/connect/php/sqlsrv-field-metadata
  */
-final class SqlsrvTypes
+final class SqlsrvResultTypes
 {
-	public const TYPE_INT = SQLSRV_SQLTYPE_BIGINT;
-	public const TYPE_BIT = SQLSRV_SQLTYPE_BIT;
+	public const TYPE_INT = -5;
+	public const TYPE_BIT = -7;
 	public const TYPE_TIME = -154;
 	public const TYPE_DATE = 91;
 	public const TYPE_DATETIME_DATETIME2_SMALLDATETIME = 93;

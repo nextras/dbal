@@ -251,21 +251,16 @@ class SqlsrvDriver implements IDriver
 
 	public function convertToPhp(string $value, $nativeType)
 	{
-		if ($nativeType === SQLSRV_SQLTYPE_BIGINT) {
-			return is_float($tmp = $value * 1) ? $value : $tmp;
-
-		} elseif (
-			$nativeType === SqlsrvTypes::TYPE_DECIMAL_MONEY_SMALLMONEY ||
-			$nativeType === SqlsrvTypes::TYPE_NUMERIC
+		if (
+			$nativeType === SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY ||
+			$nativeType === SqlsrvResultTypes::TYPE_NUMERIC
 		) {
-			$float = (float) $value;
-			$string = (string) $float;
-			return $value === $string ? $float : $value;
+			return strpos($value, '.') === false ? (int) $value : (float) $value;
 
 		} elseif (
-			$nativeType === SqlsrvTypes::TYPE_DATE ||
-			$nativeType === SqlsrvTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME ||
-			$nativeType === SqlsrvTypes::TYPE_TIME
+			$nativeType === SqlsrvResultTypes::TYPE_DATE ||
+			$nativeType === SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME ||
+			$nativeType === SqlsrvResultTypes::TYPE_TIME
 		) {
 			return $value . ' ' . $this->simpleStorageTz->getName();
 
@@ -293,11 +288,12 @@ class SqlsrvDriver implements IDriver
 
 	public function convertLikeToSql(string $value, int $mode)
 	{
+		// https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
 		$value = strtr($value, [
 			"'" => "''",
-			'\\' => '\\\\',
-			'%' => '\\%',
-			'_' => '\\_',
+			'%' => '[%]',
+			'_' => '[_]',
+			'[' => '[[]',
 		]);
 		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
 	}
@@ -338,19 +334,19 @@ class SqlsrvDriver implements IDriver
 
 	public function convertDateIntervalToSql(DateInterval $value): string
 	{
-		return $value->format('P%yY%mM%dDT%hH%iM%sS');
+		throw new NotSupportedException();
 	}
 
 
 	public function convertBlobToSql(string $value): string
 	{
-		return '0x' . $value;
+		return '0x' . bin2hex($value);
 	}
 
 
 	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
-		$query .= ' OFFSET ' . (int) ($offset ?? 0) . ' ROWS';
+		$query .= ' OFFSET ' . (int) ($offset ?: 0) . ' ROWS';
 		if ($limit !== NULL) {
 			$query .= ' FETCH NEXT ' . (int) $limit . ' ROWS ONLY';
 		}
@@ -401,7 +397,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function loggedQuery(string $sql)
+	protected function loggedQuery(string $sql): ?Result
 	{
 		return ($this->loggedQueryCallback)($sql);
 	}

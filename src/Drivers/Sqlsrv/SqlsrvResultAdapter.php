@@ -16,14 +16,14 @@ class SqlsrvResultAdapter implements IResultAdapter
 {
 	/** @var array */
 	protected static $types = [
-		SqlsrvTypes::TYPE_INT => self::TYPE_INT,
-		SqlsrvTypes::TYPE_BIT => self::TYPE_BOOL,
-		SqlsrvTypes::TYPE_NUMERIC => self::TYPE_DRIVER_SPECIFIC,
-		SqlsrvTypes::TYPE_DECIMAL_MONEY_SMALLMONEY => self::TYPE_DRIVER_SPECIFIC,
-		SqlsrvTypes::TYPE_TIME => self::TYPE_DRIVER_SPECIFIC,
-		SqlsrvTypes::TYPE_DATE => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		SqlsrvTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		SqlsrvTypes::TYPE_DATETIMEOFFSET => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_INT                               => self::TYPE_INT,
+		SqlsrvResultTypes::TYPE_BIT                               => self::TYPE_BOOL,
+		SqlsrvResultTypes::TYPE_NUMERIC                           => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY          => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvResultTypes::TYPE_TIME                              => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATE                              => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME  => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATETIMEOFFSET                    => self::TYPE_DATETIME,
 	];
 
 	/** @var int */
@@ -36,10 +36,6 @@ class SqlsrvResultAdapter implements IResultAdapter
 	public function __construct($statement)
 	{
 		$this->statement = $statement;
-
-		if (PHP_INT_SIZE < 8) {
-			self::$types['int8'] = self::TYPE_DRIVER_SPECIFIC;
-		}
 	}
 
 
