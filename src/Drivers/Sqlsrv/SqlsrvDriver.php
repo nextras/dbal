@@ -22,7 +22,7 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\IPlatform;
-use Nextras\Dbal\Platforms\SqlsrvSqlPlatform;
+use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
@@ -175,7 +175,7 @@ class SqlsrvDriver implements IDriver
 
 	public function createPlatform(Connection $connection): IPlatform
 	{
-		return new SqlsrvSqlPlatform($connection);
+		return new SqlServerPlatform($connection);
 	}
 
 
