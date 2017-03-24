@@ -1,12 +1,19 @@
 Nextras Dbal
 ############
 
+A powerful abstraction layer for database. **Fast & Save**.
+
+Supported platforms:
+- **MySQL** via mysqli extension,
+- **PostgreSQL** via pgsql extension,
+- **MS SQL Server** via sqlsrv extension.
+
 Connection
 ==========
 
 The connection instance is the main object which provides API for working with your database. Connection's constructor accepts a configuration array. The possible keys depend on the current driver, although some configuration keys are the same for all drivers:
 
-|* driver                               | driver name, use `mysqli` or `pgsql`
+|* driver                               | driver name, use `mysqli`, `pgsql`, or `sqlsrv`
 |* host                                 | database server name
 |* username                             | username for authentication
 |* password                             | password for authentication

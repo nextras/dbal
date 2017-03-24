@@ -7,6 +7,13 @@ Nextras Dbal
 [![Stable Version](https://poser.pugx.org/nextras/dbal/v/stable)](https://packagist.org/packages/nextras/dbal)
 [![Code coverage](https://img.shields.io/coveralls/nextras/dbal.svg?style=flat)](https://coveralls.io/r/nextras/dbal)
 
+A powerful abstraction layer for database. **Fast & Save**.
+
+Supported platforms:
+- **MySQL** via mysqli extension,
+- **PostgreSQL** via pgsql extension,
+- **MS SQL Server** via sqlsrv extension.
+
 ### Installation
 
 Use composer:
