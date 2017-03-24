@@ -1,0 +1,85 @@
+<?php declare(strict_types = 1);
+
+/**
+ * This file is part of the Nextras\Dbal library.
+ * @license    MIT
+ * @link       https://github.com/nextras/dbal
+ */
+
+namespace Nextras\Dbal\Drivers\Sqlsrv;
+
+use Nextras\Dbal\Drivers\IResultAdapter;
+use Nextras\Dbal\InvalidStateException;
+
+
+class SqlsrvResultAdapter implements IResultAdapter
+{
+	/** @var array */
+	protected static $types = [
+		SqlsrvTypes::TYPE_INT => self::TYPE_INT,
+		SqlsrvTypes::TYPE_BIT => self::TYPE_BOOL,
+		SqlsrvTypes::TYPE_NUMERIC => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvTypes::TYPE_DECIMAL_MONEY_SMALLMONEY => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvTypes::TYPE_TIME => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvTypes::TYPE_DATE => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		SqlsrvTypes::TYPE_DATETIMEOFFSET => self::TYPE_DATETIME,
+	];
+
+	/** @var int */
+	private $index;
+
+	/** @var resource */
+	private $statement;
+
+
+	public function __construct($statement)
+	{
+		$this->statement = $statement;
+
+		if (PHP_INT_SIZE < 8) {
+			self::$types['int8'] = self::TYPE_DRIVER_SPECIFIC;
+		}
+	}
+
+
+	public function __destruct()
+	{
+		sqlsrv_free_stmt($this->statement);
+	}
+
+
+	public function seek(int $index)
+	{
+		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && !sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index)) {
+			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
+		}
+		$this->index = $index;
+	}
+
+
+	public function fetch()
+	{
+		if ($this->index !== NULL) {
+			$index = $this->index;
+			$this->index = NULL;
+			return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_ABSOLUTE, $index);
+		}
+		return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_NEXT);
+	}
+
+
+	public function getTypes(): array
+	{
+		$types = [];
+		$fields = sqlsrv_field_metadata($this->statement);
+		foreach ($fields as $field) {
+			$nativeType = $field['Type'];
+			$types[$field['Name']] = [
+				0 => self::$types[$nativeType] ?? self::TYPE_AS_IS,
+				1 => $nativeType,
+			];
+		}
+		return $types;
+	}
+}

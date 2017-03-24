@@ -8,6 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
@@ -43,8 +44,13 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$result->setValueNormalization(FALSE);
 		$follower = $result->fetch();
 
-		Assert::same('2', $follower->tag_id);
-		Assert::same('2', $follower->author_id);
+		if ($this->connection->getPlatform() instanceof SqlServerPlatform) {
+			Assert::same(2, $follower->tag_id);
+			Assert::same(2, $follower->author_id);
+		} else {
+			Assert::same('2', $follower->tag_id);
+			Assert::same('2', $follower->author_id);
+		}
 		Assert::type('string', $follower->created_at);
 	}
 
