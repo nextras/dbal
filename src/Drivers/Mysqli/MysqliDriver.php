@@ -31,9 +31,6 @@ class MysqliDriver implements IDriver
 	/** @var mysqli */
 	private $connection;
 
-	/** @var DateTimeZone Timezone for columns without timezone handling (datetime). */
-	private $simpleStorageTz;
-
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
@@ -225,7 +222,6 @@ class MysqliDriver implements IDriver
 			$this->loggedQuery('SET sql_mode = ' . $this->convertStringToSql($params['sqlMode']));
 		}
 
-		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		$this->loggedQuery('SET time_zone = ' . $this->convertStringToSql($this->connectionTz->getName()));
 	}
@@ -233,10 +229,7 @@ class MysqliDriver implements IDriver
 
 	public function convertToPhp(string $value, $nativeType)
 	{
-		if ($nativeType === MYSQLI_TYPE_DATETIME || $nativeType === MYSQLI_TYPE_DATE) {
-			return $value . ' ' . $this->simpleStorageTz->getName();
-
-		} elseif ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
+		if ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
 			return $value . ' ' . $this->connectionTz->getName();
 
 		} elseif ($nativeType === MYSQLI_TYPE_LONGLONG) {
@@ -307,15 +300,6 @@ class MysqliDriver implements IDriver
 
 	public function convertDatetimeSimpleToSql(\DateTimeInterface $value): string
 	{
-		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
-		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
-			if ($value instanceof \DateTimeImmutable) {
-				$value = $value->setTimezone($this->simpleStorageTz);
-			} else {
-				$value = clone $value;
-				$value->setTimezone($this->simpleStorageTz);
-			}
-		}
 		return "'" . $value->format('Y-m-d H:i:s') . "'";
 	}
 
