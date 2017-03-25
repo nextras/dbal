@@ -53,13 +53,13 @@ class MysqliDriver implements IDriver
 
 		$host = $params['host'] ?? ini_get('mysqli.default_host');
 		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
-		$dbname = $params['dbname'] ?? '';
+		$dbname = $params['database'] ?? '';
 		$socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket') ?? '';
 		$flags = $params['flags'] ?? 0;
 
 		$this->connection = new mysqli();
 
-		if (!@$this->connection->real_connect($host, $params['user'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
+		if (!@$this->connection->real_connect($host, $params['username'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,
 				$this->connection->connect_errno,
@@ -218,8 +218,17 @@ class MysqliDriver implements IDriver
 
 		$this->connection->set_charset($charset);
 
-		if (isset($params['sqlMode'])) {
+		if (!array_key_exists('sqlMode', $params)) {
+			$params['sqlMode'] = 'TRADITIONAL';
+		}
+		if ($params['sqlMode'] !== null) {
 			$this->loggedQuery('SET sql_mode = ' . $this->convertStringToSql($params['sqlMode']));
+		}
+
+		if (!isset($params['connectionTz']) || $params['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_NAME) {
+			$params['connectionTz'] = date_default_timezone_get();
+		} elseif ($params['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_OFFSET) {
+			$params['connectionTz'] = date('P');
 		}
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);

@@ -52,7 +52,7 @@ class Connection implements IConnection
 	 */
 	public function __construct(array $config)
 	{
-		$this->config = $this->processConfig($config);
+		$this->config = $config;
 		$this->driver = $this->createDriver();
 		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connected = $this->driver->isConnected();
@@ -107,7 +107,7 @@ class Connection implements IConnection
 	public function reconnectWithConfig(array $config): void
 	{
 		$this->disconnect();
-		$this->config = $this->processConfig($config);
+		$this->config = $config;
 		$this->driver = $this->createDriver();
 		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connect();
@@ -307,32 +307,6 @@ class Connection implements IConnection
 			]);
 			throw $exception;
 		}
-	}
-
-
-	/**
-	 * Processes config: fills defaults, creates aliases, processes dynamic values.
-	 */
-	private function processConfig(array $config): array
-	{
-		if (!isset($config['dbname']) && isset($config['database'])) {
-			$config['dbname'] = $config['database'];
-		}
-		if (!isset($config['user']) && isset($config['username'])) {
-			$config['user'] = $config['username'];
-		}
-		if (!isset($config['simpleStorageTz'])) {
-			$config['simpleStorageTz'] = 'UTC';
-		}
-		if (!isset($config['connectionTz']) || $config['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_NAME) {
-			$config['connectionTz'] = date_default_timezone_get();
-		} elseif ($config['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_OFFSET) {
-			$config['connectionTz'] = date('P');
-		}
-		if (!isset($config['sqlMode'])) { // only for MySQL
-			$config['sqlMode'] = 'TRADITIONAL';
-		}
-		return $config;
 	}
 
 

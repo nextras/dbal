@@ -58,6 +58,7 @@ class PgsqlDriver implements IDriver
 
 		$this->loggedQueryCallback = $loggedQueryCallback;
 
+		$params = $this->processConfig($params);
 		$connectionString = '';
 		foreach ($knownKeys as $key) {
 			if (isset($params[$key])) {
@@ -368,5 +369,19 @@ class PgsqlDriver implements IDriver
 	protected function loggedQuery(string $sql)
 	{
 		return ($this->loggedQueryCallback)($sql);
+	}
+
+
+	private function processConfig(array $params): array
+	{
+		$params['dbname'] = $params['database'] ?? null;
+		$params['user'] = $params['username'] ?? null;
+		unset($params['database'], $params['username']);
+		if (!isset($params['connectionTz']) || $params['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_NAME) {
+			$params['connectionTz'] = date_default_timezone_get();
+		} elseif ($params['connectionTz'] === IDriver::TIMEZONE_AUTO_PHP_OFFSET) {
+			$params['connectionTz'] = date('P');
+		}
+		return $params;
 	}
 }
