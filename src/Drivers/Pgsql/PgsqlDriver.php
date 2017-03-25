@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -68,7 +68,7 @@ class PgsqlDriver implements IDriver
 
 		set_error_handler(function($code, $message) {
 			restore_error_handler();
-			throw $this->createException($message, $code, NULL);
+			throw $this->createException($message, $code, null);
 		}, E_ALL);
 
 		$this->connection = pg_connect($connectionString, PGSQL_CONNECT_FORCE_NEW);
@@ -84,14 +84,14 @@ class PgsqlDriver implements IDriver
 	{
 		if ($this->connection) {
 			pg_close($this->connection);
-			$this->connection = NULL;
+			$this->connection = null;
 		}
 	}
 
 
 	public function isConnected(): bool
 	{
-		return $this->connection !== NULL;
+		return $this->connection !== null;
 	}
 
 
@@ -104,19 +104,19 @@ class PgsqlDriver implements IDriver
 	public function query(string $query): ?Result
 	{
 		if (!pg_send_query($this->connection, $query)) {
-			throw $this->createException(pg_last_error($this->connection), 0, NULL);
+			throw $this->createException(pg_last_error($this->connection), 0, null);
 		}
 
-		$time = microtime(TRUE);
+		$time = microtime(true);
 		$resource = pg_get_result($this->connection);
-		$this->timeTaken = microtime(TRUE) - $time;
+		$this->timeTaken = microtime(true) - $time;
 
-		if ($resource === FALSE) {
-			throw $this->createException(pg_last_error($this->connection), 0, NULL);
+		if ($resource === false) {
+			throw $this->createException(pg_last_error($this->connection), 0, null);
 		}
 
 		$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
-		if ($state !== NULL) {
+		if ($state !== null) {
 			throw $this->createException(pg_result_error($resource), 0, $state, $query);
 		}
 
@@ -125,7 +125,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(string $sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = null)
 	{
 		if (empty($sequenceName)) {
 			throw new InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
@@ -221,7 +221,7 @@ class PgsqlDriver implements IDriver
 		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
 
 		if ($nativeType === 'bool') {
-			return in_array(strtolower($value), $trues, TRUE);
+			return in_array(strtolower($value), $trues, true);
 
 		} elseif ($nativeType === 'int8') {
 			// called only on 32bit
@@ -323,10 +323,10 @@ class PgsqlDriver implements IDriver
 
 	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
-		if ($limit !== NULL) {
+		if ($limit !== null) {
 			$query .= ' LIMIT ' . (int) $limit;
 		}
-		if ($offset !== NULL) {
+		if ($offset !== null) {
 			$query .= ' OFFSET ' . (int) $offset;
 		}
 		return $query;
@@ -337,28 +337,28 @@ class PgsqlDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException($error, $errorNo, $sqlState, $query = NULL)
+	protected function createException($error, $errorNo, $sqlState, $query = null)
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-		if ($sqlState === '0A000' && strpos($error, 'truncate') !== FALSE) {
+		if ($sqlState === '0A000' && strpos($error, 'truncate') !== false) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif ($sqlState === '23502') {
-			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif ($sqlState === '23503') {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif ($sqlState === '23505') {
-			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif ($sqlState === NULL && stripos($error, 'pg_connect()') !== FALSE) {
+		} elseif ($sqlState === null && stripos($error, 'pg_connect()') !== false) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
-		} elseif ($query !== NULL) {
-			return new QueryException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif ($query !== null) {
+			return new QueryException($error, $errorNo, $sqlState, null, $query);
 
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);

@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -71,7 +71,7 @@ class Connection implements IConnection
 		$this->driver->connect($this->config, function (string $sql) {
 			return $this->nativeQuery($sql);
 		});
-		$this->connected = TRUE;
+		$this->connected = true;
 		$this->nestedTransactionsWithSavepoint = (bool) ($this->config['nestedTransactionsWithSavepoint'] ?? true);
 		$this->fireEvent('onConnect', [$this]);
 	}
@@ -86,7 +86,7 @@ class Connection implements IConnection
 			return;
 		}
 		$this->driver->disconnect();
-		$this->connected = FALSE;
+		$this->connected = false;
 		$this->fireEvent('onDisconnect', [$this]);
 	}
 
@@ -151,7 +151,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function getLastInsertedId(string $sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = null)
 	{
 		$this->connected || $this->connect();
 		return $this->driver->getLastInsertedId($sequenceName);
@@ -169,7 +169,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getPlatform(): IPlatform
 	{
-		if ($this->platform === NULL) {
+		if ($this->platform === null) {
 			$this->connected || $this->connect();
 			$this->platform = $this->driver->createPlatform($this);
 		}
@@ -274,7 +274,7 @@ class Connection implements IConnection
 
 		} catch (DriverException $e) {
 			$this->reconnect();
-			return FALSE;
+			return false;
 		}
 	}
 

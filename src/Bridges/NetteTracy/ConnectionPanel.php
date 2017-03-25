@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -50,7 +50,7 @@ class ConnectionPanel implements IBarPanel
 	}
 
 
-	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = NULL, DriverException $exception = NULL)
+	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = null, DriverException $exception = null)
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {

@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -41,7 +41,7 @@ interface IConnection
 	 * Returns last inserted ID.
 	 * @return int|string
 	 */
-	public function getLastInsertedId(string $sequenceName = NULL);
+	public function getLastInsertedId(string $sequenceName = null);
 
 
 	/**

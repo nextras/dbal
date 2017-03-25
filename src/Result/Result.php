@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -23,7 +23,7 @@ class Result implements \SeekableIterator
 	/** @var int */
 	private $iteratorIndex;
 
-	/** @var Row|NULL */
+	/** @var Row|null */
 	private $iteratorRow;
 
 	/** @var IDriver */
@@ -69,9 +69,9 @@ class Result implements \SeekableIterator
 	/**
 	 * Enables and disables value normalization.
 	 */
-	public function setValueNormalization(bool $enabled = FALSE): void
+	public function setValueNormalization(bool $enabled = false): void
 	{
-		if ($enabled === TRUE) {
+		if ($enabled === true) {
 			$this->initColumnConversions();
 		} else {
 			$this->toIntColumns = [];
@@ -87,14 +87,14 @@ class Result implements \SeekableIterator
 	public function fetch(): ?Row
 	{
 		$data = $this->adapter->fetch();
-		$row = ($data === NULL ? NULL : new Row($this->normalize($data)));
+		$row = ($data === null ? null : new Row($this->normalize($data)));
 		$this->iteratorIndex++;
 		return $this->iteratorRow = $row;
 	}
 
 
 	/**
-	 * @return mixed|NULL
+	 * @return mixed|null
 	 */
 	public function fetchField(int $column = 0)
 	{
@@ -102,7 +102,7 @@ class Result implements \SeekableIterator
 			return $row[$column];
 		}
 
-		return NULL;
+		return null;
 	}
 
 
@@ -115,20 +115,20 @@ class Result implements \SeekableIterator
 	}
 
 
-	public function fetchPairs(string $key = NULL, string $value = NULL): array
+	public function fetchPairs(string $key = null, string $value = null): array
 	{
-		if ($key === NULL && $value === NULL) {
+		if ($key === null && $value === null) {
 			throw new InvalidArgumentException('Result::fetchPairs() requires defined key or value.');
 		}
 
 		$return = [];
 		$this->seek(0);
 
-		if ($key === NULL) {
+		if ($key === null) {
 			while ($row = $this->fetch()) {
 				$return[] = $row->{$value};
 			}
-		} elseif ($value === NULL) {
+		} elseif ($value === null) {
 			while ($row = $this->fetch()) {
 				$return[is_object($row->{$key}) ? (string) $row->{$key} : $row->{$key}] = $row;
 			}
@@ -182,37 +182,37 @@ class Result implements \SeekableIterator
 	{
 		foreach ($this->toDriverColumns as $meta) {
 			list($column, $nativeType) = $meta;
-			if ($data[$column] !== NULL) {
+			if ($data[$column] !== null) {
 				$data[$column] = $this->driver->convertToPhp($data[$column], $nativeType);
 			}
 		}
 
 		foreach ($this->toIntColumns as $column) {
-			if ($data[$column] !== NULL) {
+			if ($data[$column] !== null) {
 				$data[$column] = (int) $data[$column];
 			}
 		}
 
 		foreach ($this->toFloatColumns as $column) {
-			if ($data[$column] !== NULL) {
+			if ($data[$column] !== null) {
 				$data[$column] = (float) $data[$column];
 			}
 		}
 
 		foreach ($this->toBoolColumns as $column) {
-			if ($data[$column] !== NULL) {
+			if ($data[$column] !== null) {
 				$data[$column] = (bool) $data[$column];
 			}
 		}
 
 		foreach ($this->toStringColumns as $column) {
-			if ($data[$column] !== NULL) {
+			if ($data[$column] !== null) {
 				$data[$column] = (string) $data[$column];
 			}
 		}
 
 		foreach ($this->toDateTimeColumns as $column) {
-			if ($data[$column] !== NULL) {
+			if ($data[$column] !== null) {
 				$data[$column] = (new DateTimeImmutable($data[$column]))->setTimezone($this->applicationTimeZone);
 			}
 		}
@@ -244,7 +244,7 @@ class Result implements \SeekableIterator
 
 	public function valid()
 	{
-		return $this->iteratorRow !== NULL;
+		return $this->iteratorRow !== null;
 	}
 
 

@@ -127,6 +127,6 @@ class SqlServerPlatform implements IPlatform
 
 	public function getPrimarySequenceName(string $table): ?string
 	{
-		return NULL;
+		return null;
 	}
 }

@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -22,29 +22,29 @@ class SqlProcessor
 	/** @var array (name => [supports ?, supports [], expected type]) */
 	protected $modifiers = [
 		// expressions
-		's' => [TRUE, TRUE, 'string'],
-		'json' => [TRUE, TRUE, 'pretty much anything'],
-		'i' => [TRUE, TRUE, 'int'],
-		'f' => [TRUE, TRUE, '(finite) float'],
-		'b' => [TRUE, TRUE, 'bool'],
-		'dt' => [TRUE, TRUE, 'DateTime'],
-		'dts' => [TRUE, TRUE, 'DateTime'],
-		'di' => [TRUE, TRUE, 'DateInterval'],
-		'blob' => [TRUE, TRUE, 'blob string'],
-		'_like' => [TRUE, FALSE, 'string'],
-		'like_' => [TRUE, FALSE, 'string'],
-		'_like_' => [TRUE, FALSE, 'string'],
-		'any' => [FALSE, FALSE, 'pretty much anything'],
-		'and' => [FALSE, FALSE, 'array'],
-		'or' => [FALSE, FALSE, 'array'],
+		's' => [true, true, 'string'],
+		'json' => [true, true, 'pretty much anything'],
+		'i' => [true, true, 'int'],
+		'f' => [true, true, '(finite) float'],
+		'b' => [true, true, 'bool'],
+		'dt' => [true, true, 'DateTime'],
+		'dts' => [true, true, 'DateTime'],
+		'di' => [true, true, 'DateInterval'],
+		'blob' => [true, true, 'blob string'],
+		'_like' => [true, false, 'string'],
+		'like_' => [true, false, 'string'],
+		'_like_' => [true, false, 'string'],
+		'any' => [false, false, 'pretty much anything'],
+		'and' => [false, false, 'array'],
+		'or' => [false, false, 'array'],
 
 		// SQL constructs
-		'table' => [FALSE, TRUE, 'string'],
-		'column' => [FALSE, TRUE, 'string'],
-		'values' => [FALSE, TRUE, 'array'],
-		'set' => [FALSE, FALSE, 'array'],
-		'raw' => [FALSE, FALSE, 'string'],
-		'ex' => [FALSE, FALSE, 'array'],
+		'table' => [false, true, 'string'],
+		'column' => [false, true, 'string'],
+		'values' => [false, true, 'array'],
+		'set' => [false, false, 'array'],
+		'raw' => [false, false, 'string'],
+		'ex' => [false, false, 'array'],
 	];
 
 	/** @var array (modifier => callable) */
@@ -185,7 +185,7 @@ class SqlProcessor
 						case 'any':
 						case 'f':
 						case '?f':
-							return ($tmp = json_encode($value)) . (strpos($tmp, '.') === FALSE ? '.0' : '');
+							return ($tmp = json_encode($value)) . (strpos($tmp, '.') === false ? '.0' : '');
 
 						case 'json':
 						case '?json':
@@ -338,7 +338,7 @@ class SqlProcessor
 		} elseif ($typeArray) {
 			$this->throwInvalidValueTypeException($type, $value, 'array');
 
-		} elseif ($value === NULL && !$typeNullable && $this->modifiers[$baseType][0]) {
+		} elseif ($value === null && !$typeNullable && $this->modifiers[$baseType][0]) {
 			$this->throwWrongModifierException($type, $value, "?$type");
 
 		} elseif (is_array($value) && !$typeArray && $this->modifiers[$baseType][1]) {
@@ -365,7 +365,7 @@ class SqlProcessor
 	 */
 	protected function throwWrongModifierException(string $type, $value, string $hint): void
 	{
-		$valueLabel = is_scalar($value) ? var_export($value, TRUE) : gettype($value);
+		$valueLabel = is_scalar($value) ? var_export($value, true) : gettype($value);
 		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");
 	}
 
@@ -458,7 +458,7 @@ class SqlProcessor
 				$column = $this->identifierToSql($key[0]);
 				$subType = isset($key[1]) ? $key[1] : 'any';
 
-				if ($subValue === NULL) {
+				if ($subValue === null) {
 					$op = ' IS ';
 				} elseif (is_array($subValue) && $subType !== 'ex') {
 					$op = ' IN ';

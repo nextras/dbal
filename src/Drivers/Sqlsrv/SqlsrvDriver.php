@@ -71,7 +71,7 @@ class SqlsrvDriver implements IDriver
 				$connectionOptions['Database'] = $value;
 			} elseif ($key === 'connectionTz') {
 				throw new NotSupportedException();
-			} elseif (in_array($key, $knownConnectionOptions, TRUE)) {
+			} elseif (in_array($key, $knownConnectionOptions, true)) {
 				$connectionOptions[$key] = $value;
 			}
 		}
@@ -79,7 +79,7 @@ class SqlsrvDriver implements IDriver
 		if (isset($connectionInfo['ReturnDatesAsStrings'])) {
 			throw new NotSupportedException("SqlsrvDriver does not allow to modify 'ReturnDatesAsStrings' parameter.");
 		}
-		$connectionOptions['ReturnDatesAsStrings'] = TRUE;
+		$connectionOptions['ReturnDatesAsStrings'] = true;
 
 		$this->connection = sqlsrv_connect($connectionString, $connectionOptions);
 		if (!$this->connection) {
@@ -92,14 +92,14 @@ class SqlsrvDriver implements IDriver
 	{
 		if ($this->connection) {
 			sqlsrv_close($this->connection);
-			$this->connection = NULL;
+			$this->connection = null;
 		}
 	}
 
 
 	public function isConnected(): bool
 	{
-		return $this->connection !== NULL;
+		return $this->connection !== null;
 	}
 
 
@@ -120,9 +120,9 @@ class SqlsrvDriver implements IDriver
 			$this->throwErrors();
 		}
 
-		$time = microtime(TRUE);
+		$time = microtime(true);
 		$executed = sqlsrv_execute($statement);
-		$this->timeTaken = microtime(TRUE) - $time;
+		$this->timeTaken = microtime(true) - $time;
 
 		if (!$executed) {
 			$this->throwErrors($query);
@@ -142,7 +142,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(string $sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = null)
 	{
 		return $this->loggedQuery('SELECT @@IDENTITY')->fetchField();
 	}
@@ -321,20 +321,20 @@ class SqlsrvDriver implements IDriver
 	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
 		$query .= ' OFFSET ' . (int) ($offset ?: 0) . ' ROWS';
-		if ($limit !== NULL) {
+		if ($limit !== null) {
 			$query .= ' FETCH NEXT ' . (int) $limit . ' ROWS ONLY';
 		}
 		return $query;
 	}
 
 
-	private function throwErrors($query = NULL)
+	private function throwErrors($query = null)
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
 		$errors = array_unique($errors, SORT_REGULAR);
 		$errors = array_reverse($errors);
 
-		$exception = NULL;
+		$exception = null;
 		foreach ($errors as $error) {
 			$exception = $this->createException(
 				$error['message'],
@@ -348,22 +348,22 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function createException($error, $errorNo, $sqlState, $query = NULL)
+	protected function createException($error, $errorNo, $sqlState, $query = null)
 	{
 		if (in_array($sqlState, ['HYT00', '08001', '28000'])) {
-			return new ConnectionException($error, $errorNo, $sqlState, NULL, $query);
+			return new ConnectionException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [2627, 547], TRUE)) {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif (in_array($errorNo, [2627, 547], true)) {
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [2601], TRUE)) {
-			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif (in_array($errorNo, [2601], true)) {
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [515], TRUE)) {
-			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif (in_array($errorNo, [515], true)) {
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif ($query !== NULL) {
-			return new QueryException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif ($query !== null) {
+			return new QueryException($error, $errorNo, $sqlState, null, $query);
 
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);

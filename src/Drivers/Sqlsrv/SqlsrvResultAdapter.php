@@ -56,9 +56,9 @@ class SqlsrvResultAdapter implements IResultAdapter
 
 	public function fetch(): ?array
 	{
-		if ($this->index !== NULL) {
+		if ($this->index !== null) {
 			$index = $this->index;
-			$this->index = NULL;
+			$this->index = null;
 			return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_ABSOLUTE, $index);
 		}
 		return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_NEXT);

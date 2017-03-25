@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -54,7 +54,7 @@ interface IDriver
 
 
 	/**
-	 * Runs query and returns the result. Returns NULL if query does not select data.
+	 * Runs query and returns the result. Returns null if query does not select data.
 	 */
 	public function query(string $query): ?Result;
 
@@ -63,7 +63,7 @@ interface IDriver
 	 * Returns the last inserted id.
 	 * @return mixed
 	 */
-	public function getLastInsertedId(string $sequenceName = NULL);
+	public function getLastInsertedId(string $sequenceName = null);
 
 
 	/**

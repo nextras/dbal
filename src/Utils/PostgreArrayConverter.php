@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -14,16 +14,16 @@ class PostgreArrayConverter
 	/**
 	 * Converts Postgre string to PHP.
 	 * @param  string $string
-	 * @return array|NULL
+	 * @return array|null
 	 */
-	public static function toPhp(string $string, $start = 0, & $end = NULL)
+	public static function toPhp(string $string, $start = 0, & $end = null)
 	{
 		if (empty($string) || $string[0] != '{') {
-			return NULL;
+			return null;
 		}
 
 		$return = [];
-		$inString = FALSE;
+		$inString = false;
 		$quote = '';
 		$len = strlen($string);
 		$value = '';
@@ -31,7 +31,7 @@ class PostgreArrayConverter
 		for ($i = $start + 1; $i < $len; $i++) {
 			$char = $string[$i];
 
-			if ($inString === FALSE) {
+			if ($inString === false) {
 				if ($char === '}' || $char === ',') {
 					if ($char === '}' && $value === '' && empty($return)) {
 						// skip empty values only when it is an empty object
@@ -40,7 +40,7 @@ class PostgreArrayConverter
 						if (ctype_digit($value)) {
 							$value = (int) $value;
 						} elseif (strcasecmp($value, 'null') === 0) {
-							$value = NULL;
+							$value = null;
 						}
 						$return[] = $value;
 						$value = '';
@@ -54,7 +54,7 @@ class PostgreArrayConverter
 					$value = self::toPhp($string, $i, $i);
 
 				} elseif ($char === '"' || $char === "'") {
-					$inString = TRUE;
+					$inString = true;
 					$quote = $char;
 
 				} else {
@@ -65,7 +65,7 @@ class PostgreArrayConverter
 				if ($string[$i - 1] == "\\") {
 					$value = substr($value, 0, -1) . $char;
 				} else {
-					$inString = FALSE;
+					$inString = false;
 				}
 
 			} else {
@@ -79,12 +79,12 @@ class PostgreArrayConverter
 
 	/**
 	 * Converts PHP to Postgre string.
-	 * @param  array|NULL $array
+	 * @param  array|null $array
 	 * @return string
 	 */
 	public static function toSql($array): string
 	{
-		if ($array === NULL) {
+		if ($array === null) {
 			return '';
 		}
 
@@ -95,7 +95,7 @@ class PostgreArrayConverter
 				$result[] = self::toSql($item);
 
 			} else {
-				if ($item === NULL) {
+				if ($item === null) {
 					$item = 'NULL';
 				} elseif (!is_int($item)) { // quote only non-numeric values
 					$item = '"' . str_replace('"', '\\"', $item) . '"'; // escape double quote

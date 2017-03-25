@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -25,37 +25,37 @@ class QueryBuilder
 
 	/** @var array */
 	private $args = [
-		'select' => NULL,
-		'from' => NULL,
-		'join' => NULL,
-		'where' => NULL,
-		'group' => NULL,
-		'having' => NULL,
-		'order' => NULL,
+		'select' => null,
+		'from' => null,
+		'join' => null,
+		'where' => null,
+		'group' => null,
+		'having' => null,
+		'order' => null,
 	];
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $select;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $from;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $join;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $where;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $group;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $having;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $order;
 
-	/** @var array|NULL */
+	/** @var array|null */
 	private $limit;
 
 	/** @var string */
@@ -70,7 +70,7 @@ class QueryBuilder
 
 	public function getQuerySql(): string
 	{
-		if ($this->generatedSql !== NULL) {
+		if ($this->generatedSql !== null) {
 			return $this->generatedSql;
 		}
 
@@ -103,11 +103,11 @@ class QueryBuilder
 	private function getSqlForSelect(): string
 	{
 		$query =
-			'SELECT ' . ($this->select !== NULL ? implode(', ', $this->select) : '*')
+			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
-			. ($this->where !== NULL  ? ' WHERE ' . ($this->where) : '')
+			. ($this->where !== null  ? ' WHERE ' . ($this->where) : '')
 			. ($this->group           ? ' GROUP BY ' . implode(', ', $this->group) : '')
-			. ($this->having !== NULL ? ' HAVING ' . ($this->having) : '')
+			. ($this->having !== null ? ' HAVING ' . ($this->having) : '')
 			. ($this->order           ? ' ORDER BY ' . implode(', ', $this->order) : '');
 
 		if ($this->limit) {
@@ -147,7 +147,7 @@ class QueryBuilder
 	}
 
 
-	public function from(string $fromExpression, ?string $alias = NULL): self
+	public function from(string $fromExpression, ?string $alias = null): self
 	{
 		$this->dirty();
 		$this->type = self::TYPE_SELECT;
@@ -159,7 +159,7 @@ class QueryBuilder
 
 	public function getFromAlias()
 	{
-		if ($this->from === NULL) {
+		if ($this->from === null) {
 			throw new InvalidStateException('From clause has not been set.');
 		}
 
@@ -187,7 +187,7 @@ class QueryBuilder
 
 	public function getJoin(string $toAlias)
 	{
-		return isset($this->join[$toAlias]) ? $this->join[$toAlias] : NULL;
+		return isset($this->join[$toAlias]) ? $this->join[$toAlias] : null;
 	}
 
 
@@ -207,12 +207,12 @@ class QueryBuilder
 
 
 	/**
-	 * Sets expression as SELECT clause. Passing NULL sets clause to the default state.
+	 * Sets expression as SELECT clause. Passing null sets clause to the default state.
 	 */
 	public function select(?string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->select = $expression === NULL ? NULL : [$expression];
+		$this->select = $expression === null ? null : [$expression];
 		$this->args['select'] = $args;
 		return $this;
 	}
@@ -234,7 +234,7 @@ class QueryBuilder
 
 
 	/**
-	 * Sets expression as WHERE clause. Passing NULL sets clause to the default state.
+	 * Sets expression as WHERE clause. Passing null sets clause to the default state.
 	 */
 	public function where(?string $expression, ...$args): self
 	{
@@ -270,12 +270,12 @@ class QueryBuilder
 
 
 	/**
-	 * Sets expression as GROUP BY clause. Passing NULL sets clause to the default state.
+	 * Sets expression as GROUP BY clause. Passing null sets clause to the default state.
 	 */
 	public function groupBy(?string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->group = $expression === NULL ? NULL : [$expression];
+		$this->group = $expression === null ? null : [$expression];
 		$this->args['group'] = $args;
 		return $this;
 	}
@@ -294,7 +294,7 @@ class QueryBuilder
 
 
 	/**
-	 * Sets expression as HAVING clause. Passing NULL sets clause to the default state.
+	 * Sets expression as HAVING clause. Passing null sets clause to the default state.
 	 */
 	public function having(?string $expression, ...$args): self
 	{
@@ -330,12 +330,12 @@ class QueryBuilder
 
 
 	/**
-	 * Sets expression as ORDER BY clause. Passing NULL sets clause to the default state.
+	 * Sets expression as ORDER BY clause. Passing null sets clause to the default state.
 	 */
 	public function orderBy(?string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->order = $expression === NULL ? NULL : [$expression];
+		$this->order = $expression === null ? null : [$expression];
 		$this->args['order'] = $args;
 		return $this;
 	}
@@ -356,10 +356,10 @@ class QueryBuilder
 	/**
 	 * Sets LIMIT and OFFSET clause.
 	 */
-	public function limitBy($limit, ?int $offset = NULL): self
+	public function limitBy($limit, ?int $offset = null): self
 	{
 		$this->dirty();
-		$this->limit = $limit || $offset ? [$limit, $offset] : NULL;
+		$this->limit = $limit || $offset ? [$limit, $offset] : null;
 		return $this;
 	}
 
@@ -369,13 +369,13 @@ class QueryBuilder
 	 */
 	public function hasLimitOffsetClause(): bool
 	{
-		return $this->limit !== NULL;
+		return $this->limit !== null;
 	}
 
 
 	/**
 	 * Returns limit and offset clause arguments.
-	 * @return array|NULL
+	 * @return array|null
 	 */
 	public function getLimitOffsetClause()
 	{
@@ -385,7 +385,7 @@ class QueryBuilder
 
 	private function dirty()
 	{
-		$this->generatedSql = NULL;
+		$this->generatedSql = null;
 	}
 
 

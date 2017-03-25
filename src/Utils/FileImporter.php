@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -32,7 +32,7 @@ class FileImporter
 	public static function executeFile(Connection $connection, string $file): int
 	{
 		$query = @file_get_contents($file);
-		if ($query === FALSE) {
+		if ($query === false) {
 			throw new IOException("Cannot open file '$file'.");
 		}
 

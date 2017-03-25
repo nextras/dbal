@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -70,7 +70,7 @@ class PgsqlResultAdapter implements IResultAdapter
 
 	public function fetch(): ?array
 	{
-		return pg_fetch_array($this->result, NULL, PGSQL_ASSOC) ?: NULL;
+		return pg_fetch_array($this->result, null, PGSQL_ASSOC) ?: null;
 	}
 
 

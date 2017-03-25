@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -51,7 +51,7 @@ class MySqlPlatform implements IPlatform
 			$columns[$row->Field] = [
 				'name' => $row->Field,
 				'type' => strtoupper($type[0]),
-				'size' => isset($type[1]) ? (int) $type[1] : NULL,
+				'size' => isset($type[1]) ? (int) $type[1] : null,
 				'default' => $row->Default,
 				'is_primary' => $row->Key === 'PRI',
 				'is_autoincrement' => $row->Extra === 'auto_increment',

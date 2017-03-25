@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -75,14 +75,14 @@ class MysqliDriver implements IDriver
 	{
 		if ($this->connection) {
 			$this->connection->close();
-			$this->connection = NULL;
+			$this->connection = null;
 		}
 	}
 
 
 	public function isConnected(): bool
 	{
-		return $this->connection !== NULL;
+		return $this->connection !== null;
 	}
 
 
@@ -94,11 +94,11 @@ class MysqliDriver implements IDriver
 
 	public function query(string $query): ?Result
 	{
-		$time = microtime(TRUE);
+		$time = microtime(true);
 		$result = @$this->connection->query($query);
-		$this->timeTaken = microtime(TRUE) - $time;
+		$this->timeTaken = microtime(true) - $time;
 
-		if ($result === FALSE) {
+		if ($result === false) {
 			throw $this->createException(
 				$this->connection->error,
 				$this->connection->errno,
@@ -107,15 +107,15 @@ class MysqliDriver implements IDriver
 			);
 		}
 
-		if ($result === TRUE) {
-			return NULL;
+		if ($result === true) {
+			return null;
 		}
 
 		return new Result(new MysqliResultAdapter($result), $this);
 	}
 
 
-	public function getLastInsertedId(string $sequenceName = NULL)
+	public function getLastInsertedId(string $sequenceName = null)
 	{
 		return $this->connection->insert_id;
 	}
@@ -332,13 +332,13 @@ class MysqliDriver implements IDriver
 
 	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
-		if ($limit !== NULL || $offset !== NULL) {
+		if ($limit !== null || $offset !== null) {
 			// 18446744073709551615 is maximum of unsigned BIGINT
 			// see http://dev.mysql.com/doc/refman/5.0/en/select.html
-			$query .= ' LIMIT ' . ($limit !== NULL ? (int) $limit : '18446744073709551615');
+			$query .= ' LIMIT ' . ($limit !== null ? (int) $limit : '18446744073709551615');
 		}
 
-		if ($offset !== NULL) {
+		if ($offset !== null) {
 			$query .= ' OFFSET ' . (int) $offset;
 		}
 
@@ -350,22 +350,22 @@ class MysqliDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException($error, $errorNo, $sqlState, $query = NULL)
+	protected function createException($error, $errorNo, $sqlState, $query = null)
 	{
-		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], TRUE)) {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], TRUE)) {
-			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], true)) {
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], TRUE)) {
+		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], true)) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
-		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], TRUE)) {
-			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], true)) {
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif ($query !== NULL) {
-			return new QueryException($error, $errorNo, $sqlState, NULL, $query);
+		} elseif ($query !== null) {
+			return new QueryException($error, $errorNo, $sqlState, null, $query);
 
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);

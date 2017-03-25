@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * This file is part of the Nextras\Dbal library.
@@ -33,12 +33,12 @@ class DbalExtension extends CompilerExtension
 			->setArguments([
 				'config' => $config,
 			])
-			->setAutowired(isset($config['autowired']) ? $config['autowired'] : TRUE);
+			->setAutowired(isset($config['autowired']) ? $config['autowired'] : true);
 
 		if (isset($config['debugger'])) {
 			$debugger = $config['debugger'];
 		} else {
-			$debugger = class_exists('Tracy\Debugger', FALSE) && Debugger::$productionMode === Debugger::DEVELOPMENT;
+			$debugger = class_exists('Tracy\Debugger', false) && Debugger::$productionMode === Debugger::DEVELOPMENT;
 		}
 
 		if ($debugger) {
