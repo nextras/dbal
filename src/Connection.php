@@ -43,6 +43,9 @@ class Connection implements IConnection
 	/** @var int */
 	private $nestedTransactionIndex = 0;
 
+	/** @var bool */
+	private $nestedTransactionsWithSavepoint = true;
+
 
 	/**
 	 * @param  array $config see drivers for supported options
@@ -69,6 +72,7 @@ class Connection implements IConnection
 			return $this->nativeQuery($sql);
 		});
 		$this->connected = TRUE;
+		$this->nestedTransactionsWithSavepoint = (bool) ($this->config['nestedTransactionsWithSavepoint'] ?? true);
 		$this->fireEvent('onConnect', [$this]);
 	}
 
@@ -210,7 +214,7 @@ class Connection implements IConnection
 		$this->nestedTransactionIndex++;
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->beginTransaction();
-		} elseif ($this->config['nestedTransactionsWithSavepoint']) {
+		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->createSavepoint($this->getSavepointName());
 		}
 	}
@@ -221,7 +225,7 @@ class Connection implements IConnection
 	{
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->commitTransaction();
-		} elseif ($this->config['nestedTransactionsWithSavepoint']) {
+		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->releaseSavepoint($this->getSavepointName());
 		}
 		$this->nestedTransactionIndex--;
@@ -233,7 +237,7 @@ class Connection implements IConnection
 	{
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->rollbackTransaction();
-		} elseif ($this->config['nestedTransactionsWithSavepoint']) {
+		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->rollbackSavepoint($this->getSavepointName());
 		}
 		$this->nestedTransactionIndex--;
@@ -328,7 +332,6 @@ class Connection implements IConnection
 		if (!isset($config['sqlMode'])) { // only for MySQL
 			$config['sqlMode'] = 'TRADITIONAL';
 		}
-		$config['nestedTransactionsWithSavepoint'] = (bool) ($config['nestedTransactionsWithSavepoint'] ?? true);
 		return $config;
 	}
 
