@@ -9,10 +9,7 @@
 namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 use DateInterval;
-use DateTime;
-use DateTimeImmutable;
 use DateTimeInterface;
-use DateTimeZone;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\ConnectionException;
 use Nextras\Dbal\DriverException;
@@ -26,18 +23,13 @@ use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
+use Nextras\Dbal\Utils\DateTimeImmutable;
 
 
 class SqlsrvDriver implements IDriver
 {
 	/** @var resource */
 	private $connection;
-
-	/** @var DateTimeZone Timezone for columns without timezone handling (timestamp, datetime, time). */
-	private $simpleStorageTz;
-
-	/** @var DateTimeZone Timezone for database connection. */
-	private $connectionTz;
 
 	/** @var callable */
 	private $loggedQueryCallback;
@@ -57,12 +49,8 @@ class SqlsrvDriver implements IDriver
 
 	public function connect(array $params, callable $loggedQueryCallback): void
 	{
-		$this->loggedQueryCallback = $loggedQueryCallback;
-
-		/**
-		 * @see https://msdn.microsoft.com/en-us/library/ff628167.aspx
-		 */
-		$knownConnectionOptions = [
+		// see https://msdn.microsoft.com/en-us/library/ff628167.aspx
+		static $knownConnectionOptions = [
 			'App', 'ApplicationIntent', 'AttachDbFileName', 'CharacterSet',
 			'ConnectionPooling', 'Encrypt', 'Falover_Partner', 'LoginTimeout',
 			'MultipleActiveResultSet', 'MultiSubnetFailover', 'QuotedId',
@@ -70,20 +58,19 @@ class SqlsrvDriver implements IDriver
 			'TransactionIsolation', 'TrustServerCertificate', 'WSID'
 		];
 
+		$this->loggedQueryCallback = $loggedQueryCallback;
 		$connectionString = isset($params['port']) ? $params['host'] . ',' . $params['port'] : $params['host'];
 
 		$connectionOptions = [];
 		foreach ($params as $key => $value) {
-			if ($key === 'user') {
+			if ($key === 'username') {
 				$connectionOptions['UID'] = $value;
 			} elseif ($key === 'password') {
 				$connectionOptions['PWD'] = $value ?: '';
-			} elseif ($key === 'dbname') {
+			} elseif ($key === 'database') {
 				$connectionOptions['Database'] = $value;
-			} elseif ($key === 'simpleStorageTz') {
-				$this->simpleStorageTz = new DateTimeZone($value);
 			} elseif ($key === 'connectionTz') {
-				$this->connectionTz = new DateTimeZone($value);
+				throw new NotSupportedException();
 			} elseif (in_array($key, $knownConnectionOptions, TRUE)) {
 				$connectionOptions[$key] = $value;
 			}
@@ -257,12 +244,8 @@ class SqlsrvDriver implements IDriver
 		) {
 			return strpos($value, '.') === false ? (int) $value : (float) $value;
 
-		} elseif (
-			$nativeType === SqlsrvResultTypes::TYPE_DATE ||
-			$nativeType === SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME ||
-			$nativeType === SqlsrvResultTypes::TYPE_TIME
-		) {
-			return $value . ' ' . $this->simpleStorageTz->getName();
+		} elseif ($nativeType === SqlsrvResultTypes::TYPE_DATETIMEOFFSET) {
+			return new DateTimeImmutable($value);
 
 		} else {
 			throw new NotSupportedException("SqlsrvDriver does not support '{$nativeType}' type conversion.");
@@ -313,22 +296,13 @@ class SqlsrvDriver implements IDriver
 
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
-		return $this->convertDateTimeSimpleToSql($value);
+		return "'" . $value->format('Y-m-d H:i:s P') . "'";
 	}
 
 
 	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
 	{
-		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
-		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
-			if ($value instanceof DateTimeImmutable) {
-				$value = $value->setTimezone($this->simpleStorageTz);
-			} else {
-				$value = clone $value;
-				$value->setTimezone($this->simpleStorageTz);
-			}
-		}
-		return "'" . $value->format('Y-m-d\TH:i:s') . "'";
+		return "'" . $value->format('Y-m-d H:i:s') . "'";
 	}
 
 

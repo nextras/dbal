@@ -14,6 +14,9 @@ use Nextras\Dbal\InvalidStateException;
 
 class PgsqlResultAdapter implements IResultAdapter
 {
+	/** @var resource */
+	private $result;
+
 	/**
 	 * @var array
 	 * @see http://www.postgresql.org/docs/9.4/static/datatype.html
@@ -24,9 +27,6 @@ class PgsqlResultAdapter implements IResultAdapter
 		'varbit'      => self::TYPE_DRIVER_SPECIFIC,
 		'bytea'       => self::TYPE_DRIVER_SPECIFIC,
 		'interval'    => self::TYPE_DRIVER_SPECIFIC,
-		'time'        => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		'date'        => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		'timestamp'   => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
 		'int8'        => self::TYPE_INT,
 		'int4'        => self::TYPE_INT,
@@ -36,12 +36,12 @@ class PgsqlResultAdapter implements IResultAdapter
 		'float4'      => self::TYPE_FLOAT,
 		'float8'      => self::TYPE_FLOAT,
 
+		'time'        => self::TYPE_DATETIME,
+		'date'        => self::TYPE_DATETIME,
+		'timestamp'   => self::TYPE_DATETIME,
 		'timetz'      => self::TYPE_DATETIME,
 		'timestamptz' => self::TYPE_DATETIME,
 	];
-
-	/** @var resource */
-	private $result;
 
 
 	public function __construct($result)

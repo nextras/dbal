@@ -4,8 +4,9 @@ Nextras Dbal
 A powerful abstraction layer for database. **Fast & Save**.
 
 Supported platforms:
+
 - **MySQL** via mysqli extension,
-- **PostgreSQL** via pgsql extension,
+- **Postgres** via pgsql extension,
 - **MS SQL Server** via sqlsrv extension.
 
 Connection
@@ -17,11 +18,9 @@ The connection instance is the main object which provides API for working with y
 |* host                                 | database server name
 |* username                             | username for authentication
 |* password                             | password for authentication
-|* database                             | name of database
-|* charset                              | charset encoding of connection
-|* applicationTz                        | time zone for returned DateTime objects
-|* connectionTz                         | time zone for connection
-|* simpleStorageTz                      | time zone for simple time stamp type
+|* database                             | name of the database
+|* charset                              | charset encoding of the connection
+|* connectionTz                         | timezone for the connection
 |* nestedTransactionsWithSavepoint      | boolean which indicates whether use savepoints for nested transactions; enabled by default
 |* sqlProcessorFactory                  | factory implementing ISqlProcessorFactory interface; use for adding custom modifiers; null by default;
 

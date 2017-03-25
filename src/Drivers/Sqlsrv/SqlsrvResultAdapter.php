@@ -20,10 +20,10 @@ class SqlsrvResultAdapter implements IResultAdapter
 		SqlsrvResultTypes::TYPE_BIT                               => self::TYPE_BOOL,
 		SqlsrvResultTypes::TYPE_NUMERIC                           => self::TYPE_DRIVER_SPECIFIC,
 		SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY          => self::TYPE_DRIVER_SPECIFIC,
-		SqlsrvResultTypes::TYPE_TIME                              => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		SqlsrvResultTypes::TYPE_DATE                              => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME  => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-		SqlsrvResultTypes::TYPE_DATETIMEOFFSET                    => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_TIME                              => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATE                              => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME  => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATETIMEOFFSET                    => self::TYPE_DRIVER_SPECIFIC,
 	];
 
 	/** @var int */
