@@ -1,38 +1,54 @@
 DateTime TimeZones Support
 ##########################
 
-Let us recapitulate some facts:
+Databases have different types for storing datetimes. Also, the type naming is often misleading. This documentation page covers the basics and Dbal's solution to the datetime & timezone problem.
 
-- databases *do not store* timezone information in columns;
-- database connections can work in different timezone than php environment;
-- databases have two types of columns for time stamps:
-	- with timezone conversion (MySQL: timestamp, PgSQL: timestamptz);
-	- without timezone conversion (MySQL: datetime, PgSQL: timestamp);
-- for columns **with timezone conversion**:
-	- MySQL:
-		- writing: passed time stamp is interpreted as it is in connection timezone;
-		- reading: time stamp is converted to connection timezone;
-	- PgSQL:
-		- writing: passed time stamp can contain timezone; otherwise passed time stamp is interpreted as it is in connection timezone;
-		- reading: time stamp is converted to connection timezone;
-- for column **without timezone conversion**:
-	- MySQL and PgSQL stores passed timestamp as is; reads it as is;
+Dbal offers **connection time zone** configuration option (`connectionTz`) which defines the timezone for database connection communication; by default it equals to PHP's current default timezone.
+
+Dbal comes with two query modifiers:
+
+- **`%dt`** (as datetime): converts DateTime object to connection timezone;
+- **`%dts`** (as datetime simple): pass DateTime object as it is, without any timezone identification;
 
 ------------------
 
-Dbal offers you three options to configure:
+Basically, there are three possibilities what database could do with time stamps:
 
-- **application time zone** - is timezone in which every read time stamp from database will be transformed; by default this timezone equals to php default timezone;
-- **connection time zone** - is timezone for database connection communication; by default it equals to php default timezone;
-- **simple storage time zone** - is timezone for column types without automatic timezone conversion; this setting is introduced mainly for backward compatibility, if you migrate from another database abstraction layer, your column values are probably stored in different timezone.
+- **no timezone handling**: this is straightforward attitude; database just store your date-time stamp and does not do any modification to handle time zones; this is the easiest solution, but brings a disadvantage: you cannot exactly diff two time stamps in database, because database does not know anything about timezones - e.g. day-light saving shift, therefore functions like MySQL's `TIMEDIFF()` may give wrong result;
+- **timezone conversion**: database stores the time stamp unified in UTC and for every operation converts the time-stamp to proper working (connection's) timezone;
+- **timezone stored**: database do not do conversion, it just stores the timezone and returns it back with the timestamp;
 
-Dbal comes with two query modifiers which are designed for two possible time stamp types:
+In the following table there is matrix of available time stamp data types and their behavior:
 
-- **`%dt` modifier** - converts DateTime object to connection working timezone; you can change the timezone by `connectionTz` setting; should be applied to column types with automatic timezone conversion support (timestamp in MySQL, timestamptz in PgSQL);
-- **`%dts` modifier** - converts DateTime object for simple time stamp column types; by default converts them into UTC timezone, you can change it by `simpleStorageTz` setting; should be applied to column types without automatic timezone conversion support (datetime in MySQL, timestamp in PgSQL);
+|             | no TZ handling       | TZ conversion  | TZ stored
+| MySQL       | datetime             | timestamp      | -
+| Postgres    | timestamp            | timestamptz    | -
+| SQL Server  | datetime, datetime2  | -              | datetimeoffset
 
-------------------
+Let's describe **timezone conversion** for specific databases:
 
-For better understanding see the workflow chart:
+- **MySQL**:
+	- *writing*: passed time stamp is interpreted in connection timezone; if time stamp has timezone defined, it is ignored and still interpreted in connection timezone;
+	- *reading*: time stamp is returned in connection timezone without timezone identification;
+- **Postgres**:
+	- *writing*: passed time stamp can contain timezone, if not, it is interpreted in connection timezone;
+	- *reading*: time stamp is returned in connection timezone with timezone identification;
 
-[* datetime.png *]
+
+Usage matrix
+============
+
+- MySQL's `datetime` + Postgres' `timestamp` + SQL Server's `datetime` & `datetime2`:
+	- use `%dts` for storing;
+	- use `%dt` for storing if and only if you have stable PHP's & connection timezone, this may be true for vast majority of Dbal's usage;
+	- value is read as it is, e.g. in PHP's timezone;
+
+- MySQL's `timestamp` + Postgres `timestamptz`:
+	- use `%dt` for storing;
+	- use `%dts` for storing if and only if the value's timezone is the same as the connection timezone;
+	- value is read in connection timezone and then converted into PHP's timezone;
+
+- SQL Server's `datetimeoffset`:
+	- use `%dt` for storing;
+	- usage of `%dts` will strip the timezone;
+	- value is read with the stored timezone (and *not* converted into PHP's timezone);
