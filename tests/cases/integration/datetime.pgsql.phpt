@@ -10,7 +10,6 @@ namespace NextrasTests\Dbal;
 use DateTime;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
-use Tester\Environment;
 
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -18,14 +17,9 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class DateTimePostgreTest extends IntegrationTestCase
 {
-
-	public function testWriteStorageTZUTC()
+	public function testWriteStorageSameTZ()
 	{
-		$connection = $this->createConnection([
-			'simpleStorageTz' => 'UTC',
-			'connectionTz' => 'Europe/Prague',
-		]);
-
+		$connection = $this->createConnection();
 		$connection->query('DROP TABLE IF EXISTS dates_write');
 		$connection->query('
 			CREATE TABLE dates_write (
@@ -34,41 +28,37 @@ class DateTimePostgreTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query(
-			'INSERT INTO dates_write VALUES (%dts, %dt)',
-			new DateTime('2015-01-01 12:00:00'), // 11:00 UTC
+		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt)',
+			new DateTime('2015-01-01 12:00:00'), // simple
 			new DateTime('2015-01-01 12:00:00')  // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 
 		$row = $result->fetch();
-		Assert::same('2015-01-01 11:00:00', $row->a);
+		Assert::same('2015-01-01 12:00:00', $row->a);
 		Assert::same('2015-01-01 12:00:00+01', $row->b);
 
-
 		$connection->query('DELETE FROM dates_write');
-		$connection->query(
-			'INSERT INTO dates_write VALUES (%dts, %dt)',
-			new DateTime('2015-01-01 12:00:00'),             // 11:00 UTC
+		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt)',
+			new DateTime('2015-01-01 12:00:00'),             // simple
 			new DateTime('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 
 		$row = $result->fetch();
-		Assert::same('2015-01-01 11:00:00', $row->a);
+		Assert::same('2015-01-01 12:00:00', $row->a);
 		Assert::same('2015-01-01 11:00:00+01', $row->b);
 	}
 
 
-	public function testWriteStorageTZUTCImmutable()
+	public function testWriteStorageDiffTZ()
 	{
 		$connection = $this->createConnection([
-			'simpleStorageTz' => 'UTC',
-			'connectionTz' => 'Europe/Prague',
+			'connectionTz' => 'Europe/Kiev',
 		]);
 
 		$connection->query('DROP TABLE IF EXISTS dates_write2');
@@ -79,43 +69,36 @@ class DateTimePostgreTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query(
-			'INSERT INTO dates_write2 VALUES (%dts, %dt)',
-			new \DateTimeImmutable('2015-01-01 12:00:00'), // 11:00 UTC
+		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt)',
+			new \DateTimeImmutable('2015-01-01 12:00:00'), // simple
 			new \DateTimeImmutable('2015-01-01 12:00:00')  // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 
 		$row = $result->fetch();
-		Assert::same('2015-01-01 11:00:00', $row->a);
-		Assert::same('2015-01-01 12:00:00+01', $row->b);
-
+		Assert::same('2015-01-01 12:00:00', $row->a);
+		Assert::same('2015-01-01 13:00:00+02', $row->b);
 
 		$connection->query('DELETE FROM dates_write2');
-		$connection->query(
-			'INSERT INTO dates_write2 VALUES (%dts, %dt)',
+		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt)',
 			new \DateTimeImmutable('2015-01-01 12:00:00'),             // 11:00 UTC
 			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 
 		$row = $result->fetch();
-		Assert::same('2015-01-01 11:00:00', $row->a);
-		Assert::same('2015-01-01 11:00:00+01', $row->b);
+		Assert::same('2015-01-01 12:00:00', $row->a);
+		Assert::same('2015-01-01 12:00:00+02', $row->b);
 	}
 
 
-	public function testReadStorageTZUTC()
+	public function testReadStorageSameTZ()
 	{
-		$connection = $this->createConnection([
-			'simpleStorageTz' => 'UTC',
-			'connectionTz' => 'Europe/Prague',
-		]);
-
+		$connection = $this->createConnection();
 		$connection->query('DROP TABLE IF EXISTS dates_read');
 		$connection->query('
 			CREATE TABLE dates_read (
@@ -124,10 +107,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 			);
 		');
 
-		date_default_timezone_set('Europe/Kiev');
-		$connection->query(
-			'INSERT INTO dates_read VALUES (%s, %s)',
-			'2015-01-01 12:00:00', // 12:00 UTC
+		$connection->query('INSERT INTO dates_read VALUES (%s, %s)',
+			'2015-01-01 12:00:00', // simple
 			'2015-01-01 12:00:00'  // 11:00 UTC
 		);
 
@@ -135,18 +116,16 @@ class DateTimePostgreTest extends IntegrationTestCase
 
 		$row = $result->fetch();
 		Assert::type(DateTimeImmutable::class, $row->a);
-		Assert::same('2015-01-01T14:00:00+02:00', $row->a->format('c'));
-		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
+		Assert::same('2015-01-01T12:00:00+01:00', $row->a->format('c'));
+		Assert::same('2015-01-01T12:00:00+01:00', $row->b->format('c'));
 	}
 
 
-	public function testReadStorageTZSame()
+	public function testReadStorageDiffTZ()
 	{
 		$connection = $this->createConnection([
-			'simpleStorageTz' => 'Europe/Prague',
-			'connectionTz' => 'Europe/Prague',
+			'connectionTz' => 'Europe/Kiev',
 		]);
-
 		$connection->query('DROP TABLE IF EXISTS dates_read2');
 		$connection->query('
 			CREATE TABLE dates_read2 (
@@ -155,19 +134,17 @@ class DateTimePostgreTest extends IntegrationTestCase
 			);
 		');
 
-		date_default_timezone_set('Europe/Kiev');
-		$connection->query(
-			'INSERT INTO dates_read2 VALUES (%s, %s)',
-			'2015-01-01 12:00:00', // 11:00 UTC
-			'2015-01-01 12:00:00'  // 11:00 UTC
+		$connection->query('INSERT INTO dates_read2 VALUES (%s, %s)',
+			'2015-01-01 12:00:00', // simple
+			'2015-01-01 12:00:00'  // 10:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_read2');
 
 		$row = $result->fetch();
 		Assert::type(DateTimeImmutable::class, $row->a);
-		Assert::same('2015-01-01T13:00:00+02:00', $row->a->format('c'));
-		Assert::same('2015-01-01T13:00:00+02:00', $row->b->format('c'));
+		Assert::same('2015-01-01T12:00:00+01:00', $row->a->format('c'));
+		Assert::same('2015-01-01T11:00:00+01:00', $row->b->format('c'));
 	}
 
 
@@ -175,14 +152,10 @@ class DateTimePostgreTest extends IntegrationTestCase
 	{
 		$connection = $this->createConnection();
 
-		Assert::noError(function() use ($connection) {
-			$connection->query(
-				'SELECT Now() <= %dt + (INTERVAL \'2 DAYS\')',
-				new DateTime()
-			);
+		Assert::noError(function () use ($connection) {
+			$connection->query('SELECT Now() <= %dt + (INTERVAL \'2 DAYS\')', new DateTime());
 		});
 	}
-
 }
 
 

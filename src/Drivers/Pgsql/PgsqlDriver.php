@@ -30,9 +30,6 @@ class PgsqlDriver implements IDriver
 	/** @var resource */
 	private $connection;
 
-	/** @var DateTimeZone Timezone for columns without timezone handling (timestamp, datetime, time). */
-	private $simpleStorageTz;
-
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
@@ -77,7 +74,6 @@ class PgsqlDriver implements IDriver
 
 		restore_error_handler();
 
-		$this->simpleStorageTz = new DateTimeZone($params['simpleStorageTz']);
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
 	}
@@ -226,9 +222,6 @@ class PgsqlDriver implements IDriver
 		if ($nativeType === 'bool') {
 			return in_array(strtolower($value), $trues, TRUE);
 
-		} elseif ($nativeType === 'time' || $nativeType === 'date' || $nativeType === 'timestamp') {
-			return $value . ' ' . $this->simpleStorageTz->getName();
-
 		} elseif ($nativeType === 'int8') {
 			// called only on 32bit
 			return is_float($tmp = $value * 1) ? $value : $tmp;
@@ -311,15 +304,6 @@ class PgsqlDriver implements IDriver
 
 	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string
 	{
-		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
-		if ($value->getTimezone()->getName() !== $this->simpleStorageTz->getName()) {
-			if ($value instanceof \DateTimeImmutable) {
-				$value = $value->setTimezone($this->simpleStorageTz);
-			} else {
-				$value = clone $value;
-				$value->setTimezone($this->simpleStorageTz);
-			}
-		}
 		return "'" . $value->format('Y-m-d H:i:s') . "'::timestamp";
 	}
 
