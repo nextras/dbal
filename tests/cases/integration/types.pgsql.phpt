@@ -37,7 +37,8 @@ class TypesPostgreTest extends IntegrationTestCase
 			'12.06'::float8,
 
 			'foo'::varchar(200),
-			TRUE::bool
+			TRUE::bool,
+			'16:00'::time
 		");
 
 		$row = $result->fetch();
@@ -56,6 +57,7 @@ class TypesPostgreTest extends IntegrationTestCase
 
 		Assert::same('foo', $row->varchar);
 		Assert::same(TRUE, $row->bool);
+		Assert::type(\DateTimeImmutable::class, $row->time);
 	}
 
 

@@ -24,7 +24,7 @@ class PgsqlResultAdapter implements IResultAdapter
 		'varbit'      => self::TYPE_DRIVER_SPECIFIC,
 		'bytea'       => self::TYPE_DRIVER_SPECIFIC,
 		'interval'    => self::TYPE_DRIVER_SPECIFIC,
-		'time'        => self::TYPE_DRIVER_SPECIFIC,
+		'time'        => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 		'date'        => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 		'timestamp'   => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
