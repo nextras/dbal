@@ -401,24 +401,26 @@ class SqlProcessor
 	{
 		if (empty($value)) {
 			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
-		} elseif (empty($value[0])) {
-			return 'VALUES ' . str_repeat('(DEFAULT), ', count($value) - 1) . '(DEFAULT)';
 		}
 
 		$keys = $values = [];
-		foreach (array_keys($value[0]) as $key) {
+		foreach (array_keys(reset($value)) as $key) {
 			$keys[] = $this->identifierToSql(explode('%', $key, 2)[0]);
 		}
 		foreach ($value as $subValue) {
-			$subValues = [];
-			foreach ($subValue as $_key => $val) {
-				$key = explode('%', $_key, 2);
-				$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
+			if (empty($subValue)) {
+				$values[] = '(' . str_repeat('DEFAULT, ', max(count($keys) - 1, 0)) . 'DEFAULT)';
+			} else {
+				$subValues = [];
+				foreach ($subValue as $_key => $val) {
+					$key = explode('%', $_key, 2);
+					$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
+				}
+				$values[] = '(' . implode(', ', $subValues) . ')';
 			}
-			$values[] = '(' . implode(', ', $subValues) . ')';
 		}
 
-		return '(' . implode(', ', $keys) . ') VALUES ' . implode(', ', $values);
+		return (!empty($keys) ? '(' . implode(', ', $keys) . ') ' : '') . 'VALUES ' . implode(', ', $values);
 	}
 
 
