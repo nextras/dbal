@@ -14,12 +14,18 @@ Run this command, where `root` is the user name which has access to `mysql` data
 mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
 \--
 
--------
-
 
 Windows
 =======
 
-For MySQL **up to 5.6** downlad tables from http://dev.mysql.com/downloads/timezones.html. Unzip the archive and copy tables to your mysql database in data dir (eg. `C:\<your mysql dir>\data\mysql`).
+For MySQL **5.7+** download zipped SQL inserts from http://dev.mysql.com/downloads/timezones.html and run them in context of `mysql` database.
 
-For MySQL **5.7+** there is an archive with prepared SQL queries. Run them in context of mysql database.
+For MySQL **up to 5.6** download archive from http://dev.mysql.com/downloads/timezones.html. Unzip the archive and copy the files to your `mysql` database in data dir (eg. `C:\<your mysql dir>\data\mysql`).
+
+
+-------
+
+Other workaround
+================
+
+If there is no way how to correctly setup MySQL database, you may use timezone offset configuration, which does not require named timezones support. See [ DateTime TimeZones Support chapter | datetime].

@@ -3,7 +3,7 @@ DateTime TimeZones Support
 
 Databases have different types for storing datetimes. Also, the type naming is often misleading. This documentation page covers the basics and Dbal's solution to the datetime & timezone problem.
 
-Dbal offers **connection time zone** configuration option (`connectionTz`) which defines the timezone for database connection communication; by default it equals to PHP's current default timezone.
+Dbal offers **connection time zone** configuration option (`connectionTz`) which defines the timezone for database connection communication; by default it equals to PHP's current default timezone. This option is configure by timezone name, e.g. `Europe/Prague` string. However, by default, MySQL server doesn't support this, see [the setup chapter | timezones-mysql-support] how to configure. Still, there is a possiblity to pass only a timezone offset, e.g. `+03:00`, but this is not ideal if you server is in timezone with daylight saving time shift. Use magic `auto-offset ` string which will be dynamically converted to the current PHP's timezone offset.
 
 Dbal comes with two query modifiers:
 
