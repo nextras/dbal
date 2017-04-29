@@ -87,4 +87,10 @@ class MysqliResultAdapter implements IResultAdapter
 
 		return $types;
 	}
+
+
+	public function getRowsCount(): int
+	{
+		return $this->result->num_rows;
+	}
 }

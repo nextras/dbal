@@ -78,4 +78,11 @@ class SqlsrvResultAdapter implements IResultAdapter
 		}
 		return $types;
 	}
+
+
+	public function getRowsCount(): int
+	{
+		$count = sqlsrv_num_rows($this->statement);
+		return $count === false ? -1 : $count;
+	}
 }

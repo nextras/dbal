@@ -15,7 +15,7 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 
 
-class Result implements \SeekableIterator
+class Result implements \SeekableIterator, \Countable
 {
 	/** @var IResultAdapter */
 	private $adapter;
@@ -262,5 +262,14 @@ class Result implements \SeekableIterator
 	{
 		$this->adapter->seek($index);
 		$this->iteratorIndex = $index - 1;
+	}
+
+
+	// === Countable ===================================================================================================
+
+
+	public function count()
+	{
+		return $this->adapter->getRowsCount();
 	}
 }

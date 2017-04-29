@@ -89,4 +89,10 @@ class PgsqlResultAdapter implements IResultAdapter
 
 		return $types;
 	}
+
+
+	public function getRowsCount(): int
+	{
+		return pg_num_rows($this->result);
+	}
 }

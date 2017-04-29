@@ -39,4 +39,7 @@ interface IResultAdapter
 	 * Returns rowset set column types, array of [type, nativeType]
 	 */
 	public function getTypes(): array;
+
+
+	public function getRowsCount(): int;
 }
