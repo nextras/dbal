@@ -6,8 +6,9 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 <style class="tracy-debug">
 	#tracy-debug .nextras-dbal-panel-sql { background: white !important; }
 	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle { color: #777 !important; }
+	#tracy-debug .nextras-dbal-panel-sql .nextras-dbal-rowscount { color: #777 !important; margin-right: 1em !important; }
 	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle:hover { color: #fff !important; }
-	#tracy-debug .nextras-dbal-panel-sql .whitespace-explain { white-space: pre; }
+	#tracy-debug .nextras-dbal-panel-sql .whitespace-explain { white-space: pre; !important; }
 	#tracy-debug .nextras-dbal-panel-time { text-align: right !important; }
 </style>
 
@@ -20,14 +21,18 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 		</tr>
 		<?php
 		foreach ($queries as $query):
-			list(, $sql, $elapsedTime, $explain) = $query;
+			list(, $sql, $elapsedTime, $rowsCount, $explain) = $query;
 		?>
 		<tr>
 		<td class="nextras-dbal-panel-time"><?php echo $elapsedTime ? sprintf('%0.2f', $elapsedTime * 1000) : '' ?></td>
 		<td class="nextras-dbal-panel-sql">
 			<?php echo $sql ?>
+			<?php if ($explain !== null || $rowsCount !== null): ?><br><?php endif; ?>
+			<?php if ($rowsCount !== null): ?>
+				<span class="nextras-dbal-rowscount"><?php echo $rowsCount === 1 ? $rowsCount . ' row' : $rowsCount . ' rows' ?></span>
+			<?php endif; ?>
 			<?php if ($explain !== null): ?>
-				<br><a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .nextras-dbal-explain">explain</a>
+				<a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .nextras-dbal-explain">explain</a>
 				<table class="tracy-collapsed nextras-dbal-explain">
 					<tr>
 					<?php foreach ($explain[0] as $col => $foo): ?>

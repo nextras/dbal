@@ -62,6 +62,7 @@ class ConnectionPanel implements IBarPanel
 			$connection,
 			$sql,
 			$elapsedTime,
+			$result ? $result->count() : null,
 		];
 	}
 
@@ -83,9 +84,10 @@ class ConnectionPanel implements IBarPanel
 		$queries = $this->queries;
 		$queries = array_map(function($row) {
 			try {
-				$row[3] = $this->doExplain ? $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll() : null;
+				$row[4] = $this->doExplain ? $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll() : null;
 			} catch (\Throwable $e) {
-				$row[3] = null;
+				$row[4] = null;
+				$row[3] = null; // rows count is also irrelevant
 			}
 
 			$row[1] = self::highlight($row[1]);
