@@ -7,6 +7,7 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 	#tracy-debug .nextras-dbal-panel-sql { background: white !important; }
 	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle { color: #777 !important; }
 	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle:hover { color: #fff !important; }
+	#tracy-debug .nextras-dbal-panel-sql .whitespace-explain { white-space: pre; }
 	#tracy-debug .nextras-dbal-panel-time { text-align: right !important; }
 </style>
 
@@ -36,7 +37,7 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 					<?php foreach ($explain as $row): ?>
 					<tr>
 						<?php foreach ($row as $col): ?>
-						<td><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></td>
+						<td class="<?php echo $whitespaceExplain ? 'whitespace-explain' : '' ?>"><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></td>
 						<?php endforeach ?>
 					</tr>
 					<?php endforeach ?>
