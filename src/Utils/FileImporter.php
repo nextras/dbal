@@ -9,8 +9,6 @@
 namespace Nextras\Dbal\Utils;
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
-use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
 use Nextras\Dbal\IOException;
 
 
@@ -40,11 +38,13 @@ class FileImporter
 		$offset = $queries = 0;
 		$space = "(?:\\s|/\\*.*\\*/|(?:#|-- )[^\\n]*\\n|--\\n)";
 
-		$driver = $connection->getDriver();
-		if ($driver instanceof MysqliDriver) {
-			$parse = '[\'"[]|/\*|-- |$';
-		} elseif ($driver instanceof PgsqlDriver) {
+		$platformName = $connection->getPlatform()->getName();
+		if ($platformName === 'mysql') {
+			$parse = '[\'"]|/\*|-- |$';
+		} elseif ($platformName === 'postgresql') {
 			$parse = '[\'"]|/\*|-- |$|\$[^$]*\$';
+		} elseif ($platformName === 'mssql') {
+			$parse = '[\'"[]|/\*|-- |$';
 		} else { // general
 			$parse = '[\'"`#]|/\*|-- |$';
 		}
