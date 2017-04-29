@@ -88,8 +88,21 @@ class SqlProcessorValuesTest extends TestCase
 		);
 
 		Assert::same(
+			"INSERT INTO test VALUES (DEFAULT)",
+			$this->convert('INSERT INTO test %values[]', [1 => []])
+		);
+
+		Assert::same(
 			"INSERT INTO test VALUES (DEFAULT), (DEFAULT)",
-			$this->convert('INSERT INTO test %values[]', [[], []])
+			$this->convert('INSERT INTO test %values[]', [[], null])
+		);
+
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('id')->andReturn('id');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('author')->andReturn('author');
+
+		Assert::same(
+			"INSERT INTO test (id, author) VALUES (1, 2), (DEFAULT, DEFAULT), (DEFAULT, DEFAULT)",
+			$this->convert('INSERT INTO test %values[]', [['id' => 1, 'author' => 2], null, null])
 		);
 
 		Assert::throws(function () {
