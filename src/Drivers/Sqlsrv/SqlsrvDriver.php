@@ -195,6 +195,7 @@ class SqlsrvDriver implements IDriver
 
 	public function beginTransaction()
 	{
+		$this->loggedQuery('BEGIN TRANSACTION', true);
 		if (!sqlsrv_begin_transaction($this->connection)) {
 			$this->throwErrors();
 		}
@@ -203,6 +204,7 @@ class SqlsrvDriver implements IDriver
 
 	public function commitTransaction()
 	{
+		$this->loggedQuery('COMMIT TRANSACTION', true);
 		if (!sqlsrv_commit($this->connection)) {
 			$this->throwErrors();
 		}
@@ -211,6 +213,7 @@ class SqlsrvDriver implements IDriver
 
 	public function rollbackTransaction()
 	{
+		$this->loggedQuery('ROLLBACK TRANSACTION', true);
 		if (!sqlsrv_rollback($this->connection)) {
 			$this->throwErrors();
 		}
@@ -370,8 +373,8 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function loggedQuery(string $sql): ?Result
+	protected function loggedQuery(string $sql, bool $onlyLog = false): ?Result
 	{
-		return ($this->loggedQueryCallback)($sql);
+		return ($this->loggedQueryCallback)($sql, $onlyLog);
 	}
 }
