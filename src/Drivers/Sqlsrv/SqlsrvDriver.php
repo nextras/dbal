@@ -111,29 +111,21 @@ class SqlsrvDriver implements IDriver
 
 	public function query(string $query)
 	{
-		/**
-		 * @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx
-		 */
-		$statement = sqlsrv_prepare($this->connection, $query, [], ['Scrollable' => SQLSRV_CURSOR_STATIC]);
-
-		if (!$statement) {
-			$this->throwErrors();
-		}
+		/** @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx */
 
 		$time = microtime(true);
-		$executed = sqlsrv_execute($statement);
+		$statement = sqlsrv_query($this->connection, $query, [], ['Scrollable' => SQLSRV_CURSOR_STATIC]);
 		$this->timeTaken = microtime(true) - $time;
 
-		if (!$executed) {
+		if (!$statement) {
 			$this->throwErrors($query);
 		}
 
-		if (!$result = sqlsrv_query($this->connection, 'SELECT @@ROWCOUNT')) {
+		if (!$affectedRowsStatement = sqlsrv_query($this->connection, 'SELECT @@ROWCOUNT')) {
 			$this->throwErrors();
 		}
-
-		if ($result = sqlsrv_fetch_array($result, SQLSRV_FETCH_NUMERIC)) {
-			$this->affectedRows = $result[0];
+		if ($affectedRowsResult = sqlsrv_fetch_array($affectedRowsStatement, SQLSRV_FETCH_NUMERIC)) {
+			$this->affectedRows = $affectedRowsResult[0];
 		} else {
 			$this->throwErrors();
 		}
