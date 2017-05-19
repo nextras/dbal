@@ -98,6 +98,40 @@ class PlatformSqlServerTest extends IntegrationTestCase
 				'is_nullable'=> TRUE,
 			]
 		], $columns);
+
+		$columns = $this->connection->getPlatform()->getColumns('tag_followers');
+		Assert::same([
+			'tag_id' => [
+				'name' => 'tag_id',
+				'type' => 'INT',
+				'size' => 10,
+				'default' => NULL,
+				'is_primary' => TRUE,
+				'is_autoincrement' => FALSE,
+				'is_unsigned' => FALSE,
+				'is_nullable' => FALSE,
+			],
+			'author_id' => [
+				'name' => 'author_id',
+				'type' => 'INT',
+				'size' => 10,
+				'default' => NULL,
+				'is_primary' => TRUE,
+				'is_autoincrement' => FALSE,
+				'is_unsigned' => FALSE,
+				'is_nullable' => FALSE,
+			],
+			'created_at' => [
+				'name' => 'created_at',
+				'type' => 'DATETIMEOFFSET',
+				'size' => NULL,
+				'default' => NULL,
+				'is_primary' => FALSE,
+				'is_autoincrement' => FALSE,
+				'is_unsigned' => FALSE,
+				'is_nullable' => FALSE,
+			],
+		], $columns);
 	}
 
 
