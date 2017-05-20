@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,12 +10,12 @@ use Nextras\Dbal\Utils\PostgreArrayConverter;
 use NextrasTests\Dbal\TestCase;
 use Tester\Assert;
 
+
 $dic = require_once __DIR__ . '/../../bootstrap.php';
 
 
 class PostgreArrayConverterTest extends TestCase
 {
-
 	public function testToPhp()
 	{
 		$result = PostgreArrayConverter::toPhp('{blah,blah blah,123,,"blah \\"\\ ,{\tdaőő",NULL}');
@@ -25,7 +25,7 @@ class PostgreArrayConverterTest extends TestCase
 			123,
 			'',
 			'blah "\ ,{\tdaőő',
-			NULL,
+			null,
 		], $result);
 
 		$result = PostgreArrayConverter::toPhp('{1,3,4,5,7}');
@@ -38,7 +38,7 @@ class PostgreArrayConverterTest extends TestCase
 		Assert::same([], $result);
 
 		$result = PostgreArrayConverter::toPhp('');
-		Assert::same(NULL, $result);
+		Assert::same(null, $result);
 	}
 
 
@@ -50,7 +50,7 @@ class PostgreArrayConverterTest extends TestCase
 			123,
 			'',
 			'blah "\ ,{\tdaőő',
-			NULL,
+			null,
 		]);
 		Assert::same('{"blah","blah blah",123,"","blah \\"\\ ,{\tdaőő",NULL}', $result);
 
@@ -63,11 +63,11 @@ class PostgreArrayConverterTest extends TestCase
 		$result = PostgreArrayConverter::toSql([]);
 		Assert::same('{}', $result);
 
-		$result = PostgreArrayConverter::toSql(NULL);
+		$result = PostgreArrayConverter::toSql(null);
 		Assert::same('', $result);
 	}
-
 }
+
 
 $test = new PostgreArrayConverterTest($dic);
 $test->run();

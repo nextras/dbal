@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -11,6 +11,7 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -51,35 +52,35 @@ class SqlProcessorWhereTest extends TestCase
 		return [
 			[
 				'`col` = 123',
-				['col' => 123]
+				['col' => 123],
 			],
 			[
 				'`col` = 123.4',
-				['col' => 123.4]
+				['col' => 123.4],
 			],
 			[
 				'`col` = "x"',
-				['col' => 'x']
+				['col' => 'x'],
 			],
 			[
 				'`col` = DT',
-				['col' => new DateTime('2014-05-01')]
+				['col' => new DateTime('2014-05-01')],
 			],
 			[
 				'`col` IS NULL',
-				['col' => NULL]
+				['col' => null],
 			],
 			[
 				'`col` IN (1, 2, 3)',
-				['col' => [1, 2, 3]]
+				['col' => [1, 2, 3]],
 			],
 			[
 				'`col` IN ((1, 2), (3, 4))',
-				['col' => [[1, 2], [3, 4]]]
+				['col' => [[1, 2], [3, 4]]],
 			],
 			[
 				'`col` IN ("x", (1, ("x", DT), 3))',
-				['col' => ['x', [1, ['x', new DateTime('2014-05-01')], 3]]]
+				['col' => ['x', [1, ['x', new DateTime('2014-05-01')], 3]]],
 			],
 		];
 	}
@@ -106,7 +107,7 @@ class SqlProcessorWhereTest extends TestCase
 			],
 			[
 				'`col` IS NULL',
-				['col%?i' => NULL],
+				['col%?i' => null],
 			],
 			[
 				'`col` IN (1, 2, 3)',
@@ -148,7 +149,7 @@ class SqlProcessorWhereTest extends TestCase
 			$this->parser->processModifier('and', [
 				'a%i' => '1',
 				'b.c' => 2,
-				'd%?s' => NULL,
+				'd%?s' => null,
 				'e%s[]' => ['1', 'a'],
 				'f%any' => [1, 'a'],
 			])
@@ -164,9 +165,9 @@ class SqlProcessorWhereTest extends TestCase
 		Assert::same(
 			'(a = 1 AND b IS NULL) OR a = 2 OR (a IS NULL AND b = 1) OR b = 3',
 			$this->parser->processModifier('or', [
-				['%and', ['a%?i' => 1, 'b%?i' => NULL]],
+				['%and', ['a%?i' => 1, 'b%?i' => null]],
 				'a' => 2,
-				['%and', ['a%?i' => NULL, 'b%?i' => 1]],
+				['%and', ['a%?i' => null, 'b%?i' => 1]],
 				'b' => 3,
 			])
 		);
@@ -207,7 +208,7 @@ class SqlProcessorWhereTest extends TestCase
 	{
 		return [
 			['and', 123, 'Modifier %and expects value to be array, integer given.'],
-			['and', NULL, 'Modifier %and expects value to be array, NULL given.'],
+			['and', null, 'Modifier %and expects value to be array, NULL given.'],
 
 			['and', ['s'], 'Modifier %and requires items with numeric index to be array, string given.'],
 			['and', ['a%i' => 's'], 'Modifier %i expects value to be int, string given.'],
@@ -220,7 +221,7 @@ class SqlProcessorWhereTest extends TestCase
 			['?and[]', [], 'Modifier %and does not have %?and[] variant.'],
 
 			['or', 123, 'Modifier %or expects value to be array, integer given.'],
-			['or', NULL, 'Modifier %or expects value to be array, NULL given.'],
+			['or', null, 'Modifier %or expects value to be array, NULL given.'],
 
 			['or', ['s'], 'Modifier %or requires items with numeric index to be array, string given.'],
 			['or', ['a%i' => 's'], 'Modifier %i expects value to be int, string given.'],
@@ -233,8 +234,8 @@ class SqlProcessorWhereTest extends TestCase
 			['?or[]', [], 'Modifier %or does not have %?or[] variant.'],
 		];
 	}
-
 }
+
 
 $test = new SqlProcessorWhereTest();
 $test->run();

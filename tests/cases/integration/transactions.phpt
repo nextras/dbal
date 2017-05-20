@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,14 +10,13 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
-use Tester\Environment;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class TransactionsTest extends IntegrationTestCase
 {
-
 	public function testRollback()
 	{
 		$this->lockConnection($this->connection);
@@ -92,7 +91,6 @@ class TransactionsTest extends IntegrationTestCase
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_OK_')->fetchField());
 		Assert::same(42, $returnValue);
 	}
-
 }
 
 

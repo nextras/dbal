@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,6 +10,7 @@ namespace NextrasTests\Dbal;
 use DateTime;
 use Nextras\Dbal\NotSupportedException;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 

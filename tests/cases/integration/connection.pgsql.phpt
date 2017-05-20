@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -11,12 +11,12 @@ use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
 use Nextras\Dbal\InvalidArgumentException;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class ConnectionPgsqlTest extends IntegrationTestCase
 {
-
 	public function testReconnect()
 	{
 		$processId = $this->connection->query('SELECT pg_backend_pid()')->fetchField();
@@ -33,7 +33,7 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 		$this->connection->query('INSERT INTO publishers %values', ['name' => 'FOO']);
 		Assert::same(2, $this->connection->getLastInsertedId("publishers_id_seq"));
 
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$this->connection->getLastInsertedId();
 		}, InvalidArgumentException::class, 'PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
 	}
@@ -53,7 +53,6 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 		$newDriver = $this->connection->getDriver();
 		Assert::notSame($oldDriver, $newDriver);
 	}
-
 }
 
 

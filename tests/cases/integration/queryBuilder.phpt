@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,12 +10,12 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class QueryBuilderIntegrationTest extends IntegrationTestCase
 {
-
 	public function testLimitBy()
 	{
 		$this->initData($this->connection);
@@ -27,10 +27,10 @@ class QueryBuilderIntegrationTest extends IntegrationTestCase
 
 		Assert::same([1, 2], $this->execute($queryBuilder));
 
-		$queryBuilder->limitBy(NULL, NULL);
+		$queryBuilder->limitBy(null, null);
 		Assert::same([1, 2, 3, 4], $this->execute($queryBuilder));
 
-		$queryBuilder->limitBy(NULL, 2);
+		$queryBuilder->limitBy(null, 2);
 		Assert::same([3, 4], $this->execute($queryBuilder));
 
 		$queryBuilder->limitBy(1, 2);
@@ -40,10 +40,10 @@ class QueryBuilderIntegrationTest extends IntegrationTestCase
 
 	private function execute(QueryBuilder $builder)
 	{
-		return $this->connection->queryArgs($builder->getQuerySql(), $builder->getQueryParameters())
-			->fetchPairs(NULL, 'id');
+		return $this->connection
+			->queryArgs($builder->getQuerySql(), $builder->getQueryParameters())
+			->fetchPairs(null, 'id');
 	}
-
 }
 
 

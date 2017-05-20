@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,18 +10,18 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class ConnectionMysqlTest extends IntegrationTestCase
 {
-
 	public function testReconnect()
 	{
 		$this->connection->query('SET @var := 1');
 		Assert::same(1, $this->connection->query('SELECT @var')->fetchField());
 		$this->connection->reconnect();
-		Assert::same(NULL, $this->connection->query('SELECT @var')->fetchField());
+		Assert::same(null, $this->connection->query('SELECT @var')->fetchField());
 	}
 
 
@@ -48,7 +48,6 @@ class ConnectionMysqlTest extends IntegrationTestCase
 		$newDriver = $this->connection->getDriver();
 		Assert::notSame($oldDriver, $newDriver);
 	}
-
 }
 
 

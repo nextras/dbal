@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -7,6 +7,7 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -44,7 +45,7 @@ class SqlProcessorArrayTest extends TestCase
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN (NULL, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN %?i[]', [NULL, 2, 3])
+			$this->convert('SELECT FROM test WHERE id IN %?i[]', [null, 2, 3])
 		);
 	}
 
@@ -66,8 +67,8 @@ class SqlProcessorArrayTest extends TestCase
 	{
 		return $this->parser->process(func_get_args());
 	}
-
 }
+
 
 $test = new SqlProcessorArrayTest();
 $test->run();

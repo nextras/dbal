@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -8,6 +8,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -68,6 +69,7 @@ class SqlProcessorCustomModifierTest extends TestCase
 		return $this->parser->process(func_get_args());
 	}
 }
+
 
 $test = new SqlProcessorCustomModifierTest();
 $test->run();

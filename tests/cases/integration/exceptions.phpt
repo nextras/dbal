@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -22,12 +22,12 @@ class ExceptionsTest extends IntegrationTestCase
 
 	public function testConnection()
 	{
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$connection = $this->createConnection(['database' => 'unknown']);
 			$connection->connect();
 		}, ConnectionException::class);
 
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$connection = $this->createConnection(['username' => 'unknown']);
 			$connection->connect();
 		}, ConnectionException::class);
@@ -36,7 +36,7 @@ class ExceptionsTest extends IntegrationTestCase
 
 	public function testForeignKeyException()
 	{
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$this->initData($this->connection);
 			$this->connection->query('UPDATE books SET author_id = 999');
 		}, ForeignKeyConstraintViolationException::class);
@@ -45,7 +45,7 @@ class ExceptionsTest extends IntegrationTestCase
 
 	public function testUniqueException()
 	{
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$this->initData($this->connection);
 			$this->connection->query('INSERT INTO publishers %values', ['name' => 'Nextras publisher']);
 		}, UniqueConstraintViolationException::class);
@@ -54,7 +54,7 @@ class ExceptionsTest extends IntegrationTestCase
 
 	public function testNotNullException()
 	{
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$this->initData($this->connection);
 			$this->connection->query('UPDATE books SET title = NULL');
 		}, NotNullConstraintViolationException::class);
@@ -64,13 +64,12 @@ class ExceptionsTest extends IntegrationTestCase
 	public function testQueryException()
 	{
 		/** @var QueryException $e */
-		$e = Assert::exception(function() {
+		$e = Assert::exception(function () {
 			$this->connection->query('SELECT FROM FROM foo');
 		}, QueryException::class);
 
 		Assert::same('SELECT FROM FROM foo', $e->getSqlQuery());
 	}
-
 }
 
 

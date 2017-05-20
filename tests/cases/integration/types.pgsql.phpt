@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,12 +10,12 @@ namespace NextrasTests\Dbal;
 use DateInterval;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class TypesPostgreTest extends IntegrationTestCase
 {
-
 	public function testRead()
 	{
 		$result = $this->connection->query("
@@ -45,7 +45,7 @@ class TypesPostgreTest extends IntegrationTestCase
 		Assert::equal(DateInterval::createFromDateString('1 day 01:00:00'), $row->interval);
 		Assert::same(4, $row->bit);
 		Assert::same(4, $row->varbit);
-		Assert::same(TRUE, $row->bool);
+		Assert::same(true, $row->bool);
 
 		Assert::same(1, $row->int8);
 		Assert::same(2, $row->int4);
@@ -56,7 +56,7 @@ class TypesPostgreTest extends IntegrationTestCase
 		Assert::same(12.06, $row->float8);
 
 		Assert::same('foo', $row->varchar);
-		Assert::same(TRUE, $row->bool);
+		Assert::same(true, $row->bool);
 		Assert::type(\DateTimeImmutable::class, $row->time);
 	}
 
@@ -82,7 +82,6 @@ class TypesPostgreTest extends IntegrationTestCase
 		Assert::same('[1,"2",true,null]', $row->json);
 		Assert::same('[1, "2", true, null]', $row->jsonb);
 	}
-
 }
 
 

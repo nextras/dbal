@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -9,6 +9,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -100,8 +101,8 @@ class SqlProcessorProcessTest extends TestCase
 			$this->parser->process(['A %xxx B', 1, 'C', 'D']);
 		}, InvalidArgumentException::class, 'Redundant query parameter or missing modifier in query fragment \'C\'.');
 	}
-
 }
+
 
 $test = new SqlProcessorProcessTest();
 $test->run();

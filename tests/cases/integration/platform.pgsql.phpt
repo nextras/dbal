@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -9,12 +9,12 @@ namespace NextrasTests\Dbal;
 
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class PlatformPostgreTest extends IntegrationTestCase
 {
-
 	public function testTables()
 	{
 		$tables = $this->connection->getPlatform()->getTables();
@@ -22,14 +22,14 @@ class PlatformPostgreTest extends IntegrationTestCase
 		Assert::true(isset($tables['books']));
 		Assert::same([
 			'name' => 'books',
-			'is_view' => FALSE,
+			'is_view' => false,
 			'full_name' => 'public.books',
 		], $tables['books']);
 
 		Assert::true(isset($tables['my_books']));
 		Assert::same([
 			'name' => 'my_books',
-			'is_view' => TRUE,
+			'is_view' => true,
 			'full_name' => 'public.my_books',
 		], $tables['my_books']);
 	}
@@ -39,72 +39,72 @@ class PlatformPostgreTest extends IntegrationTestCase
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
 		Assert::same([
-			 'id' => [
-				'name'=> 'id',
+			'id' => [
+				'name' => 'id',
 				'type' => 'INT4',
-				'size'=> NULL,
-				'default'=> "nextval('books_id_seq'::regclass)",
-				'is_primary'=> TRUE,
-				'is_autoincrement' => TRUE,
-				'is_unsigned'=> FALSE,
-				'is_nullable' => FALSE,
-				'sequence'=> 'books_id_seq',
+				'size' => null,
+				'default' => "nextval('books_id_seq'::regclass)",
+				'is_primary' => true,
+				'is_autoincrement' => true,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => 'books_id_seq',
 			],
 			'author_id' => [
 				'name' => 'author_id',
-				'type'=> 'INT4',
-				'size' => NULL,
-				'default'=> NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement'=> FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable'=> FALSE,
-				'sequence' => NULL,
+				'type' => 'INT4',
+				'size' => null,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => null,
 			],
 			'translator_id' => [
-				'name'=> 'translator_id',
+				'name' => 'translator_id',
 				'type' => 'INT4',
-				'size'=> NULL,
-				'default' => NULL,
-				'is_primary'=> FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned'=> FALSE,
-				'is_nullable' => TRUE,
-				'sequence'=> NULL,
+				'size' => null,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => true,
+				'sequence' => null,
 			],
 			'title' => [
 				'name' => 'title',
-				'type'=> 'VARCHAR',
+				'type' => 'VARCHAR',
 				'size' => 50,
-				'default'=> NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement'=> FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable'=> FALSE,
-				'sequence' => NULL,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => null,
 			],
 			'publisher_id' => [
-				'name'=> 'publisher_id',
+				'name' => 'publisher_id',
 				'type' => 'INT4',
-				'size'=> NULL,
-				'default' => NULL,
-				'is_primary'=> FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned'=> FALSE,
-				'is_nullable' => FALSE,
-				'sequence'=> NULL,
+				'size' => null,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => null,
 			],
 			'ean_id' => [
 				'name' => 'ean_id',
-				'type'=> 'INT4',
-				'size' => NULL,
-				'default'=> NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement'=> FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable'=> TRUE,
-				'sequence' => NULL,
-			]
+				'type' => 'INT4',
+				'size' => null,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => true,
+				'sequence' => null,
+			],
 		], $columns);
 	}
 
@@ -116,27 +116,27 @@ class PlatformPostgreTest extends IntegrationTestCase
 			'author_id' => [
 				'name' => 'books_authors',
 				'column' => 'author_id',
-				'ref_table' => 'public.authors' ,
+				'ref_table' => 'public.authors',
 				'ref_column' => 'id',
 			],
 			'translator_id' => [
-				'name' => 'books_translator' ,
-				'column' => 'translator_id' ,
-				'ref_table' => 'public.authors' ,
+				'name' => 'books_translator',
+				'column' => 'translator_id',
+				'ref_table' => 'public.authors',
 				'ref_column' => 'id',
 			],
 			'publisher_id' => [
-				'name' => 'books_publisher' ,
-				'column' => 'publisher_id' ,
-				'ref_table' => 'public.publishers' ,
+				'name' => 'books_publisher',
+				'column' => 'publisher_id',
+				'ref_table' => 'public.publishers',
 				'ref_column' => 'id',
 			],
 			'ean_id' => [
 				'name' => 'books_ean',
 				'column' => 'ean_id',
-				'ref_table' => 'public.eans' ,
+				'ref_table' => 'public.eans',
 				'ref_column' => 'id',
-			]
+			],
 		], $keys);
 	}
 

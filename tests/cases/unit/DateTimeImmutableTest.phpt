@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -7,12 +7,12 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class DateTimeImmutableTest extends TestCase
 {
-
 	public function testToString()
 	{
 		date_default_timezone_set('Europe/Prague');
@@ -22,7 +22,6 @@ class DateTimeImmutableTest extends TestCase
 			(string) new DateTimeImmutable('2015-01-01T05:27:35+01:00')
 		);
 	}
-
 }
 
 

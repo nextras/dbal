@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -11,12 +11,12 @@ use DateTime;
 use Nextras\Dbal\InvalidArgumentException;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class DriverMysqlTest extends IntegrationTestCase
 {
-
 	public function testDelimite()
 	{
 		$driver = $this->connection->getDriver();
@@ -39,7 +39,7 @@ class DriverMysqlTest extends IntegrationTestCase
 		Assert::same("-51:01:00", trim($driver->convertDateIntervalToSql($interval1), "'"));
 		Assert::same("51:01:05", trim($driver->convertDateIntervalToSql($interval2), "'"));
 
-		Assert::throws(function() use ($driver) {
+		Assert::throws(function () use ($driver) {
 			$interval = (new DateTime('2015-02-05 09:59:59'))->diff(new DateTime('2015-01-01 09:00:00'));
 			$driver->convertDateIntervalToSql($interval);
 		}, InvalidArgumentException::class, 'Mysql cannot store interval bigger than 839h:59m:59s.');

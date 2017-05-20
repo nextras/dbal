@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -10,12 +10,12 @@ namespace NextrasTests\Dbal;
 use DateInterval;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class TypesMysqlTest extends IntegrationTestCase
 {
-
 	public function testRead()
 	{
 		$this->connection->query("
@@ -103,7 +103,6 @@ class TypesMysqlTest extends IntegrationTestCase
 		Assert::same($file, $row->blob);
 		Assert::same('[1,"2",true,null]', $row->json);
 	}
-
 }
 
 

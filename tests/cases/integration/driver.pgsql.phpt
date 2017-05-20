@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -9,6 +9,7 @@ namespace NextrasTests\Dbal;
 
 use DateTime;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -36,7 +37,7 @@ class DriverPostgreTest extends IntegrationTestCase
 			);
 		");
 
-		$result = $this->connection->query('SELECT * FROM [driver_types] WHERE [is_bool] = %b', TRUE);
+		$result = $this->connection->query('SELECT * FROM [driver_types] WHERE [is_bool] = %b', true);
 		Assert::same(0, iterator_count($result));
 	}
 

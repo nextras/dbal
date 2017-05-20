@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -9,6 +9,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -51,7 +52,7 @@ class SqlProcessorRawTest extends TestCase
 		}, InvalidArgumentException::class, 'Modifier %raw expects value to be string, integer given.');
 
 		Assert::throws(function () {
-			$this->parser->processModifier('?raw', NULL);
+			$this->parser->processModifier('?raw', null);
 		}, InvalidArgumentException::class, 'Modifier %raw does not have %?raw variant.');
 
 		Assert::throws(function () {
@@ -62,8 +63,8 @@ class SqlProcessorRawTest extends TestCase
 			$this->parser->processModifier('?raw[]', []);
 		}, InvalidArgumentException::class, 'Modifier %raw does not have %?raw[] variant.');
 	}
-
 }
+
 
 $test = new SqlProcessorRawTest();
 $test->run();

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -7,12 +7,12 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class QueryBuilderJoinsTest extends QueryBuilderTestCase
 {
-
 	public function testBasics()
 	{
 		$this->assertBuilder(
@@ -34,7 +34,7 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 
 	public function testValidateMissingAlias()
 	{
-		Assert::throws(function() {
+		Assert::throws(function () {
 
 			$this->builder()
 				->from('one', 'o')
@@ -69,7 +69,6 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 			'on' => 't.userId = th.userId',
 		], $builder->getJoin('t'));
 	}
-
 }
 
 

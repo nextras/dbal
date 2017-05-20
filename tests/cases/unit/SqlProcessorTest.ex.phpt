@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -10,6 +10,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -79,8 +80,8 @@ class SqlProcessorExpandTest extends TestCase
 			$this->parser->processModifier('?ex[]', 'abc');
 		}, InvalidArgumentException::class, 'Modifier %ex does not have %?ex[] variant.');
 	}
-
 }
+
 
 $test = new SqlProcessorExpandTest();
 $test->run();

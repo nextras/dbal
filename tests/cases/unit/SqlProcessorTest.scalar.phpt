@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -11,6 +11,7 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -84,11 +85,11 @@ class SqlProcessorScalarTest extends TestCase
 
 	public function testBool()
 	{
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(TRUE)->andReturn('T');
-		Assert::same('T', $this->parser->processModifier('b', TRUE));
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(true)->andReturn('T');
+		Assert::same('T', $this->parser->processModifier('b', true));
 
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(FALSE)->andReturn('F');
-		Assert::same('F', $this->parser->processModifier('b', FALSE));
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(false)->andReturn('F');
+		Assert::same('F', $this->parser->processModifier('b', false));
 	}
 
 
@@ -159,34 +160,34 @@ class SqlProcessorScalarTest extends TestCase
 		$di = $dt->diff(new DateTime('2012-03-05 08:00'));
 
 		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(TRUE)->andReturn('T');
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(true)->andReturn('T');
 		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
 		Assert::same('B', $this->parser->processModifier('any', 'A'));
 		Assert::same('123', $this->parser->processModifier('any', 123));
 		Assert::same('123.4', $this->parser->processModifier('any', 123.4));
-		Assert::same('T', $this->parser->processModifier('any', TRUE));
+		Assert::same('T', $this->parser->processModifier('any', true));
 		Assert::same('DT', $this->parser->processModifier('any', $dt));
-		Assert::same('NULL', $this->parser->processModifier('any', NULL));
+		Assert::same('NULL', $this->parser->processModifier('any', null));
 
 		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(TRUE)->andReturn('T');
+		$this->driver->shouldReceive('convertBoolToSql')->once()->with(true)->andReturn('T');
 		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
 		$this->driver->shouldReceive('convertDateIntervalToSql')->once()->with($di)->andReturn('DI');
-		Assert::same('(B, 123, 123.4, T, DT, DI, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, TRUE, $dt, $di, NULL]));
+		Assert::same('(B, 123, 123.4, T, DT, DI, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, true, $dt, $di, null]));
 	}
 
 
 	public function testNullable()
 	{
-		Assert::same('NULL', $this->parser->processModifier('?s', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?i', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?f', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?b', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?dt', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?dts', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?di', NULL));
-		Assert::same('NULL', $this->parser->processModifier('?json', NULL));
-		Assert::same('NULL', $this->parser->processModifier('any', NULL));
+		Assert::same('NULL', $this->parser->processModifier('?s', null));
+		Assert::same('NULL', $this->parser->processModifier('?i', null));
+		Assert::same('NULL', $this->parser->processModifier('?f', null));
+		Assert::same('NULL', $this->parser->processModifier('?b', null));
+		Assert::same('NULL', $this->parser->processModifier('?dt', null));
+		Assert::same('NULL', $this->parser->processModifier('?dts', null));
+		Assert::same('NULL', $this->parser->processModifier('?di', null));
+		Assert::same('NULL', $this->parser->processModifier('?json', null));
+		Assert::same('NULL', $this->parser->processModifier('any', null));
 	}
 
 
@@ -212,60 +213,60 @@ class SqlProcessorScalarTest extends TestCase
 		return [
 			['s', 123, 'Modifier %s expects value to be string, integer given.'],
 			['s', 123.0, 'Modifier %s expects value to be string, double given.'],
-			['s', TRUE, 'Modifier %s expects value to be string, boolean given.'],
+			['s', true, 'Modifier %s expects value to be string, boolean given.'],
 			['s', [], 'Modifier %s does not allow array value, use modifier %s[] instead.'],
 			['s', new stdClass(), 'Modifier %s expects value to be string, stdClass given.'],
-			['s', NULL, 'Modifier %s does not allow NULL value, use modifier %?s instead.'],
+			['s', null, 'Modifier %s does not allow NULL value, use modifier %?s instead.'],
 
 			['?s', 123, 'Modifier %?s expects value to be string, integer given.'],
 			['?s', 123.0, 'Modifier %?s expects value to be string, double given.'],
-			['?s', TRUE, 'Modifier %?s expects value to be string, boolean given.'],
+			['?s', true, 'Modifier %?s expects value to be string, boolean given.'],
 			['?s', [], 'Modifier %?s does not allow array value, use modifier %?s[] instead.'],
 			['?s', new stdClass(), 'Modifier %?s expects value to be string, stdClass given.'],
 
 			['s[]', '123', 'Modifier %s[] expects value to be array, string given.'],
 			['s[]', 123, 'Modifier %s[] expects value to be array, integer given.'],
 			['s[]', 123.0, 'Modifier %s[] expects value to be array, double given.'],
-			['s[]', TRUE, 'Modifier %s[] expects value to be array, boolean given.'],
+			['s[]', true, 'Modifier %s[] expects value to be array, boolean given.'],
 			['s[]', new stdClass(), 'Modifier %s[] expects value to be array, stdClass given.'],
 			['s[]', $file, 'Modifier %s[] expects value to be array, SplFileInfo given.'],
-			['s[]', NULL, 'Modifier %s[] expects value to be array, NULL given.'],
+			['s[]', null, 'Modifier %s[] expects value to be array, NULL given.'],
 			['s[]', [123], 'Modifier %s expects value to be string, integer given.'],
 			['s[]', [123.0], 'Modifier %s expects value to be string, double given.'],
-			['s[]', [TRUE], 'Modifier %s expects value to be string, boolean given.'],
+			['s[]', [true], 'Modifier %s expects value to be string, boolean given.'],
 			['s[]', [[]], 'Modifier %s does not allow array value, use modifier %s[] instead.'],
 			['s[]', [new stdClass()], 'Modifier %s expects value to be string, stdClass given.'],
-			['s[]', [NULL], 'Modifier %s does not allow NULL value, use modifier %?s instead.'],
+			['s[]', [null], 'Modifier %s does not allow NULL value, use modifier %?s instead.'],
 
 			['?s[]', '123', 'Modifier %?s[] expects value to be array, string given.'],
 			['?s[]', 123, 'Modifier %?s[] expects value to be array, integer given.'],
 			['?s[]', 123.0, 'Modifier %?s[] expects value to be array, double given.'],
-			['?s[]', TRUE, 'Modifier %?s[] expects value to be array, boolean given.'],
+			['?s[]', true, 'Modifier %?s[] expects value to be array, boolean given.'],
 			['?s[]', new stdClass(), 'Modifier %?s[] expects value to be array, stdClass given.'],
 			['?s[]', $file, 'Modifier %?s[] expects value to be array, SplFileInfo given.'],
-			['?s[]', NULL, 'Modifier %?s[] expects value to be array, NULL given.'],
+			['?s[]', null, 'Modifier %?s[] expects value to be array, NULL given.'],
 			['?s[]', [123], 'Modifier %?s expects value to be string, integer given.'],
 			['?s[]', [123.0], 'Modifier %?s expects value to be string, double given.'],
-			['?s[]', [TRUE], 'Modifier %?s expects value to be string, boolean given.'],
+			['?s[]', [true], 'Modifier %?s expects value to be string, boolean given.'],
 			['?s[]', [[]], 'Modifier %?s does not allow array value, use modifier %?s[] instead.'],
 			['?s[]', [new stdClass()], 'Modifier %?s expects value to be string, stdClass given.'],
 
-			['json', NULL, 'Modifier %json does not allow NULL value, use modifier %?json instead.'],
-			['json[]', [NULL], 'Modifier %json does not allow NULL value, use modifier %?json instead.'],
+			['json', null, 'Modifier %json does not allow NULL value, use modifier %?json instead.'],
+			['json[]', [null], 'Modifier %json does not allow NULL value, use modifier %?json instead.'],
 
 			['i', '123x', 'Modifier %i expects value to be int, string given.'],
 			['i', '0123', 'Modifier %i expects value to be int, string given.'],
 			['i', 123.0, 'Modifier %i expects value to be int, double given.'],
-			['i', TRUE, 'Modifier %i expects value to be int, boolean given.'],
+			['i', true, 'Modifier %i expects value to be int, boolean given.'],
 			['i', [], 'Modifier %i does not allow array value, use modifier %i[] instead.'],
 			['i', new stdClass(), 'Modifier %i expects value to be int, stdClass given.'],
 			['i', $file, 'Modifier %i expects value to be int, SplFileInfo given.'],
-			['i', NULL, 'Modifier %i does not allow NULL value, use modifier %?i instead.'],
+			['i', null, 'Modifier %i does not allow NULL value, use modifier %?i instead.'],
 
 			['?i', '123x', 'Modifier %?i expects value to be int, string given.'],
 			['?i', '0123', 'Modifier %?i expects value to be int, string given.'],
 			['?i', 123.0, 'Modifier %?i expects value to be int, double given.'],
-			['?i', TRUE, 'Modifier %?i expects value to be int, boolean given.'],
+			['?i', true, 'Modifier %?i expects value to be int, boolean given.'],
 			['?i', [], 'Modifier %?i does not allow array value, use modifier %?i[] instead.'],
 			['?i', new stdClass(), 'Modifier %?i expects value to be int, stdClass given.'],
 			['?i', $file, 'Modifier %?i expects value to be int, SplFileInfo given.'],
@@ -273,28 +274,28 @@ class SqlProcessorScalarTest extends TestCase
 			['i[]', '123', 'Modifier %i[] expects value to be array, string given.'],
 			['i[]', 123, 'Modifier %i[] expects value to be array, integer given.'],
 			['i[]', 123.0, 'Modifier %i[] expects value to be array, double given.'],
-			['i[]', TRUE, 'Modifier %i[] expects value to be array, boolean given.'],
+			['i[]', true, 'Modifier %i[] expects value to be array, boolean given.'],
 			['i[]', new stdClass(), 'Modifier %i[] expects value to be array, stdClass given.'],
 			['i[]', $file, 'Modifier %i[] expects value to be array, SplFileInfo given.'],
-			['i[]', NULL, 'Modifier %i[] expects value to be array, NULL given.'],
+			['i[]', null, 'Modifier %i[] expects value to be array, NULL given.'],
 			['i[]', ['123x'], 'Modifier %i expects value to be int, string given.'],
 			['i[]', [123.0], 'Modifier %i expects value to be int, double given.'],
-			['i[]', [TRUE], 'Modifier %i expects value to be int, boolean given.'],
+			['i[]', [true], 'Modifier %i expects value to be int, boolean given.'],
 			['i[]', [[]], 'Modifier %i does not allow array value, use modifier %i[] instead.'],
 			['i[]', [new stdClass()], 'Modifier %i expects value to be int, stdClass given.'],
-			['i[]', [NULL], 'Modifier %i does not allow NULL value, use modifier %?i instead.'],
+			['i[]', [null], 'Modifier %i does not allow NULL value, use modifier %?i instead.'],
 
 			['?i[]', '123', 'Modifier %?i[] expects value to be array, string given.'],
 			['?i[]', 123, 'Modifier %?i[] expects value to be array, integer given.'],
 			['?i[]', 123.0, 'Modifier %?i[] expects value to be array, double given.'],
-			['?i[]', TRUE, 'Modifier %?i[] expects value to be array, boolean given.'],
+			['?i[]', true, 'Modifier %?i[] expects value to be array, boolean given.'],
 			['?i[]', new stdClass(), 'Modifier %?i[] expects value to be array, stdClass given.'],
 			['?i[]', $file, 'Modifier %?i[] expects value to be array, SplFileInfo given.'],
-			['?i[]', NULL, 'Modifier %?i[] expects value to be array, NULL given.'],
+			['?i[]', null, 'Modifier %?i[] expects value to be array, NULL given.'],
 			['?i[]', ['123x'], 'Modifier %?i expects value to be int, string given.'],
 			['?i[]', ['0123'], 'Modifier %?i expects value to be int, string given.'],
 			['?i[]', [123.0], 'Modifier %?i expects value to be int, double given.'],
-			['?i[]', [TRUE], 'Modifier %?i expects value to be int, boolean given.'],
+			['?i[]', [true], 'Modifier %?i expects value to be int, boolean given.'],
 			['?i[]', [[]], 'Modifier %?i does not allow array value, use modifier %?i[] instead.'],
 			['?i[]', [new stdClass()], 'Modifier %?i expects value to be int, stdClass given.'],
 
@@ -304,11 +305,11 @@ class SqlProcessorScalarTest extends TestCase
 			['f', -INF, 'Modifier %f expects value to be (finite) float, -INF given.'],
 			['f', '123.4', 'Modifier %f expects value to be (finite) float, string given.'],
 			['f', 123, 'Modifier %f expects value to be (finite) float, integer given.'],
-			['f', TRUE, 'Modifier %f expects value to be (finite) float, boolean given.'],
+			['f', true, 'Modifier %f expects value to be (finite) float, boolean given.'],
 			['f', [], 'Modifier %f does not allow array value, use modifier %f[] instead.'],
 			['f', new stdClass(), 'Modifier %f expects value to be (finite) float, stdClass given.'],
 			['f', $file, 'Modifier %f expects value to be (finite) float, SplFileInfo given.'],
-			['f', NULL, 'Modifier %f does not allow NULL value, use modifier %?f instead.'],
+			['f', null, 'Modifier %f does not allow NULL value, use modifier %?f instead.'],
 
 			['?f', NAN, 'Modifier %?f expects value to be (finite) float, NAN given.'],
 			['?f', NAN, 'Modifier %?f expects value to be (finite) float, NAN given.'],
@@ -316,7 +317,7 @@ class SqlProcessorScalarTest extends TestCase
 			['?f', -INF, 'Modifier %?f expects value to be (finite) float, -INF given.'],
 			['?f', '123.4', 'Modifier %?f expects value to be (finite) float, string given.'],
 			['?f', 123, 'Modifier %?f expects value to be (finite) float, integer given.'],
-			['?f', TRUE, 'Modifier %?f expects value to be (finite) float, boolean given.'],
+			['?f', true, 'Modifier %?f expects value to be (finite) float, boolean given.'],
 			['?f', [], 'Modifier %?f does not allow array value, use modifier %?f[] instead.'],
 			['?f', new stdClass(), 'Modifier %?f expects value to be (finite) float, stdClass given.'],
 			['?f', $file, 'Modifier %?f expects value to be (finite) float, SplFileInfo given.'],
@@ -324,35 +325,35 @@ class SqlProcessorScalarTest extends TestCase
 			['f[]', '123', 'Modifier %f[] expects value to be array, string given.'],
 			['f[]', 123, 'Modifier %f[] expects value to be array, integer given.'],
 			['f[]', 123.0, 'Modifier %f[] expects value to be array, double given.'],
-			['f[]', TRUE, 'Modifier %f[] expects value to be array, boolean given.'],
+			['f[]', true, 'Modifier %f[] expects value to be array, boolean given.'],
 			['f[]', new stdClass(), 'Modifier %f[] expects value to be array, stdClass given.'],
 			['f[]', $file, 'Modifier %f[] expects value to be array, SplFileInfo given.'],
-			['f[]', NULL, 'Modifier %f[] expects value to be array, NULL given.'],
+			['f[]', null, 'Modifier %f[] expects value to be array, NULL given.'],
 			['f[]', [NAN], 'Modifier %f expects value to be (finite) float, NAN given.'],
 			['f[]', [NAN], 'Modifier %f expects value to be (finite) float, NAN given.'],
 			['f[]', [+INF], 'Modifier %f expects value to be (finite) float, INF given.'],
 			['f[]', [-INF], 'Modifier %f expects value to be (finite) float, -INF given.'],
 			['f[]', ['123.4'], 'Modifier %f expects value to be (finite) float, string given.'],
 			['f[]', [123], 'Modifier %f expects value to be (finite) float, integer given.'],
-			['f[]', [TRUE], 'Modifier %f expects value to be (finite) float, boolean given.'],
+			['f[]', [true], 'Modifier %f expects value to be (finite) float, boolean given.'],
 			['f[]', [[]], 'Modifier %f does not allow array value, use modifier %f[] instead.'],
 			['f[]', [new stdClass()], 'Modifier %f expects value to be (finite) float, stdClass given.'],
-			['f[]', [NULL], 'Modifier %f does not allow NULL value, use modifier %?f instead.'],
+			['f[]', [null], 'Modifier %f does not allow NULL value, use modifier %?f instead.'],
 
 			['?f[]', '123', 'Modifier %?f[] expects value to be array, string given.'],
 			['?f[]', 123, 'Modifier %?f[] expects value to be array, integer given.'],
 			['?f[]', 123.0, 'Modifier %?f[] expects value to be array, double given.'],
-			['?f[]', TRUE, 'Modifier %?f[] expects value to be array, boolean given.'],
+			['?f[]', true, 'Modifier %?f[] expects value to be array, boolean given.'],
 			['?f[]', new stdClass(), 'Modifier %?f[] expects value to be array, stdClass given.'],
 			['?f[]', $file, 'Modifier %?f[] expects value to be array, SplFileInfo given.'],
-			['?f[]', NULL, 'Modifier %?f[] expects value to be array, NULL given.'],
+			['?f[]', null, 'Modifier %?f[] expects value to be array, NULL given.'],
 			['?f[]', [NAN], 'Modifier %?f expects value to be (finite) float, NAN given.'],
 			['?f[]', [NAN], 'Modifier %?f expects value to be (finite) float, NAN given.'],
 			['?f[]', [+INF], 'Modifier %?f expects value to be (finite) float, INF given.'],
 			['?f[]', [-INF], 'Modifier %?f expects value to be (finite) float, -INF given.'],
 			['?f[]', ['123.4'], 'Modifier %?f expects value to be (finite) float, string given.'],
 			['?f[]', [123], 'Modifier %?f expects value to be (finite) float, integer given.'],
-			['?f[]', [TRUE], 'Modifier %?f expects value to be (finite) float, boolean given.'],
+			['?f[]', [true], 'Modifier %?f expects value to be (finite) float, boolean given.'],
 			['?f[]', [[]], 'Modifier %?f does not allow array value, use modifier %?f[] instead.'],
 			['?f[]', [new stdClass()], 'Modifier %?f expects value to be (finite) float, stdClass given.'],
 
@@ -362,7 +363,7 @@ class SqlProcessorScalarTest extends TestCase
 			['b', [], 'Modifier %b does not allow array value, use modifier %b[] instead.'],
 			['b', new stdClass(), 'Modifier %b expects value to be bool, stdClass given.'],
 			['b', $file, 'Modifier %b expects value to be bool, SplFileInfo given.'],
-			['b', NULL, 'Modifier %b does not allow NULL value, use modifier %?b instead.'],
+			['b', null, 'Modifier %b does not allow NULL value, use modifier %?b instead.'],
 
 			['?b', 'true', 'Modifier %?b expects value to be bool, string given.'],
 			['?b', 1, 'Modifier %?b expects value to be bool, integer given.'],
@@ -374,24 +375,24 @@ class SqlProcessorScalarTest extends TestCase
 			['b[]', '123', 'Modifier %b[] expects value to be array, string given.'],
 			['b[]', 123, 'Modifier %b[] expects value to be array, integer given.'],
 			['b[]', 123.0, 'Modifier %b[] expects value to be array, double given.'],
-			['b[]', TRUE, 'Modifier %b[] expects value to be array, boolean given.'],
+			['b[]', true, 'Modifier %b[] expects value to be array, boolean given.'],
 			['b[]', new stdClass(), 'Modifier %b[] expects value to be array, stdClass given.'],
 			['b[]', $file, 'Modifier %b[] expects value to be array, SplFileInfo given.'],
-			['b[]', NULL, 'Modifier %b[] expects value to be array, NULL given.'],
+			['b[]', null, 'Modifier %b[] expects value to be array, NULL given.'],
 			['b[]', ['true'], 'Modifier %b expects value to be bool, string given.'],
 			['b[]', [1], 'Modifier %b expects value to be bool, integer given.'],
 			['b[]', [1.0], 'Modifier %b expects value to be bool, double given.'],
 			['b[]', [[]], 'Modifier %b does not allow array value, use modifier %b[] instead.'],
 			['b[]', [new stdClass()], 'Modifier %b expects value to be bool, stdClass given.'],
-			['b[]', [NULL], 'Modifier %b does not allow NULL value, use modifier %?b instead.'],
+			['b[]', [null], 'Modifier %b does not allow NULL value, use modifier %?b instead.'],
 
 			['?b[]', '123', 'Modifier %?b[] expects value to be array, string given.'],
 			['?b[]', 123, 'Modifier %?b[] expects value to be array, integer given.'],
 			['?b[]', 123.0, 'Modifier %?b[] expects value to be array, double given.'],
-			['?b[]', TRUE, 'Modifier %?b[] expects value to be array, boolean given.'],
+			['?b[]', true, 'Modifier %?b[] expects value to be array, boolean given.'],
 			['?b[]', new stdClass(), 'Modifier %?b[] expects value to be array, stdClass given.'],
 			['?b[]', $file, 'Modifier %?b[] expects value to be array, SplFileInfo given.'],
-			['?b[]', NULL, 'Modifier %?b[] expects value to be array, NULL given.'],
+			['?b[]', null, 'Modifier %?b[] expects value to be array, NULL given.'],
 			['?b[]', ['true'], 'Modifier %?b expects value to be bool, string given.'],
 			['?b[]', [1], 'Modifier %?b expects value to be bool, integer given.'],
 			['?b[]', [1.0], 'Modifier %?b expects value to be bool, double given.'],
@@ -401,16 +402,16 @@ class SqlProcessorScalarTest extends TestCase
 			['dt', 'true', 'Modifier %dt expects value to be DateTime, string given.'],
 			['dt', 1, 'Modifier %dt expects value to be DateTime, integer given.'],
 			['dt', 1.0, 'Modifier %dt expects value to be DateTime, double given.'],
-			['dt', TRUE, 'Modifier %dt expects value to be DateTime, boolean given.'],
+			['dt', true, 'Modifier %dt expects value to be DateTime, boolean given.'],
 			['dt', [], 'Modifier %dt does not allow array value, use modifier %dt[] instead.'],
 			['dt', new stdClass(), 'Modifier %dt expects value to be DateTime, stdClass given.'],
 			['dt', $file, 'Modifier %dt expects value to be DateTime, SplFileInfo given.'],
-			['dt', NULL, 'Modifier %dt does not allow NULL value, use modifier %?dt instead.'],
+			['dt', null, 'Modifier %dt does not allow NULL value, use modifier %?dt instead.'],
 
 			['?dt', 'true', 'Modifier %?dt expects value to be DateTime, string given.'],
 			['?dt', 1, 'Modifier %?dt expects value to be DateTime, integer given.'],
 			['?dt', 1.0, 'Modifier %?dt expects value to be DateTime, double given.'],
-			['?dt', TRUE, 'Modifier %?dt expects value to be DateTime, boolean given.'],
+			['?dt', true, 'Modifier %?dt expects value to be DateTime, boolean given.'],
 			['?dt', [], 'Modifier %?dt does not allow array value, use modifier %?dt[] instead.'],
 			['?dt', new stdClass(), 'Modifier %?dt expects value to be DateTime, stdClass given.'],
 			['?dt', $file, 'Modifier %?dt expects value to be DateTime, SplFileInfo given.'],
@@ -418,45 +419,45 @@ class SqlProcessorScalarTest extends TestCase
 			['dt[]', '123', 'Modifier %dt[] expects value to be array, string given.'],
 			['dt[]', 123, 'Modifier %dt[] expects value to be array, integer given.'],
 			['dt[]', 123.0, 'Modifier %dt[] expects value to be array, double given.'],
-			['dt[]', TRUE, 'Modifier %dt[] expects value to be array, boolean given.'],
+			['dt[]', true, 'Modifier %dt[] expects value to be array, boolean given.'],
 			['dt[]', new stdClass(), 'Modifier %dt[] expects value to be array, stdClass given.'],
 			['dt[]', $file, 'Modifier %dt[] expects value to be array, SplFileInfo given.'],
-			['dt[]', NULL, 'Modifier %dt[] expects value to be array, NULL given.'],
+			['dt[]', null, 'Modifier %dt[] expects value to be array, NULL given.'],
 			['dt[]', ['true'], 'Modifier %dt expects value to be DateTime, string given.'],
 			['dt[]', [1], 'Modifier %dt expects value to be DateTime, integer given.'],
 			['dt[]', [1.0], 'Modifier %dt expects value to be DateTime, double given.'],
-			['dt[]', [TRUE], 'Modifier %dt expects value to be DateTime, boolean given.'],
+			['dt[]', [true], 'Modifier %dt expects value to be DateTime, boolean given.'],
 			['dt[]', [[]], 'Modifier %dt does not allow array value, use modifier %dt[] instead.'],
 			['dt[]', [new stdClass()], 'Modifier %dt expects value to be DateTime, stdClass given.'],
-			['dt[]', [NULL], 'Modifier %dt does not allow NULL value, use modifier %?dt instead.'],
+			['dt[]', [null], 'Modifier %dt does not allow NULL value, use modifier %?dt instead.'],
 
 			['?dt[]', '123', 'Modifier %?dt[] expects value to be array, string given.'],
 			['?dt[]', 123, 'Modifier %?dt[] expects value to be array, integer given.'],
 			['?dt[]', 123.0, 'Modifier %?dt[] expects value to be array, double given.'],
-			['?dt[]', TRUE, 'Modifier %?dt[] expects value to be array, boolean given.'],
+			['?dt[]', true, 'Modifier %?dt[] expects value to be array, boolean given.'],
 			['?dt[]', new stdClass(), 'Modifier %?dt[] expects value to be array, stdClass given.'],
 			['?dt[]', $file, 'Modifier %?dt[] expects value to be array, SplFileInfo given.'],
-			['?dt[]', NULL, 'Modifier %?dt[] expects value to be array, NULL given.'],
+			['?dt[]', null, 'Modifier %?dt[] expects value to be array, NULL given.'],
 			['?dt[]', ['true'], 'Modifier %?dt expects value to be DateTime, string given.'],
 			['?dt[]', [1], 'Modifier %?dt expects value to be DateTime, integer given.'],
 			['?dt[]', [1.0], 'Modifier %?dt expects value to be DateTime, double given.'],
-			['?dt[]', [TRUE], 'Modifier %?dt expects value to be DateTime, boolean given.'],
+			['?dt[]', [true], 'Modifier %?dt expects value to be DateTime, boolean given.'],
 			['?dt[]', [[]], 'Modifier %?dt does not allow array value, use modifier %?dt[] instead.'],
 			['?dt[]', [new stdClass()], 'Modifier %?dt expects value to be DateTime, stdClass given.'],
 
 			['dts', 'true', 'Modifier %dts expects value to be DateTime, string given.'],
 			['dts', 1, 'Modifier %dts expects value to be DateTime, integer given.'],
 			['dts', 1.0, 'Modifier %dts expects value to be DateTime, double given.'],
-			['dts', TRUE, 'Modifier %dts expects value to be DateTime, boolean given.'],
+			['dts', true, 'Modifier %dts expects value to be DateTime, boolean given.'],
 			['dts', [], 'Modifier %dts does not allow array value, use modifier %dts[] instead.'],
 			['dts', new stdClass(), 'Modifier %dts expects value to be DateTime, stdClass given.'],
 			['dts', $file, 'Modifier %dts expects value to be DateTime, SplFileInfo given.'],
-			['dts', NULL, 'Modifier %dts does not allow NULL value, use modifier %?dts instead.'],
+			['dts', null, 'Modifier %dts does not allow NULL value, use modifier %?dts instead.'],
 
 			['?dts', 'true', 'Modifier %?dts expects value to be DateTime, string given.'],
 			['?dts', 1, 'Modifier %?dts expects value to be DateTime, integer given.'],
 			['?dts', 1.0, 'Modifier %?dts expects value to be DateTime, double given.'],
-			['?dts', TRUE, 'Modifier %?dts expects value to be DateTime, boolean given.'],
+			['?dts', true, 'Modifier %?dts expects value to be DateTime, boolean given.'],
 			['?dts', [], 'Modifier %?dts does not allow array value, use modifier %?dts[] instead.'],
 			['?dts', new stdClass(), 'Modifier %?dts expects value to be DateTime, stdClass given.'],
 			['?dts', $file, 'Modifier %?dts expects value to be DateTime, SplFileInfo given.'],
@@ -464,45 +465,45 @@ class SqlProcessorScalarTest extends TestCase
 			['dts[]', '123', 'Modifier %dts[] expects value to be array, string given.'],
 			['dts[]', 123, 'Modifier %dts[] expects value to be array, integer given.'],
 			['dts[]', 123.0, 'Modifier %dts[] expects value to be array, double given.'],
-			['dts[]', TRUE, 'Modifier %dts[] expects value to be array, boolean given.'],
+			['dts[]', true, 'Modifier %dts[] expects value to be array, boolean given.'],
 			['dts[]', new stdClass(), 'Modifier %dts[] expects value to be array, stdClass given.'],
 			['dts[]', $file, 'Modifier %dts[] expects value to be array, SplFileInfo given.'],
-			['dts[]', NULL, 'Modifier %dts[] expects value to be array, NULL given.'],
+			['dts[]', null, 'Modifier %dts[] expects value to be array, NULL given.'],
 			['dts[]', ['true'], 'Modifier %dts expects value to be DateTime, string given.'],
 			['dts[]', [1], 'Modifier %dts expects value to be DateTime, integer given.'],
 			['dts[]', [1.0], 'Modifier %dts expects value to be DateTime, double given.'],
-			['dts[]', [TRUE], 'Modifier %dts expects value to be DateTime, boolean given.'],
+			['dts[]', [true], 'Modifier %dts expects value to be DateTime, boolean given.'],
 			['dts[]', [[]], 'Modifier %dts does not allow array value, use modifier %dts[] instead.'],
 			['dts[]', [new stdClass()], 'Modifier %dts expects value to be DateTime, stdClass given.'],
-			['dts[]', [NULL], 'Modifier %dts does not allow NULL value, use modifier %?dts instead.'],
+			['dts[]', [null], 'Modifier %dts does not allow NULL value, use modifier %?dts instead.'],
 
 			['?dts[]', '123', 'Modifier %?dts[] expects value to be array, string given.'],
 			['?dts[]', 123, 'Modifier %?dts[] expects value to be array, integer given.'],
 			['?dts[]', 123.0, 'Modifier %?dts[] expects value to be array, double given.'],
-			['?dts[]', TRUE, 'Modifier %?dts[] expects value to be array, boolean given.'],
+			['?dts[]', true, 'Modifier %?dts[] expects value to be array, boolean given.'],
 			['?dts[]', new stdClass(), 'Modifier %?dts[] expects value to be array, stdClass given.'],
 			['?dts[]', $file, 'Modifier %?dts[] expects value to be array, SplFileInfo given.'],
-			['?dts[]', NULL, 'Modifier %?dts[] expects value to be array, NULL given.'],
+			['?dts[]', null, 'Modifier %?dts[] expects value to be array, NULL given.'],
 			['?dts[]', ['true'], 'Modifier %?dts expects value to be DateTime, string given.'],
 			['?dts[]', [1], 'Modifier %?dts expects value to be DateTime, integer given.'],
 			['?dts[]', [1.0], 'Modifier %?dts expects value to be DateTime, double given.'],
-			['?dts[]', [TRUE], 'Modifier %?dts expects value to be DateTime, boolean given.'],
+			['?dts[]', [true], 'Modifier %?dts expects value to be DateTime, boolean given.'],
 			['?dts[]', [[]], 'Modifier %?dts does not allow array value, use modifier %?dts[] instead.'],
 			['?dts[]', [new stdClass()], 'Modifier %?dts expects value to be DateTime, stdClass given.'],
 
 			['di', 'true', 'Modifier %di expects value to be DateInterval, string given.'],
 			['di', 1, 'Modifier %di expects value to be DateInterval, integer given.'],
 			['di', 1.0, 'Modifier %di expects value to be DateInterval, double given.'],
-			['di', TRUE, 'Modifier %di expects value to be DateInterval, boolean given.'],
+			['di', true, 'Modifier %di expects value to be DateInterval, boolean given.'],
 			['di', [], 'Modifier %di does not allow array value, use modifier %di[] instead.'],
 			['di', new stdClass(), 'Modifier %di expects value to be DateInterval, stdClass given.'],
 			['di', $file, 'Modifier %di expects value to be DateInterval, SplFileInfo given.'],
-			['di', NULL, 'Modifier %di does not allow NULL value, use modifier %?di instead.'],
+			['di', null, 'Modifier %di does not allow NULL value, use modifier %?di instead.'],
 
 			['?di', 'true', 'Modifier %?di expects value to be DateInterval, string given.'],
 			['?di', 1, 'Modifier %?di expects value to be DateInterval, integer given.'],
 			['?di', 1.0, 'Modifier %?di expects value to be DateInterval, double given.'],
-			['?di', TRUE, 'Modifier %?di expects value to be DateInterval, boolean given.'],
+			['?di', true, 'Modifier %?di expects value to be DateInterval, boolean given.'],
 			['?di', [], 'Modifier %?di does not allow array value, use modifier %?di[] instead.'],
 			['?di', new stdClass(), 'Modifier %?di expects value to be DateInterval, stdClass given.'],
 			['?di', $file, 'Modifier %?di expects value to be DateInterval, SplFileInfo given.'],
@@ -510,63 +511,63 @@ class SqlProcessorScalarTest extends TestCase
 			['di[]', '123', 'Modifier %di[] expects value to be array, string given.'],
 			['di[]', 123, 'Modifier %di[] expects value to be array, integer given.'],
 			['di[]', 123.0, 'Modifier %di[] expects value to be array, double given.'],
-			['di[]', TRUE, 'Modifier %di[] expects value to be array, boolean given.'],
+			['di[]', true, 'Modifier %di[] expects value to be array, boolean given.'],
 			['di[]', new stdClass(), 'Modifier %di[] expects value to be array, stdClass given.'],
 			['di[]', $file, 'Modifier %di[] expects value to be array, SplFileInfo given.'],
-			['di[]', NULL, 'Modifier %di[] expects value to be array, NULL given.'],
+			['di[]', null, 'Modifier %di[] expects value to be array, NULL given.'],
 			['di[]', ['true'], 'Modifier %di expects value to be DateInterval, string given.'],
 			['di[]', [1], 'Modifier %di expects value to be DateInterval, integer given.'],
 			['di[]', [1.0], 'Modifier %di expects value to be DateInterval, double given.'],
-			['di[]', [TRUE], 'Modifier %di expects value to be DateInterval, boolean given.'],
+			['di[]', [true], 'Modifier %di expects value to be DateInterval, boolean given.'],
 			['di[]', [[]], 'Modifier %di does not allow array value, use modifier %di[] instead.'],
 			['di[]', [new stdClass()], 'Modifier %di expects value to be DateInterval, stdClass given.'],
-			['di[]', [NULL], 'Modifier %di does not allow NULL value, use modifier %?di instead.'],
+			['di[]', [null], 'Modifier %di does not allow NULL value, use modifier %?di instead.'],
 
 			['?di[]', '123', 'Modifier %?di[] expects value to be array, string given.'],
 			['?di[]', 123, 'Modifier %?di[] expects value to be array, integer given.'],
 			['?di[]', 123.0, 'Modifier %?di[] expects value to be array, double given.'],
-			['?di[]', TRUE, 'Modifier %?di[] expects value to be array, boolean given.'],
+			['?di[]', true, 'Modifier %?di[] expects value to be array, boolean given.'],
 			['?di[]', new stdClass(), 'Modifier %?di[] expects value to be array, stdClass given.'],
 			['?di[]', $file, 'Modifier %?di[] expects value to be array, SplFileInfo given.'],
-			['?di[]', NULL, 'Modifier %?di[] expects value to be array, NULL given.'],
+			['?di[]', null, 'Modifier %?di[] expects value to be array, NULL given.'],
 			['?di[]', ['true'], 'Modifier %?di expects value to be DateInterval, string given.'],
 			['?di[]', [1], 'Modifier %?di expects value to be DateInterval, integer given.'],
 			['?di[]', [1.0], 'Modifier %?di expects value to be DateInterval, double given.'],
-			['?di[]', [TRUE], 'Modifier %?di expects value to be DateInterval, boolean given.'],
+			['?di[]', [true], 'Modifier %?di expects value to be DateInterval, boolean given.'],
 			['?di[]', [[]], 'Modifier %?di does not allow array value, use modifier %?di[] instead.'],
 			['?di[]', [new stdClass()], 'Modifier %?di expects value to be DateInterval, stdClass given.'],
 
 			['blob', 123, 'Modifier %blob expects value to be blob string, integer given.'],
 			['blob', 123.0, 'Modifier %blob expects value to be blob string, double given.'],
-			['blob', TRUE, 'Modifier %blob expects value to be blob string, boolean given.'],
+			['blob', true, 'Modifier %blob expects value to be blob string, boolean given.'],
 			['blob', [], 'Modifier %blob does not allow array value, use modifier %blob[] instead.'],
 			['blob', new stdClass(), 'Modifier %blob expects value to be blob string, stdClass given.'],
-			['blob', NULL, 'Modifier %blob does not allow NULL value, use modifier %?blob instead.'],
+			['blob', null, 'Modifier %blob does not allow NULL value, use modifier %?blob instead.'],
 
 			['?blob', 123, 'Modifier %?blob expects value to be blob string, integer given.'],
 			['?blob', 123.0, 'Modifier %?blob expects value to be blob string, double given.'],
-			['?blob', TRUE, 'Modifier %?blob expects value to be blob string, boolean given.'],
+			['?blob', true, 'Modifier %?blob expects value to be blob string, boolean given.'],
 			['?blob', [], 'Modifier %?blob does not allow array value, use modifier %?blob[] instead.'],
 			['?blob', new stdClass(), 'Modifier %?blob expects value to be blob string, stdClass given.'],
 
 			['blob[]', '123', 'Modifier %blob[] expects value to be array, string given.'],
 			['blob[]', 123, 'Modifier %blob[] expects value to be array, integer given.'],
 			['blob[]', 123.0, 'Modifier %blob[] expects value to be array, double given.'],
-			['blob[]', TRUE, 'Modifier %blob[] expects value to be array, boolean given.'],
+			['blob[]', true, 'Modifier %blob[] expects value to be array, boolean given.'],
 			['blob[]', new stdClass(), 'Modifier %blob[] expects value to be array, stdClass given.'],
 			['blob[]', $file, 'Modifier %blob[] expects value to be array, SplFileInfo given.'],
-			['blob[]', NULL, 'Modifier %blob[] expects value to be array, NULL given.'],
+			['blob[]', null, 'Modifier %blob[] expects value to be array, NULL given.'],
 			['blob[]', [123.0], 'Modifier %blob expects value to be blob string, double given.'],
-			['blob[]', [TRUE], 'Modifier %blob expects value to be blob string, boolean given.'],
+			['blob[]', [true], 'Modifier %blob expects value to be blob string, boolean given.'],
 			['blob[]', [[]], 'Modifier %blob does not allow array value, use modifier %blob[] instead.'],
 			['blob[]', [new stdClass()], 'Modifier %blob expects value to be blob string, stdClass given.'],
-			['blob[]', [NULL], 'Modifier %blob does not allow NULL value, use modifier %?blob instead.'],
+			['blob[]', [null], 'Modifier %blob does not allow NULL value, use modifier %?blob instead.'],
 
 			['any', new stdClass(), 'Modifier %any expects value to be pretty much anything, stdClass given.'],
 		];
 	}
-
 }
+
 
 $test = new SqlProcessorScalarTest();
 $test->run();

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @testCase
@@ -9,12 +9,12 @@ namespace NextrasTests\Dbal;
 
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class PlatformMysqlTest extends IntegrationTestCase
 {
-
 	public function testTables()
 	{
 		$tables = $this->connection->getPlatform()->getTables();
@@ -22,13 +22,13 @@ class PlatformMysqlTest extends IntegrationTestCase
 		Assert::true(isset($tables['books']));
 		Assert::same([
 			'name' => 'books',
-			'is_view' => FALSE,
+			'is_view' => false,
 		], $tables['books']);
 
 		Assert::true(isset($tables['my_books']));
 		Assert::same([
 			'name' => 'my_books',
-			'is_view' => TRUE,
+			'is_view' => true,
 		], $tables['my_books']);
 	}
 
@@ -41,61 +41,61 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'name' => 'id',
 				'type' => 'INT',
 				'size' => 11,
-				'default' => NULL,
-				'is_primary' => TRUE,
-				'is_autoincrement' => TRUE,
-				'is_unsigned' => FALSE,
-				'is_nullable' => FALSE,
+				'default' => null,
+				'is_primary' => true,
+				'is_autoincrement' => true,
+				'is_unsigned' => false,
+				'is_nullable' => false,
 			],
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT',
 				'size' => 11,
-				'default' => NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable' => FALSE,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
 			],
 			'translator_id' => [
-				'name'=> 'translator_id',
+				'name' => 'translator_id',
 				'type' => 'INT',
-				'size'=> 11,
-				'default' => NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable' => TRUE,
+				'size' => 11,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => true,
 			],
 			'title' => [
 				'name' => 'title',
 				'type' => 'VARCHAR',
 				'size' => 50,
-				'default' => NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable' => FALSE,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
 			],
 			'publisher_id' => [
-				'name'=> 'publisher_id',
+				'name' => 'publisher_id',
 				'type' => 'INT',
 				'size' => 11,
-				'default' => NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable' => FALSE,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
 			],
 			'ean_id' => [
 				'name' => 'ean_id',
 				'type' => 'INT',
 				'size' => 11,
-				'default' => NULL,
-				'is_primary' => FALSE,
-				'is_autoincrement' => FALSE,
-				'is_unsigned' => FALSE,
-				'is_nullable' => TRUE,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => true,
 			],
 		], $columns);
 	}

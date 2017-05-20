@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -8,6 +8,7 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -24,11 +25,11 @@ class RowTest extends TestCase
 		Assert::true(isset($row->name));
 		Assert::false(isset($row->NAME));
 
-		Assert::throws(function() use ($row) {
+		Assert::throws(function () use ($row) {
 			$row->NAME;
 		}, InvalidArgumentException::class, "Column 'NAME' does not exist.");
 
-		Assert::throws(function() use ($row) {
+		Assert::throws(function () use ($row) {
 			$row->suname;
 		}, InvalidArgumentException::class, "Column 'suname' does not exist, did you mean 'surname'?");
 	}

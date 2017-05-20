@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -8,6 +8,7 @@ use Mockery\MockInterface;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -40,8 +41,8 @@ class SqlProcessorIdentifiersTest extends TestCase
 			$this->parser->process(['SELECT [a], [b.c] FROM [d.e]'])
 		);
 	}
-
 }
+
 
 $test = new SqlProcessorIdentifiersTest();
 $test->run();

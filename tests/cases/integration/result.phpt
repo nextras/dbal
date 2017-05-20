@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -11,6 +11,7 @@ use Nextras\Dbal\InvalidStateException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -30,8 +31,8 @@ class ResultIntegrationTest extends IntegrationTestCase
 
 		$result = $this->connection->query('SELECT * FROM tag_followers ORDER BY tag_id, author_id');
 
-		$result->setValueNormalization(FALSE); // test reenabling
-		$result->setValueNormalization(TRUE);
+		$result->setValueNormalization(false); // test reenabling
+		$result->setValueNormalization(true);
 
 		$follower = $result->fetch();
 
@@ -40,8 +41,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 		Assert::type(DateTimeImmutable::class, $follower->created_at);
 		Assert::same('2014-01-01 00:10:00', $follower->created_at->format('Y-m-d H:i:s'));
 
-
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 		$follower = $result->fetch();
 
 		if ($this->connection->getPlatform() instanceof SqlServerPlatform) {
@@ -60,7 +60,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$this->initData($this->connection);
 		$result = $this->connection->query('SELECT * FROM books');
 
-		Assert::exception(function() use ($result) {
+		Assert::exception(function () use ($result) {
 			$result->seek(10);
 		}, InvalidStateException::class);
 	}

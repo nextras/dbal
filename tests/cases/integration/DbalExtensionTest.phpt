@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -22,7 +22,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class DbalExtensionTest extends IntegrationTestCase
 {
-
 	/**
 	 * @dataProvider provideData
 	 */
@@ -50,7 +49,7 @@ class DbalExtensionTest extends IntegrationTestCase
 	}
 
 
-	private function buildDic($config, $debug, callable $compilerCb = NULL)
+	private function buildDic($config, $debug, callable $compilerCb = null)
 	{
 		$loader = new ContainerLoader(TEMP_DIR);
 		$key = __FILE__ . ':' . __LINE__ . ':' . $config;
@@ -75,16 +74,16 @@ class DbalExtensionTest extends IntegrationTestCase
 	public function provideData()
 	{
 		return [
-			['configA', TRUE, TRUE],
-			['configB', FALSE, TRUE],
-			['configC', FALSE, FALSE],
+			['configA', true, true],
+			['configB', false, true],
+			['configC', false, false],
 		];
 	}
 
 
 	public function testAutowired()
 	{
-		$dic = $this->buildDic('configD', FALSE, function (Compiler $compiler) {
+		$dic = $this->buildDic('configD', false, function (Compiler $compiler) {
 			$compiler->addExtension('dbal2', new DbalExtension());
 		});
 

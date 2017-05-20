@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
@@ -13,6 +13,7 @@ use Nextras\Dbal\Result\Row;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -24,7 +25,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
-		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 
@@ -32,7 +33,7 @@ class ResultTest extends TestCase
 
 		$names = [];
 		$result = new Result($adapter, $driver, 0);
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 		foreach ($result as $row) {
 			$names[] = $row->name;
 		}
@@ -58,12 +59,12 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('seek')->once();
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
-		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 
 		$names = [];
 		$result->seek(0);
@@ -84,7 +85,7 @@ class ResultTest extends TestCase
 		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 		Assert::same('First', $result->fetchField());
 		Assert::same('Two', $result->fetchField(1));
 		Assert::throws(function () use ($result) {
@@ -94,12 +95,12 @@ class ResultTest extends TestCase
 
 		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 		Assert::null($result->fetchField());
 	}
 
@@ -111,16 +112,16 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('seek')->once();
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
-		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 		$adapter->shouldReceive('seek')->once();
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
-		$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 		$driver = Mockery::mock(IDriver::class);
 
 		$result = new Result($adapter, $driver, 0);
-		$result->setValueNormalization(FALSE);
+		$result->setValueNormalization(false);
 
 		Assert::equal([
 			new Row(['name' => 'First', 'surname' => 'Two']),
@@ -139,24 +140,24 @@ class ResultTest extends TestCase
 		$one = [
 			'name' => 'jon snow',
 			'born' => new DateTimeImmutable('2014-01-01'),
-			'n' => 10
+			'n' => 10,
 		];
 		$two = [
 			'name' => 'oberyn martell',
 			'born' => new DateTimeImmutable('2014-01-03'),
 			'n' => 12,
 		];
-		$createResult = function() use ($one, $two) {
+		$createResult = function () use ($one, $two) {
 			$adapter = Mockery::mock(IResultAdapter::class);
 			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 			$adapter->shouldReceive('seek')->once();
 			$adapter->shouldReceive('fetch')->once()->andReturn($one);
 			$adapter->shouldReceive('fetch')->once()->andReturn($two);
-			$adapter->shouldReceive('fetch')->once()->andReturn(NULL);
+			$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 			$driver = Mockery::mock(IDriver::class);
 			$result = new Result($adapter, $driver, 0);
-			$result->setValueNormalization(FALSE);
+			$result->setValueNormalization(false);
 			return $result;
 		};
 
@@ -185,12 +186,12 @@ class ResultTest extends TestCase
 			'2014-01-03T00:00:00+01:00' => 'oberyn martell',
 		], $createResult()->fetchPairs('born', 'name'));
 
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$adapter = Mockery::mock(IResultAdapter::class);
 			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 			$driver = Mockery::mock(IDriver::class);
 			$result = new Result($adapter, $driver, 0);
-			$result->setValueNormalization(FALSE);
+			$result->setValueNormalization(false);
 			$result->fetchPairs();
 		}, InvalidArgumentException::class, 'Result::fetchPairs() requires defined key or value.');
 	}
@@ -215,11 +216,11 @@ class ResultTest extends TestCase
 
 		$adapter = Mockery::mock(IResultAdapter::class);
 		$adapter->shouldReceive('getTypes')->once()->andReturn([
-			'name' => [IResultAdapter::TYPE_STRING, NULL],
-			'age' => [IResultAdapter::TYPE_INT, NULL],
-			'weight' => [IResultAdapter::TYPE_FLOAT, NULL],
-			'is_single' => [IResultAdapter::TYPE_BOOL, NULL],
-			'born' => [IResultAdapter::TYPE_DATETIME, NULL],
+			'name' => [IResultAdapter::TYPE_STRING, null],
+			'age' => [IResultAdapter::TYPE_INT, null],
+			'weight' => [IResultAdapter::TYPE_FLOAT, null],
+			'is_single' => [IResultAdapter::TYPE_BOOL, null],
+			'born' => [IResultAdapter::TYPE_DATETIME, null],
 		]);
 		$adapter->shouldReceive('fetch')->once()->andReturn($one);
 		$adapter->shouldReceive('fetch')->once()->andReturn($two);
@@ -230,14 +231,14 @@ class ResultTest extends TestCase
 		Assert::same('jon snow', $row->name);
 		Assert::same(16, $row->age);
 		Assert::same(90.5, $row->weight);
-		Assert::same(TRUE, $row->is_single);
+		Assert::same(true, $row->is_single);
 		Assert::same('2015-01-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
 
 		$row = $result->fetch();
 		Assert::same('oberyn martell', $row->name);
 		Assert::same(20, $row->age);
 		Assert::same(60.5, $row->weight);
-		Assert::same(FALSE, $row->is_single);
+		Assert::same(false, $row->is_single);
 		Assert::same('2015-02-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
 	}
 }

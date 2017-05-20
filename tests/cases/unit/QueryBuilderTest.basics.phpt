@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types = 1);
 
 /** @testCase */
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
 
@@ -14,7 +13,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class QueryBuilderBasicsTest extends QueryBuilderTestCase
 {
-
 	public function testParametersOrder()
 	{
 		$this->assertBuilder(
@@ -86,7 +84,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 			$this->builder()
 				->from('foo')
 				->select('id')
-				->select(NULL)
+				->select(null)
 		);
 
 		$this->assertBuilder(
@@ -94,7 +92,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 			$this->builder()
 				->from('foo')
 				->groupBy('id')
-				->groupBy(NULL)
+				->groupBy(null)
 		);
 
 		$this->assertBuilder(
@@ -102,7 +100,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 			$this->builder()
 				->from('foo')
 				->orderBy('id')
-				->orderBy(NULL)
+				->orderBy(null)
 		);
 	}
 
@@ -141,7 +139,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 
 	public function testLimitMethods()
 	{
-		$this->driver->shouldReceive('modifyLimitQuery')->with('SELECT * FROM foo', 10, NULL)->andReturn('X');
+		$this->driver->shouldReceive('modifyLimitQuery')->with('SELECT * FROM foo', 10, null)->andReturn('X');
 
 		$this->assertBuilder(
 			['X'],
@@ -160,20 +158,20 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 
 		Assert::false($this->builder()->hasLimitOffsetClause());
 		Assert::true($this->builder()->limitBy(1)->hasLimitOffsetClause());
-		Assert::true($this->builder()->limitBy(NULL, 2)->hasLimitOffsetClause());
-		Assert::false($this->builder()->limitBy(1)->limitBy(NULL)->hasLimitOffsetClause());
+		Assert::true($this->builder()->limitBy(null, 2)->hasLimitOffsetClause());
+		Assert::false($this->builder()->limitBy(1)->limitBy(null)->hasLimitOffsetClause());
 	}
 
 
 	public function testFrom()
 	{
-		$builder = $this->builder()->from('foo', NULL);
-		Assert::same(NULL, $builder->getFromAlias());
+		$builder = $this->builder()->from('foo', null);
+		Assert::same(null, $builder->getFromAlias());
 
 		$builder = $this->builder()->from('foo', 'bar');
 		Assert::same('bar', $builder->getFromAlias());
 
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$this->builder()->getFromAlias();
 		}, InvalidStateException::class);
 	}
@@ -185,19 +183,18 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 			['SELECT * FROM table'],
 			$this->builder()
 				->select('foo')
-				->select(NULL)
+				->select(null)
 				->from('table')
 				->where('bar = 1')
-				->where(NULL)
+				->where(null)
 				->groupBy('foo')
-				->groupBy(NULL)
+				->groupBy(null)
 				->having('baz')
-				->having(NULL)
+				->having(null)
 				->orderBy('bazz')
-				->orderBy(NULL)
+				->orderBy(null)
 		);
 	}
-
 }
 
 
