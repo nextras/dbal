@@ -2,13 +2,8 @@
 
 namespace NextrasTests\Dbal;
 
-use Mockery;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\InvalidStateException;
-use Nextras\Dbal\Platforms\MySqlPlatform;
-use Nextras\Dbal\Platforms\PostgreSqlPlatform;
-use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\FileImporter;
 use Tester\Environment;
 
@@ -25,26 +20,14 @@ class IntegrationTestCase extends TestCase
 	public function initData(Connection $connection)
 	{
 		$this->lockConnection($connection);
-		$platform = $connection->getPlatform();
-		if ($platform instanceof PostgreSqlPlatform) {
-			FileImporter::executeFile($connection, __DIR__ . '/../data/pgsql-data.sql');
-		} elseif ($platform instanceof SqlServerPlatform) {
-			FileImporter::executeFile($connection, __DIR__ . '/../data/sqlsrv-data.sql');
-		} elseif ($platform instanceof MySqlPlatform) {
-			FileImporter::executeFile($connection, __DIR__ . '/../data/mysql-data.sql');
-		} else {
-			throw new InvalidStateException();
-		}
+		$platform = $connection->getPlatform()->getName();
+		FileImporter::executeFile($connection, __DIR__ . "/../data/$platform-data.sql");
 	}
 
 
 	protected function lockConnection(Connection $connection)
 	{
-		if ($connection->getPlatform() instanceof PostgreSqlPlatform) {
-			Environment::lock('data-pgsql', TEMP_DIR);
-		} else {
-			Environment::lock('data-mysql', TEMP_DIR);
-		}
+		Environment::lock('data-' . $connection->getPlatform()->getName(), TEMP_DIR);
 	}
 
 

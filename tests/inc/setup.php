@@ -23,10 +23,11 @@ foreach ($config as $name => $configDatabase) {
 	echo "[setup] Bootstraping '{$name}' structure.\n";
 
 	$connection = new Connection($configDatabase);
-	$resetFunction = require __DIR__ . "/../data/{$name}-reset.php";
+	$platform = $connection->getPlatform()->getName();
+	$resetFunction = require __DIR__ . "/../data/{$platform}-reset.php";
 	$resetFunction($connection, $configDatabase['database']);
 
-	FileImporter::executeFile($connection, __DIR__ . "/../data/{$name}-init.sql");
+	FileImporter::executeFile($connection, __DIR__ . "/../data/{$platform}-init.sql");
 }
 
 echo "[setup] All done.\n\n";
