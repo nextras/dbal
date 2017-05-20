@@ -149,7 +149,7 @@ class PlatformPostgreTest extends IntegrationTestCase
 
 	public function testName()
 	{
-		Assert::same('postgresql', $this->connection->getPlatform()->getName());
+		Assert::same('pgsql', $this->connection->getPlatform()->getName());
 	}
 }
 
