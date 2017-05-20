@@ -109,12 +109,12 @@ class Connection implements IConnection
 
 
 	/**
-	 * Reconnects to a database with new configration.
+	 * Reconnects to a database with new configration. Unchanged configuration is reused.
 	 */
 	public function reconnectWithConfig(array $config)
 	{
 		$this->disconnect();
-		$this->config = $config;
+		$this->config = $config + $this->config;
 		$this->driver = $this->createDriver();
 		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connect();
