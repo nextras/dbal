@@ -114,7 +114,7 @@ class SqlsrvDriver implements IDriver
 		/** @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx */
 
 		$time = microtime(true);
-		$statement = sqlsrv_query($this->connection, $query, [], ['Scrollable' => SQLSRV_CURSOR_STATIC]);
+		$statement = sqlsrv_query($this->connection, $query, [], ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
 		$this->timeTaken = microtime(true) - $time;
 
 		if (!$statement) {
@@ -136,7 +136,7 @@ class SqlsrvDriver implements IDriver
 
 	public function getLastInsertedId(string $sequenceName = null)
 	{
-		return $this->loggedQuery('SELECT @@IDENTITY')->fetchField();
+		return $this->loggedQuery('SELECT SCOPE_IDENTITY()')->fetchField();
 	}
 
 

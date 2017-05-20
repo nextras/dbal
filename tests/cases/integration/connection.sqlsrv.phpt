@@ -31,9 +31,19 @@ class ConnectionSqlsrvTest extends IntegrationTestCase
 
 	public function testLastInsertId()
 	{
-		$this->initData($this->connection);
+		$this->connection->query('CREATE TABLE autoi_1 (a int NOT NULL IDENTITY PRIMARY KEY)');
+		$this->connection->query('CREATE TABLE autoi_2 (b int NOT NULL IDENTITY PRIMARY KEY)');
 
-		$this->connection->query('INSERT INTO publishers %values', ['name' => 'FOO']);
+		for ($i = 1; $i < 4; $i++) {
+			$this->connection->query('INSERT INTO autoi_1 DEFAULT VALUES');
+			Assert::same($i, $this->connection->getLastInsertedId());
+		}
+
+		$this->connection->query('INSERT INTO autoi_2 DEFAULT VALUES');
+		Assert::same(1, $this->connection->getLastInsertedId());
+
+		$this->connection->query('CREATE TRIGGER autoi_2_ai ON autoi_2 AFTER INSERT AS INSERT INTO autoi_1 DEFAULT VALUES');
+		$this->connection->query('INSERT INTO autoi_2 DEFAULT VALUES');
 		Assert::same(2, $this->connection->getLastInsertedId());
 	}
 
