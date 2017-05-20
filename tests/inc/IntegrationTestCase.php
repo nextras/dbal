@@ -54,6 +54,7 @@ class IntegrationTestCase extends TestCase
 			'user' => NULL,
 			'password' => NULL,
 			'sqlMode' => 'TRADITIONAL',
+			'searchPath' => ['public', 'second_schema'],
 		], Environment::loadData(), $params);
 		return new Connection($options);
 	}
@@ -70,5 +71,4 @@ class IntegrationTestCase extends TestCase
 
 		throw new InvalidArgumentException();
 	}
-
 }

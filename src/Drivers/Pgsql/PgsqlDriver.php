@@ -77,6 +77,10 @@ class PgsqlDriver implements IDriver
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
+
+		if (isset($params['searchPath'])) {
+			$this->loggedQuery('SET search_path TO ' . implode(', ', array_map([$this, 'convertIdentifierToSql'], (array) $params['searchPath'])));
+		}
 	}
 
 

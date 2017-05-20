@@ -116,13 +116,13 @@ class PlatformPostgreTest extends IntegrationTestCase
 			'author_id' => [
 				'name' => 'books_authors',
 				'column' => 'author_id',
-				'ref_table' => 'public.authors',
+				'ref_table' => 'second_schema.authors',
 				'ref_column' => 'id',
 			],
 			'translator_id' => [
 				'name' => 'books_translator',
 				'column' => 'translator_id',
-				'ref_table' => 'public.authors',
+				'ref_table' => 'second_schema.authors',
 				'ref_column' => 'id',
 			],
 			'publisher_id' => [
