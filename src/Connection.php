@@ -177,7 +177,6 @@ class Connection implements IConnection
 	public function getPlatform(): IPlatform
 	{
 		if ($this->platform === null) {
-			$this->connected || $this->connect();
 			$this->platform = $this->driver->createPlatform($this);
 		}
 
