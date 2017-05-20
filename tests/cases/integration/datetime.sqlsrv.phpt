@@ -92,6 +92,28 @@ class DateTimeSqlsrvTest extends IntegrationTestCase
 		Assert::type(DateTimeImmutable::class, $row->a);
 		Assert::same('2015-01-01T14:00:00+02:00', $row->a->format('c'));
 	}
+
+
+	public function testMicroseconds()
+	{
+		$connection = $this->createConnection();
+		$connection->query('
+			CREATE TABLE dates_micro (
+				a datetime2,
+				b datetimeoffset
+			);
+		');
+
+		$now = new DateTime();
+		$connection->query('INSERT INTO dates_micro %values', [
+			'a%dts' => $now,
+			'b%dt' => $now,
+		]);
+
+		$row = $connection->query('SELECT * FROM dates_micro')->fetch();
+		Assert::same($now->format('u'), $row->a->format('u'));
+		Assert::same($now->format('u'), $row->b->format('u'));
+	}
 }
 
 

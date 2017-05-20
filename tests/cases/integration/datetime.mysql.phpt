@@ -145,6 +145,28 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		Assert::same('2015-01-01T12:00:00+01:00', $row->a->format('c'));
 		Assert::same('2015-01-01T11:00:00+01:00', $row->b->format('c'));
 	}
+
+
+	public function testMicroseconds()
+	{
+		$connection = $this->createConnection();
+		$connection->query('
+			CREATE TABLE dates_micro (
+				a datetime(6),
+				b timestamp(6)
+			);
+		');
+
+		$now = new DateTime();
+		$connection->query('INSERT INTO dates_micro %values', [
+			'a%dts' => $now,
+			'b%dt' => $now,
+		]);
+
+		$row = $connection->query('SELECT * FROM dates_micro')->fetch();
+		Assert::same($now->format('u'), $row->a->format('u'));
+		Assert::same($now->format('u'), $row->b->format('u'));
+	}
 }
 
 

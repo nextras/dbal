@@ -299,13 +299,13 @@ class PgsqlDriver implements IDriver
 				$value->setTimezone($this->connectionTz);
 			}
 		}
-		return "'" . $value->format('Y-m-d H:i:s') . "'::timestamptz";
+		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamptz";
 	}
 
 
 	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string
 	{
-		return "'" . $value->format('Y-m-d H:i:s') . "'::timestamp";
+		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamp";
 	}
 
 

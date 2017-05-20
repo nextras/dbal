@@ -290,13 +290,13 @@ class SqlsrvDriver implements IDriver
 
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
-		return "'" . $value->format('Y-m-d H:i:s P') . "'";
+		return "CAST('" . $value->format('Y-m-d H:i:s.u P') . "' AS DATETIMEOFFSET)";
 	}
 
 
 	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
 	{
-		return "'" . $value->format('Y-m-d H:i:s') . "'";
+		return "CAST('" . $value->format('Y-m-d H:i:s.u') . "' AS DATETIME2)";
 	}
 
 

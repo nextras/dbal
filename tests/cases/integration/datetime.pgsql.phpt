@@ -156,6 +156,28 @@ class DateTimePostgreTest extends IntegrationTestCase
 			$connection->query('SELECT Now() <= %dt + (INTERVAL \'2 DAYS\')', new DateTime());
 		});
 	}
+
+
+	public function testMicroseconds()
+	{
+		$connection = $this->createConnection();
+		$connection->query('
+			CREATE TABLE dates_micro (
+				a timestamp,
+				b timestamptz
+			);
+		');
+
+		$now = new DateTime();
+		$connection->query('INSERT INTO dates_micro %values', [
+			'a%dts' => $now,
+			'b%dt' => $now,
+		]);
+
+		$row = $connection->query('SELECT * FROM dates_micro')->fetch();
+		Assert::same($now->format('u'), $row->a->format('u'));
+		Assert::same($now->format('u'), $row->b->format('u'));
+	}
 }
 
 

@@ -303,13 +303,13 @@ class MysqliDriver implements IDriver
 				$value->setTimezone($this->connectionTz);
 			}
 		}
-		return "'" . $value->format('Y-m-d H:i:s') . "'";
+		return "'" . $value->format('Y-m-d H:i:s.u') . "'";
 	}
 
 
 	public function convertDatetimeSimpleToSql(\DateTimeInterface $value): string
 	{
-		return "'" . $value->format('Y-m-d H:i:s') . "'";
+		return "'" . $value->format('Y-m-d H:i:s.u') . "'";
 	}
 
 
