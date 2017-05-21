@@ -13,12 +13,6 @@ use Nextras\Dbal\Drivers\IDriver;
 
 class SqlProcessor
 {
-	/** @var IDriver */
-	private $driver;
-
-	/** @var array */
-	private $identifiers;
-
 	/** @var array (name => [supports ?, supports [], expected type]) */
 	protected $modifiers = [
 		// expressions
@@ -49,6 +43,12 @@ class SqlProcessor
 
 	/** @var array (modifier => callable) */
 	protected $customModifiers = [];
+
+	/** @var IDriver */
+	private $driver;
+
+	/** @var array */
+	private $identifiers;
 
 
 	public function __construct(IDriver $driver)
