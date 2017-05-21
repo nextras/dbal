@@ -6,12 +6,10 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace  Nextras\Dbal;
-
-use Nextras\Dbal\Drivers\IDriver;
+namespace Nextras\Dbal;
 
 
 interface ISqlProcessorFactory
 {
-	public function create(IDriver $driver, array $config): SqlProcessor;
+	public function create(Connection $connection): SqlProcessor;
 }

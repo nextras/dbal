@@ -11,6 +11,9 @@ namespace Nextras\Dbal\Platforms;
 
 interface IPlatform
 {
+	const SUPPORT_MULTI_COLUMN_IN = 1;
+
+
 	/**
 	 * Returns platform name.
 	 */
@@ -41,4 +44,7 @@ interface IPlatform
 	 * @return string|null
 	 */
 	public function getPrimarySequenceName(string $table);
+
+
+	public function isSupported(int $feature): bool;
 }

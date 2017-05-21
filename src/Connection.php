@@ -337,9 +337,9 @@ class Connection implements IConnection
 		if (isset($this->config['sqlProcessorFactory'])) {
 			$factory = $this->config['sqlProcessorFactory'];
 			assert($factory instanceof ISqlProcessorFactory);
-			return $factory->create($this->driver, $this->config);
+			return $factory->create($this);
 		} else {
-			return new SqlProcessor($this->driver);
+			return new SqlProcessor($this->driver, $this->getPlatform());
 		}
 	}
 

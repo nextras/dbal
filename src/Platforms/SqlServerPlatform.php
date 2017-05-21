@@ -135,4 +135,10 @@ class SqlServerPlatform implements IPlatform
 	{
 		return null;
 	}
+
+
+	public function isSupported(int $feature): bool
+	{
+		return false;
+	}
 }

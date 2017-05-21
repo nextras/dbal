@@ -8,6 +8,7 @@ use DateTime;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
@@ -21,6 +22,9 @@ class SqlProcessorWhereTest extends TestCase
 	/** @var IDriver|Mockery\MockInterface */
 	private $driver;
 
+	/** @var IPlatform|Mockery\MockInterface */
+	private $platform;
+
 	/** @var SqlProcessor */
 	private $parser;
 
@@ -29,7 +33,8 @@ class SqlProcessorWhereTest extends TestCase
 	{
 		parent::setUp();
 		$this->driver = Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver);
+		$this->platform = Mockery::mock(IPlatform::class);
+		$this->parser = new SqlProcessor($this->driver, $this->platform);
 	}
 
 
@@ -184,6 +189,34 @@ class SqlProcessorWhereTest extends TestCase
 		Assert::same(
 			'1=1',
 			$this->parser->processModifier('or', [])
+		);
+	}
+
+
+	public function testMultiColumnOr()
+	{
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('a');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('b');
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
+
+		Assert::same(
+			'(a, b) IN ((1, 2), (2, 3), (3, 4))',
+			$this->parser->processModifier('multiOr', [
+				['a' => 1, 'b' => 2],
+				['a' => 2, 'b' => 3],
+				['a' => 3, 'b' => 4],
+			])
+		);
+
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(false);
+
+		Assert::same(
+			'(a = 1 AND b = 2) OR (a = 2 AND b = 3) OR (a = 3 AND b = 4)',
+			$this->parser->processModifier('multiOr', [
+				['a' => 1, 'b' => 2],
+				['a' => 2, 'b' => 3],
+				['a' => 3, 'b' => 4],
+			])
 		);
 	}
 
