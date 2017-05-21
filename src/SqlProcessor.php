@@ -9,6 +9,7 @@
 namespace  Nextras\Dbal;
 
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Platforms\IPlatform;
 
 
 class SqlProcessor
@@ -31,6 +32,7 @@ class SqlProcessor
 		'any' => [false, false, 'pretty much anything'],
 		'and' => [false, false, 'array'],
 		'or' => [false, false, 'array'],
+		'multiOr' => [false, false, 'array'],
 
 		// SQL constructs
 		'table' => [false, true, 'string'],
@@ -50,10 +52,14 @@ class SqlProcessor
 	/** @var array */
 	private $identifiers;
 
+	/** @var IPlatform */
+	private $platform;
 
-	public function __construct(IDriver $driver)
+
+	public function __construct(IDriver $driver, IPlatform $platform)
 	{
 		$this->driver = $driver;
+		$this->platform = $platform;
 	}
 
 
@@ -301,6 +307,9 @@ class SqlProcessor
 					case 'or':
 						return $this->processWhere($type, $value);
 
+					case 'multiOr':
+						return $this->processMultiColumnOr($value);
+
 					case 'values':
 						return $this->processValues($type, $value);
 
@@ -477,6 +486,25 @@ class SqlProcessor
 		}
 
 		return implode($type === 'and' ? ' AND ' : ' OR ', $operands);
+	}
+
+
+	private function processMultiColumnOr(array $values): string
+	{
+		if ($this->platform->isSupported(IPlatform::SUPPORT_MULTI_COLUMN_IN)) {
+			$keys = [];
+			foreach (array_keys(reset($values)) as $key) {
+				$keys[] = $this->identifierToSql(explode('%', $key, 2)[0]);
+			}
+			return '(' . implode(', ', $keys) . ') IN ' . $this->processModifier('any', $values);
+
+		} else {
+			$sqls = [];
+			foreach ($values as $value) {
+				$sqls[] = $this->processWhere('and', $value);
+			}
+			return '(' . implode(') OR (', $sqls)  . ')';
+		}
 	}
 
 

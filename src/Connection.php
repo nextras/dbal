@@ -339,7 +339,7 @@ class Connection implements IConnection
 			assert($factory instanceof ISqlProcessorFactory);
 			return $factory->create($this);
 		} else {
-			return new SqlProcessor($this->driver);
+			return new SqlProcessor($this->driver, $this->getPlatform());
 		}
 	}
 
