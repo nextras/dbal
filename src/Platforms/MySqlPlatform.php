@@ -95,4 +95,10 @@ class MySqlPlatform implements IPlatform
 	{
 		return null;
 	}
+
+
+	public function isSupported(int $feature): bool
+	{
+		return self::SUPPORT_MULTI_COLUMN_IN === $feature;
+	}
 }

@@ -66,6 +66,12 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	public function isSupported(int $feature): bool
+	{
+		return $this->platform->isSupported($feature);
+	}
+
+
 	public function clearCache()
 	{
 		$this->cache->clean();
