@@ -6,6 +6,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery\MockInterface;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
@@ -26,7 +27,7 @@ class SqlProcessorIdentifiersTest extends TestCase
 	{
 		parent::setUp();
 		$this->driver = \Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver);
+		$this->parser = new SqlProcessor($this->driver, \Mockery::mock(IPlatform::class));
 	}
 
 

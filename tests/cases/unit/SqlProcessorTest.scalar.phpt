@@ -8,6 +8,7 @@ use DateTime;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
@@ -29,7 +30,7 @@ class SqlProcessorScalarTest extends TestCase
 	{
 		parent::setUp();
 		$this->driver = Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver);
+		$this->parser = new SqlProcessor($this->driver, \Mockery::mock(IPlatform::class));
 	}
 
 
