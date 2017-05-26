@@ -93,7 +93,7 @@ class ConnectionPanel implements IBarPanel
 			$row[1] = self::highlight($row[1]);
 			return $row;
 		}, $queries);
-		$whitespaceExplain = $this->connection->getPlatform()->getName() === 'postgresql';
+		$whitespaceExplain = $this->connection->getPlatform()->getName() === 'pgsql';
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.panel.phtml';

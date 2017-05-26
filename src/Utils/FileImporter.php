@@ -41,7 +41,7 @@ class FileImporter
 		$platformName = $connection->getPlatform()->getName();
 		if ($platformName === 'mysql') {
 			$parse = '[\'"]|/\*|-- |$';
-		} elseif ($platformName === 'postgresql') {
+		} elseif ($platformName === 'pgsql') {
 			$parse = '[\'"]|/\*|-- |$|\$[^$]*\$';
 		} elseif ($platformName === 'mssql') {
 			$parse = '[\'"[]|/\*|-- |$';
