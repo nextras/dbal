@@ -11,6 +11,7 @@ namespace Nextras\Dbal;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
+use Nextras\Dbal\Result\Result;
 
 
 class Connection implements IConnection
@@ -154,6 +155,12 @@ class Connection implements IConnection
 			$args = $query;
 		}
 		return call_user_func_array([$this, 'query'], $args);
+	}
+
+
+	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result
+	{
+		return $this->queryArgs($queryBuilder->getQuerySql(), $queryBuilder->getQueryParameters());
 	}
 
 
