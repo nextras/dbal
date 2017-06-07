@@ -39,10 +39,6 @@ interface IConnection
 	public function queryArgs($query, array $args = []);
 
 
-	/**
-	 * @param QueryBuilder $queryBuilder
-	 * @return Result
-	 */
 	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result;
 
 

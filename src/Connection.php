@@ -158,7 +158,6 @@ class Connection implements IConnection
 	}
 
 
-	/* @inheritdoc */
 	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result
 	{
 		return $this->queryArgs($queryBuilder->getQuerySql(), $queryBuilder->getQueryParameters());
