@@ -157,6 +157,13 @@ class Connection implements IConnection
 	}
 
 
+	/* @inheritdoc */
+	public function queryFrom(QueryBuilder $queryBuilder): Result
+	{
+		return $this->queryArgs($queryBuilder->getQuerySql(), $queryBuilder->getQueryParameters());
+	}
+
+
 	/** @inheritdoc */
 	public function getLastInsertedId(string $sequenceName = null)
 	{

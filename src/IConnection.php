@@ -38,6 +38,11 @@ interface IConnection
 	 */
 	public function queryArgs($query, array $args = []);
 
+	/**
+	 * @param QueryBuilder $queryBuilder
+	 * @return Result
+	 */
+	public function queryFrom(QueryBuilder $queryBuilder): Result;
 
 	/**
 	 * Returns last inserted ID.
