@@ -47,7 +47,7 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 		Assert::true($this->connection->getDriver()->isConnected());
 		$oldDriver = $this->connection->getDriver();
 
-		$config['driver'] = new PgsqlDriver($config);
+		$config['driver'] = new PgsqlDriver();
 		$this->connection->reconnectWithConfig($config);
 
 		$newDriver = $this->connection->getDriver();

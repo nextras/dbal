@@ -42,7 +42,7 @@ class ConnectionMysqlTest extends IntegrationTestCase
 		Assert::true($this->connection->getDriver()->isConnected());
 		$oldDriver = $this->connection->getDriver();
 
-		$config['driver'] = new MysqliDriver($config);
+		$config['driver'] = new MysqliDriver();
 		$this->connection->reconnectWithConfig($config);
 
 		$newDriver = $this->connection->getDriver();
