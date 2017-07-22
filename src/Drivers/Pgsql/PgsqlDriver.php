@@ -34,7 +34,7 @@ class PgsqlDriver implements IDriver
 	private $connectionTz;
 
 	/** @var callable */
-	private $loggedQueryCallback;
+	private $onQueryCallback;
 
 	/** @var int */
 	private $affectedRows = 0;
@@ -49,14 +49,14 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $loggedQueryCallback)
+	public function connect(array $params, callable $onQueryCallback)
 	{
 		static $knownKeys = [
 			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
 			'connect_timeout', 'options', 'sslmode', 'service',
 		];
 
-		$this->loggedQueryCallback = $loggedQueryCallback;
+		$this->onQueryCallback = $onQueryCallback;
 
 		$params = $this->processConfig($params);
 		$connectionString = '';
@@ -372,7 +372,14 @@ class PgsqlDriver implements IDriver
 
 	protected function loggedQuery(string $sql)
 	{
-		return ($this->loggedQueryCallback)($sql);
+		try {
+			$result = $this->query($sql);
+			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), $result, null);
+			return $result;
+		} catch (DriverException $exception) {
+			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), null, $exception);
+			throw $exception;
+		}
 	}
 
 

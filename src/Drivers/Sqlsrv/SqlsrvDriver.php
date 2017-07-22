@@ -32,7 +32,7 @@ class SqlsrvDriver implements IDriver
 	private $connection;
 
 	/** @var callable */
-	private $loggedQueryCallback;
+	private $onQueryCallback;
 
 	/** @var int */
 	private $affectedRows = 0;
@@ -47,7 +47,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $loggedQueryCallback)
+	public function connect(array $params, callable $onQueryCallback)
 	{
 		// see https://msdn.microsoft.com/en-us/library/ff628167.aspx
 		static $knownConnectionOptions = [
@@ -58,7 +58,7 @@ class SqlsrvDriver implements IDriver
 			'TransactionIsolation', 'TrustServerCertificate', 'WSID'
 		];
 
-		$this->loggedQueryCallback = $loggedQueryCallback;
+		$this->onQueryCallback = $onQueryCallback;
 		$connectionString = isset($params['port']) ? $params['host'] . ',' . $params['port'] : $params['host'];
 
 		$connectionOptions = [];
@@ -187,8 +187,11 @@ class SqlsrvDriver implements IDriver
 
 	public function beginTransaction()
 	{
-		$this->loggedQuery('BEGIN TRANSACTION', true);
-		if (!sqlsrv_begin_transaction($this->connection)) {
+		$time = microtime(true);
+		$result = sqlsrv_begin_transaction($this->connection);
+		$timeTaken = microtime(true) - $time;
+		($this->onQueryCallback)('BEGIN TRANSACTION', $timeTaken, null, null);
+		if (!$result) {
 			$this->throwErrors();
 		}
 	}
@@ -196,8 +199,11 @@ class SqlsrvDriver implements IDriver
 
 	public function commitTransaction()
 	{
-		$this->loggedQuery('COMMIT TRANSACTION', true);
-		if (!sqlsrv_commit($this->connection)) {
+		$time = microtime(true);
+		$result = sqlsrv_commit($this->connection);
+		$timeTaken = microtime(true) - $time;
+		($this->onQueryCallback)('COMMIT TRANSACTION', $timeTaken, null, null);
+		if (!$result) {
 			$this->throwErrors();
 		}
 	}
@@ -205,8 +211,11 @@ class SqlsrvDriver implements IDriver
 
 	public function rollbackTransaction()
 	{
-		$this->loggedQuery('ROLLBACK TRANSACTION', true);
-		if (!sqlsrv_rollback($this->connection)) {
+		$time = microtime(true);
+		$result = sqlsrv_rollback($this->connection);
+		$timeTaken = microtime(true) - $time;
+		($this->onQueryCallback)('ROLLBACK TRANSACTION', $timeTaken, null, null);
+		if (!$result) {
 			$this->throwErrors();
 		}
 	}
@@ -365,8 +374,15 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function loggedQuery(string $sql, bool $onlyLog = false): ?Result
+	protected function loggedQuery(string $sql)
 	{
-		return ($this->loggedQueryCallback)($sql, $onlyLog);
+		try {
+			$result = $this->query($sql);
+			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), $result, null);
+			return $result;
+		} catch (DriverException $exception) {
+			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), null, $exception);
+			throw $exception;
+		}
 	}
 }

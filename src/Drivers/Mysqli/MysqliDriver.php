@@ -35,7 +35,7 @@ class MysqliDriver implements IDriver
 	private $connectionTz;
 
 	/** @var callable */
-	private $loggedQueryCallback;
+	private $onQueryCallback;
 
 	/** @var float */
 	private $timeTaken = 0.0;
@@ -47,9 +47,9 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $loggedQueryCallback)
+	public function connect(array $params, callable $onQueryCallback)
 	{
-		$this->loggedQueryCallback = $loggedQueryCallback;
+		$this->onQueryCallback = $onQueryCallback;
 
 		$host = $params['host'] ?? ini_get('mysqli.default_host');
 		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
@@ -375,6 +375,13 @@ class MysqliDriver implements IDriver
 
 	protected function loggedQuery(string $sql)
 	{
-		return ($this->loggedQueryCallback)($sql);
+		try {
+			$result = $this->query($sql);
+			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), $result, null);
+			return $result;
+		} catch (DriverException $exception) {
+			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), null, $exception);
+			throw $exception;
+		}
 	}
 }

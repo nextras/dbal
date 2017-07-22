@@ -69,13 +69,8 @@ class Connection implements IConnection
 		if ($this->connected) {
 			return;
 		}
-		$this->driver->connect($this->config, function (string $sql, bool $onlyLog = false) {
-			if ($onlyLog) {
-				$this->fireEvent('onQuery', [$this, $sql]);
-				return null;
-			} else {
-				return $this->nativeQuery($sql);
-			}
+		$this->driver->connect($this->config, function (string $sql, float $time, Result $result = null, DriverException $exception = null) {
+			$this->fireEvent('onQuery', [$this, $sql, $time, $result, $exception]);
 		});
 		$this->connected = true;
 		$this->nestedTransactionsWithSavepoint = (bool) ($this->config['nestedTransactionsWithSavepoint'] ?? true);
