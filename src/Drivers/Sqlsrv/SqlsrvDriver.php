@@ -353,8 +353,8 @@ class SqlsrvDriver implements IDriver
 
 	protected function createException($error, $errorNo, $sqlState, $query = null)
 	{
-		if (in_array($sqlState, ['HYT00', '08001', '28000'])) {
-			return new ConnectionException($error, $errorNo, $sqlState, null, $query);
+		if (in_array($sqlState, ['HYT00', '08001', '28000'], true)) {
+			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif (in_array($errorNo, [2627, 547], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
