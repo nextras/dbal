@@ -19,8 +19,11 @@ class ConnectionTest extends IntegrationTestCase
 	public function testPing()
 	{
 		Assert::false($this->connection->getDriver()->isConnected());
-		$this->connection->ping();
+		Assert::false($this->connection->ping());
+		Assert::false($this->connection->getDriver()->isConnected());
+		$this->connection->connect();
 		Assert::true($this->connection->getDriver()->isConnected());
+		Assert::true($this->connection->ping());
 	}
 
 
@@ -39,8 +42,6 @@ class ConnectionTest extends IntegrationTestCase
 		$this->connection->disconnect();
 
 		Assert::same([
-			'connect',
-			'disconnect',
 			'connect',
 			'disconnect',
 		], $log);

@@ -276,14 +276,10 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function ping(): bool
 	{
-		try {
-			$this->connected || $this->connect();
-			return $this->driver->ping();
-
-		} catch (DriverException $e) {
-			$this->reconnect();
+		if (!$this->connected) {
 			return false;
 		}
+		return $this->driver->ping();
 	}
 
 

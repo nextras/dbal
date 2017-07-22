@@ -166,7 +166,12 @@ class SqlsrvDriver implements IDriver
 
 	public function ping(): bool
 	{
-		return sqlsrv_begin_transaction($this->connection);
+		try {
+			$this->query('SELECT 1');
+			return true;
+		} catch (DriverException $e) {
+			return false;
+		}
 	}
 
 

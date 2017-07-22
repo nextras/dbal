@@ -122,7 +122,11 @@ interface IConnection
 
 
 	/**
-	 * Pings a database connection and tries to reconnect it if it is broken.
+	 * Pings a database connection and returns true if the connection is alive.
+	 * @example
+	 *     if (!$connection->ping()) {
+	 *         $connection->reconnect();
+	 *     }
 	 * @return bool
 	 */
 	public function ping(): bool;
