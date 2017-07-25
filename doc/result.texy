@@ -1,12 +1,12 @@
 Result
 ######
 
-Connection::query() methods returns `Nextras\Dbal\Result\Result` instance. You can call fetching methods to get the fetched data.
+`Connection::query()` method returns a `Nextras\Dbal\Result\Result` instance. You can call fetching methods to get the fetched data.
 
-- `Result::fetchAll()` returns array of `Nextras\Dbal\Result\Row` instances.
+- `Result::fetchAll()` returns an array of `Nextras\Dbal\Result\Row` instances.
 - `Result::fetch()` returns the next unfetched `Row` instance.
 - `Result::fetchField($column)` returns nth column of the next unfetched `Row` instance.
-- `Result::fetchPairs($key, $value)` allows to transform all fetcher `Row` instances into associative array.
+- `Result::fetchPairs($key, $value)` transforms all fetched `Row` instances into an associative array, see examples below.
 
 /--php
 $result = $connection->query('SELECT ...');
@@ -31,8 +31,8 @@ $assoc = $result->fetchPairs(null, 'age');
 
 $assoc = $result->fetchPairs('name', null);
 // [
-//  'peter' => ['name' => 'peter', 'age' => 20],
-//  'john' => ['name' => 'john', 'age' => 13],
+//  'peter' => new Row(['name' => 'peter', 'age' => 20]),
+//  'john' => new Row(['name' => 'john', 'age' => 13]),
 // ]
 \--
 
