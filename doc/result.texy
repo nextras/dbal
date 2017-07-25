@@ -40,7 +40,7 @@ $assoc = $result->fetchPairs('name', null);
 Row
 ===
 
-Row instances holds the data of specific fetched result-row. You can access data by property access and the column name. Optionally, you can use array access for the indexed read.
+Row instances holds the data of specific fetched result-row. You can access data by property access with a column name. Use `getNthField()` method to retrieve column by numeric index.
 
 /--php
 $row = $connection->query('SELECT name, age FROM ...')->fetch();
@@ -48,7 +48,5 @@ $row = $connection->query('SELECT name, age FROM ...')->fetch();
 echo $row->name;
 echo $row->age;
 
-echo $row[0]; // prints name
-isset($row[1]) // true
-isset($row[2]) // false
+echo $row->getNthField(0); // prints name
 \--

@@ -8,13 +8,11 @@
 
 namespace Nextras\Dbal\Result;
 
-use ArrayAccess;
 use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Utils\Typos;
 
 
-class Row implements ArrayAccess
+class Row
 {
 	public function __construct(array $data)
 	{
@@ -40,38 +38,15 @@ class Row implements ArrayAccess
 	}
 
 
-	public function offsetExists($offset)
+	/**
+	 * @return mixed
+	 */
+	public function getNthField(int $offset)
 	{
-		if (!is_int($offset)) {
-			throw new NotSupportedException('Array access is suported only for indexed reading. Use property access.');
-		}
-
-		return $offset >= 0 && $offset < count((array) $this);
-	}
-
-
-	public function offsetGet($offset)
-	{
-		if (!is_int($offset)) {
-			throw new NotSupportedException('Array access is suported only for indexed reading. Use property access.');
-		}
-
 		$slice = array_slice((array) $this, $offset, 1);
 		if (!$slice) {
 			throw new InvalidArgumentException("Column '$offset' does not exist.");
 		}
 		return current($slice);
-	}
-
-
-	public function offsetSet($offset, $value)
-	{
-		throw new NotSupportedException('Array access is suported only for indexed reading. Use property access.');
-	}
-
-
-	public function offsetUnset($offset)
-	{
-		throw new NotSupportedException('Array access is suported only for indexed reading. Use property access.');
 	}
 }

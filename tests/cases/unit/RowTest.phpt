@@ -5,7 +5,6 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
 
@@ -35,36 +34,11 @@ class RowTest extends TestCase
 	}
 
 
-	public function testArrayAccess()
+	public function testGetNthField()
 	{
 		$row = new Row(['name' => 'Jon', 'surname' => 'Snow']);
-		Assert::same('Jon', $row[0]);
-		Assert::same('Snow', $row[1]);
-		Assert::true(isset($row[0]));
-		Assert::true(isset($row[1]));
-
-		Assert::false(isset($row[2]));
-		Assert::false(isset($row[-1]));
-
-		Assert::throws(function () use ($row) {
-			$row[2];
-		}, InvalidArgumentException::class);
-
-		Assert::throws(function () use ($row) {
-			$row['name'];
-		}, NotSupportedException::class);
-
-		Assert::throws(function () use ($row) {
-			isset($row['name']);
-		}, NotSupportedException::class);
-
-		Assert::throws(function () use ($row) {
-			unset($row['name']);
-		}, NotSupportedException::class);
-
-		Assert::throws(function () use ($row) {
-			$row['name'] = 'bar';
-		}, NotSupportedException::class);
+		Assert::same('Jon', $row->getNthField(0));
+		Assert::same('Snow', $row->getNthField(1));
 	}
 
 

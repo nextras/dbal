@@ -102,7 +102,7 @@ class Result implements \SeekableIterator, \Countable
 	public function fetchField(int $column = 0)
 	{
 		if ($row = $this->fetch()) { // = intentionally
-			return $row[$column];
+			return $row->getNthField($column);
 		}
 
 		return null;
