@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Utils;
 
-use Nextras\Dbal\Connection;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\IOException;
 
 
@@ -23,11 +23,9 @@ class FileImporter
 	 * @author Jan Škrášek
 	 * @license Apache License
 	 *
-	 * @param  Connection $connection
-	 * @param  string $file path to imported file
 	 * @return int number of executed queries
 	 */
-	public static function executeFile(Connection $connection, string $file): int
+	public static function executeFile(IConnection $connection, string $file): int
 	{
 		$query = @file_get_contents($file);
 		if ($query === false) {
