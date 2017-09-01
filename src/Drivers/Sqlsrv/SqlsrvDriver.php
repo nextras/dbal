@@ -361,10 +361,10 @@ class SqlsrvDriver implements IDriver
 		if (in_array($sqlState, ['HYT00', '08001', '28000'], true)) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
-		} elseif (in_array($errorNo, [2627, 547], true)) {
+		} elseif (in_array($errorNo, [547], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [2601], true)) {
+		} elseif (in_array($errorNo, [2601, 2627], true)) {
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif (in_array($errorNo, [515], true)) {
