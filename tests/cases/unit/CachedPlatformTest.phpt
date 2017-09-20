@@ -10,7 +10,6 @@ use Mockery;
 use Mockery\MockInterface;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\Platforms\CachedPlatform;
 use Nextras\Dbal\Platforms\IPlatform;
 use Tester\Assert;
@@ -36,9 +35,7 @@ class CachedPlatformTest extends TestCase
 		parent::setUp();
 		$this->storageMock = Mockery::mock(IStorage::class);
 		$this->platformMock = Mockery::mock(IPlatform::class);
-		$connection = Mockery::mock(Connection::class)->makePartial();
-		$connection->shouldReceive('getPlatform')->once()->andReturn($this->platformMock);
-		$this->platform = new CachedPlatform($connection, new Cache($this->storageMock));
+		$this->platform = new CachedPlatform($this->platformMock, new Cache($this->storageMock));
 	}
 
 

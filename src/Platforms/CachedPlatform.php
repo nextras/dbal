@@ -9,7 +9,6 @@
 namespace Nextras\Dbal\Platforms;
 
 use Nette\Caching\Cache;
-use Nextras\Dbal\Connection;
 
 
 class CachedPlatform implements IPlatform
@@ -21,9 +20,9 @@ class CachedPlatform implements IPlatform
 	private $cache;
 
 
-	public function __construct(Connection $connection, Cache $cache)
+	public function __construct(IPlatform $platform, Cache $cache)
 	{
-		$this->platform = $connection->getPlatform();
+		$this->platform = $platform;
 		$this->cache = $cache;
 	}
 
