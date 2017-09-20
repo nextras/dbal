@@ -8,6 +8,7 @@
 
 namespace Nextras\Dbal;
 
+use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
@@ -19,6 +20,44 @@ interface IConnection
 	const TRANSACTION_READ_COMMITTED = 2;
 	const TRANSACTION_REPEATABLE_READ = 3;
 	const TRANSACTION_SERIALIZABLE = 4;
+
+
+	/**
+	 * Connects to a database.
+	 * @return void
+	 * @throws ConnectionException
+	 */
+	public function connect();
+
+
+	/**
+	 * Disconnects from a database.
+	 * @return void
+	 */
+	public function disconnect();
+
+
+	/**
+	 * Reconnects to a database.
+	 * @return void
+	 */
+	public function reconnect();
+
+
+	/**
+	 * Reconnects to a database with new configration. Unchanged configuration is reused.
+	 * @return void
+	 */
+	public function reconnectWithConfig(array $config);
+
+
+	public function getDriver(): IDriver;
+
+
+	/**
+	 * Returns connection configuration.
+	 */
+	public function getConfig(): array;
 
 
 	/**

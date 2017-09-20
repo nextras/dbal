@@ -59,11 +59,7 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Connects to a database.
-	 * @return void
-	 * @throws ConnectionException
-	 */
+	/** @inheritdoc */
 	public function connect()
 	{
 		if ($this->connected) {
@@ -78,10 +74,7 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Disconnects from a database.
-	 * @return void
-	 */
+	/** @inheritdoc */
 	public function disconnect()
 	{
 		if (!$this->connected) {
@@ -93,10 +86,7 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Reconnects to a database.
-	 * @return void
-	 */
+	/** @inheritdoc */
 	public function reconnect()
 	{
 		$this->disconnect();
@@ -104,9 +94,7 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Reconnects to a database with new configration. Unchanged configuration is reused.
-	 */
+	/** @inheritdoc */
 	public function reconnectWithConfig(array $config)
 	{
 		$this->disconnect();
@@ -123,9 +111,7 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Returns connection configuration.
-	 */
+	/** @inheritdoc */
 	public function getConfig(): array
 	{
 		return $this->config;
