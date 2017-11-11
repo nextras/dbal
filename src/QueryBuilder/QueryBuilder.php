@@ -21,6 +21,9 @@ class QueryBuilder
 	const TYPE_UPDATE = 3;
 	const TYPE_DELETE = 4;
 
+	/** @var IDriver */
+	private $driver;
+
 	/** @var int */
 	private $type = self::TYPE_SELECT;
 
