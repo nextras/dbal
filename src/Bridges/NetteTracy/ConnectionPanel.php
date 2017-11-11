@@ -10,6 +10,7 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
@@ -38,6 +39,7 @@ class ConnectionPanel implements IBarPanel
 
 	public static function install(Connection $connection, bool $doExplain = true)
 	{
+		$doExplain = $doExplain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
 		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
 	}
 

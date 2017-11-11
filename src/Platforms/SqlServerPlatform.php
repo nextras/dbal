@@ -139,6 +139,8 @@ class SqlServerPlatform implements IPlatform
 
 	public function isSupported(int $feature): bool
 	{
-		return false;
+		static $supported = [
+		];
+		return isset($supported[$feature]);
 	}
 }

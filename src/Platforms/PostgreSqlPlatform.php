@@ -133,6 +133,10 @@ class PostgreSqlPlatform implements IPlatform
 
 	public function isSupported(int $feature): bool
 	{
-		return self::SUPPORT_MULTI_COLUMN_IN === $feature;
+		static $supported = [
+			self::SUPPORT_MULTI_COLUMN_IN => true,
+			self::SUPPORT_QUERY_EXPLAIN => true,
+		];
+		return isset($supported[$feature]);
 	}
 }

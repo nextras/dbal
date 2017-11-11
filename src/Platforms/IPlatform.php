@@ -12,6 +12,7 @@ namespace Nextras\Dbal\Platforms;
 interface IPlatform
 {
 	const SUPPORT_MULTI_COLUMN_IN = 1;
+	const SUPPORT_QUERY_EXPLAIN = 2;
 
 
 	/**
