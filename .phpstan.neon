@@ -1,0 +1,3 @@
+parameters:
+	ignoreErrors:
+		- '#(sqlsrv|SQLSRV).+ not found\.#i'

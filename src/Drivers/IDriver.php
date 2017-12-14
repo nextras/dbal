@@ -30,12 +30,14 @@ interface IDriver
 
 	/**
 	 * Connects the driver to database.
+	 * @internal
 	 */
 	public function connect(array $params, callable $loggedQueryCallback);
 
 
 	/**
 	 * Disconnects from the database.
+	 * @internal
 	 */
 	public function disconnect();
 
@@ -54,7 +56,8 @@ interface IDriver
 
 
 	/**
-	 * Runs query and returns the result. Returns null if query does not select data.
+	 * Runs query and returns a result. Returns a null if the query does not select any data.
+	 * @internal
 	 * @return Result|null
 	 */
 	public function query(string $query);
@@ -62,6 +65,7 @@ interface IDriver
 
 	/**
 	 * Returns the last inserted id.
+	 * @internal
 	 * @return mixed
 	 */
 	public function getLastInsertedId(string $sequenceName = null);
@@ -69,6 +73,7 @@ interface IDriver
 
 	/**
 	 * Returns number of affected rows.
+	 * @internal
 	 */
 	public function getAffectedRows(): int;
 
@@ -93,15 +98,20 @@ interface IDriver
 
 	/**
 	 * Pings server.
+	 * @internal
 	 */
 	public function ping(): bool;
 
 
+	/**
+	 * @internal
+	 */
 	public function setTransactionIsolationLevel(int $level);
 
 
 	/**
 	 * Begins a transaction.
+	 * @internal
 	 * @throws DriverException
 	 */
 	public function beginTransaction();
@@ -109,6 +119,7 @@ interface IDriver
 
 	/**
 	 * Commits the current transaction.
+	 * @internal
 	 * @throws DriverException
 	 */
 	public function commitTransaction();
@@ -116,6 +127,7 @@ interface IDriver
 
 	/**
 	 * Rollbacks the current transaction.
+	 * @internal
 	 * @throws DriverException
 	 */
 	public function rollbackTransaction();
@@ -123,6 +135,7 @@ interface IDriver
 
 	/**
 	 * Creates a savepoint.
+	 * @internal
 	 * @throws DriverException
 	 * @return void
 	 */
@@ -131,6 +144,7 @@ interface IDriver
 
 	/**
 	 * Releases the savepoint.
+	 * @internal
 	 * @throws DriverException
 	 */
 	public function releaseSavepoint(string $name);
@@ -138,6 +152,7 @@ interface IDriver
 
 	/**
 	 * Rollbacks the savepoint.
+	 * @internal
 	 * @throws DriverException
 	 */
 	public function rollbackSavepoint(string $name);

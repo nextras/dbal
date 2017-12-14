@@ -27,7 +27,7 @@ use Nextras\Dbal\UniqueConstraintViolationException;
 
 class PgsqlDriver implements IDriver
 {
-	/** @var resource */
+	/** @var resource|null */
 	private $connection;
 
 	/** @var DateTimeZone Timezone for database connection. */
