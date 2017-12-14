@@ -44,8 +44,8 @@ script:
 
 after_script:
     - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then
-      wget https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
-      && php coveralls.phar --verbose --config tests/.coveralls.yml
+      wget https://github.com/satooshi/php-coveralls/releases/download/v2.0.0/php-coveralls.phar
+      && php php-coveralls.phar --verbose --config tests/.coveralls.yml
       || true;
       fi
 
