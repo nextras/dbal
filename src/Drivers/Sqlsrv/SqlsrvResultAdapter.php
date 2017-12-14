@@ -26,7 +26,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 		SqlsrvResultTypes::TYPE_DATETIMEOFFSET                    => self::TYPE_DRIVER_SPECIFIC,
 	];
 
-	/** @var int */
+	/** @var int|null */
 	private $index;
 
 	/** @var resource */

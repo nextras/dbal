@@ -84,9 +84,15 @@ class ConnectionPanel implements IBarPanel
 	{
 		$count = $this->count;
 		$queries = $this->queries;
-		$queries = array_map(function($row) {
+		$queries = array_map(function ($row) {
 			try {
-				$row[4] = $this->doExplain ? $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll() : null;
+				$row[4] = null;
+				if ($this->doExplain) {
+					$explain = $this->connection->getDriver()->query('EXPLAIN ' . $row['1']);
+					if ($explain !== null) {
+						$row[4] = $explain->fetchAll();
+					}
+				}
 			} catch (\Throwable $e) {
 				$row[4] = null;
 				$row[3] = null; // rows count is also irrelevant
@@ -109,8 +115,8 @@ class ConnectionPanel implements IBarPanel
 		static $keywords2 = 'ALL|DISTINCT|DISTINCTROW|IGNORE|AS|USING|ON|AND|OR|IN|IS|NOT|NULL|[RI]?LIKE|REGEXP|TRUE|FALSE';
 
 		$sql = " $sql ";
-		$sql = htmlSpecialChars($sql, ENT_IGNORE, 'UTF-8');
-		$sql = preg_replace_callback("#(/\\*.+?\\*/)|(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is", function($matches) {
+		$sql = htmlspecialchars($sql, ENT_IGNORE, 'UTF-8');
+		$sql = preg_replace_callback("#(/\\*.+?\\*/)|(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is", function ($matches) {
 			if (!empty($matches[1])) { // comment
 				return '<em style="color:gray">' . $matches[1] . '</em>';
 			} elseif (!empty($matches[2])) { // most important keywords

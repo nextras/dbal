@@ -47,13 +47,13 @@ class QueryBuilder
 	/** @var array|null */
 	private $join;
 
-	/** @var array|null */
+	/** @var string|null */
 	private $where;
 
 	/** @var array|null */
 	private $group;
 
-	/** @var array|null */
+	/** @var string|null */
 	private $having;
 
 	/** @var array|null */
@@ -62,7 +62,7 @@ class QueryBuilder
 	/** @var array|null */
 	private $limit;
 
-	/** @var string */
+	/** @var string|null */
 	private $generatedSql;
 
 
@@ -263,9 +263,6 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with OR to WHERE clause.
-	 * @param  string $expression
-	 * @param  mixed ...$arg
-	 * @return self
 	 */
 	public function orWhere(string $expression, ...$args): self
 	{

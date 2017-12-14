@@ -28,7 +28,7 @@ use Nextras\Dbal\Utils\DateTimeImmutable;
 
 class SqlsrvDriver implements IDriver
 {
-	/** @var resource */
+	/** @var resource|null */
 	private $connection;
 
 	/** @var callable */
@@ -76,7 +76,7 @@ class SqlsrvDriver implements IDriver
 			}
 		}
 
-		if (isset($connectionInfo['ReturnDatesAsStrings'])) {
+		if (isset($connectionOptions['ReturnDatesAsStrings'])) {
 			throw new NotSupportedException("SqlsrvDriver does not allow to modify 'ReturnDatesAsStrings' parameter.");
 		}
 		$connectionOptions['ReturnDatesAsStrings'] = true;

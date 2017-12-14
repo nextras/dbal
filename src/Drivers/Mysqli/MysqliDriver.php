@@ -28,7 +28,7 @@ use Nextras\Dbal\UniqueConstraintViolationException;
 
 class MysqliDriver implements IDriver
 {
-	/** @var mysqli */
+	/** @var mysqli|null */
 	private $connection;
 
 	/** @var DateTimeZone Timezone for database connection. */
@@ -86,7 +86,10 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function getResourceHandle(): mysqli
+	/**
+	 * @return mysqli|null
+	 */
+	public function getResourceHandle()
 	{
 		return $this->connection;
 	}
@@ -94,6 +97,8 @@ class MysqliDriver implements IDriver
 
 	public function query(string $query)
 	{
+		assert($this->connection !== null);
+
 		$time = microtime(true);
 		$result = @$this->connection->query($query);
 		$this->timeTaken = microtime(true) - $time;
@@ -117,12 +122,14 @@ class MysqliDriver implements IDriver
 
 	public function getLastInsertedId(string $sequenceName = null)
 	{
+		assert($this->connection !== null);
 		return $this->connection->insert_id;
 	}
 
 
 	public function getAffectedRows(): int
 	{
+		assert($this->connection !== null);
 		return $this->connection->affected_rows;
 	}
 
@@ -141,6 +148,7 @@ class MysqliDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		assert($this->connection !== null);
 		$version = $this->connection->server_version;
 		$majorVersion = floor($version / 10000);
 		$minorVersion = floor(($version - $majorVersion * 10000) / 100);
@@ -151,6 +159,7 @@ class MysqliDriver implements IDriver
 
 	public function ping(): bool
 	{
+		assert($this->connection !== null);
 		return $this->connection->ping();
 	}
 
@@ -208,6 +217,8 @@ class MysqliDriver implements IDriver
 
 	protected function processInitialSettings(array $params)
 	{
+		assert($this->connection !== null);
+
 		if (isset($params['charset'])) {
 			$charset = $params['charset'];
 		} elseif (($version = $this->getServerVersion()) && version_compare($version, '5.5.3', '>=')) {
@@ -259,6 +270,7 @@ class MysqliDriver implements IDriver
 
 	public function convertStringToSql(string $value): string
 	{
+		assert($this->connection !== null);
 		return "'" . $this->connection->escape_string($value) . "'";
 	}
 
@@ -326,6 +338,7 @@ class MysqliDriver implements IDriver
 
 	public function convertBlobToSql(string $value): string
 	{
+		assert($this->connection !== null);
 		return "_binary'" . $this->connection->escape_string($value) . "'";
 	}
 
