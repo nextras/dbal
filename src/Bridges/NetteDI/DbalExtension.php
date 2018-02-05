@@ -20,6 +20,11 @@ class DbalExtension extends CompilerExtension
 	public function loadConfiguration()
 	{
 		$config = $this->getConfig();
+        
+        if ($config['driver'] === 'mysql') {
+            $config['driver'] = 'mysqli';
+        }
+        
 		$this->setupConnection($config);
 	}
 
