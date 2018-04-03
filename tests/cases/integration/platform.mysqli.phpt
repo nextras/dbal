@@ -101,8 +101,9 @@ class PlatformMysqlTest extends IntegrationTestCase
 	}
 
 
-	public function testFoeignKeys()
+	public function testForeignKeys()
 	{
+		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		Assert::same([
 			'author_id' => [
@@ -127,6 +128,24 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'name' => 'books_translator',
 				'column' => 'translator_id',
 				'ref_table' => 'authors',
+				'ref_column' => 'id',
+			],
+		], $keys);
+
+		$dbName2 = $this->connection->getConfig()['database'] . '2';
+		$this->connection->query("DROP TABLE IF EXISTS $dbName2.book_fk");
+		$this->connection->query("
+			CREATE TABLE $dbName2.book_fk (
+				book_id int NOT NULL,
+				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES $dbName.books (id) ON DELETE CASCADE ON UPDATE CASCADE
+			);
+		");
+		$keys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'column' => 'book_id',
+				'ref_table' => "books",
 				'ref_column' => 'id',
 			],
 		], $keys);
