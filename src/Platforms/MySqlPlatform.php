@@ -65,18 +65,29 @@ class MySqlPlatform implements IPlatform
 
 	public function getForeignKeys(string $table): array
 	{
+		$db = null;
+
+		$table = explode('.', $table);
+		if(count($table) === 2) {
+			$db = $table[0];
+			$table = $table[1];
+		}
+		else {
+			$table = $table[0];
+		}
+
 		$result = $this->connection->query('
 			SELECT
 				CONSTRAINT_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
 			FROM
 				information_schema.KEY_COLUMN_USAGE
 			WHERE
-				TABLE_SCHEMA = DATABASE()
+				TABLE_SCHEMA = COALESCE(%?s, DATABASE()) 
 				AND REFERENCED_TABLE_NAME IS NOT NULL
 				AND TABLE_NAME = %s
 			ORDER BY
 				CONSTRAINT_NAME
-		', $table);
+		', $db, $table);
 
 		$keys = [];
 		foreach ($result as $row) {
