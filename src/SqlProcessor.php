@@ -156,6 +156,7 @@ class SqlProcessor
 					case '_like_':
 						return $this->driver->convertLikeToSql($value, 0);
 
+					/** @noinspection PhpMissingBreakStatementInspection */
 					case 'column':
 						if ($value === '*') {
 							return '*';
