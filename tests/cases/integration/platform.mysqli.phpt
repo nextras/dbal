@@ -98,6 +98,28 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'is_nullable' => true,
 			],
 		], $columns);
+
+		$dbName2 = $this->connection->getConfig()['database'] . '2';
+		$this->connection->query("DROP TABLE IF EXISTS $dbName2.book_cols");
+		$this->connection->query("
+			CREATE TABLE $dbName2.book_cols (
+				book_id int NOT NULL
+			);
+		");
+
+		$columns = $this->connection->getPlatform()->getColumns("$dbName2.book_cols");
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'type' => 'INT',
+				'size' => 11,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+			],
+		], $columns);
 	}
 
 
