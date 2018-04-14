@@ -110,24 +110,28 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'name' => 'books_authors',
 				'column' => 'author_id',
 				'ref_table' => 'authors',
+				'ref_table_fqn' => "$dbName.authors",
 				'ref_column' => 'id',
 			],
 			'ean_id' => [
 				'name' => 'books_ean',
 				'column' => 'ean_id',
 				'ref_table' => 'eans',
+				'ref_table_fqn' => "$dbName.eans",
 				'ref_column' => 'id',
 			],
 			'publisher_id' => [
 				'name' => 'books_publisher',
 				'column' => 'publisher_id',
 				'ref_table' => 'publishers',
+				'ref_table_fqn' => "$dbName.publishers",
 				'ref_column' => 'id',
 			],
 			'translator_id' => [
 				'name' => 'books_translator',
 				'column' => 'translator_id',
 				'ref_table' => 'authors',
+				'ref_table_fqn' => "$dbName.authors",
 				'ref_column' => 'id',
 			],
 		], $keys);
@@ -145,7 +149,8 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'book_id' => [
 				'name' => 'book_id',
 				'column' => 'book_id',
-				'ref_table' => "books",
+				'ref_table' => 'books',
+				'ref_table_fqn' => "$dbName.books",
 				'ref_column' => 'id',
 			],
 		], $keys);

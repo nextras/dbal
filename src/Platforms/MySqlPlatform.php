@@ -75,7 +75,7 @@ class MySqlPlatform implements IPlatform
 
 		$result = $this->connection->query('
 			SELECT
-				CONSTRAINT_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+				CONSTRAINT_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME, REFERENCED_TABLE_SCHEMA
 			FROM
 				information_schema.KEY_COLUMN_USAGE
 			WHERE
@@ -92,6 +92,7 @@ class MySqlPlatform implements IPlatform
 				'name' => $row->CONSTRAINT_NAME,
 				'column' => $row->COLUMN_NAME,
 				'ref_table' => $row->REFERENCED_TABLE_NAME,
+				'ref_table_fqn' => "$row->REFERENCED_TABLE_SCHEMA.$row->REFERENCED_TABLE_NAME",
 				'ref_column' => $row->REFERENCED_COLUMN_NAME,
 			];
 		}
