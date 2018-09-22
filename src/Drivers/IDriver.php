@@ -113,7 +113,7 @@ interface IDriver
 	 * @internal
 	 * @throws DriverException
 	 */
-	public function beginTransaction();
+	public function beginTransaction(): void;
 
 
 	/**
@@ -121,7 +121,7 @@ interface IDriver
 	 * @internal
 	 * @throws DriverException
 	 */
-	public function commitTransaction();
+	public function commitTransaction(): void;
 
 
 	/**
@@ -129,16 +129,15 @@ interface IDriver
 	 * @internal
 	 * @throws DriverException
 	 */
-	public function rollbackTransaction();
+	public function rollbackTransaction(): void;
 
 
 	/**
 	 * Creates a savepoint.
 	 * @internal
 	 * @throws DriverException
-	 * @return void
 	 */
-	public function createSavepoint(string $name);
+	public function createSavepoint(string $name): void;
 
 
 	/**
@@ -146,7 +145,7 @@ interface IDriver
 	 * @internal
 	 * @throws DriverException
 	 */
-	public function releaseSavepoint(string $name);
+	public function releaseSavepoint(string $name): void;
 
 
 	/**
@@ -154,12 +153,11 @@ interface IDriver
 	 * @internal
 	 * @throws DriverException
 	 */
-	public function rollbackSavepoint(string $name);
+	public function rollbackSavepoint(string $name): void;
 
 
 	/**
 	 * Converts database value to php boolean.
-	 * @param  string $value
 	 * @param  mixed $nativeType
 	 * @return mixed
 	 */
@@ -199,8 +197,6 @@ interface IDriver
 
 	/**
 	 * Adds driver-specific limit clause to the query.
-	 * @param  int|NULL $limit
-	 * @param  int|NULL $offset
 	 */
-	public function modifyLimitQuery(string $query, $limit, $offset): string;
+	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string;
 }

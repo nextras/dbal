@@ -359,9 +359,8 @@ class QueryBuilder
 
 	/**
 	 * Sets LIMIT and OFFSET clause.
-	 * @param  int|NULL $limit
 	 */
-	public function limitBy($limit, int $offset = null): self
+	public function limitBy(?int $limit, int $offset = null): self
 	{
 		$this->dirty();
 		$this->limit = $limit || $offset ? [$limit, $offset] : null;
@@ -380,9 +379,8 @@ class QueryBuilder
 
 	/**
 	 * Returns limit and offset clause arguments.
-	 * @return array|null
 	 */
-	public function getLimitOffsetClause()
+	public function getLimitOffsetClause(): ?array
 	{
 		return $this->limit;
 	}

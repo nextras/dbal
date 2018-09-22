@@ -60,7 +60,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function connect()
+	public function connect(): void
 	{
 		if ($this->connected) {
 			return;
@@ -75,7 +75,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if (!$this->connected) {
 			return;
@@ -87,7 +87,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function reconnect()
+	public function reconnect(): void
 	{
 		$this->disconnect();
 		$this->connect();
@@ -95,7 +95,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function reconnectWithConfig(array $config)
+	public function reconnectWithConfig(array $config): void
 	{
 		$this->disconnect();
 		$this->config = $config + $this->config;
@@ -202,7 +202,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function beginTransaction()
+	public function beginTransaction(): void
 	{
 		$this->connected || $this->connect();
 		$this->nestedTransactionIndex++;
@@ -215,7 +215,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function commitTransaction()
+	public function commitTransaction(): void
 	{
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->commitTransaction();
@@ -227,7 +227,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function rollbackTransaction()
+	public function rollbackTransaction(): void
 	{
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->rollbackTransaction();
@@ -239,21 +239,21 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function createSavepoint(string $name)
+	public function createSavepoint(string $name): void
 	{
 		$this->driver->createSavepoint($name);
 	}
 
 
 	/** @inheritdoc */
-	public function releaseSavepoint(string $name)
+	public function releaseSavepoint(string $name): void
 	{
 		$this->driver->releaseSavepoint($name);
 	}
 
 
 	/** @inheritdoc */
-	public function rollbackSavepoint(string $name)
+	public function rollbackSavepoint(string $name): void
 	{
 		$this->driver->rollbackSavepoint($name);
 	}

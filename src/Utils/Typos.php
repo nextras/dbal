@@ -14,13 +14,9 @@ class Typos
 	/**
 	 * Returns the closest word to the $current word which is not farther than $maxDistance
 	 * or NULL if such word does not exist.
-	 *
-	 * @param  string $current
 	 * @param  string[] $words
-	 * @param  int $maxDistance
-	 * @return string|NULL
 	 */
-	public static function getClosest(string $current, array $words, int $maxDistance)
+	public static function getClosest(string $current, array $words, int $maxDistance): ?string
 	{
 		$shortest = $maxDistance + 1;
 		$closest = NULL;

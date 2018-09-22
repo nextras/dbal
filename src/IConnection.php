@@ -24,31 +24,27 @@ interface IConnection
 
 	/**
 	 * Connects to a database.
-	 * @return void
 	 * @throws ConnectionException
 	 */
-	public function connect();
+	public function connect(): void;
 
 
 	/**
 	 * Disconnects from a database.
-	 * @return void
 	 */
-	public function disconnect();
+	public function disconnect(): void;
 
 
 	/**
 	 * Reconnects to a database.
-	 * @return void
 	 */
-	public function reconnect();
+	public function reconnect(): void;
 
 
 	/**
 	 * Reconnects to a database with new configration. Unchanged configuration is reused.
-	 * @return void
 	 */
-	public function reconnectWithConfig(array $config);
+	public function reconnectWithConfig(array $config): void;
 
 
 	public function getDriver(): IDriver;
@@ -112,50 +108,44 @@ interface IConnection
 
 	/**
 	 * Begins a transaction.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function beginTransaction();
+	public function beginTransaction(): void;
 
 
 	/**
 	 * Commits the current transaction.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function commitTransaction();
+	public function commitTransaction(): void;
 
 
 	/**
 	 * Cancels the current transaction.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function rollbackTransaction();
+	public function rollbackTransaction(): void;
 
 
 	/**
 	 * Creates a savepoint.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function createSavepoint(string $name);
+	public function createSavepoint(string $name): void;
 
 
 	/**
 	 * Releases the savepoint.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function releaseSavepoint(string $name);
+	public function releaseSavepoint(string $name): void;
 
 
 	/**
 	 * Rollbacks the savepoint.
-	 * @return void
 	 * @throws DriverException
 	 */
-	public function rollbackSavepoint(string $name);
+	public function rollbackSavepoint(string $name): void;
 
 
 	/**
@@ -164,7 +154,6 @@ interface IConnection
 	 *     if (!$connection->ping()) {
 	 *         $connection->reconnect();
 	 *     }
-	 * @return bool
 	 */
 	public function ping(): bool;
 }

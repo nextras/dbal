@@ -179,37 +179,37 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function beginTransaction()
+	public function beginTransaction(): void
 	{
 		$this->loggedQuery('START TRANSACTION');
 	}
 
 
-	public function commitTransaction()
+	public function commitTransaction(): void
 	{
 		$this->loggedQuery('COMMIT');
 	}
 
 
-	public function rollbackTransaction()
+	public function rollbackTransaction(): void
 	{
 		$this->loggedQuery('ROLLBACK');
 	}
 
 
-	public function createSavepoint(string $name)
+	public function createSavepoint(string $name): void
 	{
 		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function releaseSavepoint(string $name)
+	public function releaseSavepoint(string $name): void
 	{
 		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function rollbackSavepoint(string $name)
+	public function rollbackSavepoint(string $name): void
 	{
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -343,16 +343,16 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function modifyLimitQuery(string $query, $limit, $offset): string
+	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
 		if ($limit !== null || $offset !== null) {
 			// 18446744073709551615 is maximum of unsigned BIGINT
 			// see http://dev.mysql.com/doc/refman/5.0/en/select.html
-			$query .= ' LIMIT ' . ($limit !== null ? (int) $limit : '18446744073709551615');
+			$query .= ' LIMIT ' . ($limit !== null ? (string) $limit : '18446744073709551615');
 		}
 
 		if ($offset !== null) {
-			$query .= ' OFFSET ' . (int) $offset;
+			$query .= ' OFFSET ' . $offset;
 		}
 
 		return $query;
