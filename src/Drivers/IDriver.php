@@ -58,9 +58,8 @@ interface IDriver
 	/**
 	 * Runs query and returns a result. Returns a null if the query does not select any data.
 	 * @internal
-	 * @return Result|null
 	 */
-	public function query(string $query);
+	public function query(string $query): Result;
 
 
 	/**

@@ -95,7 +95,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function query(string $query)
+	public function query(string $query): Result
 	{
 		assert($this->connection !== null);
 
@@ -113,7 +113,7 @@ class MysqliDriver implements IDriver
 		}
 
 		if ($result === true) {
-			return null;
+			return new Result(new MysqliEmptyResultAdapter(), $this);
 		}
 
 		return new Result(new MysqliResultAdapter($result), $this);

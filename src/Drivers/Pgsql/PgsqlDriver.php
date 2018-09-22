@@ -105,7 +105,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function query(string $query)
+	public function query(string $query): Result
 	{
 		if (!pg_send_query($this->connection, $query)) {
 			throw $this->createException(pg_last_error($this->connection), 0, null);

@@ -63,19 +63,17 @@ interface IConnection
 	/**
 	 * Executes a query.
 	 * @param  mixed ...$args
-	 * @return Result|null
 	 * @throws QueryException
 	 */
-	public function query(...$args);
+	public function query(...$args): Result;
 
 
 	/**
 	 * @param  string|array $query
 	 * @param  array $args
-	 * @return Result|null
 	 * @throws QueryException
 	 */
-	public function queryArgs($query, array $args = []);
+	public function queryArgs($query, array $args = []): Result;
 
 
 	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result;

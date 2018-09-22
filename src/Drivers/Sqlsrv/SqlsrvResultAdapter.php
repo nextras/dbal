@@ -59,9 +59,17 @@ class SqlsrvResultAdapter implements IResultAdapter
 		if ($this->index !== null) {
 			$index = $this->index;
 			$this->index = null;
-			return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_ABSOLUTE, $index);
+			$fetch = sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_ABSOLUTE, $index);
+			if ($fetch === false) {
+				return null;
+			}
+			return $fetch;
 		}
-		return sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_NEXT);
+		$fetch = sqlsrv_fetch_array($this->statement, SQLSRV_FETCH_ASSOC, SQLSRV_SCROLL_NEXT);
+		if ($fetch === false) {
+			return null;
+		}
+		return $fetch;
 	}
 
 

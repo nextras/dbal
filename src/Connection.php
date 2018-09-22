@@ -119,7 +119,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function query(...$args)
+	public function query(...$args): Result
 	{
 		$this->connected || $this->connect();
 		$sql = $this->sqlPreprocessor->process($args);
@@ -128,7 +128,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function queryArgs($query, array $args = [])
+	public function queryArgs($query, array $args = []): Result
 	{
 		if (!is_array($query)) {
 			array_unshift($args, $query);
@@ -275,7 +275,7 @@ class Connection implements IConnection
 	}
 
 
-	private function nativeQuery(string $sql)
+	private function nativeQuery(string $sql): Result
 	{
 		try {
 			$result = $this->driver->query($sql);
