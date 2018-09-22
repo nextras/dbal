@@ -109,7 +109,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function query(string $query)
+	public function query(string $query): Result
 	{
 		/** @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx */
 

@@ -64,6 +64,13 @@ class ResultIntegrationTest extends IntegrationTestCase
 			$result->seek(10);
 		}, InvalidStateException::class);
 	}
+
+
+	public function testResultType()
+	{
+		$this->lockConnection($this->connection);
+		Assert::null($this->connection->query('INSERT INTO tags %values', ['name' => "Test"])->fetch());
+	}
 }
 
 

@@ -88,10 +88,7 @@ class ConnectionPanel implements IBarPanel
 			try {
 				$row[4] = null;
 				if ($this->doExplain) {
-					$explain = $this->connection->getDriver()->query('EXPLAIN ' . $row['1']);
-					if ($explain !== null) {
-						$row[4] = $explain->fetchAll();
-					}
+					$row[4] = $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll();
 				}
 			} catch (\Throwable $e) {
 				$row[4] = null;
