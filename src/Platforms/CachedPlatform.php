@@ -57,7 +57,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table)
+	public function getPrimarySequenceName(string $table): ?string
 	{
 		return $this->cache->load('sequence.' . $table, function () use ($table) {
 			return $this->platform->getPrimarySequenceName($table);

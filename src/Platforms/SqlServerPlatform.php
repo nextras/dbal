@@ -131,7 +131,7 @@ class SqlServerPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table)
+	public function getPrimarySequenceName(string $table): ?string
 	{
 		return null;
 	}

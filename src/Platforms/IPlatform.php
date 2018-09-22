@@ -42,9 +42,8 @@ interface IPlatform
 	/**
 	 * Returns primary sequence name for the table.
 	 * If not supported nor present, returns a null.
-	 * @return string|null
 	 */
-	public function getPrimarySequenceName(string $table);
+	public function getPrimarySequenceName(string $table): ?string;
 
 
 	public function isSupported(int $feature): bool;

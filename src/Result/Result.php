@@ -84,10 +84,7 @@ class Result implements \SeekableIterator, \Countable
 	}
 
 
-	/**
-	 * @return Row|NULL
-	 */
-	public function fetch()
+	public function fetch(): ?Row
 	{
 		$data = $this->adapter->fetch();
 		$row = ($data === null ? null : new Row($this->normalize($data)));
