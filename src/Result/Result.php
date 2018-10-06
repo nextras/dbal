@@ -130,11 +130,11 @@ class Result implements \SeekableIterator, \Countable
 			}
 		} elseif ($value === null) {
 			while ($row = $this->fetch()) {
-				$return[is_object($row->{$key}) ? (string) $row->{$key} : $row->{$key}] = $row;
+				$return[($row->{$key} instanceof DateTimeImmutable) ? (string) $row->{$key} : $row->{$key}] = $row;
 			}
 		} else {
 			while ($row = $this->fetch()) {
-				$return[is_object($row->{$key}) ? (string) $row->{$key} : $row->{$key}] = $row->{$value};
+				$return[($row->{$key} instanceof DateTimeImmutable) ? (string) $row->{$key} : $row->{$key}] = $row->{$value};
 			}
 		}
 

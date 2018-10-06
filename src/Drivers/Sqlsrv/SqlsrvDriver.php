@@ -273,6 +273,7 @@ class SqlsrvDriver implements IDriver
 		if (json_last_error()) {
 			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
 		}
+		assert(is_string($encoded));
 		return $this->convertStringToSql($encoded);
 	}
 

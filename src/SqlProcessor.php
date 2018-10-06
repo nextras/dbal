@@ -191,7 +191,9 @@ class SqlProcessor
 						case 'any':
 						case 'f':
 						case '?f':
-							return ($tmp = json_encode($value)) . (strpos($tmp, '.') === false ? '.0' : '');
+							$tmp = json_encode($value);
+							assert(is_string($tmp));
+							return $tmp . (strpos($tmp, '.') === false ? '.0' : '');
 
 						case 'json':
 						case '?json':
@@ -262,11 +264,11 @@ class SqlProcessor
 							return $this->driver->convertStringToSql((string) $value);
 
 						case '_like':
-							return $this->driver->convertLikeToSql($value, -1);
+							return $this->driver->convertLikeToSql((string) $value, -1);
 						case 'like_':
-							return $this->driver->convertLikeToSql($value, 1);
+							return $this->driver->convertLikeToSql((string) $value, 1);
 						case '_like_':
-							return $this->driver->convertLikeToSql($value, 0);
+							return $this->driver->convertLikeToSql((string) $value, 0);
 					}
 				}
 
@@ -414,7 +416,7 @@ class SqlProcessor
 
 		$keys = $values = [];
 		foreach (array_keys(reset($value)) as $key) {
-			$keys[] = $this->identifierToSql(explode('%', $key, 2)[0]);
+			$keys[] = $this->identifierToSql(explode('%', (string) $key, 2)[0]);
 		}
 		foreach ($value as $subValue) {
 			if (empty($subValue)) {
@@ -494,7 +496,7 @@ class SqlProcessor
 		if ($this->platform->isSupported(IPlatform::SUPPORT_MULTI_COLUMN_IN)) {
 			$keys = [];
 			foreach (array_keys(reset($values)) as $key) {
-				$keys[] = $this->identifierToSql(explode('%', $key, 2)[0]);
+				$keys[] = $this->identifierToSql(explode('%', (string) $key, 2)[0]);
 			}
 			return '(' . implode(', ', $keys) . ') IN ' . $this->processModifier('any', $values);
 

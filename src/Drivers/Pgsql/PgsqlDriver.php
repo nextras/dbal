@@ -23,6 +23,7 @@ use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
+use Tester\Assert;
 
 
 class PgsqlDriver implements IDriver
@@ -107,6 +108,7 @@ class PgsqlDriver implements IDriver
 
 	public function query(string $query): Result
 	{
+		assert($this->connection !== null);
 		if (!pg_send_query($this->connection, $query)) {
 			throw $this->createException(pg_last_error($this->connection), 0, null);
 		}
@@ -134,6 +136,7 @@ class PgsqlDriver implements IDriver
 		if (empty($sequenceName)) {
 			throw new InvalidArgumentException('PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
 		}
+		assert($this->connection !== null);
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
 		return $this->loggedQuery($sql)->fetchField();
 	}
@@ -159,12 +162,14 @@ class PgsqlDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		assert($this->connection !== null);
 		return pg_version($this->connection)['server'];
 	}
 
 
 	public function ping(): bool
 	{
+		assert($this->connection !== null);
 		return pg_ping($this->connection);
 	}
 
@@ -229,7 +234,10 @@ class PgsqlDriver implements IDriver
 
 		} elseif ($nativeType === 'int8') {
 			// called only on 32bit
-			return is_float($tmp = $value * 1) ? $value : $tmp;
+			// hack for phpstan
+			/** @var int|float $numeric */
+			$numeric = $value;
+			return is_float($tmp = $numeric * 1) ? $numeric : $tmp;
 
 		} elseif ($nativeType === 'interval') {
 			return DateInterval::createFromDateString($value);
@@ -248,6 +256,7 @@ class PgsqlDriver implements IDriver
 
 	public function convertStringToSql(string $value): string
 	{
+		assert($this->connection !== null);
 		return pg_escape_literal($this->connection, $value);
 	}
 
@@ -258,6 +267,7 @@ class PgsqlDriver implements IDriver
 		if (json_last_error()) {
 			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
 		}
+		assert(is_string($encoded));
 		return $this->convertStringToSql($encoded);
 	}
 
@@ -282,6 +292,7 @@ class PgsqlDriver implements IDriver
 
 	public function convertIdentifierToSql(string $value): string
 	{
+		assert($this->connection !== null);
 		$parts = explode('.', $value);
 		foreach ($parts as &$part) {
 			if ($part !== '*') {
@@ -321,6 +332,7 @@ class PgsqlDriver implements IDriver
 
 	public function convertBlobToSql(string $value): string
 	{
+		assert($this->connection !== null);
 		return "'" . pg_escape_bytea($this->connection, $value) . "'";
 	}
 
