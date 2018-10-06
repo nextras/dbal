@@ -254,7 +254,10 @@ class MysqliDriver implements IDriver
 
 		} elseif ($nativeType === MYSQLI_TYPE_LONGLONG) {
 			// called only on 32bit
-			return is_float($tmp = $value * 1) ? $value : $tmp;
+			// hack for phpstan
+			/** @var int|float $numeric */
+			$numeric = $value;
+			return is_float($tmp = $numeric * 1) ? $numeric : $tmp;
 
 		} elseif ($nativeType === MYSQLI_TYPE_TIME) {
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
@@ -281,6 +284,7 @@ class MysqliDriver implements IDriver
 		if (json_last_error()) {
 			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
 		}
+		assert(is_string($encoded));
 		return $this->convertStringToSql($encoded);
 	}
 

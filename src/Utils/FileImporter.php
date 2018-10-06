@@ -55,6 +55,7 @@ class FileImporter
 			} else {
 				preg_match('(' . preg_quote($delimiter) . "\\s*|$parse)", $query, $match, PREG_OFFSET_CAPTURE, $offset); // should always match
 				$found = $match[0][0];
+				/** @var int $offset */
 				$offset = $match[0][1] + strlen($found);
 
 				if (!$found && rtrim($query) === '') {
@@ -68,11 +69,13 @@ class FileImporter
 					$connection->query('%raw', $q);
 
 					$query = substr($query, $offset);
+					/** @var int $offset */
 					$offset = 0;
 
 				} else { // find matching quote or comment end
 					while (preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' : (preg_match('~^-- |^#~', $found) ? "\n" : preg_quote($found) . "|\\\\."))) . '|$)s', $query, $match, PREG_OFFSET_CAPTURE, $offset)) { //! respect sql_mode NO_BACKSLASH_ESCAPES
 						$s = $match[0][0];
+						/** @var int $offset */
 						$offset = $match[0][1] + strlen($s);
 						if ($s[0] !== '\\') {
 							break;

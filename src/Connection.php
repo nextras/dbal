@@ -121,7 +121,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function query(...$args): Result
 	{
-		$this->connected || $this->connect();
+		if (!$this->connected) $this->connect();
 		$sql = $this->sqlPreprocessor->process($args);
 		return $this->nativeQuery($sql);
 	}
@@ -148,7 +148,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getLastInsertedId(string $sequenceName = null)
 	{
-		$this->connected || $this->connect();
+		if (!$this->connected) $this->connect();
 		return $this->driver->getLastInsertedId($sequenceName);
 	}
 
@@ -156,7 +156,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getAffectedRows(): int
 	{
-		$this->connected || $this->connect();
+		if (!$this->connected) $this->connect();
 		return $this->driver->getAffectedRows();
 	}
 
@@ -204,7 +204,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function beginTransaction(): void
 	{
-		$this->connected || $this->connect();
+		if (!$this->connected) $this->connect();
 		$this->nestedTransactionIndex++;
 		if ($this->nestedTransactionIndex === 1) {
 			$this->driver->beginTransaction();
