@@ -401,6 +401,9 @@ class PgsqlDriver implements IDriver
 
 	private function processConfig(array $params): array
 	{
+		if (!isset($params['database']) && isset($params['dbname'])) {
+			throw new InvalidArgumentException("You have passed 'dbname' key, did you mean 'database' key?");
+		}
 		$params['dbname'] = $params['database'] ?? null;
 		$params['user'] = $params['username'] ?? null;
 		unset($params['database'], $params['username']);
