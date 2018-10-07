@@ -178,6 +178,31 @@ class DateTimePostgreTest extends IntegrationTestCase
 		Assert::same($now->format('u'), $row->a->format('u'));
 		Assert::same($now->format('u'), $row->b->format('u'));
 	}
+
+
+	public function testSetTimezoneWithOffset()
+	{
+		$connection = $this->createConnection([
+			'connectionTz' => '+02:00',
+		]);
+
+		$connection->query('DROP TABLE IF EXISTS dates_write3');
+		$connection->query('
+			CREATE TABLE dates_write3 (
+				a timestamptz
+			);
+		');
+
+		$connection->query('INSERT INTO dates_write3 VALUES (%s)',
+			'2015-01-01 11:00:00+00:00'  // 11:00 UTC
+		);
+
+		$result = $connection->query('SELECT * FROM dates_write3');
+		$result->setValueNormalization(false);
+
+		$row = $result->fetch();
+		Assert::same('2015-01-01 13:00:00+02', $row->a);
+	}
 }
 
 

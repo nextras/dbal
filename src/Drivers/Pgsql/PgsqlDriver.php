@@ -77,7 +77,11 @@ class PgsqlDriver implements IDriver
 		restore_error_handler();
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
-		$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
+		if (strpos($this->connectionTz->getName(), ':') !== false) {
+			$this->loggedQuery('SET TIME ZONE INTERVAL ' . pg_escape_literal($this->connectionTz->getName()) . ' HOUR TO MINUTE');
+		} else {
+			$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
+		}
 
 		if (isset($params['searchPath'])) {
 			$this->loggedQuery('SET search_path TO ' . implode(', ', array_map([$this, 'convertIdentifierToSql'], (array) $params['searchPath'])));
