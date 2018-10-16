@@ -20,7 +20,7 @@ The connection instance is the main object which provides API for working with y
 |* password                             | password for authentication
 |* database                             | name of the database
 |* charset                              | charset encoding of the connection
-|* connectionTz                         | timezone for the connection
+|* connectionTz                         | timezone for the connection; pass a timezone name, `auto` or `auto-offset` keyword, see [DateTime TimeZones | datetime] chapter for more info;
 |* nestedTransactionsWithSavepoint      | boolean which indicates whether use savepoints for nested transactions; enabled by default
 |* sqlProcessorFactory                  | factory implementing ISqlProcessorFactory interface; use for adding custom modifiers; null by default;
 |* sqlMode                              | *MySQL only*; sets the `sql_mode`, `TRADITIONAL` by default;
