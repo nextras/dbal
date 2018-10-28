@@ -12,17 +12,17 @@ namespace Nextras\Dbal\Utils;
 class Typos
 {
 	/**
-	 * Returns the closest word to the $current word which is not farther than $maxDistance
-	 * or NULL if such word does not exist.
+	 * Returns the closest word to the $current word or NULL if such word does not exist.
 	 * @param  string[] $words
 	 */
-	public static function getClosest(string $current, array $words, int $maxDistance): ?string
+	public static function getClosest(string $current, array $words): ?string
 	{
-		$shortest = $maxDistance + 1;
-		$closest = NULL;
-		foreach ($words as $word) {
+		$maxDistance = strlen($current) / 4 + 1;
+		$closest = null;
+		foreach (array_unique($words, SORT_REGULAR) as $word) {
 			$distance = levenshtein($current, $word);
-			if ($distance < $shortest) {
+			if ($distance > 0 && $distance < $maxDistance) {
+				$maxDistance = $distance;
 				$closest = $word;
 			}
 		}

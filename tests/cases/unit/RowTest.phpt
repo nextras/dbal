@@ -29,6 +29,10 @@ class RowTest extends TestCase
 		}, InvalidArgumentException::class, "Column 'NAME' does not exist.");
 
 		Assert::throws(function () use ($row) {
+			$row->Name;
+		}, InvalidArgumentException::class, "Column 'Name' does not exist, did you mean 'name'?");
+
+		Assert::throws(function () use ($row) {
 			$row->suname;
 		}, InvalidArgumentException::class, "Column 'suname' does not exist, did you mean 'surname'?");
 	}

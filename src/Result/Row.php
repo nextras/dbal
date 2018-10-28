@@ -33,7 +33,7 @@ class Row
 	 */
 	public function __get(string $name)
 	{
-		$closest = Typos::getClosest($name, array_keys($this->toArray()), 3);
+		$closest = Typos::getClosest($name, array_keys($this->toArray()));
 		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest ? ", did you mean '$closest'?" :  "."));
 	}
 
