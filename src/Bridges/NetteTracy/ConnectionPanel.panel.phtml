@@ -5,12 +5,28 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 ?>
 <style class="tracy-debug">
 	#tracy-debug .nextras-dbal-panel-sql { background: white !important; }
-	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle { color: #777 !important; }
+	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle, #tracy-debug .nextras-dbal-panel-sql a { color: #777 !important; }
 	#tracy-debug .nextras-dbal-panel-sql .nextras-dbal-rowscount { color: #777 !important; margin-right: 1em !important; }
 	#tracy-debug .nextras-dbal-panel-sql .tracy-toggle:hover { color: #fff !important; }
 	#tracy-debug .nextras-dbal-panel-sql .whitespace-explain { white-space: pre; !important; }
 	#tracy-debug .nextras-dbal-panel-time { text-align: right !important; white-space: nowrap; max-width: 70px; }
 </style>
+
+<script>
+	function nextrasDbalPanelCopySql(containerid) {
+		if (document.selection) { // IE
+			var range = document.body.createTextRange();
+			range.moveToElementText(document.getElementById(containerid));
+			range.select();
+		} else if (window.getSelection) {
+			var range = document.createRange();
+			range.selectNode(document.getElementById(containerid));
+			window.getSelection().removeAllRanges();
+			window.getSelection().addRange(range);
+		}
+		document.execCommand("copy");
+	}
+</script>
 
 <h1>Queries: <?php echo $count ?></h1>
 <div class="tracy-inner nextras-dbal-panel">
@@ -22,15 +38,17 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 		<?php
 		foreach ($queries as $query):
 			list(, $sql, $elapsedTime, $rowsCount, $explain) = $query;
+			$uniqRowId = uniqid('nextras-dbal-sql-');
 		?>
 		<tr>
 		<td class="nextras-dbal-panel-time"><?php echo $elapsedTime ? sprintf('%0.2f', $elapsedTime * 1000) : '' ?></td>
 		<td class="nextras-dbal-panel-sql">
-			<?php echo $sql ?>
+			<span id="<?php echo $uniqRowId; ?>"><?php echo $sql ?></span>
 			<?php if ($explain !== null || $rowsCount !== null): ?><br><?php endif; ?>
 			<?php if ($rowsCount !== null): ?>
 				<span class="nextras-dbal-rowscount"><?php echo $rowsCount === 1 ? $rowsCount . ' row' : $rowsCount . ' rows' ?></span>
 			<?php endif; ?>
+			<span class="nextras-dbal-rowscount"><a onclick="nextrasDbalPanelCopySql('<?php echo $uniqRowId; ?>')">copy</a></span>
 			<?php if ($explain !== null): ?>
 				<a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .nextras-dbal-explain">explain</a>
 				<table class="tracy-collapsed nextras-dbal-explain">
