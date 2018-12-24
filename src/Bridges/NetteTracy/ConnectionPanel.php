@@ -122,7 +122,7 @@ class ConnectionPanel implements IBarPanel
 				return '<strong>' . $matches[3] . '</strong>';
 			}
 		}, $sql);
-
+		assert($sql !== null);
 		return trim($sql);
 	}
 }

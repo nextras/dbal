@@ -19,7 +19,7 @@
 		"nette/tester": "~2.0.0",
 		"nette/caching": "~2.2",
 		"nette/di": "~2.3",
-		"phpstan/phpstan-shim": "~0.10.3",
+		"phpstan/phpstan-shim": "0.10.6",
 		"tracy/tracy": "~2.3"
 	},
 	"autoload": {
