@@ -72,7 +72,9 @@ class PgsqlDriver implements IDriver
 			throw $this->createException($message, $code, null);
 		}, E_ALL);
 
-		$this->connection = pg_connect($connectionString, PGSQL_CONNECT_FORCE_NEW);
+		$connection = pg_connect($connectionString, PGSQL_CONNECT_FORCE_NEW);
+		assert($connection !== false); // connection error is handled in error_handler
+		$this->connection = $connection;
 
 		restore_error_handler();
 

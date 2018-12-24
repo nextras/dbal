@@ -1,5 +1,3 @@
 parameters:
 	ignoreErrors:
-		# https://github.com/phpstan/phpstan/pull/1483
-		- '#Parameter \#2 \$row of function pg_fetch_array expects int, null given\.#'
 		- '#(sqlsrv|SQLSRV).+ not found\.#i'
