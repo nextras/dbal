@@ -3,6 +3,7 @@ language: php
 php:
     - 7.1
     - 7.2
+    - 7.3
 
 matrix:
     fast_finish: true
@@ -34,7 +35,7 @@ before_script:
     - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
 
     # Install dependencies
-    - phpenv config-rm xdebug.ini
+    - phpenv config-rm xdebug.ini || true
     - travis_retry composer update --no-interaction
 
 script:
