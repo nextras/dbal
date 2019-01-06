@@ -17,9 +17,11 @@
 	"require-dev": {
 		"mockery/mockery": "~1.2",
 		"nette/tester": "~2.1",
-		"nette/caching": "~2.5",
-		"nette/di": "~2.4 >=2.4.7",
-		"nette/utils": "~2.5",
+		"nette/caching": "~2.5 || ~3.0@rc",
+		"nette/di": "~2.4 >=2.4.10 || ~3.0@beta",
+		"nette/utils": "~2.5 || ~3.0@rc",
+		"nette/finder": "~2.5 || ~3.0@rc",
+		"nette/neon": "~2.4 || ~3.0@rc",
 		"phpstan/phpstan-shim": "0.10.6",
 		"tracy/tracy": "~2.5"
 	},
