@@ -15,12 +15,13 @@
 		"php": ">=7.1"
 	},
 	"require-dev": {
-		"mockery/mockery": "~1.0@dev",
-		"nette/tester": "~2.0.0",
-		"nette/caching": "~2.2",
-		"nette/di": "~2.3",
+		"mockery/mockery": "~1.2",
+		"nette/tester": "~2.1",
+		"nette/caching": "~2.5",
+		"nette/di": "~2.4 >=2.4.7",
+		"nette/utils": "~2.5",
 		"phpstan/phpstan-shim": "0.10.6",
-		"tracy/tracy": "~2.3"
+		"tracy/tracy": "~2.5"
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" },
