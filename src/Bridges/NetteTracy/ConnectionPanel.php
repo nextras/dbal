@@ -69,18 +69,18 @@ class ConnectionPanel implements IBarPanel
 	}
 
 
-	public function getTab()
+	public function getTab(): ?string
 	{
 		$count = $this->count;
 		$totalTime = $this->totalTime;
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.tab.phtml';
-		return ob_get_clean();
+		return (string) ob_get_clean();
 	}
 
 
-	public function getPanel()
+	public function getPanel(): ?string
 	{
 		$count = $this->count;
 		$queries = $this->queries;
@@ -102,7 +102,7 @@ class ConnectionPanel implements IBarPanel
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.panel.phtml';
-		return ob_get_clean();
+		return (string) ob_get_clean();
 	}
 
 
@@ -122,7 +122,7 @@ class ConnectionPanel implements IBarPanel
 				return '<strong>' . $matches[3] . '</strong>';
 			}
 		}, $sql);
-
+		assert($sql !== null);
 		return trim($sql);
 	}
 }

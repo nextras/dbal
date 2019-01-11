@@ -29,7 +29,7 @@ class DbalExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$definition = $builder->addDefinition($this->prefix('connection'))
-			->setClass(Connection::class)
+			->setType(Connection::class)
 			->setArguments([
 				'config' => $config,
 			])

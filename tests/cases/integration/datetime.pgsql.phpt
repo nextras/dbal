@@ -24,13 +24,15 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection->query('
 			CREATE TABLE dates_write (
 				a timestamp,
-				b timestamptz
+				b timestamptz,
+				c date
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt)',
+		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt, %dts)',
 			new DateTime('2015-01-01 12:00:00'), // simple
-			new DateTime('2015-01-01 12:00:00')  // 11:00 UTC
+			new DateTime('2015-01-01 12:00:00'),  // 11:00 UTC
+			new DateTime('2015-01-01 00:00:00')  // simple
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -39,11 +41,13 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$row = $result->fetch();
 		Assert::same('2015-01-01 12:00:00', $row->a);
 		Assert::same('2015-01-01 12:00:00+01', $row->b);
+		Assert::same('2015-01-01', $row->c);
 
 		$connection->query('DELETE FROM dates_write');
-		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt)',
+		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt, %dts)',
 			new DateTime('2015-01-01 12:00:00'),             // simple
-			new DateTime('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
+			new DateTime('2015-01-01 12:00:00 Europe/Kiev'), // 10:00 UTC
+			new DateTime('2015-01-01 12:13:14')              // simple
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -52,6 +56,7 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$row = $result->fetch();
 		Assert::same('2015-01-01 12:00:00', $row->a);
 		Assert::same('2015-01-01 11:00:00+01', $row->b);
+		Assert::same('2015-01-01', $row->c);
 	}
 
 
@@ -65,13 +70,15 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection->query('
 			CREATE TABLE dates_write2 (
 				a timestamp,
-				b timestamptz
+				b timestamptz,
+				c date
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt)',
+		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt, %dts)',
 			new \DateTimeImmutable('2015-01-01 12:00:00'), // simple
-			new \DateTimeImmutable('2015-01-01 12:00:00')  // 11:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:00:00'),  // 11:00 UTC
+			new \DateTimeImmutable('2015-01-01 00:00:00')  // simple
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -80,11 +87,13 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$row = $result->fetch();
 		Assert::same('2015-01-01 12:00:00', $row->a);
 		Assert::same('2015-01-01 13:00:00+02', $row->b);
+		Assert::same('2015-01-01', $row->c);
 
 		$connection->query('DELETE FROM dates_write2');
-		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt)',
+		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt, %dts)',
 			new \DateTimeImmutable('2015-01-01 12:00:00'),             // 11:00 UTC
-			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev'), // 10:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:13:14')              // simple
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -93,6 +102,7 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$row = $result->fetch();
 		Assert::same('2015-01-01 12:00:00', $row->a);
 		Assert::same('2015-01-01 12:00:00+02', $row->b);
+		Assert::same('2015-01-01', $row->c);
 	}
 
 
@@ -103,21 +113,26 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection->query('
 			CREATE TABLE dates_read (
 				a timestamp,
-				b timestamptz
+				b timestamptz,
+				c date
 			);
 		');
 
-		$connection->query('INSERT INTO dates_read VALUES (%s, %s)',
+		$connection->query('INSERT INTO dates_read VALUES (%s, %s, %s)',
 			'2015-01-01 12:00:00', // simple
-			'2015-01-01 12:00:00'  // 11:00 UTC
+			'2015-01-01 12:00:00', // 11:00 UTC
+			'2015-01-01'
 		);
 
 		$result = $connection->query('SELECT * FROM dates_read');
 
 		$row = $result->fetch();
 		Assert::type(DateTimeImmutable::class, $row->a);
+		Assert::type(DateTimeImmutable::class, $row->b);
+		Assert::type(DateTimeImmutable::class, $row->c);
 		Assert::same('2015-01-01T12:00:00+01:00', $row->a->format('c'));
 		Assert::same('2015-01-01T12:00:00+01:00', $row->b->format('c'));
+		Assert::same('2015-01-01T00:00:00+01:00', $row->c->format('c'));
 	}
 
 
@@ -130,21 +145,26 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection->query('
 			CREATE TABLE dates_read2 (
 				a timestamp,
-				b timestamptz
+				b timestamptz,
+				c date
 			);
 		');
 
-		$connection->query('INSERT INTO dates_read2 VALUES (%s, %s)',
+		$connection->query('INSERT INTO dates_read2 VALUES (%s, %s, %s)',
 			'2015-01-01 12:00:00', // simple
-			'2015-01-01 12:00:00'  // 10:00 UTC
+			'2015-01-01 12:00:00', // 10:00 UTC
+			'2015-01-01'
 		);
 
 		$result = $connection->query('SELECT * FROM dates_read2');
 
 		$row = $result->fetch();
 		Assert::type(DateTimeImmutable::class, $row->a);
+		Assert::type(DateTimeImmutable::class, $row->b);
+		Assert::type(DateTimeImmutable::class, $row->c);
 		Assert::same('2015-01-01T12:00:00+01:00', $row->a->format('c'));
 		Assert::same('2015-01-01T11:00:00+01:00', $row->b->format('c'));
+		Assert::same('2015-01-01T00:00:00+01:00', $row->c->format('c'));
 	}
 
 

@@ -1,8 +1,14 @@
-dist: trusty
 language: php
+
 php:
     - 7.1
     - 7.2
+    - 7.3
+
+env:
+  matrix:
+    - dependencies=lowest
+    - dependencies=highest
 
 matrix:
     fast_finish: true
@@ -10,12 +16,9 @@ matrix:
 addons:
   postgresql: "9.6"
 
-sudo: false
-
 cache:
     directories:
         - $HOME/.composer/cache
-        - vendor
 
 before_script:
     # Create php.ini & databases.ini
@@ -34,8 +37,9 @@ before_script:
     - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
 
     # Install dependencies
-    - phpenv config-rm xdebug.ini
-    - travis_retry composer update --no-interaction
+    - phpenv config-rm xdebug.ini || true
+    - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --no-interaction; fi
+    - if [ "$dependencies" = "highest" ]; then composer update --no-interaction; fi
 
 script:
     - ./tests/run.sh -s $NTESTER_FLAGS ./tests/cases

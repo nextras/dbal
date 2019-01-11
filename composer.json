@@ -15,12 +15,15 @@
 		"php": ">=7.1"
 	},
 	"require-dev": {
-		"mockery/mockery": "~1.0@dev",
-		"nette/tester": "~2.0.0",
-		"nette/caching": "~2.2",
-		"nette/di": "~2.3",
-		"phpstan/phpstan-shim": "~0.10.3",
-		"tracy/tracy": "~2.3"
+		"mockery/mockery": "~1.2",
+		"nette/tester": "~2.1",
+		"nette/caching": "~2.5 || ~3.0@rc",
+		"nette/di": "~2.4 >=2.4.10 || ~3.0@beta",
+		"nette/utils": "~2.5 || ~3.0@rc",
+		"nette/finder": "~2.5 || ~3.0@rc",
+		"nette/neon": "~2.4 || ~3.0@rc",
+		"phpstan/phpstan-shim": "0.10.6",
+		"tracy/tracy": "~3.0.0@dev"
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" },
