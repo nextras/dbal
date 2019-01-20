@@ -1,16 +1,27 @@
 Query Builder
 #############
 
-Query builder is tool for constructing SQL query. It allows you to define SQL query with fluent API.
+Query builder is a tool for constructing SQL query. It allows you to define SQL query with fluent API.
 
-From clause
-===========
+API
+====
 
-Let's create Query builder object. Set source table name by `from()` method. You can pass alias. The first argument is considered as SQL expression, you you have to escape table name manually with `[]` brackets, or use modifier. The second argument is optional table alias, other arguments are arguments for used modifiers.
+The API is designed to be convenient and yet safe and helpful. Therefore every method accepts specific arguments and if any of them is suffixed "expression", the method also allow to pass a modifier it this argument. The last argument(s) of every method is then these values for the used modifiers in the expressions.
+
+To get query in QueryBuilder executed, pass the builder to `queryByQueryBuilder()` method on connection, you will receive a `Result` instance.
 
 /--php
 $builder = $connection->createQueryBuilder();
+// modify query builder
+$result = $this->connection->queryByQueryBuilder($builder);
+\--
 
+FROM clause
+===========
+
+Let's create a Query builder instance. Set a source table name by `from()` method. You can pass an alias. The first argument is considered as a SQL expression, you should escape its table name manually with `[]` brackets, or use a modifier. The second argument is an optional table alias, other arguments are arguments for used modifiers.
+
+/--php
 // table useres, aliased a
 $builder->from('users', 'a');
 
@@ -26,10 +37,10 @@ $builder->from('my_orders(%i, %i)', 'orders', $userId, $groupId);
 
 ------------
 
-Where, having and group by clause
-=================================
+WHERE, HAVING and GROUP BY clauses
+==================================
 
-You can add conditions using `andWhere()` or `orWhere()` methods. `*Where` methods accepts query expression, all other function arguments are optional and are considered as arguments for modifiers passed in expression.
+You can add conditions using `andWhere()` or `orWhere()` methods. `*Where` methods accept query expression, all other function arguments are optional and are considered as arguments for modifiers passed in the expression.
 
 /--php
 $builder->andWhere('order_id = %i', $oderId);
@@ -39,9 +50,12 @@ $builder->andWhere('order_id = %i', $oderId);
 // WHERE (order_id = %i) OR (user_id IN %i[] AND group_id = %i)
 \--
 
-Methods `andHaving()` and `orHaving()` have the same signature and logic as where methods. Group by expressions are not connected with logic conjunctions, therefore method is called `addGroupBy()`. The group by method has signature as others, accepts expression and optinal arguments.
+Methods `andHaving()` and `orHaving()` have the same signature and logic as where methods.
 
-Let's see an example: depending on `$cond` we build query which will retrieve daily number of issues created/resolved in last week and was them more than 10..
+Group by expressions are not connected with logic operators, therefore the method is called `addGroupBy()`. The group by method has signature as others, accepts an expression and optinal arguments.
+
+Let's see an example: depending on `$cond` we build query which will retrieve daily number of issues created/resolved in the last week and filter only days with more than 10 issues.
+
 /--php
 $column = $cond ? 'created_at' : 'resolved_at';
 
@@ -65,13 +79,15 @@ $builder->where('created_at < NOW()'); // replace previous conditions
 // SELECT * FROM issues WHERE created_at < NOW();
 \--
 
+You can also use these methods to empty the clause.
+
 ------------
 
 
-Select, orderBy and limit clause
-================================
+SELECT, ORDER BY and LIMIT clause
+=================================
 
-Builder have also methods for defining select, order by and limit clauses. Use appropriate methods: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. Select and order by methods accepts modifier arguments as earlier mentioned methods.
+Builder define methods for select, order by and limit clauses. Use appropriate methods: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. Select and order by methods accept modifier arguments as aformentioned methods.
 
 /--php
 $builder->addSelect('id, %column, [another_ecpaced_column]', $myColumn);
@@ -86,17 +102,17 @@ $builder->limitBy(20, 10); // sets offset to 1O
 
 ------------
 
-Joins
-=====
+INNER, LEFT and RIGHT JOIN
+==========================
 
 Choose from `innerJoin()`, `leftJoin()`, and `rightJoin()` methods. Each of them has the same signature. Arguments:
-- from source name - from which table should be join created,
-- to expression - target expression, do not forget to escape target table name,
-- to alias - alias of target, you can leave it NULL,
+- from source name - from which table should be join created (you should reference to alias if used earlier),
+- to expression - target expression, do not forget to escape the target table name,
+- to alias - alias of the target, you can leave it NULL,
 - on expression - ON clause expression,
 - arguments for expressions.
 
-The from source name is present for better validation. It disallows you to build join on table, which was not defined.
+The "from source name" is present for better validation. It disallows you to build join on table which has not been defined yet in the QueryBuilder.
 
 /--php
 $builder->from('[authors]', 'a');
@@ -106,19 +122,4 @@ $builder->leftJoin('a', '[books]', 'b', '[a.id] = [b.authorId] AND [b.title] = %
 // will produce
 // FROM [authors] AS [a]
 // LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
-\--
-
-
-------
-
-Execution
-=========
-
-To get builder SQL call `getQuerySql()` method. Passed arguments are available through `getQueryParameters()` method. To execute query use `queryArgs()` method on connection.
-
-/--php
-$result = $this->connection->queryArgs(
-	$builder->getQuerySql(),
-	$builder->getQueryParameters()
-);
 \--

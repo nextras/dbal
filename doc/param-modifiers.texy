@@ -1,7 +1,7 @@
 Parameter Modifiers
 ###################
 
-Dbal allows you easy way to escape and build your SQL query. You can use powerful modifiers:
+Dbal allows you to escape and build safe SQL query. It provides these powerful modifiers:
 
 |* `%s`, `%?s`, `%s[]`          | string   | not nullable, nullable, array of
 |* `%i`, `%?i`, `%i[]`          | integer  | not nullable, nullable, array of
@@ -14,7 +14,7 @@ Dbal allows you easy way to escape and build your SQL query. You can use powerfu
 |* `%_like`, `%like_`, `%_like_`| string   | like left, like right, like both sides
 |* `%json`, `%?json`, `%json[]` | any      | not nullabe, nullable, array of
 
-All modifiers require receiving an argument of the specific modifier data type - eg. `%f` accepts only floats and integers.
+All modifiers require an argument of the specific data type - eg. `%f` accepts only floats and integers.
 
 /--php
 $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
@@ -27,29 +27,18 @@ $connection->query('name LIKE %_like_', $query);
 
 Other available modifiers:
 
+|* `%and`                  | AND condition
+|* `%or`                   | OR condition
+|* `%multiOr`              | OR condition with multiple conditions in pairs
+|* `%values`, `%values[]`  | expands array for INSERT clause, multi insert
+|* `%set`                  | expands array for SET clause
 |* `%table`, `%table[]`    | escapes string as table name, surrounding parentheses are not added to `%table[]` modifier
 |* `%column`, `%column[]`  | escapes string as column name, surrounding parentheses are not added to `%column[]` modifier
 |* `%ex`                   | expands array as processor arguments
 |* `%raw`                  | inserts string argument as is
 |* `%%`                    | escapes to single `%` (useful in `date_format()`, etc.)
 
-`%ex` modifier expands passed array as arguments of new `query()` method call.
-
-/--php
-$connection->query('%ex', ['id = %i', 1]);
-// equals to
-$connection->query('id = %i', 1);
-\--
-
-Last modifiers are connected with array processing:
-
-|* `%and`                  | AND condition
-|* `%or`                   | OR condition
-|* `%multiOr`              | OR condition with multiple conditions in pairs
-|* `%values`, `%values[]`  | expands array for INSERT clause, multi insert
-|* `%set`                  | expands array for SET clause
-
-Let's examine `%and` and `%or` behavior. If array key is numeral and value is array, value is expanded with `%ex` modifier.
+Let's examine `%and` and `%or` behavior. If array key is numeric and its value is an array, value is expanded with `%ex` modifier. (See below.)
 
 /--php
 $connection->query('%and', [
@@ -73,7 +62,7 @@ $connection->query('%or', [
 // `city` = 'Winterfell' OR `age` IN (23, 25)
 \--
 
-If you want select multiple rows with combined condition for each row, you may use multi column `IN` expression. However, some database does not support this feature, therefore Dbal provides universal `%multiOr` modifier that will handle this for you and will alternatively use expanded verbose syntax; let's see an example:
+If you want select multiple rows with combined condition for each row, you may use multi column `IN` expression. However, some databases do not support this feature, therefore Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax; let's see an example:
 
 /--php
 $connection->query('%multiOr', [
@@ -88,7 +77,7 @@ $connection->query('%multiOr', [
 // (tag_id = 1 AND book_id = 23) OR (tag_id = 4 AND book_id = 12) OR (tag_id = 9 AND book_id = 83)
 \--
 
-Examples for inserting and updating:
+Examples of inserting and updating:
 
 /--php
 $connection->query('INSERT INTO [users] %values', [
@@ -109,6 +98,15 @@ $connection->query('UPDATE [users] SET %set WHERE [id] = %i', [
 ], 1);
 // UPDATE `users` SET `name` = 'Jon Snow' WHERE `id` = 1
 \--
+
+`%ex` modifier expands passed array as arguments of new `query()` method call.
+
+/--php
+$connection->query('%ex', ['id = %i', 1]);
+// equals to
+$connection->query('id = %i', 1);
+\--
+
 
 Custom Modifiers
 ================
