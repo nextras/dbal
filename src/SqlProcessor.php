@@ -443,7 +443,7 @@ class SqlProcessor
 
 		$keys = $values = [];
 		foreach ($value as $_key => $val) {
-			$key = explode('%', $_key, 2);
+			$key = explode('%', (string) $_key, 2);
 			$keys[] = $this->identifierToSql($key[0]);
 			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 		}
