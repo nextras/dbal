@@ -213,7 +213,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as SELECT clause. Passing null sets clause to the default state.
 	 */
-	public function select(string $expression = NULL, ...$args): self
+	public function select(?string $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->select = $expression === null ? null : [$expression];
@@ -240,7 +240,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as WHERE clause. Passing null sets clause to the default state.
 	 */
-	public function where(string $expression = NULL, ...$args): self
+	public function where(?string $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->where = $expression;
@@ -276,7 +276,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as GROUP BY clause. Passing null sets clause to the default state.
 	 */
-	public function groupBy(string $expression = NULL, ...$args): self
+	public function groupBy(?string $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->group = $expression === null ? null : [$expression];
@@ -300,7 +300,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as HAVING clause. Passing null sets clause to the default state.
 	 */
-	public function having(string $expression = NULL, ...$args): self
+	public function having(?string $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->having = $expression;
@@ -336,7 +336,7 @@ class QueryBuilder
 	/**
 	 * Sets expression as ORDER BY clause. Passing null sets clause to the default state.
 	 */
-	public function orderBy(string $expression = NULL, ...$args): self
+	public function orderBy(?string $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->order = $expression === null ? null : [$expression];

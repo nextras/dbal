@@ -164,12 +164,12 @@ class ResultTest extends TestCase
 		Assert::same([
 			10,
 			12,
-		], $createResult()->fetchPairs(NULL, 'n'));
+		], $createResult()->fetchPairs(null, 'n'));
 
 		Assert::equal([
 			10 => new Row($one),
 			12 => new Row($two),
-		], $createResult()->fetchPairs('n', NULL));
+		], $createResult()->fetchPairs('n', null));
 
 		Assert::same([
 			10 => 'jon snow',
@@ -179,7 +179,7 @@ class ResultTest extends TestCase
 		Assert::equal([
 			'2014-01-01T00:00:00+01:00' => new Row($one),
 			'2014-01-03T00:00:00+01:00' => new Row($two),
-		], $createResult()->fetchPairs('born', NULL));
+		], $createResult()->fetchPairs('born', null));
 
 		Assert::same([
 			'2014-01-01T00:00:00+01:00' => 'jon snow',
