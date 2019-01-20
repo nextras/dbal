@@ -151,12 +151,12 @@ class QueryBuilder
 	}
 
 
-	public function from(string $fromExpression, string $alias = null): self
+	public function from(string $fromExpression, ?string $alias = null, ...$args): self
 	{
 		$this->dirty();
 		$this->type = self::TYPE_SELECT;
 		$this->from = [$fromExpression, $alias];
-		$this->pushArgs('from', array_slice(func_get_args(), 2));
+		$this->pushArgs('from', $args);
 		return $this;
 	}
 
