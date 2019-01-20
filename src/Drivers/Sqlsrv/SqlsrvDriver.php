@@ -81,7 +81,7 @@ class SqlsrvDriver implements IDriver
 		}
 		$connectionOptions['ReturnDatesAsStrings'] = true;
 
-		$this->connection = sqlsrv_connect($connectionString, $connectionOptions);
+		$this->connection = sqlsrv_connect($connectionString, $connectionOptions) ?: null;
 		if (!$this->connection) {
 			$this->throwErrors();
 		}
@@ -111,6 +111,7 @@ class SqlsrvDriver implements IDriver
 
 	public function query(string $query): Result
 	{
+		assert($this->connection !== null);
 		/** @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx */
 
 		$time = microtime(true);
@@ -121,9 +122,11 @@ class SqlsrvDriver implements IDriver
 			$this->throwErrors($query);
 		}
 
-		if (!$affectedRowsStatement = sqlsrv_query($this->connection, 'SELECT @@ROWCOUNT')) {
+		$affectedRowsStatement = sqlsrv_query($this->connection, 'SELECT @@ROWCOUNT');
+		if (!$affectedRowsStatement) {
 			$this->throwErrors();
 		}
+		assert($affectedRowsStatement !== false);
 		if ($affectedRowsResult = sqlsrv_fetch_array($affectedRowsStatement, SQLSRV_FETCH_NUMERIC)) {
 			$this->affectedRows = $affectedRowsResult[0];
 		} else {
@@ -160,6 +163,7 @@ class SqlsrvDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		assert($this->connection !== null);
 		return sqlsrv_server_info($this->connection)['SQLServerVersion'];
 	}
 
@@ -192,6 +196,7 @@ class SqlsrvDriver implements IDriver
 
 	public function beginTransaction(): void
 	{
+		assert($this->connection !== null);
 		$time = microtime(true);
 		$result = sqlsrv_begin_transaction($this->connection);
 		$timeTaken = microtime(true) - $time;
@@ -204,6 +209,7 @@ class SqlsrvDriver implements IDriver
 
 	public function commitTransaction(): void
 	{
+		assert($this->connection !== null);
 		$time = microtime(true);
 		$result = sqlsrv_commit($this->connection);
 		$timeTaken = microtime(true) - $time;
@@ -216,6 +222,7 @@ class SqlsrvDriver implements IDriver
 
 	public function rollbackTransaction(): void
 	{
+		assert($this->connection !== null);
 		$time = microtime(true);
 		$result = sqlsrv_rollback($this->connection);
 		$timeTaken = microtime(true) - $time;
@@ -339,7 +346,7 @@ class SqlsrvDriver implements IDriver
 
 	private function throwErrors($query = null)
 	{
-		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
+		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS) ?: [];
 		$errors = array_unique($errors, SORT_REGULAR);
 		$errors = array_reverse($errors);
 

@@ -76,7 +76,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 	public function getTypes(): array
 	{
 		$types = [];
-		$fields = sqlsrv_field_metadata($this->statement);
+		$fields = sqlsrv_field_metadata($this->statement) ?: [];
 		foreach ($fields as $field) {
 			$nativeType = $field['Type'];
 			$types[$field['Name']] = [
