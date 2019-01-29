@@ -1,6 +1,3 @@
 parameters:
 	ignoreErrors:
 		- '#(sqlsrv|SQLSRV).+ not found\.#i'
-		- # https://github.com/phpstan/phpstan/issues/1820
-			message: '#Negated boolean expression is always true\.#'
-			path: src/Result/Row.php

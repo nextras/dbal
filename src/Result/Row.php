@@ -12,7 +12,7 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\Typos;
 
 
-class Row
+class Row extends \stdClass
 {
 	public function __construct(array $data)
 	{
