@@ -96,11 +96,21 @@ class CachedPlatformTest extends TestCase
 		$expectedPs = 'ps_name';
 		$this->storageMock->shouldReceive('read')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once()->andReturnNull();
 		$this->storageMock->shouldReceive('lock')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once();
-		$this->storageMock->shouldReceive('write')->with("\x007d7dae355d8345dd9301de988fd0eff7", $expectedPs, [])->once();
+		$this->storageMock->shouldReceive('write')->with("\x007d7dae355d8345dd9301de988fd0eff7", [$expectedPs], [])->once();
 		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn($expectedPs);
 
 		$cols = $this->platform->getPrimarySequenceName('foo');
 		Assert::same($expectedPs, $cols);
+
+
+		$expectedPs = null;
+		$this->storageMock->shouldReceive('read')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once()->andReturnNull();
+		$this->storageMock->shouldReceive('lock')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once();
+		$this->storageMock->shouldReceive('write')->with("\x007d7dae355d8345dd9301de988fd0eff7", [null], [])->once();
+		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn(null);
+
+		$cols = $this->platform->getPrimarySequenceName('foo');
+		Assert::same(null, $cols);
 	}
 
 
