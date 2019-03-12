@@ -2,7 +2,7 @@
 
 use Nextras\Dbal\Connection;
 
-return function (Connection $connection, $dbname) {
+return function (Connection $connection) {
 	$connection->query('DROP SCHEMA IF EXISTS public CASCADE');
 	$connection->query('DROP SCHEMA IF EXISTS second_schema CASCADE');
 	$connection->query('CREATE SCHEMA public');

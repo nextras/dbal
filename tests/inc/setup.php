@@ -30,7 +30,7 @@ foreach ($config as $name => $configDatabase) {
 	$connection = new Connection($configDatabase);
 	$platform = $connection->getPlatform()->getName();
 	$resetFunction = require __DIR__ . "/../data/{$platform}-reset.php";
-	$resetFunction($connection, $configDatabase['database']);
+	$resetFunction($connection, $configDatabase);
 
 	FileImporter::executeFile($connection, __DIR__ . "/../data/{$platform}-init.sql");
 }
