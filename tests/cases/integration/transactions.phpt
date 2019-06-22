@@ -10,6 +10,7 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\InvalidStateException;
 use Tester\Assert;
+use Tester\Environment;
 
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -23,7 +24,7 @@ class TransactionsTest extends IntegrationTestCase
 		$this->connection->beginTransaction();
 
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_TRANS_ROLLBACK_'
+			'name' => '_TRANS_ROLLBACK_',
 		]);
 
 		Assert::same(1, $this->connection->getAffectedRows());
@@ -41,7 +42,7 @@ class TransactionsTest extends IntegrationTestCase
 		$this->connection->beginTransaction();
 
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_TRANS_COMMIT_'
+			'name' => '_TRANS_COMMIT_',
 		]);
 
 		Assert::same(1, $this->connection->getAffectedRows());
@@ -56,10 +57,10 @@ class TransactionsTest extends IntegrationTestCase
 	public function testTransactionalFail()
 	{
 		$this->lockConnection($this->connection);
-		Assert::exception(function() {
-			$this->connection->transactional(function(Connection $connection) {
+		Assert::exception(function () {
+			$this->connection->transactional(function (Connection $connection) {
 				$connection->query('INSERT INTO tags %values', [
-					'name' => '_TRANS_TRANSACTIONAL_'
+					'name' => '_TRANS_TRANSACTIONAL_',
 				]);
 
 				Assert::same(1, $connection->getAffectedRows());
@@ -76,9 +77,9 @@ class TransactionsTest extends IntegrationTestCase
 	public function testTransactionalOk()
 	{
 		$this->lockConnection($this->connection);
-		$returnValue = $this->connection->transactional(function(Connection $connection) {
+		$returnValue = $this->connection->transactional(function (Connection $connection) {
 			$connection->query('INSERT INTO tags %values', [
-				'name' => '_TRANS_TRANSACTIONAL_OK_'
+				'name' => '_TRANS_TRANSACTIONAL_OK_',
 			]);
 
 			Assert::same(1, $connection->getAffectedRows());
@@ -90,6 +91,36 @@ class TransactionsTest extends IntegrationTestCase
 		$this->connection->reconnect();
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_OK_')->fetchField());
 		Assert::same(42, $returnValue);
+	}
+
+
+	public function testTransactionWithoutBegin()
+	{
+		$this->connection->connect();
+
+		$this->connection->rollbackTransaction();
+		$this->connection->rollbackTransaction();
+		Assert::same(0, $this->connection->getTransactionIndex());
+
+		$this->connection->commitTransaction();
+		$this->connection->commitTransaction();
+		Assert::same(0, $this->connection->getTransactionIndex());
+	}
+
+
+	public function testTransactionWithReconnect()
+	{
+		$this->connection->connect();
+
+		$this->connection->beginTransaction();
+		$this->connection->reconnect();
+		$this->connection->commitTransaction();
+
+		$this->connection->beginTransaction();
+		$this->connection->reconnect();
+		$this->connection->rollbackTransaction();
+
+		Environment::$checkAssertions = false;
 	}
 }
 

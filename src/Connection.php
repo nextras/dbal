@@ -69,6 +69,7 @@ class Connection implements IConnection
 			$this->fireEvent('onQuery', [$this, $sql, $time, $result, $exception]);
 		});
 		$this->connected = true;
+		$this->nestedTransactionIndex = 0;
 		$this->nestedTransactionsWithSavepoint = (bool) ($this->config['nestedTransactionsWithSavepoint'] ?? true);
 		$this->fireEvent('onConnect', [$this]);
 	}
@@ -205,10 +206,12 @@ class Connection implements IConnection
 	public function beginTransaction(): void
 	{
 		if (!$this->connected) $this->connect();
-		$this->nestedTransactionIndex++;
-		if ($this->nestedTransactionIndex === 1) {
+
+		if ($this->nestedTransactionIndex === 0) {
+			$this->nestedTransactionIndex++;
 			$this->driver->beginTransaction();
 		} elseif ($this->nestedTransactionsWithSavepoint) {
+			$this->nestedTransactionIndex++;
 			$this->driver->createSavepoint($this->getSavepointName());
 		}
 	}
@@ -217,30 +220,53 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function commitTransaction(): void
 	{
-		if ($this->nestedTransactionIndex === 1) {
+		if (!$this->connected) $this->connect();
+
+		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->commitTransaction();
+			$this->nestedTransactionIndex = 0;
+
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->releaseSavepoint($this->getSavepointName());
+			$this->nestedTransactionIndex--;
 		}
-		$this->nestedTransactionIndex--;
 	}
 
 
 	/** @inheritdoc */
 	public function rollbackTransaction(): void
 	{
-		if ($this->nestedTransactionIndex === 1) {
+		if (!$this->connected) $this->connect();
+
+		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->rollbackTransaction();
+			$this->nestedTransactionIndex = 0;
+
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->rollbackSavepoint($this->getSavepointName());
+			$this->nestedTransactionIndex--;
 		}
-		$this->nestedTransactionIndex--;
+	}
+
+
+	/**
+	 * Returns current connection's transaction index.
+	 * 0 = no running transaction
+	 * 1 = basic transaction
+	 * >1 = nested transaction through savepoints
+	 * Todo: Add this method to interface in v4
+	 * @return int
+	 */
+	public function getTransactionIndex(): int
+	{
+		return $this->nestedTransactionIndex;
 	}
 
 
 	/** @inheritdoc */
 	public function createSavepoint(string $name): void
 	{
+		if (!$this->connected) $this->connect();
 		$this->driver->createSavepoint($name);
 	}
 
@@ -248,6 +274,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function releaseSavepoint(string $name): void
 	{
+		if (!$this->connected) $this->connect();
 		$this->driver->releaseSavepoint($name);
 	}
 
@@ -255,6 +282,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function rollbackSavepoint(string $name): void
 	{
+		if (!$this->connected) $this->connect();
 		$this->driver->rollbackSavepoint($name);
 	}
 
