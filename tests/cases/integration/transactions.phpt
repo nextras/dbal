@@ -9,6 +9,7 @@ namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Tester\Assert;
 use Tester\Environment;
 
@@ -96,6 +97,10 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testTransactionWithoutBegin()
 	{
+		if ($this->connection->getPlatform() instanceof SqlServerPlatform) {
+			Environment::skip("SQL Server doesn't support commiting / rollbacking when @@TRANCOUNT is zero.");
+		}
+
 		$this->connection->connect();
 
 		$this->connection->rollbackTransaction();
@@ -110,6 +115,10 @@ class TransactionsTest extends IntegrationTestCase
 
 	public function testTransactionWithReconnect()
 	{
+		if ($this->connection->getPlatform() instanceof SqlServerPlatform) {
+			Environment::skip("SQL Server doesn't support commiting / rollbacking when @@TRANCOUNT is zero.");
+		}
+
 		$this->connection->connect();
 
 		$this->connection->beginTransaction();
