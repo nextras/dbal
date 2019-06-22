@@ -20,6 +20,7 @@ class DbalExtension extends CompilerExtension
 	public function loadConfiguration()
 	{
 		$config = $this->getConfig();
+		\assert(is_array($config));
 		$this->setupConnection($config);
 	}
 
