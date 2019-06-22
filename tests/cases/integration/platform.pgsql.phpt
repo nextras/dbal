@@ -106,6 +106,54 @@ class PlatformPostgreTest extends IntegrationTestCase
 				'sequence' => null,
 			],
 		], $columns);
+
+		$schemaColumns = $this->connection->getPlatform()->getColumns('second_schema.authors');
+		Assert::same([
+			'id' => [
+				'name' => 'id',
+				'type' => 'INT4',
+				'size' => null,
+				'default' => "nextval('second_schema.authors_id_seq'::regclass)",
+				'is_primary' => true,
+				'is_autoincrement' => true,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => 'second_schema.authors_id_seq',
+			],
+			'name' => [
+				'name' => 'name',
+				'type' => 'VARCHAR',
+				'size' => 50,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => null,
+			],
+			'web' => [
+				'name' => 'web',
+				'type' => 'VARCHAR',
+				'size' => 100,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+				'sequence' => null,
+			],
+			'born' => [
+				'name' => 'born',
+				'type' => 'DATE',
+				'size' => null,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => true,
+				'sequence' => null,
+			],
+		], $schemaColumns);
 	}
 
 
