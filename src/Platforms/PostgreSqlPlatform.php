@@ -109,7 +109,6 @@ class PostgreSqlPlatform implements IPlatform
 			WHERE
 				co.contype = 'f'
 				AND cl.oid = %s::regclass
-				AND nf.nspname = ANY (pg_catalog.current_schemas(FALSE))
 		", 'co.conkey[1]', 'co.confkey[1]', $table);
 
 		$keys = [];
