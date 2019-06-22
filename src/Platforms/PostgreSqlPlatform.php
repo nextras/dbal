@@ -108,7 +108,7 @@ class PostgreSqlPlatform implements IPlatform
 				JOIN pg_catalog.pg_attribute AS af ON af.attrelid = cf.oid AND af.attnum = %raw
 			WHERE
 				co.contype = 'f'
-				AND cl.oid = %s::regclass
+				AND cl.oid = '%column'::regclass
 		", 'co.conkey[1]', 'co.confkey[1]', $table);
 
 		$keys = [];

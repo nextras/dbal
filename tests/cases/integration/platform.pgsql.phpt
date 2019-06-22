@@ -138,6 +138,24 @@ class PlatformPostgreTest extends IntegrationTestCase
 				'ref_column' => 'id',
 			],
 		], $keys);
+
+		$this->connection->query("DROP TABLE IF EXISTS second_schema.book_fk");
+		$this->connection->query("
+			CREATE TABLE second_schema.book_fk (
+				book_id int NOT NULL,
+				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES public.books (id) ON DELETE CASCADE ON UPDATE CASCADE
+			);
+		");
+
+		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('second_schema.book_fk');
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'column' => 'book_id',
+				'ref_table' => 'public.books',
+				'ref_column' => 'id',
+			],
+		], $schemaKeys);
 	}
 
 
