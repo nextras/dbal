@@ -76,7 +76,7 @@ class PostgreSqlPlatform implements IPlatform
 				LEFT JOIN pg_catalog.pg_constraint AS co ON co.connamespace = c.relnamespace AND contype = 'p' AND co.conrelid = c.oid AND a.attnum = ANY(co.conkey)
 			WHERE
 				c.relkind IN ('r', 'v')
-				AND c.oid = %s::regclass
+				AND c.oid = '%column'::regclass
 				AND a.attnum > 0
 				AND NOT a.attisdropped
 			ORDER BY
@@ -108,8 +108,7 @@ class PostgreSqlPlatform implements IPlatform
 				JOIN pg_catalog.pg_attribute AS af ON af.attrelid = cf.oid AND af.attnum = %raw
 			WHERE
 				co.contype = 'f'
-				AND cl.oid = %s::regclass
-				AND nf.nspname = ANY (pg_catalog.current_schemas(FALSE))
+				AND cl.oid = '%column'::regclass
 		", 'co.conkey[1]', 'co.confkey[1]', $table);
 
 		$keys = [];

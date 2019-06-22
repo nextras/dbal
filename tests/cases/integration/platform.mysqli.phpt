@@ -98,35 +98,81 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'is_nullable' => true,
 			],
 		], $columns);
+
+		$dbName2 = $this->connection->getConfig()['database'] . '2';
+		$this->connection->query("DROP TABLE IF EXISTS $dbName2.book_cols");
+		$this->connection->query("
+			CREATE TABLE $dbName2.book_cols (
+				book_id int NOT NULL
+			);
+		");
+
+		$columns = $this->connection->getPlatform()->getColumns("$dbName2.book_cols");
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'type' => 'INT',
+				'size' => 11,
+				'default' => null,
+				'is_primary' => false,
+				'is_autoincrement' => false,
+				'is_unsigned' => false,
+				'is_nullable' => false,
+			],
+		], $columns);
 	}
 
 
-	public function testFoeignKeys()
+	public function testForeignKeys()
 	{
+		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		Assert::same([
 			'author_id' => [
 				'name' => 'books_authors',
 				'column' => 'author_id',
 				'ref_table' => 'authors',
+				'ref_table_fqn' => "$dbName.authors",
 				'ref_column' => 'id',
 			],
 			'ean_id' => [
 				'name' => 'books_ean',
 				'column' => 'ean_id',
 				'ref_table' => 'eans',
+				'ref_table_fqn' => "$dbName.eans",
 				'ref_column' => 'id',
 			],
 			'publisher_id' => [
 				'name' => 'books_publisher',
 				'column' => 'publisher_id',
 				'ref_table' => 'publishers',
+				'ref_table_fqn' => "$dbName.publishers",
 				'ref_column' => 'id',
 			],
 			'translator_id' => [
 				'name' => 'books_translator',
 				'column' => 'translator_id',
 				'ref_table' => 'authors',
+				'ref_table_fqn' => "$dbName.authors",
+				'ref_column' => 'id',
+			],
+		], $keys);
+
+		$dbName2 = $this->connection->getConfig()['database'] . '2';
+		$this->connection->query("DROP TABLE IF EXISTS $dbName2.book_fk");
+		$this->connection->query("
+			CREATE TABLE $dbName2.book_fk (
+				book_id int NOT NULL,
+				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES $dbName.books (id) ON DELETE CASCADE ON UPDATE CASCADE
+			);
+		");
+		$keys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'column' => 'book_id',
+				'ref_table' => 'books',
+				'ref_table_fqn' => "$dbName.books",
 				'ref_column' => 'id',
 			],
 		], $keys);

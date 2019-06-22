@@ -1,15 +1,15 @@
 TRUNCATE books_x_tags CASCADE;
 TRUNCATE books CASCADE;
 TRUNCATE tags CASCADE;
-TRUNCATE authors CASCADE;
+TRUNCATE second_schema.authors CASCADE;
 TRUNCATE publishers CASCADE;
 TRUNCATE tag_followers CASCADE;
 
 
-INSERT INTO "authors" ("id", "name", "web", "born") VALUES (1, 'Writer 1', 'http://example.com/1', NULL);
-INSERT INTO "authors" ("id", "name", "web", "born") VALUES (2, 'Writer 2', 'http://example.com/2', NULL);
+INSERT INTO "second_schema"."authors" ("id", "name", "web", "born") VALUES (1, 'Writer 1', 'http://example.com/1', NULL);
+INSERT INTO "second_schema"."authors" ("id", "name", "web", "born") VALUES (2, 'Writer 2', 'http://example.com/2', NULL);
 
-SELECT setval('authors_id_seq', 2, TRUE);
+SELECT setval('second_schema.authors_id_seq', 2, TRUE);
 
 
 INSERT INTO "publishers" ("id", "name") VALUES (1, 'Nextras publisher');
