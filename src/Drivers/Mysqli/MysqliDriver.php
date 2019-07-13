@@ -367,7 +367,7 @@ class MysqliDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException($error, $errorNo, $sqlState, $query = null)
+	protected function createException($error, int $errorNo, $sqlState, $query = null)
 	{
 		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
