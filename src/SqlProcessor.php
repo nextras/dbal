@@ -399,7 +399,7 @@ class SqlProcessor
 		$values = [];
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
-			$column = $this->identifierToSql($key{0});
+			$column = $this->identifierToSql($key[0]);
 			$expr = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 			$values[] = "$column = $expr";
 		}
