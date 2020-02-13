@@ -64,7 +64,7 @@ class PostgreSqlPlatform implements IPlatform
 				CASE WHEN a.atttypmod = -1 THEN NULL ELSE a.atttypmod -4 END AS size,
 				pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass)::varchar AS default,
 				coalesce(co.contype = 'p', FALSE) AS is_primary,
-				coalesce(co.contype = 'p' AND strpos(ad.adsrc, 'nextval') = 1, FALSE) AS is_autoincrement,
+				coalesce(co.contype = 'p' AND strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1, FALSE) AS is_autoincrement,
 				FALSE AS is_unsigned,
 				NOT (a.attnotnull OR t.typtype = 'd' AND t.typnotnull) AS is_nullable,
 				substring(pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass) from %s) AS sequence
