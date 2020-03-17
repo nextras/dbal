@@ -155,7 +155,7 @@ class PlatformSqlServerTest extends IntegrationTestCase
 				'schema' => 'dbo',
 				'column' => 'author_id',
 				'refTable' => 'authors',
-				'refTableSchema' => 'dbo',
+				'refTableSchema' => 'second_schema',
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
@@ -179,10 +179,32 @@ class PlatformSqlServerTest extends IntegrationTestCase
 				'schema' => 'dbo',
 				'column' => 'translator_id',
 				'refTable' => 'authors',
-				'refTableSchema' => 'dbo',
+				'refTableSchema' => 'second_schema',
 				'refColumn' => 'id',
 			],
 		], $keys);
+
+		$this->connection->query("DROP TABLE IF EXISTS second_schema.book_fk");
+		$this->connection->query("
+			CREATE TABLE second_schema.book_fk (
+				book_id int NOT NULL,
+				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES dbo.books (id) ON DELETE CASCADE ON UPDATE CASCADE
+			);
+		");
+
+		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('second_schema.book_fk');
+		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
+
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'schema' => 'second_schema',
+				'column' => 'book_id',
+				'refTable' => 'books',
+				'refTableSchema' => 'dbo',
+				'refColumn' => 'id',
+			],
+		], $schemaKeys);
 	}
 
 

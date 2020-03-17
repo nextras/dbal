@@ -119,6 +119,14 @@ class SqlServerPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getForeignKeys(string $table): array
 	{
+		$parts = \explode('.', $table);
+		if (\count($parts) === 2) {
+			$schema = $parts[0];
+			$table = $parts[1];
+		} else {
+			$schema = null;
+		}
+
 		$result = $this->connection->query("
 			SELECT
 				[a].[CONSTRAINT_NAME] AS [name],
@@ -141,9 +149,9 @@ class SqlServerPlatform implements IPlatform
 					ON [i1].[CONSTRAINT_NAME] = [i2].[CONSTRAINT_NAME]
 				WHERE [i1].[CONSTRAINT_TYPE] = 'PRIMARY KEY'
 			) AS [e] ON [e].[TABLE_NAME] = [c].[TABLE_NAME]
-			WHERE [b].[TABLE_NAME] = %s
+			WHERE [b].[TABLE_NAME] = %s AND [d].[TABLE_SCHEMA] = COALESCE(%?s, SCHEMA_NAME())
 			ORDER BY [d].[COLUMN_NAME]
-		", $table);
+		", $table, $schema);
 
 		$keys = [];
 		foreach ($result as $row) {
