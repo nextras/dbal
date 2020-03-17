@@ -9,6 +9,9 @@
 namespace Nextras\Dbal\Platforms;
 
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\Platforms\Data\Column;
+use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Table;
 
 
 class MySqlPlatform implements IPlatform
@@ -29,44 +32,60 @@ class MySqlPlatform implements IPlatform
 	}
 
 
+	/** @inheritDoc */
 	public function getTables(): array
 	{
+		$result = $this->connection->query('
+			SELECT
+				TABLE_SCHEMA,
+				TABLE_NAME,
+				TABLE_TYPE
+			FROM information_schema.TABLES
+			WHERE TABLE_SCHEMA = DATABASE()
+		');
+
 		$tables = [];
-		foreach ($this->connection->query('SHOW FULL TABLES') as $row) {
-			$row = array_values($row->toArray());
-			$tables[$row[0]] = [
-				'name' => $row[0],
-				'is_view' => isset($row[1]) && $row[1] === 'VIEW',
-			];
+		foreach ($result as $row) {
+			$table = new Table();
+			$table->name = $row->TABLE_NAME;
+			$table->schema = $row->TABLE_SCHEMA;
+			$table->isView = $row->TABLE_TYPE === 'VIEW';
+
+			$tables[$table->getNameFqn()] = $table;
 		}
 		return $tables;
 	}
 
 
+	/** @inheritDoc */
 	public function getColumns(string $table): array
 	{
 		$columns = [];
 		foreach ($this->connection->query('SHOW FULL COLUMNS FROM %table', $table) as $row) {
 			$type = explode('(', $row->Type);
-			$columns[$row->Field] = [
-				'name' => $row->Field,
-				'type' => strtoupper($type[0]),
-				'size' => isset($type[1]) ? (int) $type[1] : null,
-				'default' => $row->Default,
-				'is_primary' => $row->Key === 'PRI',
-				'is_autoincrement' => $row->Extra === 'auto_increment',
-				'is_unsigned' => (bool) strstr($row->Type, 'unsigned'),
-				'is_nullable' => $row->Null === 'YES',
-			];
+
+			$column = new Column();
+			$column->name = $row->Field;
+			$column->type = \strtoupper($type[0]);
+			$column->size = isset($type[1]) ? (int) $type[1] : null;
+			$column->default = $row->Default;
+			$column->isPrimary = $row->Key === 'PRI';
+			$column->isAutoincrement = $row->Extra === 'auto_increment';
+			$column->isUnsigned = (bool) \strstr($row->Type, 'unsigned');
+			$column->isNullable = $row->Null === 'YES';
+			$column->meta = [];
+
+			$columns[$column->name] = $column;
 		}
 		return $columns;
 	}
 
 
+	/** @inheritDoc */
 	public function getForeignKeys(string $table): array
 	{
-		$parts = explode('.', $table);
-		if (count($parts) === 2) {
+		$parts = \explode('.', $table);
+		if (\count($parts) === 2) {
 			$db = $parts[0];
 			$table = $parts[1];
 		} else {
@@ -75,7 +94,12 @@ class MySqlPlatform implements IPlatform
 
 		$result = $this->connection->query('
 			SELECT
-				CONSTRAINT_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME, REFERENCED_TABLE_SCHEMA
+				CONSTRAINT_NAME,
+				CONSTRAINT_SCHEMA,
+				COLUMN_NAME,
+				REFERENCED_TABLE_NAME,
+				REFERENCED_COLUMN_NAME,
+				REFERENCED_TABLE_SCHEMA
 			FROM
 				information_schema.KEY_COLUMN_USAGE
 			WHERE
@@ -88,13 +112,15 @@ class MySqlPlatform implements IPlatform
 
 		$keys = [];
 		foreach ($result as $row) {
-			$keys[$row->COLUMN_NAME] = [
-				'name' => $row->CONSTRAINT_NAME,
-				'column' => $row->COLUMN_NAME,
-				'ref_table' => $row->REFERENCED_TABLE_NAME,
-				'ref_table_fqn' => "$row->REFERENCED_TABLE_SCHEMA.$row->REFERENCED_TABLE_NAME",
-				'ref_column' => $row->REFERENCED_COLUMN_NAME,
-			];
+			$foreignKey = new ForeignKey();
+			$foreignKey->name = $row->CONSTRAINT_NAME;
+			$foreignKey->schema = $row->CONSTRAINT_SCHEMA;
+			$foreignKey->column = $row->COLUMN_NAME;
+			$foreignKey->refTable = $row->REFERENCED_TABLE_NAME;
+			$foreignKey->refTableSchema = $row->REFERENCED_TABLE_SCHEMA;
+			$foreignKey->refColumn = $row->REFERENCED_COLUMN_NAME;
+
+			$keys[$foreignKey->column] = $foreignKey;
 		}
 		return $keys;
 	}

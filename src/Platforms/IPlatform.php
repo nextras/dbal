@@ -8,6 +8,10 @@
 
 namespace Nextras\Dbal\Platforms;
 
+use Nextras\Dbal\Platforms\Data\Column;
+use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Table;
+
 
 interface IPlatform
 {
@@ -22,19 +26,25 @@ interface IPlatform
 
 
 	/**
-	 * Returns list of tables names indexed by table name.
+	 * Returns list of tables names indexed by FQN table name.
+	 * @return Table[]
+	 * @phpstan-return array<string, Table>
 	 */
 	public function getTables(): array;
 
 
 	/**
 	 * Returns list of table columns metadata, indexed by column name.
+	 * @return Column[]
+	 * @phpstan-return array<string, Column>
 	 */
 	public function getColumns(string $table): array;
 
 
 	/**
 	 * Returns list of table foreign keys, indexed by column name.
+	 * @return ForeignKey[]
+	 * @phpstan-return array<string, ForeignKey>
 	 */
 	public function getForeignKeys(string $table): array;
 

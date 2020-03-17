@@ -19,139 +19,137 @@ class PlatformPostgreTest extends IntegrationTestCase
 	{
 		$tables = $this->connection->getPlatform()->getTables();
 
-		Assert::true(isset($tables['books']));
-		Assert::same([
-			'name' => 'books',
-			'is_view' => false,
-			'full_name' => 'public.books',
-		], $tables['books']);
+		Assert::true(isset($tables["public.books"]));
+		Assert::same('books', $tables["public.books"]->name);
+		Assert::same(false, $tables["public.books"]->isView);
 
-		Assert::true(isset($tables['my_books']));
-		Assert::same([
-			'name' => 'my_books',
-			'is_view' => true,
-			'full_name' => 'public.my_books',
-		], $tables['my_books']);
+		Assert::true(isset($tables["public.my_books"]));
+		Assert::same('my_books', $tables["public.my_books"]->name);
+		Assert::same(true, $tables["public.my_books"]->isView);
 	}
 
 
 	public function testColumns()
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
+		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
+
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT4',
 				'size' => null,
 				'default' => "nextval('books_id_seq'::regclass)",
-				'is_primary' => true,
-				'is_autoincrement' => true,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => 'books_id_seq',
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => ['sequence' => 'books_id_seq'],
 			],
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT4',
 				'size' => null,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'translator_id' => [
 				'name' => 'translator_id',
 				'type' => 'INT4',
 				'size' => null,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 			'title' => [
 				'name' => 'title',
 				'type' => 'VARCHAR',
 				'size' => 50,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'publisher_id' => [
 				'name' => 'publisher_id',
 				'type' => 'INT4',
 				'size' => null,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'ean_id' => [
 				'name' => 'ean_id',
 				'type' => 'INT4',
 				'size' => null,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 		], $columns);
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns('second_schema.authors');
+		$schemaColumns = \array_map(function ($column) { return (array) $column; }, $schemaColumns);
+
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT4',
 				'size' => null,
 				'default' => "nextval('second_schema.authors_id_seq'::regclass)",
-				'is_primary' => true,
-				'is_autoincrement' => true,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => 'second_schema.authors_id_seq',
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => ['sequence' => 'second_schema.authors_id_seq'],
 			],
 			'name' => [
 				'name' => 'name',
 				'type' => 'VARCHAR',
 				'size' => 50,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'web' => [
 				'name' => 'web',
 				'type' => 'VARCHAR',
 				'size' => 100,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'born' => [
 				'name' => 'born',
 				'type' => 'DATE',
 				'size' => null,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
-				'sequence' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 		], $schemaColumns);
 	}
@@ -160,30 +158,40 @@ class PlatformPostgreTest extends IntegrationTestCase
 	public function testForeignKeys()
 	{
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
+		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
+
 		Assert::same([
 			'author_id' => [
 				'name' => 'books_authors',
+				'schema' => 'public',
 				'column' => 'author_id',
-				'ref_table' => 'second_schema.authors',
-				'ref_column' => 'id',
+				'refTable' => 'authors',
+				'refTableSchema' => 'second_schema',
+				'refColumn' => 'id',
 			],
 			'translator_id' => [
 				'name' => 'books_translator',
+				'schema' => 'public',
 				'column' => 'translator_id',
-				'ref_table' => 'second_schema.authors',
-				'ref_column' => 'id',
+				'refTable' => 'authors',
+				'refTableSchema' => 'second_schema',
+				'refColumn' => 'id',
 			],
 			'publisher_id' => [
 				'name' => 'books_publisher',
+				'schema' => 'public',
 				'column' => 'publisher_id',
-				'ref_table' => 'public.publishers',
-				'ref_column' => 'id',
+				'refTable' => 'publishers',
+				'refTableSchema' => 'public',
+				'refColumn' => 'id',
 			],
 			'ean_id' => [
 				'name' => 'books_ean',
+				'schema' => 'public',
 				'column' => 'ean_id',
-				'ref_table' => 'public.eans',
-				'ref_column' => 'id',
+				'refTable' => 'eans',
+				'refTableSchema' => 'public',
+				'refColumn' => 'id',
 			],
 		], $keys);
 
@@ -196,12 +204,16 @@ class PlatformPostgreTest extends IntegrationTestCase
 		");
 
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('second_schema.book_fk');
+		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
+
 		Assert::same([
 			'book_id' => [
 				'name' => 'book_id',
+				'schema' => 'second_schema',
 				'column' => 'book_id',
-				'ref_table' => 'public.books',
-				'ref_column' => 'id',
+				'refTable' => 'books',
+				'refTableSchema' => 'public',
+				'refColumn' => 'id',
 			],
 		], $schemaKeys);
 	}
