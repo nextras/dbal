@@ -13,6 +13,8 @@ use Nette\Caching\Cache;
 
 class CachedPlatform implements IPlatform
 {
+	private const CACHE_VERSION = 'v2';
+
 	/** @var IPlatform */
 	private $platform;
 
@@ -35,7 +37,7 @@ class CachedPlatform implements IPlatform
 
 	public function getTables(): array
 	{
-		return $this->cache->load('tables', function () {
+		return $this->cache->load(self::CACHE_VERSION . '.tables', function () {
 			return $this->platform->getTables();
 		});
 	}
@@ -43,7 +45,7 @@ class CachedPlatform implements IPlatform
 
 	public function getColumns(string $table): array
 	{
-		return $this->cache->load('columns.' . $table, function () use ($table) {
+		return $this->cache->load(self::CACHE_VERSION . '.columns.' . $table, function () use ($table) {
 			return $this->platform->getColumns($table);
 		});
 	}
@@ -51,7 +53,7 @@ class CachedPlatform implements IPlatform
 
 	public function getForeignKeys(string $table): array
 	{
-		return $this->cache->load('foreign_keys.' . $table, function () use ($table) {
+		return $this->cache->load(self::CACHE_VERSION . '.foreign_keys.' . $table, function () use ($table) {
 			return $this->platform->getForeignKeys($table);
 		});
 	}
@@ -59,7 +61,7 @@ class CachedPlatform implements IPlatform
 
 	public function getPrimarySequenceName(string $table): ?string
 	{
-		return $this->cache->load('sequence.' . $table, function () use ($table) {
+		return $this->cache->load(self::CACHE_VERSION . '.sequence.' . $table, function () use ($table) {
 			return [$this->platform->getPrimarySequenceName($table)];
 		})[0];
 	}
