@@ -1,15 +1,15 @@
 DELETE FROM books_x_tags DBCC CHECKIDENT ('books_x_tags', RESEED, 0);
 DELETE FROM books DBCC CHECKIDENT ('books', RESEED, 0);
 DELETE FROM tags DBCC CHECKIDENT ('tags', RESEED, 0);
-DELETE FROM authors DBCC CHECKIDENT ('authors', RESEED, 0);
+DELETE FROM second_schema.authors DBCC CHECKIDENT ('authors', RESEED, 0);
 DELETE FROM publishers DBCC CHECKIDENT ('publishers', RESEED, 0);
 DELETE FROM tag_followers DBCC CHECKIDENT ('tag_followers', RESEED, 0);
 
 
-SET IDENTITY_INSERT authors ON;
-INSERT INTO authors (id, name, web, born) VALUES (1, 'Writer 1', 'http://example.com/1', NULL);
-INSERT INTO authors (id, name, web, born) VALUES (2, 'Writer 2', 'http://example.com/2', NULL);
-SET IDENTITY_INSERT authors OFF;
+SET IDENTITY_INSERT second_schema.authors ON;
+INSERT INTO second_schema.authors (id, name, web, born) VALUES (1, 'Writer 1', 'http://example.com/1', NULL);
+INSERT INTO second_schema.authors (id, name, web, born) VALUES (2, 'Writer 2', 'http://example.com/2', NULL);
+SET IDENTITY_INSERT second_schema.authors OFF;
 
 
 SET IDENTITY_INSERT publishers ON;

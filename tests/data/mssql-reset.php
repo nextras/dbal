@@ -9,4 +9,5 @@ return function (Connection $connection, $dbname) {
 	$connection->query('CREATE DATABASE %table', $dbname);
 
 	$connection->reconnectWithConfig(['database' => $dbname]);
+	$connection->query('CREATE SCHEMA second_schema');
 };

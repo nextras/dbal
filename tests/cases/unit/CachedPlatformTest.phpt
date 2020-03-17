@@ -42,7 +42,7 @@ class CachedPlatformTest extends TestCase
 	public function testCachedColumn()
 	{
 		$expectedCols = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with("\x0005ea2f805e9af249b1ac88227bef0153")->once()->andReturn($expectedCols);
+		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturn($expectedCols);
 
 		$cols = $this->platform->getColumns('foo');
 		Assert::same($expectedCols, $cols);
@@ -55,9 +55,9 @@ class CachedPlatformTest extends TestCase
 	public function testQueryColumn()
 	{
 		$expectedCols = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with("\x0005ea2f805e9af249b1ac88227bef0153")->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with("\x0005ea2f805e9af249b1ac88227bef0153")->once();
-		$this->storageMock->shouldReceive('write')->with("\x0005ea2f805e9af249b1ac88227bef0153", $expectedCols, [])->once();
+		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
+		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
+		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedCols, [])->once();
 		$this->platformMock->shouldReceive('getColumns')->with('foo')->once()->andReturn($expectedCols);
 
 		$cols = $this->platform->getColumns('foo');
@@ -68,9 +68,9 @@ class CachedPlatformTest extends TestCase
 	public function testQueryTables()
 	{
 		$expectedTables = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with("\x009ab2ec7ea4a2041306f7bdf150fcd453")->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with("\x009ab2ec7ea4a2041306f7bdf150fcd453")->once();
-		$this->storageMock->shouldReceive('write')->with("\x009ab2ec7ea4a2041306f7bdf150fcd453", $expectedTables, [])->once();
+		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
+		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
+		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedTables, [])->once();
 		$this->platformMock->shouldReceive('getTables')->once()->andReturn($expectedTables);
 
 		$cols = $this->platform->getTables();
@@ -81,9 +81,9 @@ class CachedPlatformTest extends TestCase
 	public function testQueryFk()
 	{
 		$expectedFk = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with("\x00863afe09d043892931f27823c1905607")->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with("\x00863afe09d043892931f27823c1905607")->once();
-		$this->storageMock->shouldReceive('write')->with("\x00863afe09d043892931f27823c1905607", $expectedFk, [])->once();
+		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
+		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
+		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedFk, [])->once();
 		$this->platformMock->shouldReceive('getForeignKeys')->with('foo')->once()->andReturn($expectedFk);
 
 		$cols = $this->platform->getForeignKeys('foo');
@@ -94,9 +94,9 @@ class CachedPlatformTest extends TestCase
 	public function testQueryPS()
 	{
 		$expectedPs = 'ps_name';
-		$this->storageMock->shouldReceive('read')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once();
-		$this->storageMock->shouldReceive('write')->with("\x007d7dae355d8345dd9301de988fd0eff7", [$expectedPs], [])->once();
+		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
+		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
+		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), [$expectedPs], [])->once();
 		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn($expectedPs);
 
 		$cols = $this->platform->getPrimarySequenceName('foo');
@@ -104,9 +104,9 @@ class CachedPlatformTest extends TestCase
 
 
 		$expectedPs = null;
-		$this->storageMock->shouldReceive('read')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with("\x007d7dae355d8345dd9301de988fd0eff7")->once();
-		$this->storageMock->shouldReceive('write')->with("\x007d7dae355d8345dd9301de988fd0eff7", [null], [])->once();
+		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
+		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
+		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), [null], [])->once();
 		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn(null);
 
 		$cols = $this->platform->getPrimarySequenceName('foo');

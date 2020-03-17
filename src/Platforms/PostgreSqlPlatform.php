@@ -9,6 +9,9 @@
 namespace Nextras\Dbal\Platforms;
 
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\Platforms\Data\Column;
+use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Table;
 
 
 class PostgreSqlPlatform implements IPlatform
@@ -29,14 +32,15 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
+	/** @inheritDoc */
 	public function getTables(): array
 	{
 		$result = $this->connection->query("
 			SELECT
 				DISTINCT ON (c.relname)
 				c.relname::varchar AS name,
-				c.relkind = 'v' AS is_view,
-				n.nspname::varchar || '.' || c.relname::varchar AS full_name
+				n.nspname::varchar AS schema,
+				c.relkind = 'v' AS is_view
 			FROM
 				pg_catalog.pg_class AS c
 				JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
@@ -49,12 +53,18 @@ class PostgreSqlPlatform implements IPlatform
 
 		$tables = [];
 		foreach ($result as $row) {
-			$tables[$row->name] = $row->toArray();
+			$table = new Table();
+			$table->name = $row->name;
+			$table->schema = $row->schema;
+			$table->isView = $row->is_view;
+
+			$tables[$table->getNameFqn()] = $table;
 		}
 		return $tables;
 	}
 
 
+	/** @inheritDoc */
 	public function getColumns(string $table): array
 	{
 		$result = $this->connection->query("
@@ -65,7 +75,6 @@ class PostgreSqlPlatform implements IPlatform
 				pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass)::varchar AS default,
 				coalesce(co.contype = 'p', FALSE) AS is_primary,
 				coalesce(co.contype = 'p' AND strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1, FALSE) AS is_autoincrement,
-				FALSE AS is_unsigned,
 				NOT (a.attnotnull OR t.typtype = 'd' AND t.typnotnull) AS is_nullable,
 				substring(pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass) from %s) AS sequence
 			FROM
@@ -85,27 +94,42 @@ class PostgreSqlPlatform implements IPlatform
 
 		$columns = [];
 		foreach ($result as $row) {
-			$columns[$row->name] = $row->toArray();
+			$column = new Column();
+			$column->name = $row->name;
+			$column->type = $row->type;
+			$column->size = $row->size;
+			$column->default = $row->default;
+			$column->isPrimary = $row->is_primary;
+			$column->isAutoincrement = $row->is_autoincrement;
+			$column->isUnsigned = false;
+			$column->isNullable = $row->is_nullable;
+			$column->meta = !empty($row->sequence) ? ['sequence' => $row->sequence] : [];
+
+			$columns[$column->name] = $column;
 		}
 		return $columns;
 	}
 
 
+	/** @inheritDoc */
 	public function getForeignKeys(string $table): array
 	{
 		$result = $this->connection->query("
 			SELECT
 				co.conname::varchar AS name,
-				al.attname::varchar AS column,
-				nf.nspname || '.' || cf.relname::varchar AS ref_table,
-				af.attname::varchar AS ref_column
+				ns.nspname::varchar AS schema,
+				at.attname::varchar AS column,
+				clf.relname::varchar AS ref_table,
+				nsf.nspname::varchar AS ref_table_schema,
+				atf.attname::varchar AS ref_column
 			FROM
 				pg_catalog.pg_constraint AS co
 				JOIN pg_catalog.pg_class AS cl ON co.conrelid = cl.oid
-				JOIN pg_catalog.pg_class AS cf ON co.confrelid = cf.oid
-				JOIN pg_catalog.pg_namespace AS nf ON nf.oid = cf.relnamespace
-				JOIN pg_catalog.pg_attribute AS al ON al.attrelid = cl.oid AND al.attnum = %raw
-				JOIN pg_catalog.pg_attribute AS af ON af.attrelid = cf.oid AND af.attnum = %raw
+				JOIN pg_catalog.pg_class AS clf ON co.confrelid = clf.oid
+				JOIN pg_catalog.pg_namespace AS ns ON ns.oid = cl.relnamespace
+				JOIN pg_catalog.pg_namespace AS nsf ON nsf.oid = clf.relnamespace
+				JOIN pg_catalog.pg_attribute AS at ON at.attrelid = cl.oid AND at.attnum = %raw
+				JOIN pg_catalog.pg_attribute AS atf ON atf.attrelid = clf.oid AND atf.attnum = %raw
 			WHERE
 				co.contype = 'f'
 				AND cl.oid = '%column'::regclass
@@ -113,7 +137,15 @@ class PostgreSqlPlatform implements IPlatform
 
 		$keys = [];
 		foreach ($result as $row) {
-			$keys[$row->column] = $row->toArray();
+			$foreignKey = new ForeignKey();
+			$foreignKey->name = $row->name;
+			$foreignKey->schema = $row->schema;
+			$foreignKey->column = $row->column;
+			$foreignKey->refTable = $row->ref_table;
+			$foreignKey->refTableSchema = $row->ref_table_schema;
+			$foreignKey->refColumn = $row->ref_column;
+
+			$keys[$foreignKey->column] = $foreignKey;
 		}
 		return $keys;
 	}
@@ -122,8 +154,8 @@ class PostgreSqlPlatform implements IPlatform
 	public function getPrimarySequenceName(string $table): ?string
 	{
 		foreach ($this->getColumns($table) as $column) {
-			if ($column['is_primary']) {
-				return $column['sequence'];
+			if ($column->isPrimary) {
+				return $column->meta['sequence'];
 			}
 		}
 		return null;

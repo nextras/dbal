@@ -1,4 +1,4 @@
-CREATE TABLE authors (
+CREATE TABLE second_schema.authors (
 	id int NOT NULL IDENTITY(11,1),
 	name varchar(50) NOT NULL,
 	web varchar(100) NOT NULL,
@@ -35,8 +35,8 @@ CREATE TABLE books (
 	publisher_id int NOT NULL,
 	ean_id int,
 	PRIMARY KEY (id),
-	CONSTRAINT books_authors FOREIGN KEY (author_id) REFERENCES authors (id),
-	CONSTRAINT books_translator FOREIGN KEY (translator_id) REFERENCES authors (id),
+	CONSTRAINT books_authors FOREIGN KEY (author_id) REFERENCES second_schema.authors (id),
+	CONSTRAINT books_translator FOREIGN KEY (translator_id) REFERENCES second_schema.authors (id),
 	CONSTRAINT books_publisher FOREIGN KEY (publisher_id) REFERENCES publishers (id),
 	CONSTRAINT books_ean FOREIGN KEY (ean_id) REFERENCES eans (id)
 );
@@ -59,7 +59,7 @@ CREATE TABLE tag_followers (
 	created_at datetimeoffset NOT NULL,
 	PRIMARY KEY (tag_id, author_id),
 	CONSTRAINT tag_followers_tag FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT tag_followers_author FOREIGN KEY (author_id) REFERENCES authors (id) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT tag_followers_author FOREIGN KEY (author_id) REFERENCES second_schema.authors (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE table_with_defaults (

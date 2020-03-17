@@ -19,117 +19,126 @@ class PlatformSqlServerTest extends IntegrationTestCase
 	{
 		$tables = $this->connection->getPlatform()->getTables();
 
-		Assert::true(isset($tables['books']));
-		Assert::same([
-			'name' => 'books',
-			'is_view' => false,
-		], $tables['books']);
+		Assert::true(isset($tables["dbo.books"]));
+		Assert::same('books', $tables["dbo.books"]->name);
+		Assert::same(false, $tables["dbo.books"]->isView);
 
-		Assert::true(isset($tables['my_books']));
-		Assert::same([
-			'name' => 'my_books',
-			'is_view' => true,
-		], $tables['my_books']);
+		Assert::true(isset($tables["dbo.my_books"]));
+		Assert::same('my_books', $tables["dbo.my_books"]->name);
+		Assert::same(true, $tables["dbo.my_books"]->isView);
 	}
 
 
 	public function testColumns()
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
+		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
+
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => true,
-				'is_autoincrement' => true,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'translator_id' => [
 				'name' => 'translator_id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 			'title' => [
 				'name' => 'title',
 				'type' => 'VARCHAR',
 				'size' => 50,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'publisher_id' => [
 				'name' => 'publisher_id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'ean_id' => [
 				'name' => 'ean_id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 		], $columns);
 
 		$columns = $this->connection->getPlatform()->getColumns('tag_followers');
+		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
+
 		Assert::same([
 			'tag_id' => [
 				'name' => 'tag_id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => true,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => true,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
-				'is_primary' => true,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => true,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'created_at' => [
 				'name' => 'created_at',
 				'type' => 'DATETIMEOFFSET',
 				'size' => null,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 		], $columns);
 	}
@@ -138,32 +147,64 @@ class PlatformSqlServerTest extends IntegrationTestCase
 	public function testForeignKeys()
 	{
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
+		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
+
 		Assert::same([
 			'author_id' => [
 				'name' => 'books_authors',
+				'schema' => 'dbo',
 				'column' => 'author_id',
-				'ref_table' => 'authors',
-				'ref_column' => 'id',
+				'refTable' => 'authors',
+				'refTableSchema' => 'second_schema',
+				'refColumn' => 'id',
 			],
 			'ean_id' => [
 				'name' => 'books_ean',
+				'schema' => 'dbo',
 				'column' => 'ean_id',
-				'ref_table' => 'eans',
-				'ref_column' => 'id',
+				'refTable' => 'eans',
+				'refTableSchema' => 'dbo',
+				'refColumn' => 'id',
 			],
 			'publisher_id' => [
 				'name' => 'books_publisher',
+				'schema' => 'dbo',
 				'column' => 'publisher_id',
-				'ref_table' => 'publishers',
-				'ref_column' => 'id',
+				'refTable' => 'publishers',
+				'refTableSchema' => 'dbo',
+				'refColumn' => 'id',
 			],
 			'translator_id' => [
 				'name' => 'books_translator',
+				'schema' => 'dbo',
 				'column' => 'translator_id',
-				'ref_table' => 'authors',
-				'ref_column' => 'id',
+				'refTable' => 'authors',
+				'refTableSchema' => 'second_schema',
+				'refColumn' => 'id',
 			],
 		], $keys);
+
+		$this->connection->query("DROP TABLE IF EXISTS second_schema.book_fk");
+		$this->connection->query("
+			CREATE TABLE second_schema.book_fk (
+				book_id int NOT NULL,
+				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES dbo.books (id) ON DELETE CASCADE ON UPDATE CASCADE
+			);
+		");
+
+		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('second_schema.book_fk');
+		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
+
+		Assert::same([
+			'book_id' => [
+				'name' => 'book_id',
+				'schema' => 'second_schema',
+				'column' => 'book_id',
+				'refTable' => 'books',
+				'refTableSchema' => 'dbo',
+				'refColumn' => 'id',
+			],
+		], $schemaKeys);
 	}
 
 

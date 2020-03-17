@@ -17,85 +17,90 @@ class PlatformMysqlTest extends IntegrationTestCase
 {
 	public function testTables()
 	{
+		$dbName = $this->connection->getConfig()['database'];
 		$tables = $this->connection->getPlatform()->getTables();
 
-		Assert::true(isset($tables['books']));
-		Assert::same([
-			'name' => 'books',
-			'is_view' => false,
-		], $tables['books']);
+		Assert::true(isset($tables["$dbName.books"]));
+		Assert::same('books', $tables["$dbName.books"]->name);
+		Assert::same(false, $tables["$dbName.books"]->isView);
 
-		Assert::true(isset($tables['my_books']));
-		Assert::same([
-			'name' => 'my_books',
-			'is_view' => true,
-		], $tables['my_books']);
+		Assert::true(isset($tables["$dbName.my_books"]));
+		Assert::same('my_books', $tables["$dbName.my_books"]->name);
+		Assert::same(true, $tables["$dbName.my_books"]->isView);
 	}
 
 
 	public function testColumns()
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
+		$columns = \array_map(function ($table) { return (array) $table; }, $columns);
+
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT',
 				'size' => 11,
 				'default' => null,
-				'is_primary' => true,
-				'is_autoincrement' => true,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT',
 				'size' => 11,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'translator_id' => [
 				'name' => 'translator_id',
 				'type' => 'INT',
 				'size' => 11,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 			'title' => [
 				'name' => 'title',
 				'type' => 'VARCHAR',
 				'size' => 50,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'publisher_id' => [
 				'name' => 'publisher_id',
 				'type' => 'INT',
 				'size' => 11,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 			'ean_id' => [
 				'name' => 'ean_id',
 				'type' => 'INT',
 				'size' => 11,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => true,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
 			],
 		], $columns);
 
@@ -108,16 +113,18 @@ class PlatformMysqlTest extends IntegrationTestCase
 		");
 
 		$columns = $this->connection->getPlatform()->getColumns("$dbName2.book_cols");
+		$columns = \array_map(function ($table) { return (array) $table; }, $columns);
 		Assert::same([
 			'book_id' => [
 				'name' => 'book_id',
 				'type' => 'INT',
 				'size' => 11,
 				'default' => null,
-				'is_primary' => false,
-				'is_autoincrement' => false,
-				'is_unsigned' => false,
-				'is_nullable' => false,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
 			],
 		], $columns);
 	}
@@ -127,34 +134,40 @@ class PlatformMysqlTest extends IntegrationTestCase
 	{
 		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
+		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
+
 		Assert::same([
 			'author_id' => [
 				'name' => 'books_authors',
+				'schema' => $dbName,
 				'column' => 'author_id',
-				'ref_table' => 'authors',
-				'ref_table_fqn' => "$dbName.authors",
-				'ref_column' => 'id',
+				'refTable' => 'authors',
+				'refTableSchema' => $dbName,
+				'refColumn' => 'id',
 			],
 			'ean_id' => [
 				'name' => 'books_ean',
+				'schema' => $dbName,
 				'column' => 'ean_id',
-				'ref_table' => 'eans',
-				'ref_table_fqn' => "$dbName.eans",
-				'ref_column' => 'id',
+				'refTable' => 'eans',
+				'refTableSchema' => $dbName,
+				'refColumn' => 'id',
 			],
 			'publisher_id' => [
 				'name' => 'books_publisher',
+				'schema' => $dbName,
 				'column' => 'publisher_id',
-				'ref_table' => 'publishers',
-				'ref_table_fqn' => "$dbName.publishers",
-				'ref_column' => 'id',
+				'refTable' => 'publishers',
+				'refTableSchema' => $dbName,
+				'refColumn' => 'id',
 			],
 			'translator_id' => [
 				'name' => 'books_translator',
+				'schema' => $dbName,
 				'column' => 'translator_id',
-				'ref_table' => 'authors',
-				'ref_table_fqn' => "$dbName.authors",
-				'ref_column' => 'id',
+				'refTable' => 'authors',
+				'refTableSchema' => $dbName,
+				'refColumn' => 'id',
 			],
 		], $keys);
 
@@ -166,14 +179,17 @@ class PlatformMysqlTest extends IntegrationTestCase
 				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES $dbName.books (id) ON DELETE CASCADE ON UPDATE CASCADE
 			);
 		");
+
 		$keys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
+		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
 		Assert::same([
 			'book_id' => [
 				'name' => 'book_id',
+				'schema' => $dbName2,
 				'column' => 'book_id',
-				'ref_table' => 'books',
-				'ref_table_fqn' => "$dbName.books",
-				'ref_column' => 'id',
+				'refTable' => 'books',
+				'refTableSchema' => $dbName,
+				'refColumn' => 'id',
 			],
 		], $keys);
 	}
