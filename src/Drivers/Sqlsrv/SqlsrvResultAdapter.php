@@ -14,7 +14,10 @@ use Nextras\Dbal\InvalidStateException;
 
 class SqlsrvResultAdapter implements IResultAdapter
 {
-	/** @var array */
+	/**
+	 * @var array
+	 * @phpstan-var array<int, int>
+	 */
 	protected static $types = [
 		SqlsrvResultTypes::TYPE_INT                               => self::TYPE_INT,
 		SqlsrvResultTypes::TYPE_BIT                               => self::TYPE_BOOL,
@@ -33,6 +36,9 @@ class SqlsrvResultAdapter implements IResultAdapter
 	private $statement;
 
 
+	/**
+	 * @param resource $statement
+	 */
 	public function __construct($statement)
 	{
 		$this->statement = $statement;
@@ -45,7 +51,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index)
+	public function seek(int $index): void
 	{
 		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && !sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -54,7 +60,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch()
+	public function fetch(): ?array
 	{
 		if ($this->index !== null) {
 			$index = $this->index;
@@ -79,7 +85,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 		$fields = sqlsrv_field_metadata($this->statement) ?: [];
 		foreach ($fields as $field) {
 			$nativeType = $field['Type'];
-			$types[$field['Name']] = [
+			$types[(string) $field['Name']] = [
 				0 => self::$types[$nativeType] ?? self::TYPE_AS_IS,
 				1 => $nativeType,
 			];

@@ -19,6 +19,7 @@ class PgsqlResultAdapter implements IResultAdapter
 
 	/**
 	 * @var array
+	 * @phpstan-var array<string, int>
 	 * @see http://www.postgresql.org/docs/9.4/static/datatype.html
 	 */
 	protected static $types = [
@@ -44,6 +45,9 @@ class PgsqlResultAdapter implements IResultAdapter
 	];
 
 
+	/**
+	 * @param resource $result
+	 */
 	public function __construct($result)
 	{
 		$this->result = $result;
@@ -60,7 +64,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index)
+	public function seek(int $index): void
 	{
 		if (pg_num_rows($this->result) !== 0 && !pg_result_seek($this->result, $index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -68,7 +72,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch()
+	public function fetch(): ?array
 	{
 		return pg_fetch_array($this->result, null, PGSQL_ASSOC) ?: null;
 	}

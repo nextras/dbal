@@ -16,16 +16,28 @@ use Nextras\Dbal\Result\Result;
 
 class Connection implements IConnection
 {
-	/** @var callable[]: function(Connection $connection) */
+	/**
+	 * @var callable[]: function(Connection $connection)
+	 * @phpstan-var array<callable(Connection):void>
+	 */
 	public $onConnect = [];
 
-	/** @var callable[]: function(Connection $connection) */
+	/**
+	 * @var callable[]: function(Connection $connection)
+	 * @phpstan-var array<callable(Connection):void>
+	 */
 	public $onDisconnect = [];
 
-	/** @var callable[]: function(Connection $connection, string $query, float $time, ?Result $result, ?DriverException $exception) */
+	/**
+	 * @var callable[]: function(Connection $connection, string $query, float $time, ?Result $result, ?DriverException $exception)
+	 * @phpstan-var array<callable(Connection, string, float, ?Result, ?DriverException): void>
+	 */
 	public $onQuery = [];
 
-	/** @var array */
+	/**
+	 * @var array
+	 * @phpstan-var array<string, mixed>
+	 */
 	private $config;
 
 	/** @var IDriver */
@@ -49,6 +61,7 @@ class Connection implements IConnection
 
 	/**
 	 * @param  array $config see drivers for supported options
+	 * @phpstan-param  array<string, mixed> $config
 	 */
 	public function __construct(array $config)
 	{
@@ -180,7 +193,7 @@ class Connection implements IConnection
 	}
 
 
-	public function setTransactionIsolationLevel(int $level)
+	public function setTransactionIsolationLevel(int $level): void
 	{
 		$this->driver->setTransactionIsolationLevel($level);
 	}
@@ -357,9 +370,9 @@ class Connection implements IConnection
 
 
 	/**
-	 * @return void
+	 * @phpstan-param array<mixed> $args
 	 */
-	private function fireEvent(string $event, array $args)
+	private function fireEvent(string $event, array $args): void
 	{
 		foreach ($this->$event as $callback) {
 			call_user_func_array($callback, $args);

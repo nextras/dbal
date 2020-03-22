@@ -47,14 +47,14 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $onQueryCallback)
+	public function connect(array $params, callable $onQueryCallback): void
 	{
 		$this->onQueryCallback = $onQueryCallback;
 
 		$host = $params['host'] ?? ini_get('mysqli.default_host');
 		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
 		$dbname = $params['database'] ?? '';
-		$socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket') ?? '';
+		$socket = ($params['unix_socket'] ?? ini_get('mysqli.default_socket')) ?: '';
 		$flags = $params['flags'] ?? 0;
 
 		$this->connection = new mysqli();
@@ -62,7 +62,7 @@ class MysqliDriver implements IDriver
 		if (!@$this->connection->real_connect($host, $params['username'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,
-				$this->connection->connect_errno,
+				(int) $this->connection->connect_errno,
 				@$this->connection->sqlstate ?: 'HY000'
 			);
 		}
@@ -71,7 +71,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if ($this->connection) {
 			$this->connection->close();
@@ -164,7 +164,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function setTransactionIsolationLevel(int $level)
+	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
@@ -215,7 +215,10 @@ class MysqliDriver implements IDriver
 	}
 
 
-	protected function processInitialSettings(array $params)
+	/**
+	 * @phpstan-param array<string, mixed> $params
+	 */
+	protected function processInitialSettings(array $params): void
 	{
 		assert($this->connection !== null);
 
@@ -367,7 +370,7 @@ class MysqliDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException($error, int $errorNo, $sqlState, $query = null)
+	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): \Exception
 	{
 		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
@@ -390,7 +393,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	protected function loggedQuery(string $sql)
+	protected function loggedQuery(string $sql): Result
 	{
 		try {
 			$result = $this->query($sql);

@@ -13,7 +13,10 @@ use Nextras\Dbal\QueryException;
 
 class BluescreenQueryPanel
 {
-	public static function renderBluescreenPanel($exception)
+	/**
+	 * @phpstan-return array{tab: string, panel: string}|null
+	 */
+	public static function renderBluescreenPanel(?\Throwable $exception): ?array
 	{
 		if (!$exception instanceof QueryException || !($query = $exception->getSqlQuery())) {
 			return null;

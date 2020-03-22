@@ -15,7 +15,7 @@ use Nextras\Dbal\InvalidStateException;
 
 class MysqliResultAdapter implements IResultAdapter
 {
-	/** @var array */
+	/** @var array<int, int> */
 	protected static $types = [
 		MYSQLI_TYPE_TIME        => self::TYPE_DRIVER_SPECIFIC,
 		MYSQLI_TYPE_DATE        => self::TYPE_DATETIME,
@@ -39,10 +39,16 @@ class MysqliResultAdapter implements IResultAdapter
 		MYSQLI_TYPE_STRING      => self::TYPE_AS_IS,
 	];
 
-	/** @var mysqli_result */
+	/**
+	 * @var mysqli_result
+	 * @phpstan-var mysqli_result<array<mixed>>
+	 */
 	private $result;
 
 
+	/**
+	 * @phpstan-param mysqli_result<array<mixed>> $result
+	 */
 	public function __construct(mysqli_result $result)
 	{
 		$this->result = $result;
@@ -58,7 +64,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function seek(int $index)
+	public function seek(int $index): void
 	{
 		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {
 			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
@@ -66,7 +72,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch()
+	public function fetch(): ?array
 	{
 		return $this->result->fetch_assoc();
 	}
@@ -79,7 +85,7 @@ class MysqliResultAdapter implements IResultAdapter
 
 		for ($i = 0; $i < $count; $i++) {
 			$field = (array) $this->result->fetch_field_direct($i);
-			$types[$field['name']] = [
+			$types[(string) $field['name']] = [
 				0 => self::$types[$field['type']] ?? self::TYPE_AS_IS,
 				1 => $field['type'],
 			];

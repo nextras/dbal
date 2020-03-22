@@ -42,7 +42,8 @@ interface IConnection
 
 
 	/**
-	 * Reconnects to a database with new configration. Unchanged configuration is reused.
+	 * Reconnects to a database with new configuration. Unchanged configuration is reused.
+	 * @phpstan-param array<string, mixed> $config
 	 */
 	public function reconnectWithConfig(array $config): void;
 
@@ -52,6 +53,7 @@ interface IConnection
 
 	/**
 	 * Returns connection configuration.
+	 * @phpstan-return array<string, mixed>
 	 */
 	public function getConfig(): array;
 
@@ -59,6 +61,7 @@ interface IConnection
 	/**
 	 * Executes a query.
 	 * @param  mixed ...$args
+	 * @phpstan-param array<mixed> ...$args
 	 * @throws QueryException
 	 */
 	public function query(...$args): Result;
@@ -67,6 +70,8 @@ interface IConnection
 	/**
 	 * @param  string|array $query
 	 * @param  array $args
+	 * @phpstan-param string|array<mixed> $query
+	 * @phpstan-param array<mixed> $args
 	 * @throws QueryException
 	 */
 	public function queryArgs($query, array $args = []): Result;
@@ -94,12 +99,13 @@ interface IConnection
 	public function createQueryBuilder(): QueryBuilder;
 
 
-	public function setTransactionIsolationLevel(int $level);
+	public function setTransactionIsolationLevel(int $level): void;
 
 
 	/**
 	 * Performs operation in a transaction.
 	 * @param  callable $callback function(Connection $conn): mixed
+	 * @phpstan-param callable(Connection):mixed $callback
 	 * @return mixed value returned by callback
 	 * @throws \Exception
 	 */

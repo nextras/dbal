@@ -17,7 +17,7 @@ use Tracy\Debugger;
 
 class DbalExtension extends CompilerExtension
 {
-	public function loadConfiguration()
+	public function loadConfiguration(): void
 	{
 		$config = $this->getConfig();
 		\assert(is_array($config));
@@ -25,7 +25,10 @@ class DbalExtension extends CompilerExtension
 	}
 
 
-	protected function setupConnection(array $config)
+	/**
+	 * @phpstan-param array<mixed> $config
+	 */
+	protected function setupConnection(array $config): void
 	{
 		$builder = $this->getContainerBuilder();
 

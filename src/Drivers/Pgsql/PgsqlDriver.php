@@ -50,7 +50,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $onQueryCallback)
+	public function connect(array $params, callable $onQueryCallback): void
 	{
 		static $knownKeys = [
 			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
@@ -91,7 +91,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if ($this->connection) {
 			pg_close($this->connection);
@@ -128,8 +128,8 @@ class PgsqlDriver implements IDriver
 		}
 
 		$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
-		if ($state !== null) {
-			throw $this->createException(pg_result_error($resource), 0, $state, $query);
+		if (\is_string($state)) {
+			throw $this->createException(pg_result_error($resource) ?: 'Unknown error', 0, $state, $query);
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
@@ -180,7 +180,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function setTransactionIsolationLevel(int $level)
+	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
@@ -359,7 +359,7 @@ class PgsqlDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException($error, $errorNo, $sqlState, $query = null)
+	protected function createException(string $error, int $errorNo, ?string $sqlState, ?string $query = null): \Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 		if ($sqlState === '0A000' && strpos($error, 'truncate') !== false) {
@@ -388,7 +388,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	protected function loggedQuery(string $sql)
+	protected function loggedQuery(string $sql): Result
 	{
 		try {
 			$result = $this->query($sql);
@@ -401,6 +401,10 @@ class PgsqlDriver implements IDriver
 	}
 
 
+	/**
+	 * @phpstan-param array<string, mixed> $params
+	 * @phpstan-return array<string, mixed>
+	 */
 	private function processConfig(array $params): array
 	{
 		if (!isset($params['database']) && isset($params['dbname'])) {

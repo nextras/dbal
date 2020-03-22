@@ -14,13 +14,13 @@ use Nextras\Dbal\InvalidStateException;
 
 class MysqliEmptyResultAdapter implements IResultAdapter
 {
-	public function seek(int $index)
+	public function seek(int $index): void
 	{
 		throw new InvalidStateException("Unable to seek in row set to {$index} index.");
 	}
 
 
-	public function fetch()
+	public function fetch(): ?array
 	{
 		return null;
 	}

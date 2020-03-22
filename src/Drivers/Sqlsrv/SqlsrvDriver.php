@@ -47,7 +47,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $onQueryCallback)
+	public function connect(array $params, callable $onQueryCallback): void
 	{
 		// see https://msdn.microsoft.com/en-us/library/ff628167.aspx
 		static $knownConnectionOptions = [
@@ -88,7 +88,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if ($this->connection) {
 			sqlsrv_close($this->connection);
@@ -118,7 +118,7 @@ class SqlsrvDriver implements IDriver
 		$statement = sqlsrv_query($this->connection, $query, [], ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
 		$this->timeTaken = microtime(true) - $time;
 
-		if (!$statement) {
+		if ($statement === false) {
 			$this->throwErrors($query);
 		}
 
@@ -179,7 +179,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function setTransactionIsolationLevel(int $level)
+	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
@@ -344,7 +344,10 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	private function throwErrors($query = null)
+	/**
+	 * @phpstan-return never
+	 */
+	private function throwErrors(?string $query = null): void
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS) ?: [];
 		$errors = array_unique($errors, SORT_REGULAR);
@@ -364,7 +367,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function createException($error, $errorNo, $sqlState, $query = null)
+	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): \Exception
 	{
 		if (in_array($sqlState, ['HYT00', '08001', '28000'], true)) {
 			return new ConnectionException($error, $errorNo, $sqlState);
@@ -387,7 +390,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function loggedQuery(string $sql)
+	protected function loggedQuery(string $sql): Result
 	{
 		try {
 			$result = $this->query($sql);
