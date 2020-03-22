@@ -21,10 +21,11 @@ The connection instance is a main object that provides an API for accessing your
 |* database                             | name of the database
 |* charset                              | charset encoding of the connection
 |* connectionTz                         | timezone for the connection; pass a timezone name, `auto` or `auto-offset` keyword, see [DateTime TimeZones | datetime] chapter for more info;
-|* nestedTransactionsWithSavepoint      | boolean which indicates whether use savepoints for nested transactions; `true` by default
+|* nestedTransactionsWithSavepoint      | boolean which indicates whether use save-points for nested transactions; `true` by default
 |* sqlProcessorFactory                  | factory implementing ISqlProcessorFactory interface; use for adding custom modifiers; `null` by default;
-|* sqlMode                              | *MySQL only*; sets the `sql_mode`, `TRADITIONAL` by default;
 |* searchPath                           | *PgSQL only*; sets the connection `search_path`;
+|* sqlMode                              | *MySQL only*; sets the `sql_mode`, `TRADITIONAL` by default;
+|* ssl*                                 | *MySQL only*; use `sslKey`, `sslCert`, `sslCa`, `sslCapath` and `sslCipher` to set SSL options for connection;
 
 /--php
 $connection = new Nextras\Dbal\Connection([

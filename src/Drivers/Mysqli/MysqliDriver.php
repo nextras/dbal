@@ -59,6 +59,8 @@ class MysqliDriver implements IDriver
 
 		$this->connection = new mysqli();
 
+		$this->setupSsl($params);
+
 		if (!@$this->connection->real_connect($host, $params['username'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,
@@ -212,6 +214,33 @@ class MysqliDriver implements IDriver
 	public function rollbackSavepoint(string $name): void
 	{
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+	}
+
+
+	/**
+	 * @phpstan-param array<string, mixed> $params
+	 */
+	protected function setupSsl(array $params): void
+	{
+		\assert($this->connection !== null);
+
+		if (
+			!isset($params['sslKey']) &&
+			!isset($params['sslCert']) &&
+			!isset($params['sslCa']) &&
+			!isset($params['sslCapath']) &&
+			!isset($params['sslCipher'])
+		) {
+			return;
+		}
+
+		$this->connection->ssl_set(
+			$params['sslKey'] ?? null,
+			$params['sslCert'] ?? null,
+			$params['sslCa'] ?? null,
+			$params['sslCapath'] ?? null,
+			$params['sslCipher'] ?? null
+		);
 	}
 
 
