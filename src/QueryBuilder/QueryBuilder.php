@@ -52,7 +52,7 @@ class QueryBuilder
 
 	/**
 	 * @var array|null
-	 * @phpstan-var array<array{type: string, from: string, alias: string, table: string, on: string}>
+	 * @phpstan-var array<array{type: string, from: string, alias: string, table: string, on: string}>|null
 	 */
 	private $join;
 
@@ -139,17 +139,10 @@ class QueryBuilder
 
 	private function getFromClauses(): string
 	{
-		$knownAliases = array_flip($this->getKnownAliases());
-
 		$query = $this->from[0] . ($this->from[1] ? " AS [{$this->from[1]}]" : '');
-		foreach ((array) $this->join as $join) {
-			if (!isset($knownAliases[$join['from']])) {
-				throw new InvalidStateException("Unknown alias '{$join['from']}'.");
-			}
 
-			$query .= ' '
-				. $join['type'] . " JOIN {$join['table']} " . ($join['alias'] ? "AS [{$join['alias']}] " : '')
-				. 'ON (' . $join['on'] . ')';
+		foreach ((array) $this->join as $join) {
+			$query .= " $join[type] JOIN $join[table] ON ($join[on])";
 		}
 
 		return $query;
@@ -194,51 +187,90 @@ class QueryBuilder
 
 	/**
 	 * @phpstan-param array<int, mixed> $args
+	 * @deprecated QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.
 	 */
 	public function innerJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		return $this->join('INNER', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
+		\trigger_error(
+			'QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.',
+			E_USER_DEPRECATED
+		);
+		return $this->joinInner("$toExpression AS [$toAlias]", $onExpression, $args);
 	}
 
 
 	/**
 	 * @phpstan-param array<int, mixed> $args
+	 * @deprecated QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.
 	 */
 	public function leftJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		return $this->join('LEFT', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
+		\trigger_error(
+			'QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.',
+			E_USER_DEPRECATED
+		);
+		return $this->joinLeft("$toExpression AS [$toAlias]", $onExpression, $args);
+	}
+
+
+	/**
+	 * @phpstan-param array<int, mixed> $args
+	 * @deprecated QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.
+	 */
+	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	{
+		\trigger_error(
+			'QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.',
+			E_USER_DEPRECATED
+		);
+		return $this->joinRight("$toExpression AS [$toAlias]", $onExpression, $args);
 	}
 
 
 	/**
 	 * @phpstan-param array<int, mixed> $args
 	 */
-	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function joinInner(string $toExpression, string $onExpression, ...$args): self
 	{
-		return $this->join('RIGHT', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
+		return $this->join('INNER', $toExpression, $onExpression, $args);
 	}
 
 
 	/**
-	 * @phpstan-return array<mixed>|null
+	 * @phpstan-param array<int, mixed> $args
 	 */
-	public function getJoin(string $toAlias): ?array
+	public function joinLeft(string $toExpression, string $onExpression, ...$args): self
 	{
-		return isset($this->join[$toAlias]) ? $this->join[$toAlias] : null;
+		return $this->join('LEFT', $toExpression, $onExpression, $args);
 	}
 
 
 	/**
-	 * @phpstan-param array<mixed>  $args
+	 * @phpstan-param array<int, mixed> $args
 	 */
-	private function join(string $type, string $fromAlias, string $toExpression, string $toAlias, string $onExpression, array $args): self
+	public function joinRight(string $toExpression, string $onExpression, ...$args): self
+	{
+		return $this->join('RIGHT', $toExpression, $onExpression, $args);
+	}
+
+
+	public function removeJoins(): self
+	{
+		$this->join = null;
+		$this->args['join'] = null;
+		return $this;
+	}
+
+
+	/**
+	 * @phpstan-param array<mixed> $args
+	 */
+	private function join(string $type, string $toExpression, string $onExpression, array $args): self
 	{
 		$this->dirty();
-		$this->join[$toAlias] = [
+		$this->join[$toExpression] = [
 			'type' => $type,
-			'from' => $fromAlias,
 			'table' => $toExpression,
-			'alias' => $toAlias,
 			'on' => $onExpression,
 		];
 		$this->pushArgs('join', $args);
@@ -447,22 +479,5 @@ class QueryBuilder
 	private function pushArgs(string $type, array $args): void
 	{
 		$this->args[$type] = array_merge((array) $this->args[$type], $args);
-	}
-
-
-	/**
-	 * @return string[]
-	 */
-	private function getKnownAliases(): array
-	{
-		$knownAliases = [];
-		if (isset($this->from)) {
-			$knownAliases[] = isset($this->from[1]) ? $this->from[1] : $this->from[0];
-		}
-		foreach ((array) $this->join as $join) {
-			$knownAliases[] = $join['alias'];
-		}
-
-		return $knownAliases;
 	}
 }

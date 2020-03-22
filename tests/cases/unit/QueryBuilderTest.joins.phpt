@@ -25,49 +25,10 @@ class QueryBuilderJoinsTest extends QueryBuilderTestCase
 			$this->builder()
 				->from('one', 'o')
 				->select('*')
-				->leftJoin('o', 'two', 't', 'o.userId = t.userId')
-				->innerJoin('t', 'three', 'th', 't.userId = th.userId')
-				->rightJoin('th', 'four', 'f', 'th.userId = f.userId')
+				->joinLeft('two AS [t]', 'o.userId = t.userId')
+				->joinInner('three AS [th]', 't.userId = th.userId')
+				->joinRight('four AS [f]', 'th.userId = f.userId')
 		);
-	}
-
-
-	public function testValidateMissingAlias()
-	{
-		Assert::throws(function () {
-
-			$this->builder()
-				->from('one', 'o')
-				->innerJoin('t', 'three', 'th', 't.userId = th.userId')
-				->rightJoin('th', 'four', 'f', 'th.userId = f.userId')
-				->getQuerySql();
-
-		}, InvalidStateException::class, "Unknown alias 't'.");
-	}
-
-
-	public function testOverride()
-	{
-		$builder = $this->builder()
-				->from('one', 'o')
-				->leftJoin('o', 'two', 't', 'o.userId = t.userId')
-				->innerJoin('t', 'three', 't', 't.userId = th.userId');
-
-		$this->assertBuilder(
-			[
-				'SELECT * FROM one AS [o] ' .
-				'INNER JOIN three AS [t] ON (t.userId = th.userId)'
-			],
-			$builder
-		);
-
-		Assert::same([
-			'type' => 'INNER',
-			'from' => 't',
-			'table' => 'three',
-			'alias' => 't',
-			'on' => 't.userId = th.userId',
-		], $builder->getJoin('t'));
 	}
 }
 
