@@ -2,11 +2,10 @@ includes:
 	- phar://%rootDir%/phpstan.phar/conf/bleedingEdge.neon
 
 parameters:
-	ignoreErrors:
-		- '#(sqlsrv|SQLSRV).+ not found\.#i'
-
 	# never type is not supported: https://github.com/phpstan/phpstan/issues/2297
 	earlyTerminatingMethodCalls:
 		Nextras\Dbal\SqlProcessor:
 			- throwInvalidValueTypeException
 			- throwWrongModifierException
+		Nextras\Dbal\Drivers\Sqlsrv\SqlsrvDriver:
+			- throwErrors

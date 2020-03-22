@@ -47,8 +47,8 @@ class MySqlPlatform implements IPlatform
 		$tables = [];
 		foreach ($result as $row) {
 			$table = new Table();
-			$table->name = $row->TABLE_NAME;
-			$table->schema = $row->TABLE_SCHEMA;
+			$table->name = (string) $row->TABLE_NAME;
+			$table->schema = (string) $row->TABLE_SCHEMA;
 			$table->isView = $row->TABLE_TYPE === 'VIEW';
 
 			$tables[$table->getNameFqn()] = $table;
@@ -65,10 +65,10 @@ class MySqlPlatform implements IPlatform
 			$type = explode('(', $row->Type);
 
 			$column = new Column();
-			$column->name = $row->Field;
+			$column->name = (string) $row->Field;
 			$column->type = \strtoupper($type[0]);
 			$column->size = isset($type[1]) ? (int) $type[1] : null;
-			$column->default = $row->Default;
+			$column->default = $row->Default !== null ? (string) $row->Default : null;
 			$column->isPrimary = $row->Key === 'PRI';
 			$column->isAutoincrement = $row->Extra === 'auto_increment';
 			$column->isUnsigned = (bool) \strstr($row->Type, 'unsigned');
@@ -110,15 +110,16 @@ class MySqlPlatform implements IPlatform
 				CONSTRAINT_NAME
 		', $db, $table);
 
+		/** @var array<string, ForeignKey> $keys */
 		$keys = [];
 		foreach ($result as $row) {
 			$foreignKey = new ForeignKey();
-			$foreignKey->name = $row->CONSTRAINT_NAME;
-			$foreignKey->schema = $row->CONSTRAINT_SCHEMA;
-			$foreignKey->column = $row->COLUMN_NAME;
-			$foreignKey->refTable = $row->REFERENCED_TABLE_NAME;
-			$foreignKey->refTableSchema = $row->REFERENCED_TABLE_SCHEMA;
-			$foreignKey->refColumn = $row->REFERENCED_COLUMN_NAME;
+			$foreignKey->name = (string) $row->CONSTRAINT_NAME;
+			$foreignKey->schema = (string) $row->CONSTRAINT_SCHEMA;
+			$foreignKey->column = (string) $row->COLUMN_NAME;
+			$foreignKey->refTable = (string) $row->REFERENCED_TABLE_NAME;
+			$foreignKey->refTableSchema = (string) $row->REFERENCED_TABLE_SCHEMA;
+			$foreignKey->refColumn = (string) $row->REFERENCED_COLUMN_NAME;
 
 			$keys[$foreignKey->column] = $foreignKey;
 		}

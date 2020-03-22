@@ -14,7 +14,10 @@ use Nextras\Dbal\Platforms\IPlatform;
 
 class SqlProcessor
 {
-	/** @var array (name => [supports ?, supports [], expected type]) */
+	/**
+	 * @var array (name => [supports ?, supports [], expected type])
+	 * @phpstan-var array<string, array{bool, bool, string}>
+	 */
 	protected $modifiers = [
 		// expressions
 		's' => [true, true, 'string'],
@@ -43,13 +46,19 @@ class SqlProcessor
 		'ex' => [false, false, 'array'],
 	];
 
-	/** @var array (modifier => callable) */
+	/**
+	 * @var array (modifier => callable)
+	 * @phpstan-var array<string, callable(mixed, string): mixed>
+	 */
 	protected $customModifiers = [];
 
 	/** @var IDriver */
 	private $driver;
 
-	/** @var array */
+	/**
+	 * @var array
+	 * @phpstan-var array<string, string>
+	 */
 	private $identifiers;
 
 	/** @var IPlatform */
@@ -65,8 +74,9 @@ class SqlProcessor
 
 	/**
 	 * @param callable $callback (mixed $value, string $modifier): mixed
+	 * @phpstan-param callable(mixed, string): mixed $callback
 	 */
-	public function setCustomModifier(string $modifier, callable $callback)
+	public function setCustomModifier(string $modifier, callable $callback): void
 	{
 		$baseModifier = trim($modifier, '[]?');
 		if (isset($this->modifiers[$baseModifier])) {
@@ -341,6 +351,7 @@ class SqlProcessor
 		$baseType = trim($type, '[]?');
 		$typeNullable = $type[0] === '?';
 		$typeArray = substr($type, -2) === '[]';
+
 		if (!isset($this->modifiers[$baseType])) {
 			throw new InvalidArgumentException("Unknown modifier %$type.");
 
@@ -353,7 +364,7 @@ class SqlProcessor
 		} elseif ($value === null && !$typeNullable && $this->modifiers[$baseType][0]) {
 			$this->throwWrongModifierException($type, $value, "?$type");
 
-		} elseif (is_array($value) && !$typeArray && $this->modifiers[$baseType][1]) {
+		} elseif (is_array($value) && $this->modifiers[$baseType][1]) {
 			$this->throwWrongModifierException($type, $value, "{$type}[]");
 
 		} else {
@@ -364,9 +375,9 @@ class SqlProcessor
 
 	/**
 	 * @param  mixed $value
-	 * @return void
+	 * @phpstan-return never
 	 */
-	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType)
+	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType): void
 	{
 		$actualType = $this->getVariableTypeName($value);
 		throw new InvalidArgumentException("Modifier %$type expects value to be $expectedType, $actualType given.");
@@ -375,15 +386,18 @@ class SqlProcessor
 
 	/**
 	 * @param  mixed $value
-	 * @return void
+	 * @phpstan-return never
 	 */
-	protected function throwWrongModifierException(string $type, $value, string $hint)
+	protected function throwWrongModifierException(string $type, $value, string $hint): void
 	{
 		$valueLabel = is_scalar($value) ? var_export($value, true) : gettype($value);
 		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");
 	}
 
 
+	/**
+	 * @phpstan-param array<mixed> $value
+	 */
 	protected function processArray(string $type, array $value): string
 	{
 		$subType = substr($type, 0, -2);
@@ -395,6 +409,9 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @phpstan-param array<string, mixed> $value
+	 */
 	protected function processSet(string $type, array $value): string
 	{
 		$values = [];
@@ -409,6 +426,9 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @phpstan-param array<string, mixed> $value
+	 */
 	protected function processMultiValues(string $type, array $value): string
 	{
 		if (empty($value)) {
@@ -436,6 +456,9 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @phpstan-param array<string, mixed> $value
+	 */
 	private function processValues(string $type, array $value): string
 	{
 		if (empty($value)) {
@@ -453,6 +476,9 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @phpstan-param array<int|string, mixed> $value
+	 */
 	private function processWhere(string $type, array $value): string
 	{
 		if (count($value) === 0) {
@@ -492,6 +518,9 @@ class SqlProcessor
 	}
 
 
+	/**
+	 * @phpstan-param array<string, mixed> $values
+	 */
 	private function processMultiColumnOr(array $values): string
 	{
 		if ($this->platform->isSupported(IPlatform::SUPPORT_MULTI_COLUMN_IN)) {

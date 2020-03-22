@@ -44,8 +44,8 @@ class SqlServerPlatform implements IPlatform
 		$tables = [];
 		foreach ($result as $row) {
 			$table = new Table();
-			$table->name = $row->TABLE_NAME;
-			$table->schema = $row->TABLE_SCHEMA;
+			$table->name = (string) $row->TABLE_NAME;
+			$table->schema = (string) $row->TABLE_SCHEMA;
 			$table->isView = $row->TABLE_TYPE === 'VIEW';
 
 			$tables[$table->getNameFqn()] = $table;
@@ -99,14 +99,14 @@ class SqlServerPlatform implements IPlatform
 		$columns = [];
 		foreach ($result as $row) {
 			$column = new Column();
-			$column->name = $row->name;
-			$column->type = $row->type;
-			$column->size = $row->size;
-			$column->default = $row->default;
-			$column->isPrimary = $row->is_primary;
-			$column->isAutoincrement = $row->is_autoincrement;
+			$column->name = (string) $row->name;
+			$column->type = (string) $row->type;
+			$column->size = $row->size !== null ? (int) $row->size : null;
+			$column->default = $row->default !== null ? (string) $row->default : null;
+			$column->isPrimary = (bool) $row->is_primary;
+			$column->isAutoincrement = (bool) $row->is_autoincrement;
 			$column->isUnsigned = false; // not available in SqlServer
-			$column->isNullable = $row->is_nullable;
+			$column->isNullable = (bool) $row->is_nullable;
 			$column->meta = [];
 
 			$columns[$column->name] = $column;
@@ -156,12 +156,12 @@ class SqlServerPlatform implements IPlatform
 		$keys = [];
 		foreach ($result as $row) {
 			$foreignKey = new ForeignKey();
-			$foreignKey->name = $row->name;
-			$foreignKey->schema = $row->schema;
-			$foreignKey->column = $row->column;
-			$foreignKey->refTable = $row->ref_table;
-			$foreignKey->refTableSchema = $row->ref_table_schema;
-			$foreignKey->refColumn = $row->ref_column;
+			$foreignKey->name = (string) $row->name;
+			$foreignKey->schema = (string) $row->schema;
+			$foreignKey->column = (string) $row->column;
+			$foreignKey->refTable = (string) $row->ref_table;
+			$foreignKey->refTableSchema = (string) $row->ref_table_schema;
+			$foreignKey->refColumn = (string) $row->ref_column;
 
 			$keys[$foreignKey->column] = $foreignKey;
 		}

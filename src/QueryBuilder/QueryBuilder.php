@@ -27,7 +27,10 @@ class QueryBuilder
 	/** @var int */
 	private $type = self::TYPE_SELECT;
 
-	/** @var array */
+	/**
+	 * @var array
+	 * @phpstan-var array<string, array<mixed>|null>
+	 */
 	private $args = [
 		'select' => null,
 		'from' => null,
@@ -38,28 +41,37 @@ class QueryBuilder
 		'order' => null,
 	];
 
-	/** @var array|null */
+	/** @var string[]|null */
 	private $select;
 
-	/** @var array|null */
+	/**
+	 * @var array|null
+	 * @phpstan-var array{string, ?string}|null
+	 */
 	private $from;
 
-	/** @var array|null */
+	/**
+	 * @var array|null
+	 * @phpstan-var array<array{type: string, from: string, alias: string, table: string, on: string}>
+	 */
 	private $join;
 
 	/** @var string|null */
 	private $where;
 
-	/** @var array|null */
+	/** @var string[]|null */
 	private $group;
 
 	/** @var string|null */
 	private $having;
 
-	/** @var array|null */
+	/** @var string[]|null */
 	private $order;
 
-	/** @var array|null */
+	/**
+	 * @var array|null
+	 * @phpstan-var array{?int, ?int}|null
+	 */
 	private $limit;
 
 	/** @var string|null */
@@ -90,6 +102,9 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * @phpstan-return array<mixed>
+	 */
 	public function getQueryParameters(): array
 	{
 		return array_merge(
@@ -141,6 +156,9 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * @phpstan-return array{mixed, mixed}
+	 */
 	public function getClause(string $part): array
 	{
 		if (!isset($this->args[$part]) && !array_key_exists($part, $this->args)) {
@@ -151,6 +169,9 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * @phpstan-param array<int, mixed> $args
+	 */
 	public function from(string $fromExpression, ?string $alias = null, ...$args): self
 	{
 		$this->dirty();
@@ -161,7 +182,7 @@ class QueryBuilder
 	}
 
 
-	public function getFromAlias()
+	public function getFromAlias(): ?string
 	{
 		if ($this->from === null) {
 			throw new InvalidStateException('From clause has not been set.');
@@ -171,30 +192,45 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * @phpstan-param array<int, mixed> $args
+	 */
 	public function innerJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
 		return $this->join('INNER', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
 	}
 
 
+	/**
+	 * @phpstan-param array<int, mixed> $args
+	 */
 	public function leftJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
 		return $this->join('LEFT', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
 	}
 
 
+	/**
+	 * @phpstan-param array<int, mixed> $args
+	 */
 	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
 		return $this->join('RIGHT', $fromAlias, $toExpression, $toAlias, $onExpression, $args);
 	}
 
 
-	public function getJoin(string $toAlias)
+	/**
+	 * @phpstan-return array<mixed>|null
+	 */
+	public function getJoin(string $toAlias): ?array
 	{
 		return isset($this->join[$toAlias]) ? $this->join[$toAlias] : null;
 	}
 
 
+	/**
+	 * @phpstan-param array<mixed>  $args
+	 */
 	private function join(string $type, string $fromAlias, string $toExpression, string $toAlias, string $onExpression, array $args): self
 	{
 		$this->dirty();
@@ -212,6 +248,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as SELECT clause. Passing null sets clause to the default state.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function select(?string $expression = null, ...$args): self
 	{
@@ -224,6 +261,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression to SELECT clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function addSelect(string $expression, ...$args): self
 	{
@@ -239,6 +277,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as WHERE clause. Passing null sets clause to the default state.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function where(?string $expression = null, ...$args): self
 	{
@@ -251,6 +290,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with AND to WHERE clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function andWhere(string $expression, ...$args): self
 	{
@@ -263,6 +303,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with OR to WHERE clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function orWhere(string $expression, ...$args): self
 	{
@@ -275,6 +316,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as GROUP BY clause. Passing null sets clause to the default state.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function groupBy(?string $expression = null, ...$args): self
 	{
@@ -287,8 +329,9 @@ class QueryBuilder
 
 	/**
 	 * Adds expression to GROUP BY clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
-	public function addGroupBy($expression, ...$args): self
+	public function addGroupBy(string $expression, ...$args): self
 	{
 		$this->dirty();
 		$this->group[] = $expression;
@@ -299,6 +342,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as HAVING clause. Passing null sets clause to the default state.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function having(?string $expression = null, ...$args): self
 	{
@@ -311,6 +355,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with AND to HAVING clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function andHaving(string $expression, ...$args): self
 	{
@@ -323,6 +368,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with OR to HAVING clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function orHaving(string $expression, ...$args): self
 	{
@@ -335,6 +381,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as ORDER BY clause. Passing null sets clause to the default state.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function orderBy(?string $expression = null, ...$args): self
 	{
@@ -347,6 +394,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression to ORDER BY clause.
+	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function addOrderBy(string $expression, ...$args): self
 	{
@@ -360,7 +408,7 @@ class QueryBuilder
 	/**
 	 * Sets LIMIT and OFFSET clause.
 	 */
-	public function limitBy(?int $limit, int $offset = null): self
+	public function limitBy(?int $limit, ?int $offset = null): self
 	{
 		$this->dirty();
 		$this->limit = $limit || $offset ? [$limit, $offset] : null;
@@ -379,6 +427,7 @@ class QueryBuilder
 
 	/**
 	 * Returns limit and offset clause arguments.
+	 * @phpstan-return array{?int, ?int}|null
 	 */
 	public function getLimitOffsetClause(): ?array
 	{
@@ -386,13 +435,16 @@ class QueryBuilder
 	}
 
 
-	private function dirty()
+	private function dirty(): void
 	{
 		$this->generatedSql = null;
 	}
 
 
-	private function pushArgs($type, array $args)
+	/**
+	 * @phpstan-param array<mixed> $args
+	 */
+	private function pushArgs(string $type, array $args): void
 	{
 		$this->args[$type] = array_merge((array) $this->args[$type], $args);
 	}
@@ -408,7 +460,7 @@ class QueryBuilder
 			$knownAliases[] = isset($this->from[1]) ? $this->from[1] : $this->from[0];
 		}
 		foreach ((array) $this->join as $join) {
-			$knownAliases[] = isset($join['alias']) ? $join['alias'] : $join['table'];
+			$knownAliases[] = $join['alias'];
 		}
 
 		return $knownAliases;

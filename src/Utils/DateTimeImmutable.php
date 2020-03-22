@@ -9,18 +9,22 @@
 namespace Nextras\Dbal\Utils;
 
 
-class DateTimeImmutable extends \DateTimeImmutable
+final class DateTimeImmutable extends \DateTimeImmutable
 {
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->format('c');
 	}
 
 
-	public function setTimestamp($timestamp)
+	/**
+	 * @param int $timestamp
+	 * @return static
+	 */
+	public function setTimestamp($timestamp): self
 	{
 		$zone = $this->getTimezone();
-		$datetime = new static('@' . $timestamp);
+		$datetime = new static('@' . (string) $timestamp);
 		return $datetime->setTimezone($zone);
 	}
 }

@@ -15,6 +15,9 @@ use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 
 
+/**
+ * @implements \SeekableIterator<int, Row>
+ */
 class Result implements \SeekableIterator, \Countable
 {
 	/** @var IResultAdapter */
@@ -44,7 +47,10 @@ class Result implements \SeekableIterator, \Countable
 	/** @var string[] list of columns which should be casted to DateTime */
 	private $toDateTimeColumns;
 
-	/** @var array[] list of columns which should be casted using driver-specific logic */
+	/**
+	 * @var array[] list of columns which should be casted using driver-specific logic
+	 * @phpstan-var array<array{string, int}>
+	 */
 	private $toDriverColumns;
 
 	/** @var DateTimeZone */
@@ -69,7 +75,7 @@ class Result implements \SeekableIterator, \Countable
 	/**
 	 * Enables and disables value normalization.
 	 */
-	public function setValueNormalization(bool $enabled = false)
+	public function setValueNormalization(bool $enabled = false): void
 	{
 		if ($enabled === true) {
 			$this->initColumnConversions();
@@ -115,6 +121,9 @@ class Result implements \SeekableIterator, \Countable
 	}
 
 
+	/**
+	 * @phpstan-return array<mixed>
+	 */
 	public function fetchPairs(string $key = null, string $value = null): array
 	{
 		if ($key === null && $value === null) {
@@ -142,7 +151,7 @@ class Result implements \SeekableIterator, \Countable
 	}
 
 
-	protected function initColumnConversions()
+	protected function initColumnConversions(): void
 	{
 		$this->toIntColumns = [];
 		$this->toFloatColumns = [];
@@ -153,7 +162,7 @@ class Result implements \SeekableIterator, \Countable
 
 		$types = $this->adapter->getTypes();
 		foreach ($types as $key => $typePair) {
-			list($type, $nativeType) = $typePair;
+			[$type, $nativeType] = $typePair;
 
 			if ($type & IResultAdapter::TYPE_STRING) {
 				$this->toStringColumns[] = $key;
@@ -178,10 +187,14 @@ class Result implements \SeekableIterator, \Countable
 	}
 
 
+	/**
+	 * @phpstan-param array<string, mixed> $data
+	 * @phpstan-return array<string, mixed>
+	 */
 	protected function normalize(array $data): array
 	{
 		foreach ($this->toDriverColumns as $meta) {
-			list($column, $nativeType) = $meta;
+			[$column, $nativeType] = $meta;
 			if ($data[$column] !== null) {
 				$data[$column] = $this->driver->convertToPhp($data[$column], $nativeType);
 			}
@@ -224,38 +237,41 @@ class Result implements \SeekableIterator, \Countable
 	// === SeekableIterator ============================================================================================
 
 
-	public function key()
+	public function key(): int
 	{
 		return $this->iteratorIndex;
 	}
 
 
-	public function current()
+	public function current(): ?Row
 	{
 		return $this->iteratorRow;
 	}
 
 
-	public function next()
+	public function next(): void
 	{
 		$this->fetch();
 	}
 
 
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->iteratorRow !== null;
 	}
 
 
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->seek(0);
 		$this->fetch();
 	}
 
 
-	public function seek($index)
+	/**
+	 * @param int $index
+	 */
+	public function seek($index): void
 	{
 		$this->adapter->seek($index);
 		$this->iteratorIndex = $index - 1;
@@ -265,7 +281,7 @@ class Result implements \SeekableIterator, \Countable
 	// === Countable ===================================================================================================
 
 
-	public function count()
+	public function count(): int
 	{
 		return $this->adapter->getRowsCount();
 	}

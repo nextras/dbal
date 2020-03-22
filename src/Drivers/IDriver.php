@@ -30,16 +30,17 @@ interface IDriver
 
 	/**
 	 * Connects the driver to database.
+	 * @phpstan-param array<string, mixed> $params
 	 * @internal
 	 */
-	public function connect(array $params, callable $loggedQueryCallback);
+	public function connect(array $params, callable $loggedQueryCallback): void;
 
 
 	/**
 	 * Disconnects from the database.
 	 * @internal
 	 */
-	public function disconnect();
+	public function disconnect(): void;
 
 
 	/**
@@ -105,7 +106,7 @@ interface IDriver
 	/**
 	 * @internal
 	 */
-	public function setTransactionIsolationLevel(int $level);
+	public function setTransactionIsolationLevel(int $level): void;
 
 
 	/**
@@ -167,6 +168,9 @@ interface IDriver
 	public function convertStringToSql(string $value): string;
 
 
+	/**
+	 * @param  mixed $value
+	 */
 	public function convertJsonToSql($value): string;
 
 

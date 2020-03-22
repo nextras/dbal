@@ -26,17 +26,18 @@ interface IResultAdapter
 	/**
 	 * @throws InvalidStateException
 	 */
-	public function seek(int $index);
+	public function seek(int $index): void;
 
 
 	/**
-	 * @return array|null
+	 * @phpstan-return array<mixed>|null
 	 */
-	public function fetch();
+	public function fetch(): ?array;
 
 
 	/**
-	 * Returns rowset set column types, array of [type, nativeType]
+	 * Returns row's column types, array of [type, nativeType]
+	 * @phpstan-return array<string, array{int, mixed}>
 	 */
 	public function getTypes(): array;
 

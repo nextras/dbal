@@ -27,7 +27,10 @@ class ConnectionPanel implements IBarPanel
 	/** @var float */
 	private $totalTime;
 
-	/** @var array */
+	/**
+	 * @var array
+	 * @phpstan-var array<array{Connection, string, float, ?int}>
+	 */
 	private $queries = [];
 
 	/** @var Connection */
@@ -37,7 +40,7 @@ class ConnectionPanel implements IBarPanel
 	private $doExplain;
 
 
-	public static function install(Connection $connection, bool $doExplain = true)
+	public static function install(Connection $connection, bool $doExplain = true): void
 	{
 		$doExplain = $doExplain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
 		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
@@ -52,7 +55,7 @@ class ConnectionPanel implements IBarPanel
 	}
 
 
-	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = null, DriverException $exception = null)
+	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = null, DriverException $exception = null): void
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
@@ -106,7 +109,7 @@ class ConnectionPanel implements IBarPanel
 	}
 
 
-	public static function highlight($sql)
+	public static function highlight(string $sql): string
 	{
 		static $keywords1 = 'SELECT|(?:ON\s+DUPLICATE\s+KEY)?UPDATE|INSERT(?:\s+INTO)?|REPLACE(?:\s+INTO)?|SHOW|DELETE|CALL|UNION|FROM|WHERE|HAVING|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|SET|VALUES|LEFT\s+JOIN|INNER\s+JOIN|TRUNCATE|START\s+TRANSACTION|COMMIT|ROLLBACK|(?:RELEASE\s+|ROLLBACK\s+TO\s+)?SAVEPOINT';
 		static $keywords2 = 'ALL|DISTINCT|DISTINCTROW|IGNORE|AS|USING|ON|AND|OR|IN|IS|NOT|NULL|[RI]?LIKE|REGEXP|TRUE|FALSE';

@@ -73,7 +73,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function clearCache()
+	public function clearCache(): void
 	{
 		$this->cache->clean();
 	}
