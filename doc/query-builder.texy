@@ -105,21 +105,32 @@ $builder->limitBy(20, 10); // sets offset to 1O
 INNER, LEFT and RIGHT JOIN
 ==========================
 
-Choose from `innerJoin()`, `leftJoin()`, and `rightJoin()` methods. Each of them has the same signature. Arguments:
-- from source name - from which table should be join created (you should reference to alias if used earlier),
-- to expression - target expression, do not forget to escape the target table name,
-- to alias - alias of the target, you can leave it NULL,
+Choose from `joinInner()`, `joinLeft()`, and `joinRight()` methods. Each of them has the same signature. Arguments:
+- to expression - target expression, do not forget to escape the target table name, you may define also an alias,
 - on expression - ON clause expression,
 - arguments for expressions.
 
-The "from source name" is present for better validation. It disallows you to build join on table which has not been defined yet in the QueryBuilder.
-
 /--php
 $builder->from('[authors]', 'a');
-$builder->leftJoin('a', '[books]', 'b', '[a.id] = [b.authorId] AND [b.title] = %s',
-                   $title);
+$builder->joinLeft('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %s', $title);
 
 // will produce
 // FROM [authors] AS [a]
 // LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
+\--
+
+
+------------
+
+INDEX HINTS (MySQL)
+===================
+
+Use `indexHints()` method to tell the query planner how to efficiently execute your query.
+
+/--php
+$builder->from('[authors]', 'a');
+$builder->indexHints('FORCE INDEX(%column)', 'my_index_name');
+
+// will produce
+// ... FROM [authors] AS [a] FORCE INDEX (`my_index_name`) ...
 \--
