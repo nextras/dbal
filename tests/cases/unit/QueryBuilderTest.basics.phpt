@@ -34,6 +34,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 			[
 				'SELECT %i, %i ' .
 				'FROM func(%i) AS [table] ' .
+				'USE INDEX (%column) ' .
 				'WHERE ((id = %s) OR (id2 = %i)) AND (id3 = %i) ' .
 				'GROUP BY %column, %column ' .
 				'HAVING (id = %s) AND (id2 = %i) ' .
@@ -41,6 +42,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 
 				4, 9,               // select
 				3,                  // from
+				'my_index_name',    // index hints
 				'foo_w', 7, 8,      // where
 				'foo_g', 'foo_g_2', // group by
 				'foo_h', 6,         // having
@@ -59,6 +61,7 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 				->orWhere('id2 = %i', 7)
 				->andWhere('id3 = %i', 8)
 				->addSelect('%i', 9)
+				->indexHints('USE INDEX (%column)', 'my_index_name')
 		);
 	}
 

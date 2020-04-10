@@ -118,3 +118,19 @@ $builder->joinLeft('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %s',
 // FROM [authors] AS [a]
 // LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
 \--
+
+
+------------
+
+INDEX HINTS (MySQL)
+===================
+
+Use `indexHints()` method to tell the query planner how to efficiently execute your query.
+
+/--php
+$builder->from('[authors]', 'a');
+$builder->indexHints('FORCE INDEX(%column)', 'my_index_name');
+
+// will produce
+// ... FROM [authors] AS [a] FORCE INDEX (`my_index_name`) ...
+\--

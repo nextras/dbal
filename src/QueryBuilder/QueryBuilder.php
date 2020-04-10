@@ -34,6 +34,7 @@ class QueryBuilder
 	private $args = [
 		'select' => null,
 		'from' => null,
+		'indexHints' => null,
 		'join' => null,
 		'where' => null,
 		'group' => null,
@@ -49,6 +50,9 @@ class QueryBuilder
 	 * @phpstan-var array{string, ?string}|null
 	 */
 	private $from;
+
+	/** @var string|null */
+	private $indexHints;
 
 	/**
 	 * @var array|null
@@ -110,6 +114,7 @@ class QueryBuilder
 		return array_merge(
 			(array) $this->args['select'],
 			(array) $this->args['from'],
+			(array) $this->args['indexHints'],
 			(array) $this->args['join'],
 			(array) $this->args['where'],
 			(array) $this->args['group'],
@@ -141,6 +146,10 @@ class QueryBuilder
 	{
 		$query = $this->from[0] . ($this->from[1] ? " AS [{$this->from[1]}]" : '');
 
+		if ($this->indexHints !== null) {
+			$query .= ' ' . $this->indexHints;
+		}
+
 		foreach ((array) $this->join as $join) {
 			$query .= " $join[type] JOIN $join[table] ON ($join[on])";
 		}
@@ -171,6 +180,20 @@ class QueryBuilder
 		$this->type = self::TYPE_SELECT;
 		$this->from = [$fromExpression, $alias];
 		$this->pushArgs('from', $args);
+		return $this;
+	}
+
+
+	/**
+	 * MySQL only feature.
+	 * @phpstan-param array<int, mixed> $args
+	 * @return static
+	 */
+	public function indexHints(?string $indexHintsExpression, ...$args): self
+	{
+		$this->dirty();
+		$this->indexHints = $indexHintsExpression;
+		$this->pushArgs('indexHints', $args);
 		return $this;
 	}
 
