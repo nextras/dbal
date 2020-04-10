@@ -407,7 +407,7 @@ class MysqliDriver implements IDriver
 		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], true)) {
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005], true)) {
+		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005, 2054], true)) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], true)) {
