@@ -189,7 +189,7 @@ class PgsqlDriver implements IDriver
 			Connection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
 		];
 		if (!isset($levels[$level])) {
-			throw new NotSupportedException("Unsupported transation level $level");
+			throw new NotSupportedException("Unsupported transaction level $level");
 		}
 		$this->loggedQuery("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL {$levels[$level]}");
 	}
