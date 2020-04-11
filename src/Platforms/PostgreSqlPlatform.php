@@ -33,7 +33,7 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(): array
+	public function getTables(?string $schema = null): array
 	{
 		$result = $this->connection->query("
 			SELECT
@@ -46,10 +46,12 @@ class PostgreSqlPlatform implements IPlatform
 				JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
 			WHERE
 				c.relkind IN ('r', 'v')
-				AND n.nspname = ANY (pg_catalog.current_schemas(FALSE))
+				AND n.nspname = ANY (
+					CASE %?s IS NULL WHEN true THEN pg_catalog.current_schemas(FALSE) ELSE ARRAY[[%?s]] END
+				)
 			ORDER BY
 				c.relname
-		");
+		", $schema, $schema);
 
 		$tables = [];
 		foreach ($result as $row) {
@@ -70,13 +72,13 @@ class PostgreSqlPlatform implements IPlatform
 		$result = $this->connection->query("
 			SELECT
 				a.attname::varchar AS name,
-				upper(t.typname) AS type,
+				UPPER(t.typname) AS type,
 				CASE WHEN a.atttypmod = -1 THEN NULL ELSE a.atttypmod -4 END AS size,
 				pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass)::varchar AS default,
-				coalesce(co.contype = 'p', FALSE) AS is_primary,
-				coalesce(co.contype = 'p' AND strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1, FALSE) AS is_autoincrement,
+				COALESCE(co.contype = 'p', FALSE) AS is_primary,
+				COALESCE(co.contype = 'p' AND strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1, FALSE) AS is_autoincrement,
 				NOT (a.attnotnull OR t.typtype = 'd' AND t.typnotnull) AS is_nullable,
-				substring(pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass) from %s) AS sequence
+				SUBSTRING(pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass) FROM %s) AS sequence
 			FROM
 				pg_catalog.pg_attribute AS a
 				JOIN pg_catalog.pg_class AS c ON a.attrelid = c.oid
@@ -85,7 +87,7 @@ class PostgreSqlPlatform implements IPlatform
 				LEFT JOIN pg_catalog.pg_constraint AS co ON co.connamespace = c.relnamespace AND contype = 'p' AND co.conrelid = c.oid AND a.attnum = ANY(co.conkey)
 			WHERE
 				c.relkind IN ('r', 'v')
-				AND c.oid = '%column'::regclass
+				AND c.oid = '%table'::regclass
 				AND a.attnum > 0
 				AND NOT a.attisdropped
 			ORDER BY
@@ -96,7 +98,7 @@ class PostgreSqlPlatform implements IPlatform
 		foreach ($result as $row) {
 			$column = new Column();
 			$column->name = (string) $row->name;
-			$column->type = (string)  $row->type;
+			$column->type = (string) $row->type;
 			$column->size = $row->size !== null ? (int) $row->size : null;
 			$column->default = $row->default !== null ? (string) $row->default : null;
 			$column->isPrimary = (bool) $row->is_primary;
@@ -128,12 +130,12 @@ class PostgreSqlPlatform implements IPlatform
 				JOIN pg_catalog.pg_class AS clf ON co.confrelid = clf.oid
 				JOIN pg_catalog.pg_namespace AS ns ON ns.oid = cl.relnamespace
 				JOIN pg_catalog.pg_namespace AS nsf ON nsf.oid = clf.relnamespace
-				JOIN pg_catalog.pg_attribute AS at ON at.attrelid = cl.oid AND at.attnum = %raw
-				JOIN pg_catalog.pg_attribute AS atf ON atf.attrelid = clf.oid AND atf.attnum = %raw
+				JOIN pg_catalog.pg_attribute AS at ON at.attrelid = cl.oid AND at.attnum = co.conkey[[1]]
+				JOIN pg_catalog.pg_attribute AS atf ON atf.attrelid = clf.oid AND atf.attnum = co.confkey[[1]]
 			WHERE
 				co.contype = 'f'
 				AND cl.oid = '%column'::regclass
-		", 'co.conkey[1]', 'co.confkey[1]', $table);
+		", $table);
 
 		$keys = [];
 		foreach ($result as $row) {

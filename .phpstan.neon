@@ -2,6 +2,10 @@ includes:
 	- phar://%rootDir%/phpstan.phar/conf/bleedingEdge.neon
 
 parameters:
+	level: 7
+	paths:
+		- src
+
 	# never type is not supported: https://github.com/phpstan/phpstan/issues/2297
 	earlyTerminatingMethodCalls:
 		Nextras\Dbal\SqlProcessor:

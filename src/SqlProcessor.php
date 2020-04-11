@@ -105,7 +105,7 @@ class SqlProcessor
 
 			$i = $j;
 			$fragments[] = preg_replace_callback(
-				'#%(\??+\w++(?:\[\]){0,2}+)|(%%)|\[(.+?)\]#S', // %modifier | %% | [identifier]
+				'#%(\??+\w++(?:\[\]){0,2}+)|(%%)|(\[\[)|(\]\])|\[(.+?)\]#S', // %modifier | %% | %[ | %] | [identifier]
 				function ($matches) use ($args, &$j, $last) {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
@@ -116,11 +116,17 @@ class SqlProcessor
 					} elseif ($matches[2] !== '') {
 						return '%';
 
-					} elseif (!ctype_digit($matches[3])) {
-						return $this->identifierToSql($matches[3]);
+					} elseif ($matches[3] !== '') {
+						return '[';
+
+					} elseif ($matches[4] !== '') {
+						return ']';
+
+					} elseif (!ctype_digit($matches[5])) {
+						return $this->identifierToSql($matches[5]);
 
 					} else {
-						return "[$matches[3]]";
+						return "[$matches[5]]";
 					}
 				},
 				$args[$i]

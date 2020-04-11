@@ -12,6 +12,8 @@ use Nextras\Dbal\Connection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
+use function count;
+use function explode;
 
 
 class SqlServerPlatform implements IPlatform
@@ -33,13 +35,14 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(): array
+	public function getTables(?string $schema = null): array
 	{
 		$result = $this->connection->query("
 			SELECT TABLE_NAME, TABLE_TYPE, TABLE_SCHEMA
  			FROM information_schema.tables
+			WHERE TABLE_SCHEMA = COALESCE(%?s, SCHEMA_NAME())
  			ORDER BY TABLE_NAME
- 		");
+		", $schema);
 
 		$tables = [];
 		foreach ($result as $row) {
@@ -57,6 +60,14 @@ class SqlServerPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getColumns(string $table): array
 	{
+		$parts = explode('.', $table);
+		if (count($parts) === 2) {
+			$schema = $parts[0];
+			$table = $parts[1];
+		} else {
+			$schema = null;
+		}
+
 		$result = $this->connection->query("
 			SELECT
 				[a].[COLUMN_NAME] AS [name],
@@ -73,7 +84,7 @@ class SqlServerPlatform implements IPlatform
 					ELSE CONVERT(BIT, 0)
 				END AS [is_primary],
 				CONVERT(
-					BIT, COLUMNPROPERTY(object_id([a].[TABLE_NAME]), [a].[COLUMN_NAME], 'IsIdentity')
+					BIT, COLUMNPROPERTY(object_id(CONCAT([a].[TABLE_SCHEMA], '.', [a].[TABLE_NAME])), [a].[COLUMN_NAME], 'IsIdentity')
 				) AS [is_autoincrement],
 				CASE
 					WHEN [a].[IS_NULLABLE] = 'YES'
@@ -93,8 +104,9 @@ class SqlServerPlatform implements IPlatform
 				[b].[COLUMN_NAME] = [a].[COLUMN_NAME]
 			)
 			WHERE [a].[TABLE_NAME] = %s
+				AND [a].[TABLE_SCHEMA] = COALESCE(%?s, SCHEMA_NAME())
 			ORDER BY [a].[ORDINAL_POSITION]
-		", $table);
+		", $table, $schema);
 
 		$columns = [];
 		foreach ($result as $row) {
@@ -119,8 +131,8 @@ class SqlServerPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getForeignKeys(string $table): array
 	{
-		$parts = \explode('.', $table);
-		if (\count($parts) === 2) {
+		$parts = explode('.', $table);
+		if (count($parts) === 2) {
 			$schema = $parts[0];
 			$table = $parts[1];
 		} else {

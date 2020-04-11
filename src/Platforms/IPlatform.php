@@ -27,10 +27,11 @@ interface IPlatform
 
 	/**
 	 * Returns list of tables names indexed by FQN table name.
+	 * If no schema is provided, uses current schema name (search path).
 	 * @return Table[]
 	 * @phpstan-return array<string, Table>
 	 */
-	public function getTables(): array;
+	public function getTables(?string $schema = null): array;
 
 
 	/**

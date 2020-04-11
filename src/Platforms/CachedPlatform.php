@@ -35,10 +35,10 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getTables(): array
+	public function getTables(?string $schema = null): array
 	{
-		return $this->cache->load(self::CACHE_VERSION . '.tables', function () {
-			return $this->platform->getTables();
+		return $this->cache->load(self::CACHE_VERSION . '.tables.' . $schema , function () use ($schema) {
+			return $this->platform->getTables($schema);
 		});
 	}
 

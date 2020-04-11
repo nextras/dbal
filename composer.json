@@ -22,7 +22,8 @@
 		"nette/utils": "~3.0",
 		"nette/finder": "~2.5",
 		"nette/neon": "~3.0",
-		"phpstan/phpstan": "0.12.17",
+		"phpstan/phpstan": "0.12.18",
+		"phpstan/phpstan-deprecation-rules": "0.12.2",
 		"tracy/tracy": "~2.7"
 	},
 	"autoload": {
@@ -30,7 +31,7 @@
 		"classmap": ["src/exceptions.php"]
 	},
 	"scripts": {
-		"phpstan": "phpstan analyse -l 7 -c .phpstan.neon src"
+		"phpstan": "phpstan analyze -c .phpstan.neon"
 	},
 	"extra": {
 		"branch-alias": {
