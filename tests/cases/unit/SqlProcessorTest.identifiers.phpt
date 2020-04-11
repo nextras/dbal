@@ -36,10 +36,11 @@ class SqlProcessorIdentifiersTest extends TestCase
 		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('`a`');
 		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b.c')->andReturn('`b`.`c`');
 		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('d.e')->andReturn('`d`.`e`');
+		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('name')->andReturn('`name`');
 
 		Assert::same(
-			'SELECT `a`, `b`.`c` FROM `d`.`e`',
-			$this->parser->process(['SELECT [a], [b.c] FROM [d.e]'])
+			'SELECT `a`, `b`.`c` FROM `d`.`e` WHERE `name` = ANY(ARRAY[\'Jan\'])',
+			$this->parser->process(["SELECT [a], [b.c] FROM [d.e] WHERE [name] = ANY(ARRAY[['Jan']])"])
 		);
 	}
 }
