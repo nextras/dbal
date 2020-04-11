@@ -105,20 +105,26 @@ class PlatformMysqlTest extends IntegrationTestCase
 		], $columns);
 
 		$dbName2 = $this->connection->getConfig()['database'] . '2';
-		$this->connection->query("DROP TABLE IF EXISTS $dbName2.book_cols");
-		$this->connection->query("
-			CREATE TABLE $dbName2.book_cols (
-				book_id int NOT NULL
-			);
-		");
 
-		$columns = $this->connection->getPlatform()->getColumns("$dbName2.book_cols");
-		$columns = \array_map(function ($table) { return (array) $table; }, $columns);
+		$schemaColumns = $this->connection->getPlatform()->getColumns("$dbName2.authors");
+		$schemaColumns = \array_map(function ($table) { return (array) $table; }, $schemaColumns);
+
 		Assert::same([
-			'book_id' => [
-				'name' => 'book_id',
+			'id' => [
+				'name' => 'id',
 				'type' => 'INT',
 				'size' => 11,
+				'default' => null,
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
+			],
+			'name' => [
+				'name' => 'name',
+				'type' => 'VARCHAR',
+				'size' => 50,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -126,7 +132,29 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'isNullable' => false,
 				'meta' => [],
 			],
-		], $columns);
+			'web' => [
+				'name' => 'web',
+				'type' => 'VARCHAR',
+				'size' => 100,
+				'default' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
+			],
+			'born' => [
+				'name' => 'born',
+				'type' => 'DATE',
+				'size' => null,
+				'default' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
+			],
+		], $schemaColumns);
 	}
 
 
@@ -142,7 +170,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'schema' => $dbName,
 				'column' => 'author_id',
 				'refTable' => 'authors',
-				'refTableSchema' => $dbName,
+				'refTableSchema' => $dbName . '2',
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
@@ -166,7 +194,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'schema' => $dbName,
 				'column' => 'translator_id',
 				'refTable' => 'authors',
-				'refTableSchema' => $dbName,
+				'refTableSchema' => $dbName . '2',
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -180,8 +208,8 @@ class PlatformMysqlTest extends IntegrationTestCase
 			);
 		");
 
-		$keys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
-		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
+		$schemaKeys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
+		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
 		Assert::same([
 			'book_id' => [
 				'name' => 'book_id',
@@ -191,7 +219,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 				'refTableSchema' => $dbName,
 				'refColumn' => 'id',
 			],
-		], $keys);
+		], $schemaKeys);
 	}
 
 

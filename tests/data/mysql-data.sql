@@ -2,13 +2,21 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE books_x_tags;
 TRUNCATE books;
 TRUNCATE tags;
-TRUNCATE authors;
+SET @authorsTruncate = CONCAT('TRUNCATE ', DATABASE(), '2.authors;');
+PREPARE authorsTruncateCommand FROM @authorsTruncate;
+EXECUTE authorsTruncateCommand;
 TRUNCATE publishers;
 TRUNCATE tag_followers;
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO authors (id, name, web, born) VALUES (1, 'Writer 1', 'http://example.com/1', NULL);
-INSERT INTO authors (id, name, web, born) VALUES (2, 'Writer 2', 'http://example.com/2', NULL);
+SET @authorsInsert = CONCAT(
+	'INSERT INTO ', DATABASE(), '2.authors (id, name, web, born) VALUES
+		(1, \'Writer 1\', \'http://example.com/1\', NULL),
+		(2, \'Writer 2\', \'http://example.com/2\', NULL)
+	;'
+);
+PREPARE authorsInsertCommand FROM @authorsInsert;
+EXECUTE authorsInsertCommand;
 
 INSERT INTO publishers (id, name) VALUES (1, 'Nextras publisher');
 
