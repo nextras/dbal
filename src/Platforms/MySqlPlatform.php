@@ -33,7 +33,7 @@ class MySqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(): array
+	public function getTables(?string $schema = null): array
 	{
 		$result = $this->connection->query('
 			SELECT
@@ -41,8 +41,8 @@ class MySqlPlatform implements IPlatform
 				TABLE_NAME,
 				TABLE_TYPE
 			FROM information_schema.TABLES
-			WHERE TABLE_SCHEMA = DATABASE()
-		');
+			WHERE TABLE_SCHEMA = COALESCE(%?s, DATABASE())
+		', $schema);
 
 		$tables = [];
 		foreach ($result as $row) {

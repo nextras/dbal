@@ -35,13 +35,14 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(): array
+	public function getTables(?string $schema = null): array
 	{
 		$result = $this->connection->query("
 			SELECT TABLE_NAME, TABLE_TYPE, TABLE_SCHEMA
  			FROM information_schema.tables
+			WHERE TABLE_SCHEMA = COALESCE(%?s, SCHEMA_NAME())
  			ORDER BY TABLE_NAME
- 		");
+		", $schema);
 
 		$tables = [];
 		foreach ($result as $row) {

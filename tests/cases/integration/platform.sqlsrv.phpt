@@ -26,6 +26,11 @@ class PlatformSqlServerTest extends IntegrationTestCase
 		Assert::true(isset($tables["dbo.my_books"]));
 		Assert::same('my_books', $tables["dbo.my_books"]->name);
 		Assert::same(true, $tables["dbo.my_books"]->isView);
+
+		$tables = $this->connection->getPlatform()->getTables('second_schema');
+		Assert::true(isset($tables['second_schema.authors']));
+		Assert::same('authors', $tables['second_schema.authors']->name);
+		Assert::same(false, $tables['second_schema.authors']->isView);
 	}
 
 

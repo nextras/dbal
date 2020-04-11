@@ -27,6 +27,12 @@ class PlatformMysqlTest extends IntegrationTestCase
 		Assert::true(isset($tables["$dbName.my_books"]));
 		Assert::same('my_books', $tables["$dbName.my_books"]->name);
 		Assert::same(true, $tables["$dbName.my_books"]->isView);
+
+		$dbName = $dbName . '2';
+		$tables = $this->connection->getPlatform()->getTables($dbName);
+		Assert::true(isset($tables["$dbName.authors"]));
+		Assert::same('authors', $tables["$dbName.authors"]->name);
+		Assert::same(false, $tables["$dbName.authors"]->isView);
 	}
 
 

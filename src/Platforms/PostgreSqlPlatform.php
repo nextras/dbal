@@ -33,7 +33,7 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(): array
+	public function getTables(?string $schema = null): array
 	{
 		$result = $this->connection->query("
 			SELECT
@@ -46,10 +46,12 @@ class PostgreSqlPlatform implements IPlatform
 				JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
 			WHERE
 				c.relkind IN ('r', 'v')
-				AND n.nspname = ANY (pg_catalog.current_schemas(FALSE))
+				AND n.nspname = ANY (
+					CASE %?s IS NULL WHEN true THEN pg_catalog.current_schemas(FALSE) ELSE ARRAY[[%?s]] END
+				)
 			ORDER BY
 				c.relname
-		");
+		", $schema, $schema);
 
 		$tables = [];
 		foreach ($result as $row) {
@@ -85,7 +87,7 @@ class PostgreSqlPlatform implements IPlatform
 				LEFT JOIN pg_catalog.pg_constraint AS co ON co.connamespace = c.relnamespace AND contype = 'p' AND co.conrelid = c.oid AND a.attnum = ANY(co.conkey)
 			WHERE
 				c.relkind IN ('r', 'v')
-				AND c.oid = '%column'::regclass
+				AND c.oid = '%table'::regclass
 				AND a.attnum > 0
 				AND NOT a.attisdropped
 			ORDER BY
