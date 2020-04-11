@@ -103,36 +103,25 @@ class PlatformSqlServerTest extends IntegrationTestCase
 			],
 		], $columns);
 
-		$columns = $this->connection->getPlatform()->getColumns('tag_followers');
-		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
+		$schemaColumns = $this->connection->getPlatform()->getColumns('second_schema.authors');
+		$schemaColumns = \array_map(function ($column) { return (array) $column; }, $schemaColumns);
 
 		Assert::same([
-			'tag_id' => [
-				'name' => 'tag_id',
+			'id' => [
+				'name' => 'id',
 				'type' => 'INT',
 				'size' => 10,
 				'default' => null,
 				'isPrimary' => true,
-				'isAutoincrement' => false,
+				'isAutoincrement' => true,
 				'isUnsigned' => false,
 				'isNullable' => false,
 				'meta' => [],
 			],
-			'author_id' => [
-				'name' => 'author_id',
-				'type' => 'INT',
-				'size' => 10,
-				'default' => null,
-				'isPrimary' => true,
-				'isAutoincrement' => false,
-				'isUnsigned' => false,
-				'isNullable' => false,
-				'meta' => [],
-			],
-			'created_at' => [
-				'name' => 'created_at',
-				'type' => 'DATETIMEOFFSET',
-				'size' => null,
+			'name' => [
+				'name' => 'name',
+				'type' => 'VARCHAR',
+				'size' => 50,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -140,7 +129,29 @@ class PlatformSqlServerTest extends IntegrationTestCase
 				'isNullable' => false,
 				'meta' => [],
 			],
-		], $columns);
+			'web' => [
+				'name' => 'web',
+				'type' => 'VARCHAR',
+				'size' => 100,
+				'default' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
+			],
+			'born' => [
+				'name' => 'born',
+				'type' => 'DATE',
+				'size' => null,
+				'default' => '(NULL)',
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => true,
+				'meta' => [],
+			],
+		], $schemaColumns);
 	}
 
 
