@@ -1,60 +1,58 @@
 language: php
 
 php:
-    - 7.1
-    - 7.2
-    - 7.3
-    - 7.4
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
 
 services:
-    - mysql
-    - postgresql
-
-env:
-    matrix:
-        - dependencies=lowest
-        - dependencies=highest
-
-matrix:
-    fast_finish: true
+  - mysql
+  - postgresql
 
 cache:
-    directories:
-        - $HOME/.composer/cache
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - phpenv config-rm xdebug.ini || true
+
+  # Create php.ini & databases.ini
+  - cp ./tests/php.unix-sample.ini ./tests/php.ini
+  - cp ./tests/databases.sample.ini ./tests/databases.ini
+
+  # Create MySQL & PostgreSQL database
+  - psql -c 'CREATE DATABASE nextras_dbal_test' -U postgres
+  - sleep 2
+  - mysql -e 'CREATE DATABASE nextras_dbal_test;'
+  - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+  - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
+
+install:
+  - travis_retry composer update --no-interaction --prefer-dist --no-progress
+
+jobs:
+  fast_finish: true
+  include:
+    - name: Lowest Dependencies
+      install:
+        - travis_retry composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist --no-progress
 
 before_script:
-    # Create php.ini & databases.ini
-    - cp ./tests/php.unix-sample.ini ./tests/php.ini
-
-    - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then cat ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini >> ./tests/php.ini; fi
-    - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then NTESTER_FLAGS="--coverage ./coverage.xml --coverage-src ./src"; else TESTER_FLAGS=""; fi
-    - cp ./tests/databases.sample.ini ./tests/databases.ini
-
-    # Create MySQL & Postgre database
-    - psql -c 'CREATE DATABASE nextras_dbal_test' -U postgres
-    - sleep 2
-    - mysql -e 'CREATE DATABASE nextras_dbal_test;'
-    - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
-    # https://github.com/travis-ci/travis-ci/issues/6961#issuecomment-264283390
-    - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
-
-    # Install dependencies
-    - phpenv config-rm xdebug.ini || true
-    - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --no-interaction; fi
-    - if [ "$dependencies" = "highest" ]; then composer update --no-interaction; fi
+  - if [ "$TRAVIS_PHP_VERSION" == "7.4" ]; then NTESTER_FLAGS="-p phpdbg --coverage ./coverage.xml --coverage-src ./src"; fi
 
 script:
-    - ./tests/run.sh -s $NTESTER_FLAGS ./tests/cases
-    - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then composer phpstan; fi
+  - ./tests/run.sh -s $NTESTER_FLAGS ./tests/cases
+  - if [ "$TRAVIS_PHP_VERSION" == "7.4" ]; then composer phpstan; fi
 
 after_script:
-    - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then
-        wget https://github.com/satooshi/php-coveralls/releases/download/v2.0.0/php-coveralls.phar
-        && php php-coveralls.phar --verbose --config tests/.coveralls.yml
-        || true;
-        fi
+  - if [ "$TRAVIS_PHP_VERSION" == "7.4" ]; then
+    wget https://github.com/satooshi/php-coveralls/releases/download/v2.0.0/php-coveralls.phar
+    && php php-coveralls.phar --verbose --config tests/.coveralls.yml
+    || true;
+    fi
 
 after_failure:
-    # Print *.actual content & log content
-    - for i in $(find tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done
-    - for i in $(find tests -name \*.log); do echo "--- $i"; cat $i; echo; echo; done
+  # Print *.actual content & log content
+  - for i in $(find tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done
+  - for i in $(find tests -name \*.log); do echo "--- $i"; cat $i; echo; echo; done
