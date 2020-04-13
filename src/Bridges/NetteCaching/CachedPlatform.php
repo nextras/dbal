@@ -36,6 +36,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	/** @inheritDoc */
 	public function getTables(?string $schema = null): array
 	{
 		return $this->cache->load(self::CACHE_VERSION . '.tables.' . $schema , function () use ($schema) {
@@ -44,6 +45,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	/** @inheritDoc */
 	public function getColumns(string $table): array
 	{
 		return $this->cache->load(self::CACHE_VERSION . '.columns.' . $table, function () use ($table) {
@@ -52,6 +54,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	/** @inheritDoc */
 	public function getForeignKeys(string $table): array
 	{
 		return $this->cache->load(self::CACHE_VERSION . '.foreign_keys.' . $table, function () use ($table) {
