@@ -10,7 +10,7 @@ use Mockery;
 use Mockery\MockInterface;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
-use Nextras\Dbal\Platforms\CachedPlatform;
+use Nextras\Dbal\Bridges\NetteCaching\CachedPlatform;
 use Nextras\Dbal\Platforms\IPlatform;
 use Tester\Assert;
 

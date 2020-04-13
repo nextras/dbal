@@ -6,9 +6,10 @@
  * @link       https://github.com/nextras/dbal
  */
 
-namespace Nextras\Dbal\Platforms;
+namespace Nextras\Dbal\Bridges\NetteCaching;
 
 use Nette\Caching\Cache;
+use Nextras\Dbal\Platforms\IPlatform;
 
 
 class CachedPlatform implements IPlatform
