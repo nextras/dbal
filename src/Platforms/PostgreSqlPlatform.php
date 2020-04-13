@@ -157,7 +157,7 @@ class PostgreSqlPlatform implements IPlatform
 	{
 		foreach ($this->getColumns($table) as $column) {
 			if ($column->isPrimary) {
-				return $column->meta['sequence'];
+				return $column->meta['sequence'] ?? null;
 			}
 		}
 		return null;
