@@ -41,7 +41,6 @@ class ResultTest extends TestCase
 		Assert::same(['First'], $names);
 
 		Assert::false($result->valid());
-		Assert::null($result->current());
 		Assert::same(1, $result->key());
 
 		$result->rewind();

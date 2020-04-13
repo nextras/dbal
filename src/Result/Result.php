@@ -8,17 +8,22 @@
 
 namespace Nextras\Dbal\Result;
 
+use Countable;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
+use SeekableIterator;
+use function assert;
+use function date_default_timezone_get;
+use function iterator_to_array;
 
 
 /**
- * @implements \SeekableIterator<int, Row>
+ * @implements SeekableIterator<int, Row>
  */
-class Result implements \SeekableIterator, \Countable
+class Result implements SeekableIterator, Countable
 {
 	/** @var IResultAdapter */
 	private $adapter;
@@ -243,8 +248,9 @@ class Result implements \SeekableIterator, \Countable
 	}
 
 
-	public function current(): ?Row
+	public function current(): Row
 	{
+		assert($this->iteratorRow !== null);
 		return $this->iteratorRow;
 	}
 
