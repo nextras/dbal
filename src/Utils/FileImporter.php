@@ -10,6 +10,9 @@ namespace Nextras\Dbal\Utils;
 
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\IOException;
+use Nextras\Dbal\Platforms\MySqlPlatform;
+use Nextras\Dbal\Platforms\PostgreSqlPlatform;
+use Nextras\Dbal\Platforms\SqlServerPlatform;
 
 
 class FileImporter
@@ -37,11 +40,11 @@ class FileImporter
 		$space = "(?:\\s|/\\*.*\\*/|(?:#|-- )[^\\n]*\\n|--\\n)";
 
 		$platformName = $connection->getPlatform()->getName();
-		if ($platformName === 'mysql') {
+		if ($platformName === MySqlPlatform::NAME) {
 			$parse = '[\'"]|/\*|-- |$';
-		} elseif ($platformName === 'pgsql') {
+		} elseif ($platformName === PostgreSqlPlatform::NAME) {
 			$parse = '[\'"]|/\*|-- |$|\$[^$]*\$';
-		} elseif ($platformName === 'mssql') {
+		} elseif ($platformName === SqlServerPlatform::NAME) {
 			$parse = '[\'"[]|/\*|-- |$';
 		} else { // general
 			$parse = '[\'"`#]|/\*|-- |$';

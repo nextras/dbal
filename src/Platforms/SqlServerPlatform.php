@@ -18,6 +18,8 @@ use function explode;
 
 class SqlServerPlatform implements IPlatform
 {
+	public const NAME = 'mssql';
+
 	/** @var Connection */
 	private $connection;
 
@@ -30,7 +32,7 @@ class SqlServerPlatform implements IPlatform
 
 	public function getName(): string
 	{
-		return 'mssql';
+		return static::NAME;
 	}
 
 

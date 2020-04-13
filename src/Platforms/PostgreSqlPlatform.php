@@ -16,6 +16,8 @@ use Nextras\Dbal\Platforms\Data\Table;
 
 class PostgreSqlPlatform implements IPlatform
 {
+	public const NAME = 'pgsql';
+
 	/** @var Connection */
 	private $connection;
 
@@ -28,7 +30,7 @@ class PostgreSqlPlatform implements IPlatform
 
 	public function getName(): string
 	{
-		return 'pgsql';
+		return static::NAME;
 	}
 
 

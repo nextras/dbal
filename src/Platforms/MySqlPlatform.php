@@ -16,6 +16,8 @@ use Nextras\Dbal\Platforms\Data\Table;
 
 class MySqlPlatform implements IPlatform
 {
+	public const NAME = 'mysql';
+
 	/** @var Connection */
 	private $connection;
 
@@ -28,7 +30,7 @@ class MySqlPlatform implements IPlatform
 
 	public function getName(): string
 	{
-		return 'mysql';
+		return static::NAME;
 	}
 
 
