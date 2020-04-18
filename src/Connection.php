@@ -344,7 +344,7 @@ class Connection implements IConnection
 	private function createDriver(): IDriver
 	{
 		if (empty($this->config['driver'])) {
-			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql.');
+			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
 
 		} elseif ($this->config['driver'] instanceof IDriver) {
 			return $this->config['driver'];
