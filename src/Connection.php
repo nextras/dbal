@@ -12,6 +12,11 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
+use function array_unshift;
+use function assert;
+use function call_user_func_array;
+use function is_array;
+use function ucfirst;
 
 
 class Connection implements IConnection
@@ -60,8 +65,8 @@ class Connection implements IConnection
 
 
 	/**
-	 * @param  array $config see drivers for supported options
-	 * @phpstan-param  array<string, mixed> $config
+	 * @param array $config see drivers for supported options
+	 * @phpstan-param array<string, mixed> $config
 	 */
 	public function __construct(array $config)
 	{
@@ -135,7 +140,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function query(...$args): Result
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$sql = $this->sqlPreprocessor->process($args);
 		return $this->nativeQuery($sql);
 	}
@@ -162,7 +169,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getLastInsertedId(string $sequenceName = null)
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		return $this->driver->getLastInsertedId($sequenceName);
 	}
 
@@ -170,7 +179,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getAffectedRows(): int
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		return $this->driver->getAffectedRows();
 	}
 
@@ -207,7 +218,6 @@ class Connection implements IConnection
 			$returnValue = $callback($this);
 			$this->commitTransaction();
 			return $returnValue;
-
 		} catch (\Exception $e) {
 			$this->rollbackTransaction();
 			throw $e;
@@ -218,7 +228,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function beginTransaction(): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 
 		if ($this->nestedTransactionIndex === 0) {
 			$this->nestedTransactionIndex++;
@@ -233,12 +245,13 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function commitTransaction(): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->commitTransaction();
 			$this->nestedTransactionIndex = 0;
-
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->releaseSavepoint($this->getSavepointName());
 			$this->nestedTransactionIndex--;
@@ -249,12 +262,13 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function rollbackTransaction(): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->rollbackTransaction();
 			$this->nestedTransactionIndex = 0;
-
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->rollbackSavepoint($this->getSavepointName());
 			$this->nestedTransactionIndex--;
@@ -279,7 +293,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function createSavepoint(string $name): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$this->driver->createSavepoint($name);
 	}
 
@@ -287,7 +303,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function releaseSavepoint(string $name): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$this->driver->releaseSavepoint($name);
 	}
 
@@ -295,7 +313,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function rollbackSavepoint(string $name): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$this->driver->rollbackSavepoint($name);
 	}
 
@@ -345,10 +365,8 @@ class Connection implements IConnection
 	{
 		if (empty($this->config['driver'])) {
 			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
-
 		} elseif ($this->config['driver'] instanceof IDriver) {
 			return $this->config['driver'];
-
 		} else {
 			$name = ucfirst($this->config['driver']);
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
