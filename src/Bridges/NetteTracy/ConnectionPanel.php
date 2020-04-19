@@ -8,15 +8,17 @@
 
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\DriverException;
+use Nextras\Dbal\IConnection;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\SqlHighlighter;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
 
 
-class ConnectionPanel implements IBarPanel
+class ConnectionPanel implements IBarPanel, ILogger
 {
 	/** @var int */
 	private $maxQueries = 100;
@@ -29,44 +31,54 @@ class ConnectionPanel implements IBarPanel
 
 	/**
 	 * @var array
-	 * @phpstan-var array<array{Connection, string, float, ?int}>
+	 * @phpstan-var array<array{IConnection, string, float, ?int}>
 	 */
 	private $queries = [];
 
-	/** @var Connection */
+	/** @var IConnection */
 	private $connection;
 
 	/** @var bool */
 	private $doExplain;
 
 
-	public static function install(Connection $connection, bool $doExplain = true): void
+	public static function install(IConnection $connection, bool $doExplain = true): void
 	{
 		$doExplain = $doExplain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
 		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
 	}
 
 
-	public function __construct(Connection $connection, bool $doExplain)
+	public function __construct(IConnection $connection, bool $doExplain)
 	{
-		$connection->onQuery[] = [$this, 'logQuery'];
+		$connection->addLogger($this);
 		$this->connection = $connection;
 		$this->doExplain = $doExplain;
 	}
 
 
-	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = null, DriverException $exception = null): void
+	public function onConnect(): void
+	{
+	}
+
+
+	public function onDisconnect(): void
+	{
+	}
+
+
+	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result, ?DriverException $exception): void
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
 			return;
 		}
 
-		$this->totalTime += $elapsedTime;
+		$this->totalTime += $timeTaken;
 		$this->queries[] = [
-			$connection,
-			$sql,
-			$elapsedTime,
+			$this->connection,
+			$sqlQuery,
+			$timeTaken,
 			$result ? $result->count() : null,
 		];
 	}
@@ -98,34 +110,13 @@ class ConnectionPanel implements IBarPanel
 				$row[3] = null; // rows count is also irrelevant
 			}
 
-			$row[1] = self::highlight($row[1]);
+			$row[1] = SqlHighlighter::highlight($row[1]);
 			return $row;
 		}, $queries);
-		$whitespaceExplain = $this->connection->getPlatform()->getName() === 'pgsql';
+		$whitespaceExplain = $this->connection->getPlatform()->isSupported(IPlatform::SUPPORT_WHITESPACE_EXPLAIN);
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.panel.phtml';
 		return (string) ob_get_clean();
-	}
-
-
-	public static function highlight(string $sql): string
-	{
-		static $keywords1 = 'SELECT|(?:ON\s+DUPLICATE\s+KEY)?UPDATE|INSERT(?:\s+INTO)?|REPLACE(?:\s+INTO)?|SHOW|DELETE|CALL|UNION|FROM|WHERE|HAVING|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|SET|VALUES|LEFT\s+JOIN|INNER\s+JOIN|TRUNCATE|START\s+TRANSACTION|COMMIT|ROLLBACK|(?:RELEASE\s+|ROLLBACK\s+TO\s+)?SAVEPOINT';
-		static $keywords2 = 'ALL|DISTINCT|DISTINCTROW|IGNORE|AS|USING|ON|AND|OR|IN|IS|NOT|NULL|[RI]?LIKE|REGEXP|TRUE|FALSE';
-
-		$sql = " $sql ";
-		$sql = htmlspecialchars($sql, ENT_IGNORE, 'UTF-8');
-		$sql = preg_replace_callback("#(/\\*.+?\\*/)|(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is", function ($matches) {
-			if (!empty($matches[1])) { // comment
-				return '<em style="color:gray">' . $matches[1] . '</em>';
-			} elseif (!empty($matches[2])) { // most important keywords
-				return '<strong style="color:#2D44AD">' . $matches[2] . '</strong>';
-			} elseif (!empty($matches[3])) { // other keywords
-				return '<strong>' . $matches[3] . '</strong>';
-			}
-		}, $sql);
-		assert($sql !== null);
-		return trim($sql);
 	}
 }

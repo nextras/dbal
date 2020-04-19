@@ -29,13 +29,8 @@ class ConnectionTest extends IntegrationTestCase
 
 	public function testFireEvent()
 	{
-		$log = [];
-		$this->connection->onConnect[] = function () use (& $log) {
-			$log[] = 'connect';
-		};
-		$this->connection->onDisconnect[] = function () use (& $log) {
-			$log[] = 'disconnect';
-		};
+		$logger = new TestLogger();
+		$this->connection->addLogger($logger);
 
 		$this->connection->ping();
 		$this->connection->reconnect();
@@ -44,24 +39,19 @@ class ConnectionTest extends IntegrationTestCase
 		Assert::same([
 			'connect',
 			'disconnect',
-		], $log);
+		], $logger->logged);
 	}
 
 
 	public function testFireEvent2()
 	{
-		$log = [];
-		$this->connection->onConnect[] = function () use (& $log) {
-			$log[] = 'connect';
-		};
-		$this->connection->onDisconnect[] = function () use (& $log) {
-			$log[] = 'disconnect';
-		};
+		$logger = new TestLogger();
+		$this->connection->addLogger($logger);
 
 		$this->connection->disconnect();
 		$this->connection->reconnect();
 		$this->connection->connect();
-		Assert::same(['connect'], $log);
+		Assert::same(['connect'], $logger->logged);
 	}
 
 

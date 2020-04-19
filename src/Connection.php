@@ -12,28 +12,17 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\LoggerHelper;
+use function array_unshift;
+use function assert;
+use function call_user_func_array;
+use function is_array;
+use function spl_object_hash;
+use function ucfirst;
 
 
 class Connection implements IConnection
 {
-	/**
-	 * @var callable[]: function(Connection $connection)
-	 * @phpstan-var array<callable(Connection):void>
-	 */
-	public $onConnect = [];
-
-	/**
-	 * @var callable[]: function(Connection $connection)
-	 * @phpstan-var array<callable(Connection):void>
-	 */
-	public $onDisconnect = [];
-
-	/**
-	 * @var callable[]: function(Connection $connection, string $query, float $time, ?Result $result, ?DriverException $exception)
-	 * @phpstan-var array<callable(Connection, string, float, ?Result, ?DriverException): void>
-	 */
-	public $onQuery = [];
-
 	/**
 	 * @var array
 	 * @phpstan-var array<string, mixed>
@@ -58,10 +47,13 @@ class Connection implements IConnection
 	/** @var bool */
 	private $nestedTransactionsWithSavepoint = true;
 
+	/** @var MultiLogger */
+	private $logger;
+
 
 	/**
-	 * @param  array $config see drivers for supported options
-	 * @phpstan-param  array<string, mixed> $config
+	 * @param array $config see drivers for supported options
+	 * @phpstan-param array<string, mixed> $config
 	 */
 	public function __construct(array $config)
 	{
@@ -69,6 +61,7 @@ class Connection implements IConnection
 		$this->driver = $this->createDriver();
 		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connected = $this->driver->isConnected();
+		$this->logger = new MultiLogger();
 	}
 
 
@@ -78,13 +71,12 @@ class Connection implements IConnection
 		if ($this->connected) {
 			return;
 		}
-		$this->driver->connect($this->config, function (string $sql, float $time, Result $result = null, DriverException $exception = null) {
-			$this->fireEvent('onQuery', [$this, $sql, $time, $result, $exception]);
-		});
+
+		$this->driver->connect($this->config, $this->logger);
 		$this->connected = true;
 		$this->nestedTransactionIndex = 0;
 		$this->nestedTransactionsWithSavepoint = (bool) ($this->config['nestedTransactionsWithSavepoint'] ?? true);
-		$this->fireEvent('onConnect', [$this]);
+		$this->logger->onConnect();
 	}
 
 
@@ -96,7 +88,7 @@ class Connection implements IConnection
 		}
 		$this->driver->disconnect();
 		$this->connected = false;
-		$this->fireEvent('onDisconnect', [$this]);
+		$this->logger->onDisconnect();
 	}
 
 
@@ -135,7 +127,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function query(...$args): Result
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$sql = $this->sqlPreprocessor->process($args);
 		return $this->nativeQuery($sql);
 	}
@@ -162,7 +156,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getLastInsertedId(string $sequenceName = null)
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		return $this->driver->getLastInsertedId($sequenceName);
 	}
 
@@ -170,7 +166,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function getAffectedRows(): int
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		return $this->driver->getAffectedRows();
 	}
 
@@ -207,7 +205,6 @@ class Connection implements IConnection
 			$returnValue = $callback($this);
 			$this->commitTransaction();
 			return $returnValue;
-
 		} catch (\Exception $e) {
 			$this->rollbackTransaction();
 			throw $e;
@@ -218,7 +215,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function beginTransaction(): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 
 		if ($this->nestedTransactionIndex === 0) {
 			$this->nestedTransactionIndex++;
@@ -233,12 +232,13 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function commitTransaction(): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->commitTransaction();
 			$this->nestedTransactionIndex = 0;
-
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->releaseSavepoint($this->getSavepointName());
 			$this->nestedTransactionIndex--;
@@ -249,12 +249,13 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function rollbackTransaction(): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->rollbackTransaction();
 			$this->nestedTransactionIndex = 0;
-
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->rollbackSavepoint($this->getSavepointName());
 			$this->nestedTransactionIndex--;
@@ -279,7 +280,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function createSavepoint(string $name): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$this->driver->createSavepoint($name);
 	}
 
@@ -287,7 +290,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function releaseSavepoint(string $name): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$this->driver->releaseSavepoint($name);
 	}
 
@@ -295,7 +300,9 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function rollbackSavepoint(string $name): void
 	{
-		if (!$this->connected) $this->connect();
+		if (!$this->connected) {
+			$this->connect();
+		}
 		$this->driver->rollbackSavepoint($name);
 	}
 
@@ -310,6 +317,18 @@ class Connection implements IConnection
 	}
 
 
+	public function addLogger(ILogger $logger): void
+	{
+		$this->logger->loggers[spl_object_hash($logger)] = $logger;
+	}
+
+
+	public function removeLogger(ILogger $logger): void
+	{
+		unset($this->logger->loggers[spl_object_hash($logger)]);
+	}
+
+
 	protected function getSavepointName(): string
 	{
 		return "NEXTRAS_SAVEPOINT_{$this->nestedTransactionIndex}";
@@ -318,37 +337,20 @@ class Connection implements IConnection
 
 	private function nativeQuery(string $sql): Result
 	{
-		try {
-			$result = $this->driver->query($sql);
-			$this->fireEvent('onQuery', [
-				$this,
-				$sql,
-				$this->driver->getQueryElapsedTime(),
-				$result,
-				null, // exception
-			]);
-			return $result;
-		} catch (DriverException $exception) {
-			$this->fireEvent('onQuery', [
-				$this,
-				$sql,
-				$this->driver->getQueryElapsedTime(),
-				null, // result
-				$exception
-			]);
-			throw $exception;
-		}
+		return LoggerHelper::loggedQuery(
+			$this->driver,
+			$this->logger,
+			$sql
+		);
 	}
 
 
 	private function createDriver(): IDriver
 	{
 		if (empty($this->config['driver'])) {
-			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql.');
-
+			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
 		} elseif ($this->config['driver'] instanceof IDriver) {
 			return $this->config['driver'];
-
 		} else {
 			$name = ucfirst($this->config['driver']);
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
@@ -365,17 +367,6 @@ class Connection implements IConnection
 			return $factory->create($this);
 		} else {
 			return new SqlProcessor($this->driver, $this->getPlatform());
-		}
-	}
-
-
-	/**
-	 * @phpstan-param array<mixed> $args
-	 */
-	private function fireEvent(string $event, array $args): void
-	{
-		foreach ($this->$event as $callback) {
-			call_user_func_array($callback, $args);
 		}
 	}
 }

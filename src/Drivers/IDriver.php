@@ -10,6 +10,7 @@ namespace Nextras\Dbal\Drivers;
 
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\DriverException;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -33,7 +34,7 @@ interface IDriver
 	 * @phpstan-param array<string, mixed> $params
 	 * @internal
 	 */
-	public function connect(array $params, callable $loggedQueryCallback): void;
+	public function connect(array $params, ILogger $logger): void;
 
 
 	/**

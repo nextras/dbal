@@ -15,6 +15,7 @@ use Nextras\Dbal\ConnectionException;
 use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
@@ -24,6 +25,7 @@ use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
+use Nextras\Dbal\Utils\LoggerHelper;
 
 
 class SqlsrvDriver implements IDriver
@@ -31,8 +33,8 @@ class SqlsrvDriver implements IDriver
 	/** @var resource|null */
 	private $connection;
 
-	/** @var callable */
-	private $onQueryCallback;
+	/** @var ILogger */
+	private $logger;
 
 	/** @var int */
 	private $affectedRows = 0;
@@ -47,7 +49,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $onQueryCallback): void
+	public function connect(array $params, ILogger $logger): void
 	{
 		// see https://msdn.microsoft.com/en-us/library/ff628167.aspx
 		static $knownConnectionOptions = [
@@ -58,7 +60,7 @@ class SqlsrvDriver implements IDriver
 			'TransactionIsolation', 'TrustServerCertificate', 'WSID'
 		];
 
-		$this->onQueryCallback = $onQueryCallback;
+		$this->logger = $logger;
 		$connectionString = isset($params['port']) ? $params['host'] . ',' . $params['port'] : $params['host'];
 
 		$connectionOptions = [];
@@ -200,7 +202,7 @@ class SqlsrvDriver implements IDriver
 		$time = microtime(true);
 		$result = sqlsrv_begin_transaction($this->connection);
 		$timeTaken = microtime(true) - $time;
-		($this->onQueryCallback)('BEGIN TRANSACTION', $timeTaken, null, null);
+		$this->logger->onQuery('BEGIN TRANSACTION', $timeTaken, null, null);
 		if (!$result) {
 			$this->throwErrors();
 		}
@@ -213,7 +215,7 @@ class SqlsrvDriver implements IDriver
 		$time = microtime(true);
 		$result = sqlsrv_commit($this->connection);
 		$timeTaken = microtime(true) - $time;
-		($this->onQueryCallback)('COMMIT TRANSACTION', $timeTaken, null, null);
+		$this->logger->onQuery('COMMIT TRANSACTION', $timeTaken, null, null);
 		if (!$result) {
 			$this->throwErrors();
 		}
@@ -226,7 +228,7 @@ class SqlsrvDriver implements IDriver
 		$time = microtime(true);
 		$result = sqlsrv_rollback($this->connection);
 		$timeTaken = microtime(true) - $time;
-		($this->onQueryCallback)('ROLLBACK TRANSACTION', $timeTaken, null, null);
+		$this->logger->onQuery('ROLLBACK TRANSACTION', $timeTaken, null, null);
 		if (!$result) {
 			$this->throwErrors();
 		}
@@ -392,13 +394,6 @@ class SqlsrvDriver implements IDriver
 
 	protected function loggedQuery(string $sql): Result
 	{
-		try {
-			$result = $this->query($sql);
-			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), $result, null);
-			return $result;
-		} catch (DriverException $exception) {
-			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), null, $exception);
-			throw $exception;
-		}
+		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
 	}
 }
