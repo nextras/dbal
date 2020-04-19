@@ -24,7 +24,8 @@ class NextrasDbalExtension extends Extension
 	 */
 	public function load(array $configs, ContainerBuilder $container): void
 	{
-		$config = $this->processConfiguration(new Configuration(), $configs);
+		$configuration = new Configuration($container->getParameter('kernel.debug'));
+		$config = $this->processConfiguration($configuration, $configs);
 
 		$defaultConnectionName = $config['default_connection'];
 		foreach ($config['connections'] as $name => $connectionConfig) {

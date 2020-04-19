@@ -25,6 +25,7 @@ class DbalBundleTest extends IntegrationTestCase
 		$extension = new NextrasDbalExtension();
 
 		$containerBuilder = new ContainerBuilder();
+		$containerBuilder->setParameter('kernel.debug', true);
 		$containerBuilder->registerExtension($extension);
 		$containerBuilder->loadFromExtension($extension->getAlias(), [
 			'connections' => [

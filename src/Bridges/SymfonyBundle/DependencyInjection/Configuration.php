@@ -16,6 +16,16 @@ use function is_array;
 
 class Configuration implements ConfigurationInterface
 {
+	/** @var bool */
+	private $debug;
+
+
+	public function __construct(bool $debug)
+	{
+		$this->debug = $debug;
+	}
+
+
 	public function getConfigTreeBuilder()
 	{
 		$treeBuilder = new TreeBuilder('nextras_dbal');
@@ -47,7 +57,7 @@ class Configuration implements ConfigurationInterface
 								->cannotBeEmpty()
 							->end()
 							->booleanNode('profiler')
-								->defaultTrue()
+								->defaultValue($this->debug)
 							->end()
 							->booleanNode('profilerExplain')
 								->defaultTrue()
