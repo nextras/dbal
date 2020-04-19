@@ -13,3 +13,8 @@ parameters:
 			- throwWrongModifierException
 		Nextras\Dbal\Drivers\Sqlsrv\SqlsrvDriver:
 			- throwErrors
+
+	ignoreErrors:
+		-
+			message: '~Call to an undefined method .+::children\(\)\.~'
+			path: "src/Bridges/SymfonyBundle/DependencyInjection/Configuration.php"
