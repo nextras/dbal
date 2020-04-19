@@ -9,6 +9,7 @@
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
 use Nextras\Dbal\QueryException;
+use Nextras\Dbal\Utils\SqlHighlighter;
 
 
 class BluescreenQueryPanel
@@ -24,7 +25,7 @@ class BluescreenQueryPanel
 
 		return [
 			'tab' => 'SQL',
-			'panel' => '<pre class="sql">' . ConnectionPanel::highlight($query) . "</pre>",
+			'panel' => '<pre class="sql">' . SqlHighlighter::highlight($query) . "</pre>",
 		];
 	}
 }

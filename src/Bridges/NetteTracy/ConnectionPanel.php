@@ -13,6 +13,7 @@ use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\SqlHighlighter;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
 
@@ -109,7 +110,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 				$row[3] = null; // rows count is also irrelevant
 			}
 
-			$row[1] = self::highlight($row[1]);
+			$row[1] = SqlHighlighter::highlight($row[1]);
 			return $row;
 		}, $queries);
 		$whitespaceExplain = $this->connection->getPlatform()->isSupported(IPlatform::SUPPORT_WHITESPACE_EXPLAIN);
@@ -117,26 +118,5 @@ class ConnectionPanel implements IBarPanel, ILogger
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.panel.phtml';
 		return (string) ob_get_clean();
-	}
-
-
-	public static function highlight(string $sql): string
-	{
-		static $keywords1 = 'SELECT|(?:ON\s+DUPLICATE\s+KEY)?UPDATE|INSERT(?:\s+INTO)?|REPLACE(?:\s+INTO)?|SHOW|DELETE|CALL|UNION|FROM|WHERE|HAVING|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|SET|VALUES|LEFT\s+JOIN|INNER\s+JOIN|TRUNCATE|START\s+TRANSACTION|COMMIT|ROLLBACK|(?:RELEASE\s+|ROLLBACK\s+TO\s+)?SAVEPOINT';
-		static $keywords2 = 'ALL|DISTINCT|DISTINCTROW|IGNORE|AS|USING|ON|AND|OR|IN|IS|NOT|NULL|[RI]?LIKE|REGEXP|TRUE|FALSE';
-
-		$sql = " $sql ";
-		$sql = htmlspecialchars($sql, ENT_IGNORE, 'UTF-8');
-		$sql = preg_replace_callback("#(/\\*.+?\\*/)|(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is", function ($matches) {
-			if (!empty($matches[1])) { // comment
-				return '<em style="color:gray">' . $matches[1] . '</em>';
-			} elseif (!empty($matches[2])) { // most important keywords
-				return '<strong style="color:#2D44AD">' . $matches[2] . '</strong>';
-			} elseif (!empty($matches[3])) { // other keywords
-				return '<strong>' . $matches[3] . '</strong>';
-			}
-		}, $sql);
-		assert($sql !== null);
-		return trim($sql);
 	}
 }
