@@ -14,6 +14,11 @@ Supported platforms:
 - **PostgreSQL** via `pgsql` extension,
 - **MS SQL Server** via `sqlsrv` extension.
 
+Integrations:
+- Symfony Bundle
+- Nette DI Extension
+- Tracy Panel
+
 ### Installation
 
 Use composer:

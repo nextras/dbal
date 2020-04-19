@@ -1,0 +1,143 @@
+{% extends request.isXmlHttpRequest ? '@WebProfiler/Profiler/ajax_layout.html.twig' : '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include("@NextrasDbal/DataCollector/icon.svg") }}
+        <span class="sf-toolbar-value">{{ collector.queryCount }}</span>
+        <span class="sf-toolbar-label">
+            {% if collector.queryCount == 1 %}query{% else %}queries{% endif %}
+        </span>
+        {% if collector.queryCount > 0 %}
+            <span class="sf-toolbar-info-piece-additional-detail">
+                <span class="sf-toolbar-label">/</span>
+                <span class="sf-toolbar-value">{{ '%0.1f'|format(collector.totalTime * 1000) }}</span>
+                <span class="sf-toolbar-label">ms</span>
+            </span>
+        {% endif %}
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { 'link': true }) }}
+{% endblock %}
+
+{% block menu %}
+
+    <span class="label">
+        <span class="icon">{{ include('@NextrasDbal/DataCollector/icon.svg') }}</span>
+        <strong>Nextras Dbal</strong>
+    </span>
+
+{% endblock %}
+
+{% block head %}
+
+    {{ parent() }}
+
+    <style>
+        .nextras-dbal-panel-sql > span {
+            margin-right: 1em !important;
+        }
+
+        .nextras-dbal-panel-sql .nextras-dbal-whitespace-explain {
+            white-space: pre !important;
+        }
+
+        .nextras-dbal-panel-time {
+            text-align: right !important;
+            white-space: nowrap !important;
+            width: 70px !important;
+        }
+
+        .nextras-dbal-explain td, .nextras-dbal-explain th {
+            border: 1px solid var(--base-2);
+        }
+    </style>
+
+    <script>
+		function nextrasDbalPanelCopySql(e, elem) {
+			e.preventDefault();
+			const str = elem.parentElement.parentElement.getElementsByTagName('code').item(0).textContent;
+			const el = document.createElement('textarea');
+			el.value = str;
+			el.setAttribute('readonly', '');
+			el.style.position = 'absolute';
+			el.style.left = '-9999px';
+			document.body.appendChild(el);
+			const selected =
+				document.getSelection().rangeCount > 0
+					? document.getSelection().getRangeAt(0)
+					: false;
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+			if (selected) {
+				document.getSelection().removeAllRanges();
+				document.getSelection().addRange(selected);
+			}
+			return false;
+		}
+    </script>
+
+{% endblock %}
+
+{% block panel %}
+
+    <h2>Nextras Dbal Queries</h2>
+    <p>Connection <code>{{ collector.title }}</code></p>
+
+    {% if collector.queryCount == 0 %}
+
+        <div class="empty">
+            <p>No executed queries.</p>
+        </div>
+
+    {% else %}
+
+        <p>Queries: {{ collector.queryCount }}</p>
+        <table>
+            <thead>
+            <tr>
+                <th class="nextras-dbal-panel-time">ms</th>
+                <th>SQL query</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for query in collector.queries %}
+                <tr>
+                    <td class="nextras-dbal-panel-time">{{ '%0.2f'|format(query.timeTaken * 1000) }}</td>
+                    <td class="nextras-dbal-panel-sql">
+                        <code>{{ query.sql|raw }}</code><br>
+                        {% if query.rowsCount != null %}
+                            <span class="nextras-dbal-rowscount text-muted">{{ query.rowsCount }} {% if query.rowsCount == 1 %}row{% else %}rows{% endif %}</span>
+                        {% endif %}
+                        <span><a href="" class="text-muted" onclick="nextrasDbalPanelCopySql(event, this)">copy</a></span>
+                        {% if query.explain != null %}
+                            <span><a href="" class="text-muted sf-toggle" data-toggle-selector="#{{ query.uniqId }}" data-toggle-alt-content="hide explain">show explain</a></span>
+                            <div id="{{ query.uniqId }}" class="sf-toggle-content sf-toggle-hidden">
+                                <table class="nextras-dbal-explain">
+                                    <tr>
+                                        {% for col, foo in query.explain.0.toArray %}
+                                            <th>{{ col }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    {% for row in query.explain %}
+                                        <tr>
+                                            {% for col in row.toArray %}
+                                                <td class="{% if collector.whitespaceExplain %}nextras-dbal-whitespace-explain{% endif %}">{{ col }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if collector.queries|length < collector.queryCount %}
+            <p>...and more</p>
+        {% endif %}
+
+    {% endif %}
+
+{% endblock %}
