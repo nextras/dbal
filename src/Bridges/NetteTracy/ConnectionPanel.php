@@ -12,7 +12,6 @@ use Nextras\Dbal\DriverException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
-use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Result;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
@@ -113,7 +112,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 			$row[1] = self::highlight($row[1]);
 			return $row;
 		}, $queries);
-		$whitespaceExplain = $this->connection->getPlatform()->getName() === PostgreSqlPlatform::NAME;
+		$whitespaceExplain = $this->connection->getPlatform()->isSupported(IPlatform::SUPPORT_WHITESPACE_EXPLAIN);
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.panel.phtml';

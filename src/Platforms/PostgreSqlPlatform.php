@@ -171,6 +171,7 @@ class PostgreSqlPlatform implements IPlatform
 		static $supported = [
 			self::SUPPORT_MULTI_COLUMN_IN => true,
 			self::SUPPORT_QUERY_EXPLAIN => true,
+			self::SUPPORT_WHITESPACE_EXPLAIN => true,
 		];
 		return isset($supported[$feature]);
 	}

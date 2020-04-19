@@ -15,8 +15,9 @@ use Nextras\Dbal\Platforms\Data\Table;
 
 interface IPlatform
 {
-	const SUPPORT_MULTI_COLUMN_IN = 1;
-	const SUPPORT_QUERY_EXPLAIN = 2;
+	public const SUPPORT_MULTI_COLUMN_IN = 1;
+	public const SUPPORT_QUERY_EXPLAIN = 2;
+	public const SUPPORT_WHITESPACE_EXPLAIN = 3;
 
 
 	/**
