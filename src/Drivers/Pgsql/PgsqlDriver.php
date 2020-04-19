@@ -15,6 +15,7 @@ use Nextras\Dbal\ConnectionException;
 use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
@@ -23,6 +24,7 @@ use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
+use Nextras\Dbal\Utils\LoggerHelper;
 use Tester\Assert;
 
 
@@ -34,8 +36,8 @@ class PgsqlDriver implements IDriver
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
-	/** @var callable */
-	private $onQueryCallback;
+	/** @var ILogger */
+	private $logger;
 
 	/** @var int */
 	private $affectedRows = 0;
@@ -50,14 +52,14 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $onQueryCallback): void
+	public function connect(array $params, ILogger $logger): void
 	{
 		static $knownKeys = [
 			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
 			'connect_timeout', 'options', 'sslmode', 'service',
 		];
 
-		$this->onQueryCallback = $onQueryCallback;
+		$this->logger = $logger;
 
 		$params = $this->processConfig($params);
 		$connectionString = '';
@@ -390,14 +392,7 @@ class PgsqlDriver implements IDriver
 
 	protected function loggedQuery(string $sql): Result
 	{
-		try {
-			$result = $this->query($sql);
-			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), $result, null);
-			return $result;
-		} catch (DriverException $exception) {
-			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), null, $exception);
-			throw $exception;
-		}
+		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
 	}
 
 

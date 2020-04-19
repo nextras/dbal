@@ -16,6 +16,7 @@ use Nextras\Dbal\ConnectionException;
 use Nextras\Dbal\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\NotNullConstraintViolationException;
 use Nextras\Dbal\NotSupportedException;
@@ -24,6 +25,7 @@ use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
+use Nextras\Dbal\Utils\LoggerHelper;
 
 
 class MysqliDriver implements IDriver
@@ -34,8 +36,8 @@ class MysqliDriver implements IDriver
 	/** @var DateTimeZone Timezone for database connection. */
 	private $connectionTz;
 
-	/** @var callable */
-	private $onQueryCallback;
+	/** @var ILogger */
+	private $logger;
 
 	/** @var float */
 	private $timeTaken = 0.0;
@@ -47,9 +49,9 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function connect(array $params, callable $onQueryCallback): void
+	public function connect(array $params, ILogger $logger): void
 	{
-		$this->onQueryCallback = $onQueryCallback;
+		$this->logger = $logger;
 
 		$host = $params['host'] ?? ini_get('mysqli.default_host');
 		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
@@ -424,13 +426,6 @@ class MysqliDriver implements IDriver
 
 	protected function loggedQuery(string $sql): Result
 	{
-		try {
-			$result = $this->query($sql);
-			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), $result, null);
-			return $result;
-		} catch (DriverException $exception) {
-			($this->onQueryCallback)($sql, $this->getQueryElapsedTime(), null, $exception);
-			throw $exception;
-		}
+		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
 	}
 }

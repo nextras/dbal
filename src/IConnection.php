@@ -162,4 +162,16 @@ interface IConnection
 	 *     }
 	 */
 	public function ping(): bool;
+
+
+	/**
+	 * Adds logger for observing connection queries & changes.
+	 */
+	public function addLogger(ILogger $logger): void;
+
+
+	/**
+	 * Removes logger.
+	 */
+	public function removeLogger(ILogger $logger): void;
 }

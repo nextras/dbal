@@ -8,15 +8,17 @@
 
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\DriverException;
+use Nextras\Dbal\IConnection;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
+use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Result;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
 
 
-class ConnectionPanel implements IBarPanel
+class ConnectionPanel implements IBarPanel, ILogger
 {
 	/** @var int */
 	private $maxQueries = 100;
@@ -29,44 +31,54 @@ class ConnectionPanel implements IBarPanel
 
 	/**
 	 * @var array
-	 * @phpstan-var array<array{Connection, string, float, ?int}>
+	 * @phpstan-var array<array{IConnection, string, float, ?int}>
 	 */
 	private $queries = [];
 
-	/** @var Connection */
+	/** @var IConnection */
 	private $connection;
 
 	/** @var bool */
 	private $doExplain;
 
 
-	public static function install(Connection $connection, bool $doExplain = true): void
+	public static function install(IConnection $connection, bool $doExplain = true): void
 	{
 		$doExplain = $doExplain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
 		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
 	}
 
 
-	public function __construct(Connection $connection, bool $doExplain)
+	public function __construct(IConnection $connection, bool $doExplain)
 	{
-		$connection->onQuery[] = [$this, 'logQuery'];
+		$connection->addLogger($this);
 		$this->connection = $connection;
 		$this->doExplain = $doExplain;
 	}
 
 
-	public function logQuery(Connection $connection, string $sql, float $elapsedTime, Result $result = null, DriverException $exception = null): void
+	public function onConnect(): void
+	{
+	}
+
+
+	public function onDisconnect(): void
+	{
+	}
+
+
+	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result, ?DriverException $exception): void
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
 			return;
 		}
 
-		$this->totalTime += $elapsedTime;
+		$this->totalTime += $timeTaken;
 		$this->queries[] = [
-			$connection,
-			$sql,
-			$elapsedTime,
+			$this->connection,
+			$sqlQuery,
+			$timeTaken,
 			$result ? $result->count() : null,
 		];
 	}
@@ -101,7 +113,7 @@ class ConnectionPanel implements IBarPanel
 			$row[1] = self::highlight($row[1]);
 			return $row;
 		}, $queries);
-		$whitespaceExplain = $this->connection->getPlatform()->getName() === 'pgsql';
+		$whitespaceExplain = $this->connection->getPlatform()->getName() === PostgreSqlPlatform::NAME;
 
 		ob_start();
 		require __DIR__ . '/ConnectionPanel.panel.phtml';
