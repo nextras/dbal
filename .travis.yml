@@ -27,7 +27,6 @@ before_install:
   - mysql -e 'CREATE DATABASE nextras_dbal_test;'
   - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
   - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
-  - if [ "$TRAVIS_PHP_VERSION" == "7.1" ]; then rm composer.json && mv composer_php71.json composer.json; fi
 
 install:
   - travis_retry composer update --no-interaction --prefer-dist --no-progress
