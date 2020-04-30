@@ -154,7 +154,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function getLastInsertedId(string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null)
 	{
 		if (!$this->connected) {
 			$this->connect();

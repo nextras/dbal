@@ -82,9 +82,9 @@ interface IConnection
 
 	/**
 	 * Returns last inserted ID.
-	 * @return int|string
+	 * @return int|string|null
 	 */
-	public function getLastInsertedId(string $sequenceName = null);
+	public function getLastInsertedId(?string $sequenceName = null);
 
 
 	/**

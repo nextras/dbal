@@ -31,11 +31,12 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 		$this->initData($this->connection);
 
 		$this->connection->query('INSERT INTO publishers %values', ['name' => 'FOO']);
-		Assert::same(2, $this->connection->getLastInsertedId("publishers_id_seq"));
+		Assert::same(2, $this->connection->getLastInsertedId('publishers_id_seq'));
+		Assert::same(2, $this->connection->getLastInsertedId('public.publishers_id_seq'));
 
 		Assert::exception(function () {
 			$this->connection->getLastInsertedId();
-		}, InvalidArgumentException::class, 'PgsqlDriver require to pass sequence name for getLastInsertedId() method.');
+		}, InvalidArgumentException::class, 'PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
 	}
 
 
