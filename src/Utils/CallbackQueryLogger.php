@@ -8,20 +8,13 @@ use Nextras\Dbal\Result\Result;
 
 
 /**
- * Support class to ease BC with Dbal 3.0.
- *
- * Replace
+ * Support class to easily log only executed queries.
  *
  * <code>
- * $connection->onQuery[] = function(...) {...};
+ * $connection->addLogger(new CallbackQueryLogger(function (string $query, float $timeTaken, ?Result $result) {
+ *      echo $query;
+ * }));
  * </code>
- *
- * with
- *
- * <code>
- * $connection->addLogger(new CallbackQueryLogger(function (...) {...}));
- * </code>
- * @deprecated
  */
 class CallbackQueryLogger implements ILogger
 {
