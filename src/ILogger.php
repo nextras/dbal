@@ -28,5 +28,15 @@ interface ILogger
 	/**
 	 * When SQL query is executed on connection.
 	 */
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result, ?\Nextras\Dbal\Drivers\Exception\DriverException $exception): void;
+	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void;
+
+
+	/**
+	 * When SQL query execution fails on connection.
+	 */
+	public function onQueryException(
+		string $sqlQuery,
+		float $timeTaken,
+		?\Nextras\Dbal\Drivers\Exception\DriverException $exception
+	): void;
 }

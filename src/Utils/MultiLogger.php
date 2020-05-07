@@ -38,10 +38,18 @@ class MultiLogger implements ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result, ?DriverException $exception): void
+	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
 	{
 		foreach ($this->loggers as $logger) {
-			$logger->onQuery($sqlQuery, $timeTaken, $result, $exception);
+			$logger->onQuery($sqlQuery, $timeTaken, $result);
+		}
+	}
+
+
+	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	{
+		foreach ($this->loggers as $logger) {
+			$logger->onQueryException($sqlQuery, $timeTaken, $exception);
 		}
 	}
 }

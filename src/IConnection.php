@@ -134,6 +134,15 @@ interface IConnection
 
 
 	/**
+	 * Returns current connection's transaction nested index.
+	 * 0 = no running transaction
+	 * 1 = basic transaction
+	 * >1 = nested transaction through save-points
+	 */
+	public function getTransactionNestedIndex(): int;
+
+
+	/**
 	 * Creates a savepoint.
 	 * @throws DriverException
 	 */

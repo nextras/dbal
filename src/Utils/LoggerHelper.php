@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Utils;
 
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Result\Result;
@@ -32,15 +32,13 @@ class LoggerHelper
 			$logger->onQuery(
 				$sqlQuery,
 				$driver->getQueryElapsedTime(),
-				$result,
-				null // exception
+				$result
 			);
 			return $result;
 		} catch (DriverException $exception) {
-			$logger->onQuery(
+			$logger->onQueryException(
 				$sqlQuery,
 				$driver->getQueryElapsedTime(),
-				null, // result
 				$exception
 			);
 			throw $exception;

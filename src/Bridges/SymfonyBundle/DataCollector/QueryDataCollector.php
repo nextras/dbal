@@ -8,8 +8,7 @@
 
 namespace Nextras\Dbal\Bridges\SymfonyBundle\DataCollector;
 
-use Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel;
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -135,7 +134,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result, ?DriverException $exception): void
+	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
 	{
 		$this->data['count']++;
 		if ($this->data['count'] > 100) {
@@ -148,5 +147,10 @@ class QueryDataCollector extends DataCollector implements ILogger
 			$timeTaken,
 			$result ? $result->count() : null,
 		];
+	}
+
+
+	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	{
 	}
 }

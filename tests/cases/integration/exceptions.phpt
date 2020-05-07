@@ -7,11 +7,11 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\ConnectionException;
-use Nextras\Dbal\ForeignKeyConstraintViolationException;
-use Nextras\Dbal\NotNullConstraintViolationException;
-use Nextras\Dbal\QueryException;
-use Nextras\Dbal\UniqueConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
