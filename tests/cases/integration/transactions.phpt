@@ -105,11 +105,11 @@ class TransactionsTest extends IntegrationTestCase
 
 		$this->connection->rollbackTransaction();
 		$this->connection->rollbackTransaction();
-		Assert::same(0, $this->connection->getTransactionIndex());
+		Assert::same(0, $this->connection->getTransactionNestedIndex());
 
 		$this->connection->commitTransaction();
 		$this->connection->commitTransaction();
-		Assert::same(0, $this->connection->getTransactionIndex());
+		Assert::same(0, $this->connection->getTransactionNestedIndex());
 	}
 
 

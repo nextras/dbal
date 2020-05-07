@@ -270,15 +270,8 @@ class Connection implements IConnection
 	}
 
 
-	/**
-	 * Returns current connection's transaction index.
-	 * 0 = no running transaction
-	 * 1 = basic transaction
-	 * >1 = nested transaction through savepoints
-	 * Todo: Add this method to interface in v4
-	 * @return int
-	 */
-	public function getTransactionIndex(): int
+	/** @inheritdoc */
+	public function getTransactionNestedIndex(): int
 	{
 		return $this->nestedTransactionIndex;
 	}
