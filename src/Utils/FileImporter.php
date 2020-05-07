@@ -17,6 +17,9 @@ use Nextras\Dbal\Platforms\SqlServerPlatform;
 
 class FileImporter
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * Imports & executes queries from sql file.
 	 * Code taken from Adminer (http://www.adminer.org) & modified,

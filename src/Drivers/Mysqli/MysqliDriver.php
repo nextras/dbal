@@ -26,10 +26,14 @@ use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
 use Nextras\Dbal\Utils\LoggerHelper;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class MysqliDriver implements IDriver
 {
+	use StrictObjectTrait;
+
+
 	/** @var mysqli|null */
 	private $connection;
 

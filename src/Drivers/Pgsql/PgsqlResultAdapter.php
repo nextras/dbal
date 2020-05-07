@@ -10,10 +10,14 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class PgsqlResultAdapter implements IResultAdapter
 {
+	use StrictObjectTrait;
+
+
 	/** @var resource */
 	private $result;
 

@@ -11,6 +11,9 @@ namespace Nextras\Dbal\Utils;
 
 class Typos
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * Returns the closest word to the $current word or NULL if such word does not exist.
 	 * @param  string[] $words

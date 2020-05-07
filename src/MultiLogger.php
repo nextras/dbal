@@ -3,10 +3,14 @@
 namespace Nextras\Dbal;
 
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class MultiLogger implements ILogger
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var ILogger[]
 	 * @phpstan-var array<string, ILogger>

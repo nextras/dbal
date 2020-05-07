@@ -9,8 +9,14 @@
 namespace Nextras\Dbal\Platforms\Data;
 
 
+use Nextras\Dbal\Utils\StrictObjectTrait;
+
+
 class ForeignKey
 {
+	use StrictObjectTrait;
+
+
 	/** @var string */
 	public $name;
 

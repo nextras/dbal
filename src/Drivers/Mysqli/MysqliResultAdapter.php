@@ -11,10 +11,14 @@ namespace Nextras\Dbal\Drivers\Mysqli;
 use mysqli_result;
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class MysqliResultAdapter implements IResultAdapter
 {
+	use StrictObjectTrait;
+
+
 	/** @var array<int, int> */
 	protected static $types = [
 		MYSQLI_TYPE_TIME        => self::TYPE_DRIVER_SPECIFIC,

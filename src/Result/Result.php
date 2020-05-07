@@ -14,6 +14,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 use SeekableIterator;
 use function assert;
 use function date_default_timezone_get;
@@ -25,6 +26,9 @@ use function iterator_to_array;
  */
 class Result implements SeekableIterator, Countable
 {
+	use StrictObjectTrait;
+
+
 	/** @var IResultAdapter */
 	private $adapter;
 

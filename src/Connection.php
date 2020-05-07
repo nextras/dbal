@@ -13,6 +13,7 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 use function array_unshift;
 use function assert;
 use function call_user_func_array;
@@ -23,6 +24,9 @@ use function ucfirst;
 
 class Connection implements IConnection
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var array
 	 * @phpstan-var array<string, mixed>

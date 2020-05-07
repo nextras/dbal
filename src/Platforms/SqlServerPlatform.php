@@ -12,12 +12,16 @@ use Nextras\Dbal\Connection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 use function count;
 use function explode;
 
 
 class SqlServerPlatform implements IPlatform
 {
+	use StrictObjectTrait;
+
+
 	public const NAME = 'mssql';
 
 	/** @var Connection */

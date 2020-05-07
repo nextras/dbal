@@ -11,10 +11,14 @@ namespace Nextras\Dbal\QueryBuilder;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\InvalidArgumentException;
 use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class QueryBuilder
 {
+	use StrictObjectTrait;
+
+
 	/** @const */
 	const TYPE_SELECT = 1;
 	const TYPE_INSERT = 2;

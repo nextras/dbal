@@ -10,10 +10,14 @@ namespace  Nextras\Dbal;
 
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class SqlProcessor
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var array (name => [supports ?, supports [], expected type])
 	 * @phpstan-var array<string, array{bool, bool, string}>

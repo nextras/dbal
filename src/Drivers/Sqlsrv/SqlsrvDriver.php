@@ -26,10 +26,14 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\UniqueConstraintViolationException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\LoggerHelper;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class SqlsrvDriver implements IDriver
 {
+	use StrictObjectTrait;
+
+
 	/** @var resource|null */
 	private $connection;
 

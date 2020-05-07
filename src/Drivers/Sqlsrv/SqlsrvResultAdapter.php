@@ -10,10 +10,14 @@ namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class SqlsrvResultAdapter implements IResultAdapter
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var array
 	 * @phpstan-var array<int, int>
