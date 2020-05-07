@@ -207,7 +207,7 @@ class SqlsrvDriver implements IDriver
 		$time = microtime(true);
 		$result = sqlsrv_begin_transaction($this->connection);
 		$timeTaken = microtime(true) - $time;
-		$this->logger->onQuery('BEGIN TRANSACTION', $timeTaken, null, null);
+		$this->logger->onQuery('BEGIN TRANSACTION', $timeTaken, null);
 		if (!$result) {
 			$this->throwErrors();
 		}
@@ -220,7 +220,7 @@ class SqlsrvDriver implements IDriver
 		$time = microtime(true);
 		$result = sqlsrv_commit($this->connection);
 		$timeTaken = microtime(true) - $time;
-		$this->logger->onQuery('COMMIT TRANSACTION', $timeTaken, null, null);
+		$this->logger->onQuery('COMMIT TRANSACTION', $timeTaken, null);
 		if (!$result) {
 			$this->throwErrors();
 		}
@@ -233,7 +233,7 @@ class SqlsrvDriver implements IDriver
 		$time = microtime(true);
 		$result = sqlsrv_rollback($this->connection);
 		$timeTaken = microtime(true) - $time;
-		$this->logger->onQuery('ROLLBACK TRANSACTION', $timeTaken, null, null);
+		$this->logger->onQuery('ROLLBACK TRANSACTION', $timeTaken, null);
 		if (!$result) {
 			$this->throwErrors();
 		}

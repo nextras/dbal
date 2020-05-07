@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -67,7 +67,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result, ?DriverException $exception): void
+	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
@@ -81,6 +81,11 @@ class ConnectionPanel implements IBarPanel, ILogger
 			$timeTaken,
 			$result ? $result->count() : null,
 		];
+	}
+
+
+	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	{
 	}
 
 
