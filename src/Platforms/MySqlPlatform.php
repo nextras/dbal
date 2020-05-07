@@ -12,10 +12,14 @@ use Nextras\Dbal\Connection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class MySqlPlatform implements IPlatform
 {
+	use StrictObjectTrait;
+
+
 	public const NAME = 'mysql';
 
 	/** @var Connection */

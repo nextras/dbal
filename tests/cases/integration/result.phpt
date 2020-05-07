@@ -7,7 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
@@ -62,7 +62,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 
 		Assert::exception(function () use ($result) {
 			$result->seek(10);
-		}, InvalidStateException::class);
+		}, InvalidArgumentException::class);
 	}
 
 

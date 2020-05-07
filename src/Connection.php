@@ -8,11 +8,15 @@
 
 namespace Nextras\Dbal;
 
+use Exception;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
+use Nextras\Dbal\Utils\MultiLogger;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 use function array_unshift;
 use function assert;
 use function call_user_func_array;
@@ -23,6 +27,9 @@ use function ucfirst;
 
 class Connection implements IConnection
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var array
 	 * @phpstan-var array<string, mixed>
@@ -205,7 +212,7 @@ class Connection implements IConnection
 			$returnValue = $callback($this);
 			$this->commitTransaction();
 			return $returnValue;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->rollbackTransaction();
 			throw $e;
 		}
@@ -348,7 +355,7 @@ class Connection implements IConnection
 	private function createDriver(): IDriver
 	{
 		if (empty($this->config['driver'])) {
-			throw new InvalidStateException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
+			throw new InvalidArgumentException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
 		} elseif ($this->config['driver'] instanceof IDriver) {
 			return $this->config['driver'];
 		} else {

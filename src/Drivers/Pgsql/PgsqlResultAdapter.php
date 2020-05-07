@@ -9,11 +9,15 @@
 namespace Nextras\Dbal\Drivers\Pgsql;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class PgsqlResultAdapter implements IResultAdapter
 {
+	use StrictObjectTrait;
+
+
 	/** @var resource */
 	private $result;
 
@@ -67,7 +71,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	public function seek(int $index): void
 	{
 		if (pg_num_rows($this->result) !== 0 && !pg_result_seek($this->result, $index)) {
-			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
+			throw new InvalidArgumentException("Unable to seek in row set to {$index} index.");
 		}
 	}
 

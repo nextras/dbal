@@ -4,7 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
 

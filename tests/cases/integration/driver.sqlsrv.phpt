@@ -8,7 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use DateTime;
-use Nextras\Dbal\NotSupportedException;
+use Nextras\Dbal\Exception\NotSupportedException;
 use Tester\Assert;
 
 

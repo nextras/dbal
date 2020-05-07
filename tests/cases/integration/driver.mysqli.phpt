@@ -8,7 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use DateTime;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Tester\Assert;
 
 

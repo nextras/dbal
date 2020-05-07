@@ -1,12 +1,20 @@
 <?php declare(strict_types = 1);
 
-namespace Nextras\Dbal;
+namespace Nextras\Dbal\Utils;
 
+use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Result\Result;
 
 
+/**
+ * @internal
+ */
 class MultiLogger implements ILogger
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var ILogger[]
 	 * @phpstan-var array<string, ILogger>

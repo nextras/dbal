@@ -12,8 +12,9 @@ use Countable;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 use SeekableIterator;
 use function assert;
 use function date_default_timezone_get;
@@ -25,6 +26,9 @@ use function iterator_to_array;
  */
 class Result implements SeekableIterator, Countable
 {
+	use StrictObjectTrait;
+
+
 	/** @var IResultAdapter */
 	private $adapter;
 
@@ -129,7 +133,7 @@ class Result implements SeekableIterator, Countable
 	/**
 	 * @phpstan-return array<mixed>
 	 */
-	public function fetchPairs(string $key = null, string $value = null): array
+	public function fetchPairs(?string $key = null, ?string $value = null): array
 	{
 		if ($key === null && $value === null) {
 			throw new InvalidArgumentException('Result::fetchPairs() requires defined key or value.');

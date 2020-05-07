@@ -9,27 +9,36 @@
 namespace Nextras\Dbal\Drivers\Mysqli;
 
 use DateInterval;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use DateTimeZone;
+use Exception;
 use mysqli;
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\ConnectionException;
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
-use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\NotNullConstraintViolationException;
-use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
-use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\UniqueConstraintViolationException;
 use Nextras\Dbal\Utils\LoggerHelper;
+use Nextras\Dbal\Utils\StrictObjectTrait;
+use function assert;
 
 
 class MysqliDriver implements IDriver
 {
+	use StrictObjectTrait;
+
+
 	/** @var mysqli|null */
 	private $connection;
 
@@ -224,7 +233,7 @@ class MysqliDriver implements IDriver
 	 */
 	protected function setupSsl(array $params): void
 	{
-		\assert($this->connection !== null);
+		assert($this->connection !== null);
 
 		if (
 			!isset($params['sslKey']) &&
@@ -285,20 +294,17 @@ class MysqliDriver implements IDriver
 	{
 		if ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
 			return $value . ' ' . $this->connectionTz->getName();
-
 		} elseif ($nativeType === MYSQLI_TYPE_LONGLONG) {
 			// called only on 32bit
 			// hack for phpstan
 			/** @var int|float $numeric */
 			$numeric = $value;
 			return is_float($tmp = $numeric * 1) ? $numeric : $tmp;
-
 		} elseif ($nativeType === MYSQLI_TYPE_TIME) {
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
 			$value->invert = $m[1] ? 1 : 0;
 			return $value;
-
 		} else {
 			throw new NotSupportedException("MysqliDriver does not support '{$nativeType}' type conversion.");
 		}
@@ -342,11 +348,11 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertDatetimeToSql(\DateTimeInterface $value): string
+	public function convertDatetimeToSql(DateTimeInterface $value): string
 	{
-		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
+		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
-			if ($value instanceof \DateTimeImmutable) {
+			if ($value instanceof DateTimeImmutable) {
 				$value = $value->setTimezone($this->connectionTz);
 			} else {
 				$value = clone $value;
@@ -357,13 +363,13 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertDatetimeSimpleToSql(\DateTimeInterface $value): string
+	public function convertDatetimeSimpleToSql(DateTimeInterface $value): string
 	{
 		return "'" . $value->format('Y-m-d H:i:s.u') . "'";
 	}
 
 
-	public function convertDateIntervalToSql(\DateInterval $value): string
+	public function convertDateIntervalToSql(DateInterval $value): string
 	{
 		$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
 		if ($totalHours >= 839) {
@@ -401,23 +407,18 @@ class MysqliDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): \Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
 	{
 		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
-
 		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], true)) {
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
-
 		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005, 2054], true)) {
 			return new ConnectionException($error, $errorNo, $sqlState);
-
 		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], true)) {
 			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
-
 		} elseif ($query !== null) {
 			return new QueryException($error, $errorNo, $sqlState, null, $query);
-
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);
 		}

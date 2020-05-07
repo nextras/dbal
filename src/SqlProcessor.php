@@ -8,12 +8,19 @@
 
 namespace  Nextras\Dbal;
 
+use DateTime;
+use DateTimeImmutable;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class SqlProcessor
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @var array (name => [supports ?, supports [], expected type])
 	 * @phpstan-var array<string, array{bool, bool, string}>
@@ -253,7 +260,7 @@ class SqlProcessor
 					return $this->driver->convertJsonToSql($value);
 				}
 
-				if ($value instanceof \DateTimeImmutable || $value instanceof \DateTime) {
+				if ($value instanceof DateTimeImmutable || $value instanceof DateTime) {
 					switch ($type) {
 						case 'any':
 						case 'dt':

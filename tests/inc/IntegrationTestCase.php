@@ -3,7 +3,7 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\FileImporter;
 use Tester\Environment;
 

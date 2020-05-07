@@ -7,7 +7,7 @@ namespace NextrasTests\Dbal;
 use DateTime;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;

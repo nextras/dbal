@@ -9,14 +9,18 @@
 namespace Nextras\Dbal\Drivers\Mysqli;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class MysqliEmptyResultAdapter implements IResultAdapter
 {
+	use StrictObjectTrait;
+
+
 	public function seek(int $index): void
 	{
-		throw new InvalidStateException("Unable to seek in row set to {$index} index.");
+		throw new InvalidArgumentException("Unable to seek in row set to {$index} index.");
 	}
 
 

@@ -19,6 +19,9 @@ use Nextras\Dbal\Result\Result;
  */
 class LoggerHelper
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * @throws DriverException
 	 */

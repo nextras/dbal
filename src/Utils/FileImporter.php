@@ -8,8 +8,8 @@
 
 namespace Nextras\Dbal\Utils;
 
+use Nextras\Dbal\Exception\IOException;
 use Nextras\Dbal\IConnection;
-use Nextras\Dbal\IOException;
 use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
@@ -17,6 +17,9 @@ use Nextras\Dbal\Platforms\SqlServerPlatform;
 
 class FileImporter
 {
+	use StrictObjectTrait;
+
+
 	/**
 	 * Imports & executes queries from sql file.
 	 * Code taken from Adminer (http://www.adminer.org) & modified,

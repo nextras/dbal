@@ -9,8 +9,14 @@
 namespace Nextras\Dbal\Platforms\Data;
 
 
+use Nextras\Dbal\Utils\StrictObjectTrait;
+
+
 class Table
 {
+	use StrictObjectTrait;
+
+
 	/** @var string */
 	public $name;
 

@@ -9,12 +9,17 @@
 namespace Nextras\Dbal\QueryBuilder;
 
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidStateException;
+use Nextras\Dbal\Utils\StrictObjectTrait;
+use function trigger_error;
 
 
 class QueryBuilder
 {
+	use StrictObjectTrait;
+
+
 	/** @const */
 	const TYPE_SELECT = 1;
 	const TYPE_INSERT = 2;
@@ -211,10 +216,11 @@ class QueryBuilder
 	/**
 	 * @phpstan-param array<int, mixed> $args
 	 * @deprecated QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.
+	 * @noinspection  PhpUnusedParameterInspection
 	 */
 	public function innerJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		\trigger_error(
+		trigger_error(
 			'QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.',
 			E_USER_DEPRECATED
 		);
@@ -225,10 +231,11 @@ class QueryBuilder
 	/**
 	 * @phpstan-param array<int, mixed> $args
 	 * @deprecated QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.
+	 * @noinspection  PhpUnusedParameterInspection
 	 */
 	public function leftJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		\trigger_error(
+		trigger_error(
 			'QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.',
 			E_USER_DEPRECATED
 		);
@@ -239,10 +246,11 @@ class QueryBuilder
 	/**
 	 * @phpstan-param array<int, mixed> $args
 	 * @deprecated QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.
+	 * @noinspection  PhpUnusedParameterInspection
 	 */
 	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
 	{
-		\trigger_error(
+		trigger_error(
 			'QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.',
 			E_USER_DEPRECATED
 		);

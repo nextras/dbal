@@ -4,7 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidStateException;
 use Tester\Assert;
 
 
