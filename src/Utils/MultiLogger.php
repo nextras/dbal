@@ -1,11 +1,14 @@
 <?php declare(strict_types = 1);
 
-namespace Nextras\Dbal;
+namespace Nextras\Dbal\Utils;
 
+use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
+/**
+ * @internal
+ */
 class MultiLogger implements ILogger
 {
 	use StrictObjectTrait;

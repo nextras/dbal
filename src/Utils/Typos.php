@@ -9,6 +9,9 @@
 namespace Nextras\Dbal\Utils;
 
 
+/**
+ * @internal
+ */
 class Typos
 {
 	use StrictObjectTrait;
