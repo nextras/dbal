@@ -8,7 +8,10 @@
 
 namespace  Nextras\Dbal;
 
+use DateTime;
+use DateTimeImmutable;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 
@@ -257,7 +260,7 @@ class SqlProcessor
 					return $this->driver->convertJsonToSql($value);
 				}
 
-				if ($value instanceof \DateTimeImmutable || $value instanceof \DateTime) {
+				if ($value instanceof DateTimeImmutable || $value instanceof DateTime) {
 					switch ($type) {
 						case 'any':
 						case 'dt':

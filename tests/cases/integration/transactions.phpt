@@ -8,7 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Tester\Assert;
 use Tester\Environment;

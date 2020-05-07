@@ -9,24 +9,28 @@
 namespace Nextras\Dbal\Drivers\Pgsql;
 
 use DateInterval;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use DateTimeZone;
+use Exception;
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\ConnectionException;
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
-use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\NotNullConstraintViolationException;
-use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
-use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\UniqueConstraintViolationException;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
-use Tester\Assert;
+use function is_string;
 
 
 class PgsqlDriver implements IDriver
@@ -134,7 +138,7 @@ class PgsqlDriver implements IDriver
 		}
 
 		$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
-		if (\is_string($state)) {
+		if (is_string($state)) {
 			throw $this->createException(pg_result_error($resource) ?: 'Unknown error', 0, $state, $query);
 		}
 
@@ -315,11 +319,11 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertDateTimeToSql(\DateTimeInterface $value): string
+	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
-		assert($value instanceof \DateTime || $value instanceof \DateTimeImmutable);
+		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
-			if ($value instanceof \DateTimeImmutable) {
+			if ($value instanceof DateTimeImmutable) {
 				$value = $value->setTimezone($this->connectionTz);
 			} else {
 				$value = clone $value;
@@ -330,13 +334,13 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string
+	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
 	{
 		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamp";
 	}
 
 
-	public function convertDateIntervalToSql(\DateInterval $value): string
+	public function convertDateIntervalToSql(DateInterval $value): string
 	{
 		return $value->format('P%yY%mM%dDT%hH%iM%sS');
 	}
@@ -365,7 +369,7 @@ class PgsqlDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, ?string $sqlState, ?string $query = null): \Exception
+	protected function createException(string $error, int $errorNo, ?string $sqlState, ?string $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 		if ($sqlState === '0A000' && strpos($error, 'truncate') !== false) {

@@ -7,7 +7,7 @@ namespace NextrasTests\Dbal;
 use Mockery;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Result\Row;
 use Nextras\Dbal\Utils\DateTimeImmutable;

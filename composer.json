@@ -31,7 +31,7 @@
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" },
-		"classmap": ["src/exceptions.php"]
+		"classmap": ["src/compatibility.php"]
 	},
 	"scripts": {
 		"phpstan": "phpstan analyze -c .phpstan.neon"

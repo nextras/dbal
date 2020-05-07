@@ -8,8 +8,10 @@
 
 namespace Nextras\Dbal\Drivers;
 
+use DateInterval;
+use DateTimeInterface;
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
@@ -60,6 +62,7 @@ interface IDriver
 	/**
 	 * Runs query and returns a result. Returns a null if the query does not select any data.
 	 * @internal
+	 * @throws DriverException
 	 */
 	public function query(string $query): Result;
 
@@ -188,13 +191,13 @@ interface IDriver
 	public function convertIdentifierToSql(string $value): string;
 
 
-	public function convertDateTimeToSql(\DateTimeInterface $value): string;
+	public function convertDateTimeToSql(DateTimeInterface $value): string;
 
 
-	public function convertDateTimeSimpleToSql(\DateTimeInterface $value): string;
+	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string;
 
 
-	public function convertDateIntervalToSql(\DateInterval $value): string;
+	public function convertDateIntervalToSql(DateInterval $value): string;
 
 
 	public function convertBlobToSql(string $value): string;

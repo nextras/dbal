@@ -2,11 +2,11 @@
 
 namespace Nextras\Dbal\Utils;
 
-use Nextras\Dbal\Exceptions\MemberAccessException;
+use Nextras\Dbal\Exception\MemberAccessException;
 
 
 /**
- * @internal 
+ * @internal
  */
 trait StrictObjectTrait
 {

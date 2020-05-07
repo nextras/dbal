@@ -8,7 +8,7 @@
 
 namespace Nextras\Dbal\Drivers;
 
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 
 
 interface IResultAdapter
@@ -24,7 +24,7 @@ interface IResultAdapter
 
 
 	/**
-	 * @throws InvalidStateException
+	 * @throws InvalidArgumentException
 	 */
 	public function seek(int $index): void;
 

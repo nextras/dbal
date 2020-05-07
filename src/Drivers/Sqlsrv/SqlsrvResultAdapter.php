@@ -9,7 +9,7 @@
 namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 use Nextras\Dbal\Drivers\IResultAdapter;
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
@@ -58,7 +58,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 	public function seek(int $index): void
 	{
 		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && !sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index)) {
-			throw new InvalidStateException("Unable to seek in row set to {$index} index.");
+			throw new InvalidArgumentException("Unable to seek in row set to {$index} index.");
 		}
 		$this->index = $index;
 	}

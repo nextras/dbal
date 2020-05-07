@@ -6,7 +6,7 @@ namespace NextrasTests\Dbal;
 
 use Mockery\MockInterface;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;

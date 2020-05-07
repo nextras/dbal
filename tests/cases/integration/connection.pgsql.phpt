@@ -8,7 +8,7 @@
 namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
-use Nextras\Dbal\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Tester\Assert;
 
 

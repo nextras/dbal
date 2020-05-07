@@ -7,7 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\InvalidStateException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Tester\Assert;
 
 
@@ -59,7 +59,7 @@ class ConnectionTest extends IntegrationTestCase
 	{
 		Assert::exception(function () {
 			$this->createConnection(['driver' => null]);
-		}, InvalidStateException::class);
+		}, InvalidArgumentException::class);
 	}
 }
 

@@ -10,20 +10,21 @@ namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 use DateInterval;
 use DateTimeInterface;
+use Exception;
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\ConnectionException;
-use Nextras\Dbal\DriverException;
+use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
-use Nextras\Dbal\InvalidArgumentException;
-use Nextras\Dbal\NotNullConstraintViolationException;
-use Nextras\Dbal\NotSupportedException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
-use Nextras\Dbal\QueryException;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\UniqueConstraintViolationException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
@@ -373,7 +374,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): \Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
 	{
 		if (in_array($sqlState, ['HYT00', '08001', '28000'], true)) {
 			return new ConnectionException($error, $errorNo, $sqlState);

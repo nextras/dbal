@@ -1,7 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Nextras\Dbal\Exceptions;
-
+namespace Nextras\Dbal\Exception;
 
 use Error;
 
