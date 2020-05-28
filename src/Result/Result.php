@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Result;
+
 
 use Countable;
 use DateTimeZone;
@@ -245,7 +240,6 @@ class Result implements SeekableIterator, Countable
 
 	// === SeekableIterator ============================================================================================
 
-
 	public function key(): int
 	{
 		return $this->iteratorIndex;
@@ -289,7 +283,6 @@ class Result implements SeekableIterator, Countable
 
 
 	// === Countable ===================================================================================================
-
 
 	public function count(): int
 	{

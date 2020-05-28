@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal;
+
 
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -69,7 +64,7 @@ interface IConnection
 
 	/**
 	 * @param string|array $query
-	 * @param array        $args
+	 * @param array $args
 	 * @phpstan-param string|array<mixed> $query
 	 * @phpstan-param array<mixed> $args
 	 * @throws QueryException

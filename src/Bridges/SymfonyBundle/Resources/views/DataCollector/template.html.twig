@@ -109,9 +109,11 @@
                         {% if query.rowsCount != null %}
                             <span class="nextras-dbal-rowscount text-muted">{{ query.rowsCount }} {% if query.rowsCount == 1 %}row{% else %}rows{% endif %}</span>
                         {% endif %}
-                        <span><a href="" class="text-muted" onclick="nextrasDbalPanelCopySql(event, this)">copy</a></span>
+                        <span><a href="" class="text-muted"
+                                 onclick="nextrasDbalPanelCopySql(event, this)">copy</a></span>
                         {% if query.explain != null %}
-                            <span><a href="" class="text-muted sf-toggle" data-toggle-selector="#{{ query.uniqId }}" data-toggle-alt-content="hide explain">show explain</a></span>
+                            <span><a href="" class="text-muted sf-toggle" data-toggle-selector="#{{ query.uniqId }}"
+                                     data-toggle-alt-content="hide explain">show explain</a></span>
                             <div id="{{ query.uniqId }}" class="sf-toggle-content sf-toggle-hidden">
                                 <table class="nextras-dbal-explain">
                                     <tr>

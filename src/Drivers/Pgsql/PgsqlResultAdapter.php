@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers\Pgsql;
+
 
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -27,24 +22,24 @@ class PgsqlResultAdapter implements IResultAdapter
 	 * @see http://www.postgresql.org/docs/9.4/static/datatype.html
 	 */
 	protected static $types = [
-		'bool'        => self::TYPE_DRIVER_SPECIFIC,
-		'bit'         => self::TYPE_DRIVER_SPECIFIC,
-		'varbit'      => self::TYPE_DRIVER_SPECIFIC,
-		'bytea'       => self::TYPE_DRIVER_SPECIFIC,
-		'interval'    => self::TYPE_DRIVER_SPECIFIC,
+		'bool' => self::TYPE_DRIVER_SPECIFIC,
+		'bit' => self::TYPE_DRIVER_SPECIFIC,
+		'varbit' => self::TYPE_DRIVER_SPECIFIC,
+		'bytea' => self::TYPE_DRIVER_SPECIFIC,
+		'interval' => self::TYPE_DRIVER_SPECIFIC,
 
-		'int8'        => self::TYPE_INT,
-		'int4'        => self::TYPE_INT,
-		'int2'        => self::TYPE_INT,
+		'int8' => self::TYPE_INT,
+		'int4' => self::TYPE_INT,
+		'int2' => self::TYPE_INT,
 
-		'numeric'     => self::TYPE_FLOAT,
-		'float4'      => self::TYPE_FLOAT,
-		'float8'      => self::TYPE_FLOAT,
+		'numeric' => self::TYPE_FLOAT,
+		'float4' => self::TYPE_FLOAT,
+		'float8' => self::TYPE_FLOAT,
 
-		'time'        => self::TYPE_DATETIME,
-		'date'        => self::TYPE_DATETIME,
-		'timestamp'   => self::TYPE_DATETIME,
-		'timetz'      => self::TYPE_DATETIME,
+		'time' => self::TYPE_DATETIME,
+		'date' => self::TYPE_DATETIME,
+		'timestamp' => self::TYPE_DATETIME,
+		'timetz' => self::TYPE_DATETIME,
 		'timestamptz' => self::TYPE_DATETIME,
 	];
 

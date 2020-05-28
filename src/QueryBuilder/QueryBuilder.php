@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\QueryBuilder;
+
 
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -134,10 +129,10 @@ class QueryBuilder
 		$query =
 			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
-			. ($this->where !== null  ? ' WHERE ' . ($this->where) : '')
-			. ($this->group           ? ' GROUP BY ' . implode(', ', $this->group) : '')
+			. ($this->where !== null ? ' WHERE ' . ($this->where) : '')
+			. ($this->group ? ' GROUP BY ' . implode(', ', $this->group) : '')
 			. ($this->having !== null ? ' HAVING ' . ($this->having) : '')
-			. ($this->order           ? ' ORDER BY ' . implode(', ', $this->order) : '');
+			. ($this->order ? ' ORDER BY ' . implode(', ', $this->order) : '');
 
 		if ($this->limit) {
 			$query = $this->driver->modifyLimitQuery($query, $this->limit[0], $this->limit[1]);
@@ -218,7 +213,13 @@ class QueryBuilder
 	 * @deprecated QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.
 	 * @noinspection  PhpUnusedParameterInspection
 	 */
-	public function innerJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function innerJoin(
+		string $fromAlias,
+		string $toExpression,
+		string $toAlias,
+		string $onExpression,
+		...$args
+	): self
 	{
 		trigger_error(
 			'QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.',
@@ -233,7 +234,13 @@ class QueryBuilder
 	 * @deprecated QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.
 	 * @noinspection  PhpUnusedParameterInspection
 	 */
-	public function leftJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function leftJoin(
+		string $fromAlias,
+		string $toExpression,
+		string $toAlias,
+		string $onExpression,
+		...$args
+	): self
 	{
 		trigger_error(
 			'QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.',
@@ -248,7 +255,13 @@ class QueryBuilder
 	 * @deprecated QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.
 	 * @noinspection  PhpUnusedParameterInspection
 	 */
-	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function rightJoin(
+		string $fromAlias,
+		string $toExpression,
+		string $toAlias,
+		string $onExpression,
+		...$args
+	): self
 	{
 		trigger_error(
 			'QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.',

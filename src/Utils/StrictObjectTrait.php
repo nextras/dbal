@@ -2,6 +2,7 @@
 
 namespace Nextras\Dbal\Utils;
 
+
 use Nextras\Dbal\Exception\MemberAccessException;
 
 

@@ -2,6 +2,7 @@
 
 namespace Nextras\Dbal\Exception;
 
+
 use RuntimeException;
 
 

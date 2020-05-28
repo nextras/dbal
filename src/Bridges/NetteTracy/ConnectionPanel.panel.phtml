@@ -4,37 +4,56 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 
 ?>
 <style class="tracy-debug">
-	#tracy-debug .nextras-dbal-panel-sql { background: white !important; }
-	#tracy-debug .nextras-dbal-panel-sql > span, #tracy-debug .nextras-dbal-panel-sql > span > a { color: #777 !important; }
-	#tracy-debug .nextras-dbal-panel-sql > span > a:hover { color: #fff !important; }
-	#tracy-debug .nextras-dbal-panel-sql > span { margin-right: 1em !important; }
-	#tracy-debug .nextras-dbal-panel-sql .whitespace-explain { white-space: pre; !important; }
-	#tracy-debug .nextras-dbal-panel-time { text-align: right !important; white-space: nowrap !important; max-width: 70px !important; }
+	#tracy-debug .nextras-dbal-panel-sql {
+		background: white !important;
+	}
+
+	#tracy-debug .nextras-dbal-panel-sql > span, #tracy-debug .nextras-dbal-panel-sql > span > a {
+		color: #777 !important;
+	}
+
+	#tracy-debug .nextras-dbal-panel-sql > span > a:hover {
+		color: #fff !important;
+	}
+
+	#tracy-debug .nextras-dbal-panel-sql > span {
+		margin-right: 1em !important;
+	}
+
+	#tracy-debug .nextras-dbal-panel-sql .whitespace-explain {
+		white-space: pre !important;
+	}
+
+	#tracy-debug .nextras-dbal-panel-time {
+		text-align: right !important;
+		white-space: nowrap !important;
+		max-width: 70px !important;
+	}
 </style>
 
 <script>
-	function nextrasDbalPanelCopySql(e, containerId) {
-		e.preventDefault();
-		const str = document.getElementById(containerId).textContent;
-		const el = document.createElement('textarea');
-		el.value = str;
-		el.setAttribute('readonly', '');
-		el.style.position = 'absolute';
-		el.style.left = '-9999px';
-		document.body.appendChild(el);
-		const selected =
-			document.getSelection().rangeCount > 0
-				? document.getSelection().getRangeAt(0)
-				: false;
-		el.select();
-		document.execCommand('copy');
-		document.body.removeChild(el);
-		if (selected) {
-			document.getSelection().removeAllRanges();
-			document.getSelection().addRange(selected);
-		}
-		return false;
-	}
+    function nextrasDbalPanelCopySql(e, containerId) {
+        e.preventDefault();
+        const str = document.getElementById(containerId).textContent;
+        const el = document.createElement('textarea');
+        el.value = str;
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        const selected =
+            document.getSelection().rangeCount > 0
+                ? document.getSelection().getRangeAt(0)
+                : false;
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        if (selected) {
+            document.getSelection().removeAllRanges();
+            document.getSelection().addRange(selected);
+        }
+        return false;
+    }
 </script>
 
 <h1>Queries: <?php echo $count ?></h1>
@@ -46,36 +65,38 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 		</tr>
 		<?php
 		foreach ($queries as $query):
-			list(, $sql, $elapsedTime, $rowsCount, $explain) = $query;
+			[, $sql, $elapsedTime, $rowsCount, $explain] = $query;
 			$uniqRowId = uniqid('nextras-dbal-sql-');
-		?>
-		<tr>
-		<td class="nextras-dbal-panel-time"><?php echo $elapsedTime ? sprintf('%0.2f', $elapsedTime * 1000) : '' ?></td>
-		<td class="nextras-dbal-panel-sql">
-			<div id="<?php echo $uniqRowId; ?>"><?php echo $sql ?></div>
-			<?php if ($rowsCount !== null): ?>
-				<span class="nextras-dbal-rowscount"><?php echo $rowsCount === 1 ? $rowsCount . ' row' : $rowsCount . ' rows' ?></span>
-			<?php endif; ?>
-			<span><a href="" onclick="nextrasDbalPanelCopySql(event, '<?php echo $uniqRowId; ?>')">copy</a></span>
-			<?php if ($explain !== null): ?>
-				<span><a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .nextras-dbal-explain">explain</a></span>
-				<table class="tracy-collapsed nextras-dbal-explain">
-					<tr>
-					<?php foreach ($explain[0] as $col => $foo): ?>
-						<th><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></th>
-					<?php endforeach ?>
-					</tr>
-					<?php foreach ($explain as $row): ?>
-					<tr>
-						<?php foreach ($row as $col): ?>
-						<td class="<?php echo $whitespaceExplain ? 'whitespace-explain' : '' ?>"><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></td>
-						<?php endforeach ?>
-					</tr>
-					<?php endforeach ?>
-				</table>
-			<?php endif; ?>
-		</td>
-		</tr>
+			?>
+			<tr>
+				<td class="nextras-dbal-panel-time"><?php echo $elapsedTime ? sprintf('%0.2f', $elapsedTime * 1000) : '' ?></td>
+				<td class="nextras-dbal-panel-sql">
+					<div id="<?php echo $uniqRowId; ?>"><?php echo $sql ?></div>
+					<?php if ($rowsCount !== null): ?>
+						<span class="nextras-dbal-rowscount"><?php echo $rowsCount === 1 ? $rowsCount . ' row' : $rowsCount . ' rows' ?></span>
+					<?php endif; ?>
+					<span><a href=""
+					         onclick="nextrasDbalPanelCopySql(event, '<?php echo $uniqRowId; ?>')">copy</a></span>
+					<?php if ($explain !== null): ?>
+						<span><a class="tracy-toggle tracy-collapsed"
+						         data-tracy-ref="^tr .nextras-dbal-explain">explain</a></span>
+						<table class="tracy-collapsed nextras-dbal-explain">
+							<tr>
+								<?php foreach ($explain[0] as $col => $foo): ?>
+									<th><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></th>
+								<?php endforeach ?>
+							</tr>
+							<?php foreach ($explain as $row): ?>
+								<tr>
+									<?php foreach ($row as $col): ?>
+										<td class="<?php echo $whitespaceExplain ? 'whitespace-explain' : '' ?>"><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></td>
+									<?php endforeach ?>
+								</tr>
+							<?php endforeach ?>
+						</table>
+					<?php endif; ?>
+				</td>
+			</tr>
 		<?php endforeach ?>
 	</table>
 	<?php if (count($queries) < $count): ?><p>...and more</p><?php endif ?>

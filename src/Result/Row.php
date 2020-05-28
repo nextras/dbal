@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Result;
+
 
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\Typos;
@@ -40,7 +35,7 @@ class Row extends \stdClass
 	public function __get(string $name)
 	{
 		$closest = Typos::getClosest($name, array_keys($this->toArray()));
-		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest ? ", did you mean '$closest'?" :  "."));
+		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest ? ", did you mean '$closest'?" : "."));
 	}
 
 

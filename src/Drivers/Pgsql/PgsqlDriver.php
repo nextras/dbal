@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers\Pgsql;
+
 
 use DateInterval;
 use DateTime;
@@ -63,8 +58,16 @@ class PgsqlDriver implements IDriver
 	public function connect(array $params, ILogger $logger): void
 	{
 		static $knownKeys = [
-			'host', 'hostaddr', 'port', 'dbname', 'user', 'password',
-			'connect_timeout', 'options', 'sslmode', 'service',
+			'host',
+			'hostaddr',
+			'port',
+			'dbname',
+			'user',
+			'password',
+			'connect_timeout',
+			'options',
+			'sslmode',
+			'service',
 		];
 
 		$this->logger = $logger;
@@ -77,7 +80,7 @@ class PgsqlDriver implements IDriver
 			}
 		}
 
-		set_error_handler(function($code, $message) {
+		set_error_handler(function ($code, $message) {
 			restore_error_handler();
 			throw $this->createException($message, $code, null);
 		}, E_ALL);
@@ -96,7 +99,8 @@ class PgsqlDriver implements IDriver
 		}
 
 		if (isset($params['searchPath'])) {
-			$this->loggedQuery('SET search_path TO ' . implode(', ', array_map([$this, 'convertIdentifierToSql'], (array) $params['searchPath'])));
+			$schemas = array_map([$this, 'convertIdentifierToSql',], (array) $params['searchPath']);
+			$this->loggedQuery('SET search_path TO ' . implode(', ', $schemas));
 		}
 	}
 

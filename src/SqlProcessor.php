@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
+namespace Nextras\Dbal;
 
-namespace  Nextras\Dbal;
 
 use DateTime;
 use DateTimeImmutable;
@@ -95,7 +90,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param  mixed[] $args
+	 * @param mixed[] $args
 	 */
 	public function process(array $args): string
 	{
@@ -149,7 +144,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param  mixed $value
+	 * @param mixed $value
 	 */
 	public function processModifier(string $type, $value): string
 	{
@@ -184,7 +179,7 @@ class SqlProcessor
 						if ($value === '*') {
 							return '*';
 						}
-						// intentional pass-through
+					// intentional pass-through
 					case 'table':
 						return $this->identifierToSql($value);
 
@@ -195,7 +190,7 @@ class SqlProcessor
 						return $value;
 				}
 
-			break;
+				break;
 			case 'integer':
 				switch ($type) {
 					case 'any':
@@ -208,7 +203,7 @@ class SqlProcessor
 						return $this->driver->convertJsonToSql($value);
 				}
 
-			break;
+				break;
 			case 'double':
 				if (is_finite($value)) { // database can not handle INF and NAN
 					switch ($type) {
@@ -225,7 +220,7 @@ class SqlProcessor
 					}
 				}
 
-			break;
+				break;
 			case 'boolean':
 				switch ($type) {
 					case 'any':
@@ -238,7 +233,7 @@ class SqlProcessor
 						return $this->driver->convertJsonToSql($value);
 				}
 
-			break;
+				break;
 			case 'NULL':
 				switch ($type) {
 					case 'any':
@@ -254,7 +249,7 @@ class SqlProcessor
 						return 'NULL';
 				}
 
-			break;
+				break;
 			case 'object':
 				if ($type === 'json' || $type === '?json') {
 					return $this->driver->convertJsonToSql($value);
@@ -296,7 +291,7 @@ class SqlProcessor
 					}
 				}
 
-			break;
+				break;
 			case 'array':
 				switch ($type) {
 					// micro-optimizations
@@ -387,7 +382,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param  mixed $value
+	 * @param mixed $value
 	 * @phpstan-return never
 	 */
 	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType): void
@@ -398,7 +393,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param  mixed $value
+	 * @param mixed $value
 	 * @phpstan-return never
 	 */
 	protected function throwWrongModifierException(string $type, $value, string $hint): void
@@ -548,13 +543,13 @@ class SqlProcessor
 			foreach ($values as $value) {
 				$sqls[] = $this->processWhere('and', $value);
 			}
-			return '(' . implode(') OR (', $sqls)  . ')';
+			return '(' . implode(') OR (', $sqls) . ')';
 		}
 	}
 
 
 	/**
-	 * @param  mixed $value
+	 * @param mixed $value
 	 * @return float|string
 	 */
 	protected function getVariableTypeName($value)

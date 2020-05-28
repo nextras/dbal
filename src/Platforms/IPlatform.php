@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Platforms;
+
 
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;

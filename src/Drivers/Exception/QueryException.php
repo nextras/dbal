@@ -2,6 +2,7 @@
 
 namespace Nextras\Dbal\Drivers\Exception;
 
+
 use Exception;
 
 

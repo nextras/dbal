@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers\Sqlsrv;
+
 
 use DateInterval;
 use DateTimeInterface;
@@ -58,11 +53,25 @@ class SqlsrvDriver implements IDriver
 	{
 		// see https://msdn.microsoft.com/en-us/library/ff628167.aspx
 		static $knownConnectionOptions = [
-			'App', 'ApplicationIntent', 'AttachDbFileName', 'CharacterSet',
-			'ConnectionPooling', 'Encrypt', 'Falover_Partner', 'LoginTimeout',
-			'MultipleActiveResultSet', 'MultiSubnetFailover', 'QuotedId',
-			'ReturnDatesAsStrings', 'Scrollable', 'Server', 'TraceFile', 'TraceOn',
-			'TransactionIsolation', 'TrustServerCertificate', 'WSID'
+			'App',
+			'ApplicationIntent',
+			'AttachDbFileName',
+			'CharacterSet',
+			'ConnectionPooling',
+			'Encrypt',
+			'Falover_Partner',
+			'LoginTimeout',
+			'MultipleActiveResultSet',
+			'MultiSubnetFailover',
+			'QuotedId',
+			'ReturnDatesAsStrings',
+			'Scrollable',
+			'Server',
+			'TraceFile',
+			'TraceOn',
+			'TransactionIsolation',
+			'TrustServerCertificate',
+			'WSID',
 		];
 
 		$this->logger = $logger;
@@ -258,11 +267,12 @@ class SqlsrvDriver implements IDriver
 		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
+
 	public function convertToPhp(string $value, $nativeType)
 	{
 		if (
-			$nativeType === SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY ||
-			$nativeType === SqlsrvResultTypes::TYPE_NUMERIC
+			$nativeType === SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY
+			|| $nativeType === SqlsrvResultTypes::TYPE_NUMERIC
 		) {
 			return strpos($value, '.') === false ? (int) $value : (float) $value;
 

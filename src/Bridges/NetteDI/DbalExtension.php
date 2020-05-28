@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Bridges\NetteDI;
+
 
 use Nette\DI\CompilerExtension;
 use Nextras\Dbal\Bridges\NetteTracy\BluescreenQueryPanel;
@@ -47,7 +42,10 @@ class DbalExtension extends CompilerExtension
 
 		if ($debugger) {
 			$definition->addSetup('@Tracy\BlueScreen::addPanel', [BluescreenQueryPanel::class . '::renderBluescreenPanel']);
-			$definition->addSetup(ConnectionPanel::class . '::install', ['@self', $config['panelQueryExplain'] ?? true]);
+			$definition->addSetup(
+				ConnectionPanel::class . '::install',
+				['@self', $config['panelQueryExplain'] ?? true]
+			);
 		}
 	}
 }
