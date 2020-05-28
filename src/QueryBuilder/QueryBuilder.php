@@ -15,17 +15,8 @@ class QueryBuilder
 	use StrictObjectTrait;
 
 
-	/** @const */
-	const TYPE_SELECT = 1;
-	const TYPE_INSERT = 2;
-	const TYPE_UPDATE = 3;
-	const TYPE_DELETE = 4;
-
 	/** @var IDriver */
 	private $driver;
-
-	/** @var int */
-	private $type = self::TYPE_SELECT;
 
 	/**
 	 * @var array
@@ -94,15 +85,8 @@ class QueryBuilder
 			return $this->generatedSql;
 		}
 
-		switch ($this->type) {
-			case self::TYPE_SELECT:
-			default:
-				$sql = $this->getSqlForSelect();
-				break;
-		}
-
-		$this->generatedSql = $sql;
-		return $sql;
+		$this->generatedSql = $this->getSqlForSelect();
+		return $this->generatedSql;
 	}
 
 
@@ -177,7 +161,6 @@ class QueryBuilder
 	public function from(string $fromExpression, ?string $alias = null, ...$args): self
 	{
 		$this->dirty();
-		$this->type = self::TYPE_SELECT;
 		$this->from = [$fromExpression, $alias];
 		$this->pushArgs('from', $args);
 		return $this;
