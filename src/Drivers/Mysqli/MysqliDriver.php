@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers\Mysqli;
+
 
 use DateInterval;
 use DateTime;
@@ -236,11 +231,11 @@ class MysqliDriver implements IDriver
 		assert($this->connection !== null);
 
 		if (
-			!isset($params['sslKey']) &&
-			!isset($params['sslCert']) &&
-			!isset($params['sslCa']) &&
-			!isset($params['sslCapath']) &&
-			!isset($params['sslCipher'])
+			!isset($params['sslKey'])
+			&& !isset($params['sslCert'])
+			&& !isset($params['sslCa'])
+			&& !isset($params['sslCapath'])
+			&& !isset($params['sslCipher'])
 		) {
 			return;
 		}

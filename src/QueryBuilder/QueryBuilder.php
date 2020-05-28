@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\QueryBuilder;
+
 
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -20,17 +15,8 @@ class QueryBuilder
 	use StrictObjectTrait;
 
 
-	/** @const */
-	const TYPE_SELECT = 1;
-	const TYPE_INSERT = 2;
-	const TYPE_UPDATE = 3;
-	const TYPE_DELETE = 4;
-
 	/** @var IDriver */
 	private $driver;
-
-	/** @var int */
-	private $type = self::TYPE_SELECT;
 
 	/**
 	 * @var array
@@ -99,15 +85,8 @@ class QueryBuilder
 			return $this->generatedSql;
 		}
 
-		switch ($this->type) {
-			case self::TYPE_SELECT:
-			default:
-				$sql = $this->getSqlForSelect();
-				break;
-		}
-
-		$this->generatedSql = $sql;
-		return $sql;
+		$this->generatedSql = $this->getSqlForSelect();
+		return $this->generatedSql;
 	}
 
 
@@ -134,10 +113,10 @@ class QueryBuilder
 		$query =
 			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
-			. ($this->where !== null  ? ' WHERE ' . ($this->where) : '')
-			. ($this->group           ? ' GROUP BY ' . implode(', ', $this->group) : '')
+			. ($this->where !== null ? ' WHERE ' . ($this->where) : '')
+			. ($this->group ? ' GROUP BY ' . implode(', ', $this->group) : '')
 			. ($this->having !== null ? ' HAVING ' . ($this->having) : '')
-			. ($this->order           ? ' ORDER BY ' . implode(', ', $this->order) : '');
+			. ($this->order ? ' ORDER BY ' . implode(', ', $this->order) : '');
 
 		if ($this->limit) {
 			$query = $this->driver->modifyLimitQuery($query, $this->limit[0], $this->limit[1]);
@@ -182,7 +161,6 @@ class QueryBuilder
 	public function from(string $fromExpression, ?string $alias = null, ...$args): self
 	{
 		$this->dirty();
-		$this->type = self::TYPE_SELECT;
 		$this->from = [$fromExpression, $alias];
 		$this->pushArgs('from', $args);
 		return $this;
@@ -218,7 +196,13 @@ class QueryBuilder
 	 * @deprecated QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.
 	 * @noinspection  PhpUnusedParameterInspection
 	 */
-	public function innerJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function innerJoin(
+		string $fromAlias,
+		string $toExpression,
+		string $toAlias,
+		string $onExpression,
+		...$args
+	): self
 	{
 		trigger_error(
 			'QueryBuilder::innerJoin() is deprecated. Use QueryBuilder::joinInner() without $fromAlias and with $toAlias included in $toExpression.',
@@ -233,7 +217,13 @@ class QueryBuilder
 	 * @deprecated QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.
 	 * @noinspection  PhpUnusedParameterInspection
 	 */
-	public function leftJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function leftJoin(
+		string $fromAlias,
+		string $toExpression,
+		string $toAlias,
+		string $onExpression,
+		...$args
+	): self
 	{
 		trigger_error(
 			'QueryBuilder::leftJoin() is deprecated. Use QueryBuilder::joinLeft() without $fromAlias and with $toAlias included in $toExpression.',
@@ -248,7 +238,13 @@ class QueryBuilder
 	 * @deprecated QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.
 	 * @noinspection  PhpUnusedParameterInspection
 	 */
-	public function rightJoin(string $fromAlias, string $toExpression, string $toAlias, string $onExpression, ...$args): self
+	public function rightJoin(
+		string $fromAlias,
+		string $toExpression,
+		string $toAlias,
+		string $onExpression,
+		...$args
+	): self
 	{
 		trigger_error(
 			'QueryBuilder::rightJoin() is deprecated. Use QueryBuilder::joinRight() without $fromAlias and with $toAlias included in $toExpression.',

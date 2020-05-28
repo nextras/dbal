@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/tests/data/mssql-data.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/tests/data/mssql-init.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/tests/data/mysql-data.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/tests/data/mysql-init.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/tests/data/pgsql-data.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/tests/data/pgsql-init.sql" dialect="PostgreSQL" />
+  </component>
+</project>

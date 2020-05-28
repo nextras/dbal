@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers\Sqlsrv;
+
 
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -23,14 +18,14 @@ class SqlsrvResultAdapter implements IResultAdapter
 	 * @phpstan-var array<int, int>
 	 */
 	protected static $types = [
-		SqlsrvResultTypes::TYPE_INT                               => self::TYPE_INT,
-		SqlsrvResultTypes::TYPE_BIT                               => self::TYPE_BOOL,
-		SqlsrvResultTypes::TYPE_NUMERIC                           => self::TYPE_DRIVER_SPECIFIC,
-		SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY          => self::TYPE_DRIVER_SPECIFIC,
-		SqlsrvResultTypes::TYPE_TIME                              => self::TYPE_DATETIME,
-		SqlsrvResultTypes::TYPE_DATE                              => self::TYPE_DATETIME,
-		SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME  => self::TYPE_DATETIME,
-		SqlsrvResultTypes::TYPE_DATETIMEOFFSET                    => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvResultTypes::TYPE_INT => self::TYPE_INT,
+		SqlsrvResultTypes::TYPE_BIT => self::TYPE_BOOL,
+		SqlsrvResultTypes::TYPE_NUMERIC => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY => self::TYPE_DRIVER_SPECIFIC,
+		SqlsrvResultTypes::TYPE_TIME => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATE => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATETIME_DATETIME2_SMALLDATETIME => self::TYPE_DATETIME,
+		SqlsrvResultTypes::TYPE_DATETIMEOFFSET => self::TYPE_DRIVER_SPECIFIC,
 	];
 
 	/** @var int|null */

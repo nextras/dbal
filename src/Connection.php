@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal;
+
 
 use Exception;
 use Nextras\Dbal\Drivers\IDriver;
@@ -354,7 +349,7 @@ class Connection implements IConnection
 		} else {
 			$name = ucfirst($this->config['driver']);
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
-			return new $class;
+			return new $class();
 		}
 	}
 

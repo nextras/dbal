@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Utils;
+
 
 use Nextras\Dbal\Exception\IOException;
 use Nextras\Dbal\IConnection;
@@ -23,13 +18,12 @@ class FileImporter
 	/**
 	 * Imports & executes queries from sql file.
 	 * Code taken from Adminer (http://www.adminer.org) & modified,
+	 * @return int number of executed queries
 	 * @author Jakub Vrána
 	 * @author Jan Tvrdík
 	 * @author Michael Moravec
 	 * @author Jan Škrášek
 	 * @license Apache License
-	 *
-	 * @return int number of executed queries
 	 */
 	public static function executeFile(IConnection $connection, string $file): int
 	{

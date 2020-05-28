@@ -2,6 +2,7 @@
 
 namespace Nextras\Dbal\Utils;
 
+
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Result\Result;

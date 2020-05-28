@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers\Mysqli;
+
 
 use mysqli_result;
 use Nextras\Dbal\Drivers\IResultAdapter;
@@ -21,26 +16,26 @@ class MysqliResultAdapter implements IResultAdapter
 
 	/** @var array<int, int> */
 	protected static $types = [
-		MYSQLI_TYPE_TIME        => self::TYPE_DRIVER_SPECIFIC,
-		MYSQLI_TYPE_DATE        => self::TYPE_DATETIME,
-		MYSQLI_TYPE_DATETIME    => self::TYPE_DATETIME,
-		MYSQLI_TYPE_TIMESTAMP   => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
+		MYSQLI_TYPE_TIME => self::TYPE_DRIVER_SPECIFIC,
+		MYSQLI_TYPE_DATE => self::TYPE_DATETIME,
+		MYSQLI_TYPE_DATETIME => self::TYPE_DATETIME,
+		MYSQLI_TYPE_TIMESTAMP => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
 
-		MYSQLI_TYPE_BIT         => self::TYPE_INT, // returned as int
-		MYSQLI_TYPE_INT24       => self::TYPE_INT,
-		MYSQLI_TYPE_INTERVAL    => self::TYPE_INT,
-		MYSQLI_TYPE_TINY        => self::TYPE_INT,
-		MYSQLI_TYPE_SHORT       => self::TYPE_INT,
-		MYSQLI_TYPE_LONG        => self::TYPE_INT,
-		MYSQLI_TYPE_LONGLONG    => self::TYPE_INT,
-		MYSQLI_TYPE_YEAR        => self::TYPE_INT,
+		MYSQLI_TYPE_BIT => self::TYPE_INT, // returned as int
+		MYSQLI_TYPE_INT24 => self::TYPE_INT,
+		MYSQLI_TYPE_INTERVAL => self::TYPE_INT,
+		MYSQLI_TYPE_TINY => self::TYPE_INT,
+		MYSQLI_TYPE_SHORT => self::TYPE_INT,
+		MYSQLI_TYPE_LONG => self::TYPE_INT,
+		MYSQLI_TYPE_LONGLONG => self::TYPE_INT,
+		MYSQLI_TYPE_YEAR => self::TYPE_INT,
 
-		MYSQLI_TYPE_DECIMAL     => self::TYPE_FLOAT,
-		MYSQLI_TYPE_NEWDECIMAL  => self::TYPE_FLOAT,
-		MYSQLI_TYPE_DOUBLE      => self::TYPE_FLOAT,
-		MYSQLI_TYPE_FLOAT       => self::TYPE_FLOAT,
+		MYSQLI_TYPE_DECIMAL => self::TYPE_FLOAT,
+		MYSQLI_TYPE_NEWDECIMAL => self::TYPE_FLOAT,
+		MYSQLI_TYPE_DOUBLE => self::TYPE_FLOAT,
+		MYSQLI_TYPE_FLOAT => self::TYPE_FLOAT,
 
-		MYSQLI_TYPE_STRING      => self::TYPE_AS_IS,
+		MYSQLI_TYPE_STRING => self::TYPE_AS_IS,
 	];
 
 	/**

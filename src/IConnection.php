@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal;
+
 
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -16,10 +11,10 @@ use Nextras\Dbal\Result\Result;
 
 interface IConnection
 {
-	const TRANSACTION_READ_UNCOMMITTED = 1;
-	const TRANSACTION_READ_COMMITTED = 2;
-	const TRANSACTION_REPEATABLE_READ = 3;
-	const TRANSACTION_SERIALIZABLE = 4;
+	public const TRANSACTION_READ_UNCOMMITTED = 1;
+	public const TRANSACTION_READ_COMMITTED = 2;
+	public const TRANSACTION_REPEATABLE_READ = 3;
+	public const TRANSACTION_SERIALIZABLE = 4;
 
 
 	/**
@@ -69,7 +64,7 @@ interface IConnection
 
 	/**
 	 * @param string|array $query
-	 * @param array        $args
+	 * @param array $args
 	 * @phpstan-param string|array<mixed> $query
 	 * @phpstan-param array<mixed> $args
 	 * @throws QueryException

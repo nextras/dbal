@@ -2,6 +2,7 @@
 
 namespace Nextras\Dbal\Exception;
 
+
 class InvalidArgumentException extends \InvalidArgumentException
 {
 }

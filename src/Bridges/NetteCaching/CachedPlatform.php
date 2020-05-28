@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Bridges\NetteCaching;
+
 
 use Nette\Caching\Cache;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -39,7 +34,7 @@ class CachedPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getTables(?string $schema = null): array
 	{
-		return $this->cache->load(self::CACHE_VERSION . '.tables.' . $schema , function () use ($schema) {
+		return $this->cache->load(self::CACHE_VERSION . '.tables.' . $schema, function () use ($schema) {
 			return $this->platform->getTables($schema);
 		});
 	}

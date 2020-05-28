@@ -1,12 +1,7 @@
 <?php declare(strict_types = 1);
 
-/**
- * This file is part of the Nextras\Dbal library.
- * @license    MIT
- * @link       https://github.com/nextras/dbal
- */
-
 namespace Nextras\Dbal\Drivers;
+
 
 use DateInterval;
 use DateTimeInterface;
@@ -19,16 +14,16 @@ use Nextras\Dbal\Result\Result;
 
 interface IDriver
 {
-	const TYPE_BOOL = 1;
-	const TYPE_DATETIME = 2;
-	const TYPE_DATETIME_SIMPLE = 3;
-	const TYPE_IDENTIFIER = 4;
-	const TYPE_STRING = 5;
-	const TYPE_DATE_INTERVAL = 6;
-	const TYPE_BLOB = 7;
+	public const TYPE_BOOL = 1;
+	public const TYPE_DATETIME = 2;
+	public const TYPE_DATETIME_SIMPLE = 3;
+	public const TYPE_IDENTIFIER = 4;
+	public const TYPE_STRING = 5;
+	public const TYPE_DATE_INTERVAL = 6;
+	public const TYPE_BLOB = 7;
 
-	const TIMEZONE_AUTO_PHP_NAME = 'auto';
-	const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
+	public const TIMEZONE_AUTO_PHP_NAME = 'auto';
+	public const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
 
 
 	/**
@@ -61,16 +56,16 @@ interface IDriver
 
 	/**
 	 * Runs query and returns a result. Returns a null if the query does not select any data.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function query(string $query): Result;
 
 
 	/**
 	 * Returns the last inserted id.
-	 * @internal
 	 * @return mixed
+	 * @internal
 	 */
 	public function getLastInsertedId(string $sequenceName = null);
 
@@ -115,55 +110,55 @@ interface IDriver
 
 	/**
 	 * Begins a transaction.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function beginTransaction(): void;
 
 
 	/**
 	 * Commits the current transaction.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function commitTransaction(): void;
 
 
 	/**
 	 * Rollbacks the current transaction.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function rollbackTransaction(): void;
 
 
 	/**
 	 * Creates a savepoint.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function createSavepoint(string $name): void;
 
 
 	/**
 	 * Releases the savepoint.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function releaseSavepoint(string $name): void;
 
 
 	/**
 	 * Rollbacks the savepoint.
-	 * @internal
 	 * @throws DriverException
+	 * @internal
 	 */
 	public function rollbackSavepoint(string $name): void;
 
 
 	/**
 	 * Converts database value to php boolean.
-	 * @param  mixed $nativeType
+	 * @param mixed $nativeType
 	 * @return mixed
 	 */
 	public function convertToPhp(string $value, $nativeType);
@@ -173,13 +168,13 @@ interface IDriver
 
 
 	/**
-	 * @param  mixed $value
+	 * @param mixed $value
 	 */
 	public function convertJsonToSql($value): string;
 
 
 	/**
-	 * @param  int $mode -1 = left, 0 = both, 1 = right
+	 * @param int $mode -1 = left, 0 = both, 1 = right
 	 * @return mixed
 	 */
 	public function convertLikeToSql(string $value, int $mode);
