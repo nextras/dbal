@@ -14,16 +14,16 @@ use Nextras\Dbal\Result\Result;
 
 interface IDriver
 {
-	const TYPE_BOOL = 1;
-	const TYPE_DATETIME = 2;
-	const TYPE_DATETIME_SIMPLE = 3;
-	const TYPE_IDENTIFIER = 4;
-	const TYPE_STRING = 5;
-	const TYPE_DATE_INTERVAL = 6;
-	const TYPE_BLOB = 7;
+	public const TYPE_BOOL = 1;
+	public const TYPE_DATETIME = 2;
+	public const TYPE_DATETIME_SIMPLE = 3;
+	public const TYPE_IDENTIFIER = 4;
+	public const TYPE_STRING = 5;
+	public const TYPE_DATE_INTERVAL = 6;
+	public const TYPE_BLOB = 7;
 
-	const TIMEZONE_AUTO_PHP_NAME = 'auto';
-	const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
+	public const TIMEZONE_AUTO_PHP_NAME = 'auto';
+	public const TIMEZONE_AUTO_PHP_OFFSET = 'auto-offset';
 
 
 	/**

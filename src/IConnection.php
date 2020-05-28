@@ -11,10 +11,10 @@ use Nextras\Dbal\Result\Result;
 
 interface IConnection
 {
-	const TRANSACTION_READ_UNCOMMITTED = 1;
-	const TRANSACTION_READ_COMMITTED = 2;
-	const TRANSACTION_REPEATABLE_READ = 3;
-	const TRANSACTION_SERIALIZABLE = 4;
+	public const TRANSACTION_READ_UNCOMMITTED = 1;
+	public const TRANSACTION_READ_COMMITTED = 2;
+	public const TRANSACTION_REPEATABLE_READ = 3;
+	public const TRANSACTION_SERIALIZABLE = 4;
 
 
 	/**
