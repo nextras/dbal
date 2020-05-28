@@ -3,7 +3,7 @@
 namespace Nextras\Dbal\Bridges\NetteTracy;
 
 
-use Nextras\Dbal\QueryException;
+use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Utils\SqlHighlighter;
 
 
