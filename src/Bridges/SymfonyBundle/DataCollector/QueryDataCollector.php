@@ -8,6 +8,7 @@ use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\ExplainHelper;
 use Nextras\Dbal\Utils\SqlHighlighter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,7 +62,10 @@ class QueryDataCollector extends DataCollector implements ILogger
 
 			try {
 				if ($this->explain) {
-					$row['explain'] = $this->connection->getDriver()->query('EXPLAIN ' . $sqlQuery)->fetchAll();
+					$explainSql = ExplainHelper::getExplainQuery($sqlQuery);
+					if ($explainSql !== null) {
+						$row['explain'] = $this->connection->getDriver()->query($explainSql)->fetchAll();
+					}
 				}
 			} catch (\Throwable $e) {
 				$row['explain'] = null;

@@ -8,6 +8,7 @@ use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
+use Nextras\Dbal\Utils\ExplainHelper;
 use Nextras\Dbal\Utils\SqlHighlighter;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
@@ -103,7 +104,10 @@ class ConnectionPanel implements IBarPanel, ILogger
 			try {
 				$row[4] = null;
 				if ($this->doExplain) {
-					$row[4] = $this->connection->getDriver()->query('EXPLAIN ' . $row['1'])->fetchAll();
+					$explainSql = ExplainHelper::getExplainQuery($row[1]);
+					if ($explainSql !== null) {
+						$row[4] = $this->connection->getDriver()->query($explainSql)->fetchAll();
+					}
 				}
 			} catch (\Throwable $e) {
 				$row[4] = null;
