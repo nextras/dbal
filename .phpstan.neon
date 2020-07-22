@@ -19,5 +19,5 @@ parameters:
 			message: '~Call to an undefined method .+::children\(\)\.~'
 			path: "src/Bridges/SymfonyBundle/DependencyInjection/Configuration.php"
 		-
-			message: '~If condition is always false\.~'
+			message: '~.*~'
 			path: "src/compatibility.php"

@@ -23,7 +23,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	private $count = 0;
 
 	/** @var float */
-	private $totalTime;
+	private $totalTime; // @phpstan-ignore-line
 
 	/**
 	 * @var array
