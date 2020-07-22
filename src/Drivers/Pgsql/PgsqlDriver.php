@@ -394,7 +394,7 @@ class PgsqlDriver implements IDriver
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, $sqlState, null, $query);
+			return new QueryException($error, $errorNo, (string) $sqlState, null, $query);
 
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);

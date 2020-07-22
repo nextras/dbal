@@ -67,6 +67,8 @@ class MysqliDriver implements IDriver
 
 		$this->setupSsl($params);
 
+		assert($this->connection !== null);
+
 		if (!@$this->connection->real_connect($host, $params['username'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,

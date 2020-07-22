@@ -128,6 +128,9 @@ class QueryBuilder
 
 	private function getFromClauses(): string
 	{
+		if ($this->from === null) {
+			throw new InvalidStateException();
+		}
 		$query = $this->from[0] . ($this->from[1] ? " AS [{$this->from[1]}]" : '');
 
 		if ($this->indexHints !== null) {

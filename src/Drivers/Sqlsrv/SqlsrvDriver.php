@@ -368,19 +368,17 @@ class SqlsrvDriver implements IDriver
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS) ?: [];
 		$errors = array_unique($errors, SORT_REGULAR);
-		$errors = array_reverse($errors);
-
-		$exception = null;
-		foreach ($errors as $error) {
-			$exception = $this->createException(
-				$error['message'],
-				$error['code'],
-				$error['SQLSTATE'],
-				$query
-			);
+		$error = array_shift($errors);
+		if ($error === null) {
+			return;
 		}
 
-		throw $exception;
+		throw $this->createException(
+			$error['message'],
+			$error['code'],
+			$error['SQLSTATE'],
+			$query
+		);
 	}
 
 
