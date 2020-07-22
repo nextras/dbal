@@ -56,7 +56,7 @@ interface IConnection
 	/**
 	 * Executes a query.
 	 * @param mixed ...$args
-	 * @phpstan-param array<mixed> ...$args
+	 * @phpstan-param mixed ...$args
 	 * @throws QueryException
 	 */
 	public function query(...$args): Result;

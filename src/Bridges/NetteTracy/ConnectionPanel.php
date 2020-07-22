@@ -75,7 +75,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 			$this->connection,
 			$sqlQuery,
 			$timeTaken,
-			$result ? $result->count() : null,
+			$result !== null ? $result->count() : null,
 		];
 	}
 
@@ -85,7 +85,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	}
 
 
-	public function getTab(): ?string
+	public function getTab(): string
 	{
 		$count = $this->count;
 		$totalTime = $this->totalTime;
@@ -96,11 +96,11 @@ class ConnectionPanel implements IBarPanel, ILogger
 	}
 
 
-	public function getPanel(): ?string
+	public function getPanel(): string
 	{
 		$count = $this->count;
 		$queries = $this->queries;
-		$queries = array_map(function ($row) {
+		$queries = array_map(function ($row): array {
 			try {
 				$row[4] = null;
 				if ($this->doExplain) {

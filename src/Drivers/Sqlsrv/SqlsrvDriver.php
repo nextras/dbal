@@ -82,7 +82,7 @@ class SqlsrvDriver implements IDriver
 			if ($key === 'username') {
 				$connectionOptions['UID'] = $value;
 			} elseif ($key === 'password') {
-				$connectionOptions['PWD'] = $value ?: '';
+				$connectionOptions['PWD'] = $value ?? '';
 			} elseif ($key === 'database') {
 				$connectionOptions['Database'] = $value;
 			} elseif ($key === 'connectionTz') {
@@ -97,16 +97,17 @@ class SqlsrvDriver implements IDriver
 		}
 		$connectionOptions['ReturnDatesAsStrings'] = true;
 
-		$this->connection = sqlsrv_connect($connectionString, $connectionOptions) ?: null;
-		if (!$this->connection) {
+		$connectionResource = sqlsrv_connect($connectionString, $connectionOptions);
+		if ($connectionResource === false) {
 			$this->throwErrors();
 		}
+		$this->connection = $connectionResource;
 	}
 
 
 	public function disconnect(): void
 	{
-		if ($this->connection) {
+		if ($this->connection !== null) {
 			sqlsrv_close($this->connection);
 			$this->connection = null;
 		}
@@ -139,21 +140,20 @@ class SqlsrvDriver implements IDriver
 		}
 
 		$affectedRowsStatement = sqlsrv_query($this->connection, 'SELECT @@ROWCOUNT');
-		if (!$affectedRowsStatement) {
+		if ($affectedRowsStatement === false) {
 			$this->throwErrors();
 		}
-		assert($affectedRowsStatement !== false);
-		if ($affectedRowsResult = sqlsrv_fetch_array($affectedRowsStatement, SQLSRV_FETCH_NUMERIC)) {
-			$this->affectedRows = $affectedRowsResult[0];
-		} else {
+		$affectedRowsResult = sqlsrv_fetch_array($affectedRowsStatement, SQLSRV_FETCH_NUMERIC);
+		if (!is_array($affectedRowsResult)) {
 			$this->throwErrors();
 		}
+		$this->affectedRows = $affectedRowsResult[0];
 
 		return new Result(new SqlsrvResultAdapter($statement), $this);
 	}
 
 
-	public function getLastInsertedId(string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null)
 	{
 		return $this->loggedQuery('SELECT SCOPE_IDENTITY()')->fetchField();
 	}
@@ -294,7 +294,7 @@ class SqlsrvDriver implements IDriver
 	public function convertJsonToSql($value): string
 	{
 		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
-		if (json_last_error()) {
+		if (json_last_error() !== JSON_ERROR_NONE) {
 			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
 		}
 		assert(is_string($encoded));
@@ -353,7 +353,7 @@ class SqlsrvDriver implements IDriver
 
 	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
 	{
-		$query .= ' OFFSET ' . ($offset ?: 0) . ' ROWS';
+		$query .= ' OFFSET ' . ($offset !== null ? $offset : 0) . ' ROWS';
 		if ($limit !== null) {
 			$query .= ' FETCH NEXT ' . $limit . ' ROWS ONLY';
 		}
@@ -366,8 +366,8 @@ class SqlsrvDriver implements IDriver
 	 */
 	private function throwErrors(?string $query = null): void
 	{
-		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS) ?: [];
-		$errors = array_unique($errors, SORT_REGULAR);
+		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
+		$errors = $errors === null ? [] : array_unique($errors, SORT_REGULAR);
 		$error = array_shift($errors);
 		if ($error === null) {
 			return;

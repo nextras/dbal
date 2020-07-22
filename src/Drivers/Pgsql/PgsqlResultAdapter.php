@@ -73,7 +73,8 @@ class PgsqlResultAdapter implements IResultAdapter
 
 	public function fetch(): ?array
 	{
-		return pg_fetch_array($this->result, null, PGSQL_ASSOC) ?: null;
+		$row = pg_fetch_array($this->result, null, PGSQL_ASSOC);
+		return $row !== false ? $row : null;
 	}
 
 

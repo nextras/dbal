@@ -48,7 +48,7 @@ class FileImporter
 		}
 
 		while ($query != '') {
-			if (!$offset && preg_match("~^{$space}*DELIMITER\\s+(\\S+)~i", $query, $match)) {
+			if ($offset === 0 && preg_match("~^{$space}*DELIMITER\\s+(\\S+)~i", $query, $match) === 1) {
 				$delimiter = $match[1];
 				$query = substr($query, strlen($match[0]));
 
@@ -73,7 +73,7 @@ class FileImporter
 					$offset = 0;
 
 				} else { // find matching quote or comment end
-					while (preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' : (preg_match('~^-- |^#~', $found) ? "\n" : preg_quote($found) . "|\\\\."))) . '|$)s', $query, $match, PREG_OFFSET_CAPTURE, $offset)) { //! respect sql_mode NO_BACKSLASH_ESCAPES
+					while (preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' : (preg_match('~^-- |^#~', $found) === 1 ? "\n" : preg_quote($found) . "|\\\\."))) . '|$)s', $query, $match, PREG_OFFSET_CAPTURE, $offset) === 1) { //! respect sql_mode NO_BACKSLASH_ESCAPES
 						$s = $match[0][0];
 						/** @var int $offset */
 						$offset = $match[0][1] + strlen($s);

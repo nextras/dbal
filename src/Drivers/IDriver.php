@@ -67,7 +67,7 @@ interface IDriver
 	 * @return mixed
 	 * @internal
 	 */
-	public function getLastInsertedId(string $sequenceName = null);
+	public function getLastInsertedId(?string $sequenceName = null);
 
 
 	/**

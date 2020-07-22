@@ -80,7 +80,7 @@ class PgsqlDriver implements IDriver
 			}
 		}
 
-		set_error_handler(function ($code, $message) {
+		set_error_handler(function (int $code, string $message): bool {
 			restore_error_handler();
 			throw $this->createException($message, $code, null);
 		}, E_ALL);
@@ -107,7 +107,7 @@ class PgsqlDriver implements IDriver
 
 	public function disconnect(): void
 	{
-		if ($this->connection) {
+		if ($this->connection !== null) {
 			pg_close($this->connection);
 			$this->connection = null;
 		}
@@ -143,7 +143,8 @@ class PgsqlDriver implements IDriver
 
 		$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
 		if (is_string($state)) {
-			throw $this->createException(pg_result_error($resource) ?: 'Unknown error', 0, $state, $query);
+			$error = pg_result_error($resource);
+			throw $this->createException($error !== false ? $error : 'Unknown error', 0, $state, $query);
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
@@ -151,9 +152,9 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null)
 	{
-		if (empty($sequenceName)) {
+		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
 		}
 		assert($this->connection !== null);
@@ -284,7 +285,7 @@ class PgsqlDriver implements IDriver
 	public function convertJsonToSql($value): string
 	{
 		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
-		if (json_last_error()) {
+		if (json_last_error() !== JSON_ERROR_NONE) {
 			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
 		}
 		assert(is_string($encoded));

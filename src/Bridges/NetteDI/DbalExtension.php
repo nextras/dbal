@@ -35,7 +35,7 @@ class DbalExtension extends CompilerExtension
 			->setAutowired(isset($config['autowired']) ? $config['autowired'] : true);
 
 		if (isset($config['debugger'])) {
-			$debugger = $config['debugger'];
+			$debugger = (bool) $config['debugger'];
 		} else {
 			$debugger = class_exists('Tracy\Debugger', false) && Debugger::$productionMode === Debugger::DEVELOPMENT;
 		}

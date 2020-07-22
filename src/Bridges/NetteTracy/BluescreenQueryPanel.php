@@ -14,7 +14,7 @@ class BluescreenQueryPanel
 	 */
 	public static function renderBluescreenPanel(?\Throwable $exception): ?array
 	{
-		if (!$exception instanceof QueryException || !($query = $exception->getSqlQuery())) {
+		if (!$exception instanceof QueryException || ($query = $exception->getSqlQuery()) === null) {
 			return null;
 		}
 
