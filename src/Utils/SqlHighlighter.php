@@ -3,6 +3,12 @@
 namespace Nextras\Dbal\Utils;
 
 
+use function assert;
+use function htmlspecialchars;
+use function preg_replace_callback;
+use function trim;
+
+
 /**
  * @internal
  */
@@ -21,12 +27,14 @@ class SqlHighlighter
 		$sql = preg_replace_callback("#(/\\*.+?\\*/)|(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is", function (
 			$matches
 		) {
-			if (!empty($matches[1])) { // comment
+			if (isset($matches[1])) { // comment
 				return '<em style="color:gray">' . $matches[1] . '</em>';
-			} elseif (!empty($matches[2])) { // most important keywords
+			} elseif (isset($matches[2])) { // most important keywords
 				return '<strong style="color:#2D44AD">' . $matches[2] . '</strong>';
-			} elseif (!empty($matches[3])) { // other keywords
+			} elseif (isset($matches[3])) { // other keywords
 				return '<strong>' . $matches[3] . '</strong>';
+			} else {
+				return $matches[0];
 			}
 		}, $sql);
 		assert($sql !== null);

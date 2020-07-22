@@ -58,19 +58,23 @@ class MysqliDriver implements IDriver
 		$this->logger = $logger;
 
 		$host = $params['host'] ?? ini_get('mysqli.default_host');
-		$port = $params['port'] ?? (int) (ini_get('mysqli.default_port') ?: 3306);
+		$port = (int) ($params['port'] ?? ini_get('mysqli.default_port'));
+		$port = $port === 0 ? 3306 : $port;
 		$dbname = $params['database'] ?? '';
-		$socket = ($params['unix_socket'] ?? ini_get('mysqli.default_socket')) ?: '';
+		$socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
 		$flags = $params['flags'] ?? 0;
 
 		$this->connection = new mysqli();
 
 		$this->setupSsl($params);
 
+		assert($this->connection !== null);
+
 		if (!@$this->connection->real_connect($host, $params['username'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
 				$this->connection->connect_error,
-				(int) $this->connection->connect_errno,
+				$this->connection->connect_errno,
+				// @phpstan-ignore-next-line - Property access is not allowed yet
 				@$this->connection->sqlstate ?: 'HY000'
 			);
 		}
@@ -81,7 +85,7 @@ class MysqliDriver implements IDriver
 
 	public function disconnect(): void
 	{
-		if ($this->connection) {
+		if ($this->connection !== null) {
 			$this->connection->close();
 			$this->connection = null;
 		}
@@ -128,7 +132,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null)
 	{
 		assert($this->connection !== null);
 		return $this->connection->insert_id;
@@ -259,7 +263,7 @@ class MysqliDriver implements IDriver
 
 		if (isset($params['charset'])) {
 			$charset = $params['charset'];
-		} elseif (($version = $this->getServerVersion()) && version_compare($version, '5.5.3', '>=')) {
+		} elseif (version_compare($this->getServerVersion(), '5.5.3', '>=')) {
 			$charset = 'utf8mb4';
 		} else {
 			$charset = 'utf8';
@@ -316,7 +320,7 @@ class MysqliDriver implements IDriver
 	public function convertJsonToSql($value): string
 	{
 		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
-		if (json_last_error()) {
+		if (json_last_error() !== JSON_ERROR_NONE) {
 			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
 		}
 		assert(is_string($encoded));
@@ -343,7 +347,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertDatetimeToSql(DateTimeInterface $value): string
+	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
 		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
 		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
@@ -358,7 +362,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertDatetimeSimpleToSql(DateTimeInterface $value): string
+	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
 	{
 		return "'" . $value->format('Y-m-d H:i:s.u') . "'";
 	}

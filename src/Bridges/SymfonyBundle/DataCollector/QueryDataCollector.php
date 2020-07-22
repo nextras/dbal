@@ -144,7 +144,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 		$this->queries[] = [
 			$sqlQuery,
 			$timeTaken,
-			$result ? $result->count() : null,
+			$result !== null ? $result->count() : null,
 		];
 	}
 

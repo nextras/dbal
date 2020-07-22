@@ -28,10 +28,10 @@ class Configuration implements ConfigurationInterface
 		// @formatter:off
 		$treeBuilder->getRootNode()
 			->beforeNormalization()
-				->ifTrue(static function ($v) {
+				->ifTrue(static function ($v): bool {
 					return is_array($v) && !array_key_exists('connections', $v);
 				})
-				->then(static function ($v) {
+				->then(static function ($v): array {
 					return [
 						'connections' => ['default' => $v],
 						'default_connection' => 'default',

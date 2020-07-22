@@ -108,7 +108,7 @@ class SqlProcessor
 			$i = $j;
 			$fragments[] = preg_replace_callback(
 				'#%(\??+\w++(?:\[\]){0,2}+)|(%%)|(\[\[)|(\]\])|\[(.+?)\]#S', // %modifier | %% | %[ | %] | [identifier]
-				function ($matches) use ($args, &$j, $last) {
+				function ($matches) use ($args, &$j, $last): string {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
 							throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
@@ -162,7 +162,7 @@ class SqlProcessor
 
 					case 'i':
 					case '?i':
-						if (!preg_match('#^-?[1-9][0-9]*+\z#', $value)) {
+						if (preg_match('#^-?[1-9][0-9]*+\z#', $value) !== 1) {
 							break;
 						}
 						return (string) $value;
@@ -439,7 +439,7 @@ class SqlProcessor
 	 */
 	protected function processMultiValues(string $type, array $value): string
 	{
-		if (empty($value)) {
+		if (count($value) === 0) {
 			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
 		}
 
@@ -448,19 +448,19 @@ class SqlProcessor
 			$keys[] = $this->identifierToSql(explode('%', (string) $key, 2)[0]);
 		}
 		foreach ($value as $subValue) {
-			if (empty($subValue)) {
+			if (!is_array($subValue) || count($subValue) === 0) {
 				$values[] = '(' . str_repeat('DEFAULT, ', max(count($keys) - 1, 0)) . 'DEFAULT)';
 			} else {
 				$subValues = [];
 				foreach ($subValue as $_key => $val) {
-					$key = explode('%', $_key, 2);
+					$key = explode('%', (string) $_key, 2);
 					$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 				}
 				$values[] = '(' . implode(', ', $subValues) . ')';
 			}
 		}
 
-		return (!empty($keys) ? '(' . implode(', ', $keys) . ') ' : '') . 'VALUES ' . implode(', ', $values);
+		return (count($keys) > 0 ? '(' . implode(', ', $keys) . ') ' : '') . 'VALUES ' . implode(', ', $values);
 	}
 
 
@@ -469,13 +469,13 @@ class SqlProcessor
 	 */
 	private function processValues(string $type, array $value): string
 	{
-		if (empty($value)) {
+		if (count($value) === 0) {
 			return 'VALUES (DEFAULT)';
 		}
 
 		$keys = $values = [];
 		foreach ($value as $_key => $val) {
-			$key = explode('%', (string) $_key, 2);
+			$key = explode('%', $_key, 2);
 			$keys[] = $this->identifierToSql($key[0]);
 			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
 		}

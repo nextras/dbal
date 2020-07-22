@@ -108,7 +108,7 @@ class Result implements SeekableIterator, Countable
 	 */
 	public function fetchField(int $column = 0)
 	{
-		if ($row = $this->fetch()) { // = intentionally
+		if (($row = $this->fetch()) !== null) { // = intentionally
 			return $row->getNthField($column);
 		}
 
@@ -168,23 +168,23 @@ class Result implements SeekableIterator, Countable
 		foreach ($types as $key => $typePair) {
 			[$type, $nativeType] = $typePair;
 
-			if ($type & IResultAdapter::TYPE_STRING) {
+			if (($type & IResultAdapter::TYPE_STRING) > 0) {
 				$this->toStringColumns[] = $key;
 
-			} elseif ($type & IResultAdapter::TYPE_INT) {
+			} elseif (($type & IResultAdapter::TYPE_INT) > 0) {
 				$this->toIntColumns[] = $key;
 
-			} elseif ($type & IResultAdapter::TYPE_FLOAT) {
+			} elseif (($type & IResultAdapter::TYPE_FLOAT) > 0) {
 				$this->toFloatColumns[] = $key;
 
-			} elseif ($type & IResultAdapter::TYPE_BOOL) {
+			} elseif (($type & IResultAdapter::TYPE_BOOL) > 0) {
 				$this->toBoolColumns[] = $key;
 
-			} elseif ($type & IResultAdapter::TYPE_DATETIME) {
+			} elseif (($type & IResultAdapter::TYPE_DATETIME) > 0) {
 				$this->toDateTimeColumns[] = $key;
 			}
 
-			if ($type & IResultAdapter::TYPE_DRIVER_SPECIFIC) {
+			if (($type & IResultAdapter::TYPE_DRIVER_SPECIFIC) > 0) {
 				$this->toDriverColumns[] = [$key, $nativeType];
 			}
 		}

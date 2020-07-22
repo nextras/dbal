@@ -106,7 +106,7 @@ class PostgreSqlPlatform implements IPlatform
 			$column->isAutoincrement = (bool) $row->is_autoincrement;
 			$column->isUnsigned = false;
 			$column->isNullable = (bool) $row->is_nullable;
-			$column->meta = !empty($row->sequence) ? ['sequence' => $row->sequence] : [];
+			$column->meta = isset($row->sequence) ? ['sequence' => $row->sequence] : [];
 
 			$columns[$column->name] = $column;
 		}

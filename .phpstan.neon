@@ -2,7 +2,7 @@ includes:
 	- phar://%rootDir%/phpstan.phar/conf/bleedingEdge.neon
 
 parameters:
-	level: 7
+	level: max
 	paths:
 		- src
 
@@ -19,5 +19,5 @@ parameters:
 			message: '~Call to an undefined method .+::children\(\)\.~'
 			path: "src/Bridges/SymfonyBundle/DependencyInjection/Configuration.php"
 		-
-			message: '~If condition is always false\.~'
+			message: '~.*~'
 			path: "src/compatibility.php"

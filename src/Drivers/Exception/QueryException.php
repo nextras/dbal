@@ -8,7 +8,7 @@ use Exception;
 
 class QueryException extends DriverException
 {
-	/** @var string */
+	/** @var string|null */
 	private $sqlQuery;
 
 
@@ -17,15 +17,15 @@ class QueryException extends DriverException
 		int $errorCode = 0,
 		string $errorSqlState = '',
 		Exception $previousException = null,
-		string $sqlQuery = null
+		?string $sqlQuery = null
 	)
 	{
 		parent::__construct($message, $errorCode, $errorSqlState, $previousException);
-		$this->sqlQuery = (string) $sqlQuery;
+		$this->sqlQuery = $sqlQuery;
 	}
 
 
-	public function getSqlQuery(): string
+	public function getSqlQuery(): ?string
 	{
 		return $this->sqlQuery;
 	}

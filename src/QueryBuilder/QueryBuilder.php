@@ -114,11 +114,11 @@ class QueryBuilder
 			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
 			. ($this->where !== null ? ' WHERE ' . ($this->where) : '')
-			. ($this->group ? ' GROUP BY ' . implode(', ', $this->group) : '')
+			. ($this->group !== null ? ' GROUP BY ' . implode(', ', $this->group) : '')
 			. ($this->having !== null ? ' HAVING ' . ($this->having) : '')
-			. ($this->order ? ' ORDER BY ' . implode(', ', $this->order) : '');
+			. ($this->order !== null ? ' ORDER BY ' . implode(', ', $this->order) : '');
 
-		if ($this->limit) {
+		if ($this->limit !== null) {
 			$query = $this->driver->modifyLimitQuery($query, $this->limit[0], $this->limit[1]);
 		}
 
@@ -128,7 +128,10 @@ class QueryBuilder
 
 	private function getFromClauses(): string
 	{
-		$query = $this->from[0] . ($this->from[1] ? " AS [{$this->from[1]}]" : '');
+		if ($this->from === null) {
+			throw new InvalidStateException();
+		}
+		$query = $this->from[0] . ($this->from[1] !== null ? " AS [{$this->from[1]}]" : '');
 
 		if ($this->indexHints !== null) {
 			$query .= ' ' . $this->indexHints;
@@ -151,7 +154,7 @@ class QueryBuilder
 			throw new InvalidArgumentException("Unknown '$part' clause type.");
 		}
 
-		return [$this->$part, $this->args[$part]];
+		return [$this->$part, $this->args[$part]]; // @phpstan-ignore-line
 	}
 
 
@@ -324,9 +327,6 @@ class QueryBuilder
 	 */
 	public function addSelect(string $expression, ...$args): self
 	{
-		if (!is_string($expression)) {
-			throw new InvalidArgumentException('Select expression has to be a string.');
-		}
 		$this->dirty();
 		$this->select[] = $expression;
 		$this->pushArgs('select', $args);
@@ -354,7 +354,7 @@ class QueryBuilder
 	public function andWhere(string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->where = $this->where ? '(' . $this->where . ') AND (' . $expression . ')' : $expression;
+		$this->where = $this->where !== null ? '(' . $this->where . ') AND (' . $expression . ')' : $expression;
 		$this->pushArgs('where', $args);
 		return $this;
 	}
@@ -367,7 +367,7 @@ class QueryBuilder
 	public function orWhere(string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->where = $this->where ? '(' . $this->where . ') OR (' . $expression . ')' : $expression;
+		$this->where = $this->where !== null ? '(' . $this->where . ') OR (' . $expression . ')' : $expression;
 		$this->pushArgs('where', $args);
 		return $this;
 	}
@@ -419,7 +419,7 @@ class QueryBuilder
 	public function andHaving(string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->having = $this->having ? '(' . $this->having . ') AND (' . $expression . ')' : $expression;
+		$this->having = $this->having !== null ? '(' . $this->having . ') AND (' . $expression . ')' : $expression;
 		$this->pushArgs('having', $args);
 		return $this;
 	}
@@ -432,7 +432,7 @@ class QueryBuilder
 	public function orHaving(string $expression, ...$args): self
 	{
 		$this->dirty();
-		$this->having = $this->having ? '(' . $this->having . ') OR (' . $expression . ')' : $expression;
+		$this->having = $this->having !== null ? '(' . $this->having . ') OR (' . $expression . ')' : $expression;
 		$this->pushArgs('having', $args);
 		return $this;
 	}
@@ -470,7 +470,7 @@ class QueryBuilder
 	public function limitBy(?int $limit, ?int $offset = null): self
 	{
 		$this->dirty();
-		$this->limit = $limit || $offset ? [$limit, $offset] : null;
+		$this->limit = $limit !== null || $offset !== null ? [$limit, $offset] : null;
 		return $this;
 	}
 
