@@ -23,7 +23,7 @@
 		"nette/finder": "~2.5",
 		"nette/neon": "~3.0",
 		"phpstan/phpstan": "0.12.32",
-		"phpstan/phpstan-deprecation-rules": "0.12.4",
+		"phpstan/phpstan-deprecation-rules": "0.12.5",
 		"phpstan/extension-installer": "~1.0",
 		"symfony/config": "~4.4 || ~5.0",
 		"symfony/dependency-injection": "~4.4 || ~5.0",
