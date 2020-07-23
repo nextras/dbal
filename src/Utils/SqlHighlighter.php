@@ -3,9 +3,11 @@
 namespace Nextras\Dbal\Utils;
 
 
+use Nextras\Dbal\Exception\InvalidStateException;
 use function assert;
 use function htmlspecialchars;
 use function preg_replace_callback;
+use function strlen;
 use function trim;
 
 
@@ -24,19 +26,19 @@ class SqlHighlighter
 
 		$sql = " $sql ";
 		$sql = htmlspecialchars($sql, ENT_IGNORE, 'UTF-8');
-		$sql = preg_replace_callback("#(/\\*.+?\\*/)|(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is", function (
-			$matches
-		) {
-			if (isset($matches[1])) { // comment
-				return '<em style="color:gray">' . $matches[1] . '</em>';
-			} elseif (isset($matches[2])) { // most important keywords
-				return '<strong style="color:#2D44AD">' . $matches[2] . '</strong>';
-			} elseif (isset($matches[3])) { // other keywords
-				return '<strong>' . $matches[3] . '</strong>';
-			} else {
-				return $matches[0];
-			}
-		}, $sql);
+		$sql = preg_replace_callback(
+			"#(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is",
+			function ($matches): string {
+				if (strlen($matches[1]) > 0) { // most important keywords
+					return '<strong style="color:#2D44AD">' . $matches[1] . '</strong>';
+				} elseif (strlen($matches[2]) > 0) { // other keywords
+					return '<strong>' . $matches[2] . '</strong>';
+				} else {
+					throw new InvalidStateException();
+				}
+			},
+			$sql
+		);
 		assert($sql !== null);
 		return trim($sql);
 	}
