@@ -7,7 +7,7 @@ Nextras Dbal
 [![Stable Version](https://img.shields.io/packagist/v/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Code coverage](https://img.shields.io/coveralls/nextras/dbal.svg?style=flat)](https://coveralls.io/r/nextras/dbal)
 
-A powerful abstraction layer for database. **Fast & Safe**.
+A powerful abstraction layer for a database. **Fast & Safe**.
 
 Supported platforms:
 - **MySQL** via `mysqli` extension,
@@ -19,6 +19,10 @@ Integrations:
 - Nette DI Extension
 - Tracy Panel
 
+### Docs & resources
+
+- [Documentation](https://nextras.org/dbal/docs)
+
 ### Installation
 
 Use composer:
@@ -26,18 +30,6 @@ Use composer:
 ```bash
 $ composer require nextras/dbal
 ```
-
-### Docs & sources
-
-- [Documentation](https://nextras.org/dbal/docs)
-- [Api Documentation](https://codedoc.pub/nextras/dbal)
-
-### Thanks
-
-This project is inspired by great libraries:
-- [Doctrine\DBAL](http://www.doctrine-project.org) - [GitHub](https://github.com/doctrine/dbal)
-- [dibi](http://dibiphp.org) - [GitHub](https://github.com/dg/dibi)
-- [Nette\Database](http://nette.org) - [GitHub](https://github.com/nette/database)
 
 ### License
 
