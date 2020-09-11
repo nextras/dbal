@@ -18,6 +18,3 @@ parameters:
 		-
 			message: '~Call to an undefined method .+::children\(\)\.~'
 			path: "src/Bridges/SymfonyBundle/DependencyInjection/Configuration.php"
-		-
-			message: '~.*~'
-			path: "src/compatibility.php"

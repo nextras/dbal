@@ -33,7 +33,7 @@
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" },
-		"files": ["src/compatibility.php"]
+		"files": ["srcCompat/compatibility.php"]
 	},
 	"scripts": {
 		"phpstan": "phpstan analyze -c .phpstan.neon"
