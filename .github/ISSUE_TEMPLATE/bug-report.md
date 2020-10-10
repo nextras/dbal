@@ -1,5 +1,6 @@
 ---
 name: "\U0001F41B Bug report"
+labels: "bug"
 about: Report if something isn't working as expected.
 
 ---
