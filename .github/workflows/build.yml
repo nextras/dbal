@@ -10,6 +10,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        php-versions: [ '7.4' ]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -17,7 +21,7 @@ jobs:
       - name: Setup PHP with pecl extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ matrix.php-versions }}
 
       - name: Get composer cache directory
         id: composercache
@@ -27,7 +31,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composercache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
@@ -35,3 +39,91 @@ jobs:
 
       - name: Run PHPStan
         run: composer phpstan
+
+  tests:
+    name: Tests
+
+    strategy:
+      matrix:
+        php-versions: [ '7.1', '7.2', '7.3', '7.4' ]
+
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: nextras_dbal_test
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -ppass"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nextras_dbal_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP with pecl extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, intl, mysqli
+          coverage: pcov
+
+      - name: Get composer cache directory
+        id: composercache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composercache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
+
+      - name: Init config
+        run: cp ./tests/databases.sample.ini ./tests/databases.ini && cat ./tests/databases.ini
+
+      - name: Tests
+        run: ./tests/run.sh ./tests/cases  --coverage ./clover.xml --coverage-src ./src
+
+      - name: Send coverage report
+        env:
+          COVERALLS_PARALLEL: "true"
+          COVERALLS_FLAG_NAME: run-${{ matrix.php-versions }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          composer global require php-coveralls/php-coveralls --prefer-dist --no-interaction --no-progress --no-suggest && \
+          php-coveralls -v --coverage_clover=./clover.xml --json_path=./coveralls-upload.json
+
+  coverage-finish:
+    name: Code coverage finish
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -k "https://coveralls.io/webhook?repo_name=$GITHUB_REPOSITORY&repo_token=$COVERALLS_REPO_TOKEN" -d "payload[build_num]=$GITHUB_RUN_ID&payload[status]=done"
