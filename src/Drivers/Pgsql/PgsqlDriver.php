@@ -28,6 +28,24 @@ use Nextras\Dbal\Utils\StrictObjectTrait;
 use function is_string;
 
 
+/**
+ * Driver for php-pgsql ext.
+ *
+ * Supported configuration options:
+ * - host - server name to connect;
+ * - port - port to connect;
+ * - database - db name to connect;
+ * - options - options for pg_connect();
+ * - username - username to connect;
+ * - password - password to connect;
+ * - sslmode - ssl mode for pg_connect();
+ * - service - service config for pg_connect();
+ * - searchPath - default search path for connection;
+ * - connectionTz - timezone for database connection; possible values are:
+ *    - "auto"
+ *    - "auto-offset"
+ *    - specific +-00:00 timezone offset;
+ */
 class PgsqlDriver implements IDriver
 {
 	use StrictObjectTrait;
@@ -36,7 +54,7 @@ class PgsqlDriver implements IDriver
 	/** @var resource|null */
 	private $connection;
 
-	/** @var DateTimeZone Timezone for database connection. */
+	/** @var DateTimeZone */
 	private $connectionTz;
 
 	/** @var ILogger */

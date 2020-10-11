@@ -29,6 +29,33 @@ use Nextras\Dbal\Utils\StrictObjectTrait;
 use function assert;
 
 
+/**
+ * Driver for php-mysqli ext.
+ *
+ * Supported configuration options:
+ * - host - server name to connect, if not defined, value is taken from ini's mysqli.default_host;
+ * - port - port to connect, if not defined, value is taken from ini's mysqli.default_port, defaults to 3306;
+ * - database - db name to connect;
+ * - unix_socket - unix socket to connect, if not defined, value is taken from ini's mysqli.default_socket;
+ * - flags - int of flags accepted by Mysqli::real_connect();
+ * - username - username to connect;
+ * - password - password to connect;
+ * - sslKey - 0th argument of Mysqli::ssl_set();
+ * - sslCert - 1st argument of Mysqli::ssl_set();
+ * - sslCa - 2nd argument of Mysqli::ssl_set();
+ * - sslCapath - 3rd argument of Mysqli::ssl_set();
+ * - sslCipher - 4th argument of Mysqli::ssl_set();
+ * - charset - connection charset; for MySQL >= 5.5.3 defaults to utf8mb4, defaults to utf8 otherwise;
+ * - sqlMode - setup of SQL mode; possible values are:
+ *    - "TRADITIONAL" - a default one;
+ *    - "STRICT_TRANS_TABLES"
+ *    - "ANSI"
+ *    - and more - see MySQL docs.
+ * - connectionTz - timezone for database connection; possible values are:
+ *    - "auto"
+ *    - "auto-offset"
+ *    - specific +-00:00 timezone offset;
+ */
 class MysqliDriver implements IDriver
 {
 	use StrictObjectTrait;
@@ -37,7 +64,7 @@ class MysqliDriver implements IDriver
 	/** @var mysqli|null */
 	private $connection;
 
-	/** @var DateTimeZone Timezone for database connection. */
+	/** @var DateTimeZone */
 	private $connectionTz;
 
 	/** @var ILogger */

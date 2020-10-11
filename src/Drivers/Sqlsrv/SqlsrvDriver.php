@@ -25,6 +25,35 @@ use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
+/**
+ * Driver for php-sqlsrv ext available at github.com/microsoft/msphpsql.
+ *
+ * Supported configuration options:
+ * - host - server name to connect;
+ * - port - port to connect;
+ * - database - db name to connect;
+ * - username - username to connect;
+ * - password - password to connect;
+ * - other driver's config option:
+ *    - App
+ *    - ApplicationIntent
+ *    - AttachDbFileName
+ *    - CharacterSet
+ *    - ConnectionPooling
+ *    - Encrypt
+ *    - Falover_Partner
+ *    - LoginTimeout
+ *    - MultipleActiveResultSet
+ *    - MultiSubnetFailover
+ *    - QuotedId
+ *    - ReturnDatesAsStrings
+ *    - Scrollable
+ *    - TraceFile
+ *    - TraceOn
+ *    - TransactionIsolation
+ *    - TrustServerCertificate
+ *    - WSID
+ */
 class SqlsrvDriver implements IDriver
 {
 	use StrictObjectTrait;
@@ -66,7 +95,6 @@ class SqlsrvDriver implements IDriver
 			'QuotedId',
 			'ReturnDatesAsStrings',
 			'Scrollable',
-			'Server',
 			'TraceFile',
 			'TraceOn',
 			'TransactionIsolation',
