@@ -72,7 +72,7 @@ class MysqliDriver implements IDriver
 
 		if (!@$this->connection->real_connect($host, $params['username'], (string) $params['password'], $dbname, $port, $socket, $flags)) {
 			throw $this->createException(
-				$this->connection->connect_error,
+				$this->connection->connect_error ?? $this->connection->error, // @phpstan-ignore-line
 				$this->connection->connect_errno,
 				// @phpstan-ignore-next-line - Property access is not allowed yet
 				@$this->connection->sqlstate ?: 'HY000'
@@ -245,11 +245,11 @@ class MysqliDriver implements IDriver
 		}
 
 		$this->connection->ssl_set(
-			$params['sslKey'] ?? null,
-			$params['sslCert'] ?? null,
-			$params['sslCa'] ?? null,
-			$params['sslCapath'] ?? null,
-			$params['sslCipher'] ?? null
+			$params['sslKey'] ?? '',
+			$params['sslCert'] ?? '',
+			$params['sslCa'] ?? '',
+			$params['sslCapath'] ?? '',
+			$params['sslCipher'] ?? ''
 		);
 	}
 
