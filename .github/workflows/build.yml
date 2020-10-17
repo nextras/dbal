@@ -12,6 +12,11 @@ on:
       - master
       - v*.*
 
+env:
+  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv
+  php-extensions-key: v1
+  php-tools: "composer:v2, pecl"
+
 jobs:
   phpstan:
     name: PHPStan
@@ -20,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: [ '7.4' ]
+        php-version: [ '7.4' ]
 
     steps:
       - name: Checkout
@@ -29,7 +34,7 @@ jobs:
       - name: Setup PHP with pecl extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-version }}
 
       - name: Get composer cache directory
         id: composercache
@@ -52,8 +57,9 @@ jobs:
     name: Tests
 
     strategy:
+      fail-fast: false
       matrix:
-        php-versions: [ '7.1', '7.2', '7.3', '7.4' ]
+        php-version: [ '7.1', '7.2', '7.3', '7.4' ]
 
     runs-on: ubuntu-latest
 
@@ -106,13 +112,28 @@ jobs:
       - name: Create MS SQL Database
         run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE nextras_dbal_test'
 
+      - name: Setup PHP cache environment
+        id: php-extensions-cache
+        uses: shivammathur/cache-extensions@v1
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ${{ env.php-extensions }}
+          key: ${{ env.php-extensions-key }}
+
+      - name: Cache PHP extensions
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.php-extensions-cache.outputs.dir }}
+          key: ${{ steps.php-extensions-cache.outputs.key }}
+          restore-keys: ${{ steps.php-extensions-cache.outputs.key }}
+
       - name: Setup PHP with pecl extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, mysqli, pgsql, sqlsrv
+          php-version: ${{ matrix.php-version }}
+          extensions: ${{ env.php-extensions }}
+          tools: ${{ env.php-tools }}
           coverage: pcov
-          tools: pecl
 
       - name: Get composer cache directory
         id: composercache
@@ -137,7 +158,7 @@ jobs:
       - name: Send coverage report
         env:
           COVERALLS_PARALLEL: "true"
-          COVERALLS_FLAG_NAME: run-${{ matrix.php-versions }}
+          COVERALLS_FLAG_NAME: run-${{ matrix.php-version }}
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           composer global require php-coveralls/php-coveralls --prefer-dist --no-interaction --no-progress --no-suggest && \
