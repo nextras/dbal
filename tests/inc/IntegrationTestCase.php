@@ -36,7 +36,6 @@ class IntegrationTestCase extends TestCase
 		$options = array_merge([
 			'user' => NULL,
 			'password' => NULL,
-			'sqlMode' => 'TRADITIONAL',
 			'searchPath' => ['public'],
 		], Environment::loadData(), $params);
 		return new Connection($options);

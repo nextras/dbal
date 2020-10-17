@@ -71,6 +71,14 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 		Assert::null($this->connection->query('INSERT INTO tags %values', ['name' => "Test"])->fetch());
 	}
+
+
+	public function testCount()
+	{
+		$this->initData($this->connection);
+		$result = $this->connection->query('SELECT * FROM books');
+		Assert::same(4, $result->count());
+	}
 }
 
 

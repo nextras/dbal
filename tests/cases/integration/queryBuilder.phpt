@@ -41,7 +41,7 @@ class QueryBuilderIntegrationTest extends IntegrationTestCase
 	private function execute(QueryBuilder $builder)
 	{
 		return $this->connection
-			->queryArgs($builder->getQuerySql(), $builder->getQueryParameters())
+			->queryByQueryBuilder($builder)
 			->fetchPairs(null, 'id');
 	}
 }
