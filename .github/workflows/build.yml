@@ -76,17 +76,35 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mssql:
+        image: mcr.microsoft.com/mssql/server:latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: YourStrong!Passw0rd
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --name=mssql
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create MS SQL Database
+        run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE nextras_dbal_test'
+
       - name: Setup PHP with pecl extension
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, mysqli
+          extensions: mbstring, intl, mysqli, pgsql, sqlsrv
           coverage: pcov
+          tools: pecl
 
       - name: Get composer cache directory
         id: composercache
@@ -103,7 +121,7 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
 
       - name: Init config
-        run: cp ./tests/databases.sample.ini ./tests/databases.ini && cat ./tests/databases.ini
+        run: cp ./tests/databases.github.ini ./tests/databases.ini
 
       - name: Tests
         run: ./tests/run.sh ./tests/cases  --coverage ./clover.xml --coverage-src ./src
