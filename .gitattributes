@@ -3,6 +3,5 @@
 /.github export-ignore
 /tests/ export-ignore
 /.phpstan.neon export-ignore
-/.travis.yml export-ignore
 /composer.json eol=lf
 *.sh eol=lf
