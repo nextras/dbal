@@ -86,6 +86,7 @@ class TypesSqlsrvTest extends IntegrationTestCase
 			CREATE TABLE [types_write] (
 				[blob] varbinary(1000),
 				[json] varchar(500),
+				[bool] bit
 			);
 		");
 
@@ -94,10 +95,12 @@ class TypesSqlsrvTest extends IntegrationTestCase
 			[
 				'blob%blob' => $file,
 				'json%json' => [1, '2', true, null],
+				'bool%b' => true,
 			]);
 		$row = $this->connection->query('SELECT * FROM [types_write]')->fetch();
 		Assert::same($file, $row->blob);
 		Assert::same('[1,"2",true,null]', $row->json);
+		Assert::same(true, $row->bool);
 	}
 }
 

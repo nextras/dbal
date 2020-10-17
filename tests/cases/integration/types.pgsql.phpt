@@ -67,7 +67,8 @@ class TypesPostgreTest extends IntegrationTestCase
 			CREATE TEMPORARY TABLE [types_write] (
 				[blob] bytea,
 				[json] json,
-				[jsonb] jsonb
+				[jsonb] jsonb,
+				[bool] boolean
 			);
 		");
 
@@ -76,11 +77,13 @@ class TypesPostgreTest extends IntegrationTestCase
 			'blob%blob' => $file,
 			'json%json' => [1, '2', true, null],
 			'jsonb%json' => [1, '2', true, null],
+			'bool%b' => true,
 		]);
 		$row = $this->connection->query('SELECT * FROM [types_write]')->fetch();
 		Assert::same($file, $row->blob);
 		Assert::same('[1,"2",true,null]', $row->json);
 		Assert::same('[1, "2", true, null]', $row->jsonb);
+		Assert::same(true, $row->bool);
 	}
 }
 
