@@ -186,6 +186,12 @@ jobs:
       - name: Tests
         run: ./tests/run.sh ./tests/cases  --coverage ./clover.xml --coverage-src ./src
 
+      - name: Print failed expectations
+        if: ${{ failure() }}
+        run: |
+          find tests -name \*.actual -exec echo "--- {}" \; -exec cat {} \; -exec echo \; -exec echo \; && \
+          find tests -name \*.log -exec echo "--- {}" \; -exec cat {} \; -exec echo \; -exec echo \;
+
       - name: Send coverage report
         env:
           COVERALLS_PARALLEL: "true"
