@@ -7,7 +7,10 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
 use Tester\Assert;
+use function array_map;
+use function version_compare;
 
 
 require_once __DIR__ . '/../../bootstrap.php';
@@ -39,13 +42,22 @@ class PlatformMysqlTest extends IntegrationTestCase
 	public function testColumns()
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
-		$columns = \array_map(function ($table) { return (array) $table; }, $columns);
+		$columns = array_map(function ($table) { return (array) $table; }, $columns);
+
+		$driver = $this->connection->getDriver();
+		assert($driver instanceof MysqliDriver);
+
+		$isMariaDb = stripos($driver->getResourceHandle()->server_info, 'MariaDB') !== false;
+		$isMySQL8 = version_compare(
+			$this->connection->getDriver()->getServerVersion(),
+			'8.0.19'
+		) >= 0 && !$isMariaDb;
 
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => true,
 				'isAutoincrement' => true,
@@ -56,7 +68,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -67,7 +79,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'translator_id' => [
 				'name' => 'translator_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -89,7 +101,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'publisher_id' => [
 				'name' => 'publisher_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -100,7 +112,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'ean_id' => [
 				'name' => 'ean_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -113,13 +125,13 @@ class PlatformMysqlTest extends IntegrationTestCase
 		$dbName2 = $this->connection->getConfig()['database'] . '2';
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns("$dbName2.authors");
-		$schemaColumns = \array_map(function ($table) { return (array) $table; }, $schemaColumns);
+		$schemaColumns = array_map(function ($table) { return (array) $table; }, $schemaColumns);
 
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => true,
 				'isAutoincrement' => true,
@@ -168,7 +180,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 	{
 		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
-		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
+		$keys = array_map(function ($key) { return (array) $key; }, $keys);
 
 		Assert::same([
 			'author_id' => [
@@ -215,7 +227,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 		");
 
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
-		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
+		$schemaKeys = array_map(function ($key) { return (array) $key; }, $schemaKeys);
 		Assert::same([
 			'book_id' => [
 				'name' => 'book_id',
