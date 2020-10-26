@@ -32,7 +32,7 @@ class ResultTest extends TestCase
 		$driver = Mockery::mock(IDriver::class);
 
 		$names = [];
-		$result = new Result($adapter, $driver, 0);
+		$result = new Result($adapter, $driver);
 		$result->setValueNormalization(false);
 		foreach ($result as $row) {
 			$names[] = $row->name;
@@ -62,7 +62,7 @@ class ResultTest extends TestCase
 
 		$driver = Mockery::mock(IDriver::class);
 
-		$result = new Result($adapter, $driver, 0);
+		$result = new Result($adapter, $driver);
 		$result->setValueNormalization(false);
 
 		$names = [];
@@ -83,7 +83,7 @@ class ResultTest extends TestCase
 
 		$driver = Mockery::mock(IDriver::class);
 
-		$result = new Result($adapter, $driver, 0);
+		$result = new Result($adapter, $driver);
 		$result->setValueNormalization(false);
 		Assert::same('First', $result->fetchField());
 		Assert::same('Two', $result->fetchField(1));
@@ -98,7 +98,7 @@ class ResultTest extends TestCase
 
 		$driver = Mockery::mock(IDriver::class);
 
-		$result = new Result($adapter, $driver, 0);
+		$result = new Result($adapter, $driver);
 		$result->setValueNormalization(false);
 		Assert::null($result->fetchField());
 	}
@@ -119,7 +119,7 @@ class ResultTest extends TestCase
 
 		$driver = Mockery::mock(IDriver::class);
 
-		$result = new Result($adapter, $driver, 0);
+		$result = new Result($adapter, $driver);
 		$result->setValueNormalization(false);
 
 		Assert::equal([
@@ -155,7 +155,7 @@ class ResultTest extends TestCase
 			$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 			$driver = Mockery::mock(IDriver::class);
-			$result = new Result($adapter, $driver, 0);
+			$result = new Result($adapter, $driver);
 			$result->setValueNormalization(false);
 			return $result;
 		};
@@ -189,7 +189,7 @@ class ResultTest extends TestCase
 			$adapter = Mockery::mock(IResultAdapter::class);
 			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
 			$driver = Mockery::mock(IDriver::class);
-			$result = new Result($adapter, $driver, 0);
+			$result = new Result($adapter, $driver);
 			$result->setValueNormalization(false);
 			$result->fetchPairs();
 		}, InvalidArgumentException::class, 'Result::fetchPairs() requires defined key or value.');
@@ -225,7 +225,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('fetch')->once()->andReturn($two);
 		$driver = Mockery::mock(IDriver::class);
 
-		$result = new Result($adapter, $driver, 0);
+		$result = new Result($adapter, $driver);
 		$row = $result->fetch();
 		Assert::same('jon snow', $row->name);
 		Assert::same(16, $row->age);
@@ -239,6 +239,20 @@ class ResultTest extends TestCase
 		Assert::same(60.5, $row->weight);
 		Assert::same(false, $row->is_single);
 		Assert::same('2015-02-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
+	}
+
+
+	public function testColumns()
+	{
+		$adapter = Mockery::mock(IResultAdapter::class);
+		$adapter->shouldReceive('getTypes')->twice()->andReturn([
+			'age' => [IResultAdapter::TYPE_INT, null],
+			'123' => [IResultAdapter::TYPE_INT, null],
+		]);
+		$driver = Mockery::mock(IDriver::class);
+		$result = new Result($adapter, $driver);
+
+		Assert::same(['age', '123'], $result->getColumns());
 	}
 }
 

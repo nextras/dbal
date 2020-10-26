@@ -11,6 +11,8 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use SeekableIterator;
+use function array_keys;
+use function array_map;
 use function assert;
 use function date_default_timezone_get;
 use function iterator_to_array;
@@ -152,6 +154,19 @@ class Result implements SeekableIterator, Countable
 		}
 
 		return $return;
+	}
+
+
+	/**
+	 * Returns list of column names in result.
+	 * @phpstan-return list<string>
+	 */
+	public function getColumns(): array
+	{
+		return array_map(
+			function($name): string { return (string) $name; }, // @phpstan-ignore-line
+			array_keys($this->adapter->getTypes())
+		);
 	}
 
 
