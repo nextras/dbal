@@ -14,6 +14,8 @@ parameters:
 		Nextras\Dbal\Drivers\Sqlsrv\SqlsrvDriver:
 			- throwErrors
 
+	reportUnmatchedIgnoredErrors: false
+
 	ignoreErrors:
 		-
 			message: '~Call to an undefined method .+::children\(\)\.~'
