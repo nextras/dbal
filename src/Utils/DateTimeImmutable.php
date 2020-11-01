@@ -19,6 +19,9 @@ final class DateTimeImmutable extends \DateTimeImmutable
 	{
 		$zone = $this->getTimezone();
 		$datetime = new static('@' . (string) $timestamp);
+		if ($zone === false) { // @phpstan-ignore-line
+			return $datetime;
+		}
 		return $datetime->setTimezone($zone);
 	}
 }
