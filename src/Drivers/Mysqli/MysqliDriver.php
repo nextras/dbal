@@ -101,8 +101,7 @@ class MysqliDriver implements IDriver
 			throw $this->createException(
 				$this->connection->connect_error ?? $this->connection->error, // @phpstan-ignore-line
 				$this->connection->connect_errno,
-				// @phpstan-ignore-next-line - Property access is not allowed yet
-				@$this->connection->sqlstate ?: 'HY000'
+				'HY000'
 			);
 		}
 
@@ -376,8 +375,10 @@ class MysqliDriver implements IDriver
 
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
+		$valueTimezone = $value->getTimezone();
 		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
-		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
+		assert($valueTimezone !== false); // @phpstan-ignore-line
+		if ($valueTimezone->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof DateTimeImmutable) {
 				$value = $value->setTimezone($this->connectionTz);
 			} else {

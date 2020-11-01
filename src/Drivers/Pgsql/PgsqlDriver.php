@@ -147,7 +147,7 @@ class PgsqlDriver implements IDriver
 	public function query(string $query): Result
 	{
 		assert($this->connection !== null);
-		if (!pg_send_query($this->connection, $query)) {
+		if (pg_send_query($this->connection, $query) === false) {
 			throw $this->createException(pg_last_error($this->connection), 0, null);
 		}
 
@@ -344,8 +344,10 @@ class PgsqlDriver implements IDriver
 
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
+		$valueTimezone = $value->getTimezone();
 		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
-		if ($value->getTimezone()->getName() !== $this->connectionTz->getName()) {
+		assert($valueTimezone !== false); // @phpstan-ignore-line
+		if ($valueTimezone->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof DateTimeImmutable) {
 				$value = $value->setTimezone($this->connectionTz);
 			} else {
