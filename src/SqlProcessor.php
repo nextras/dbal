@@ -27,9 +27,9 @@ class SqlProcessor
 		'i' => [true, true, 'int'],
 		'f' => [true, true, '(finite) float'],
 		'b' => [true, true, 'bool'],
-		'dt' => [true, true, 'DateTime'],
-		'dts' => [true, true, 'DateTime'], // @deprecated use ldt
-		'ldt' => [true, true, 'DateTime'],
+		'dt' => [true, true, 'DateTimeInterface'],
+		'dts' => [true, true, 'DateTimeInterface'], // @deprecated use ldt
+		'ldt' => [true, true, 'DateTimeInterface'],
 		'di' => [true, true, 'DateInterval'],
 		'blob' => [true, true, 'blob string'],
 		'_like' => [true, false, 'string'],
