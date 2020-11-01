@@ -6,7 +6,7 @@ MySQL, *by default*, does not "support" named timezones, therefore you could get
 Solutions:
 
 1. Import named timezones (see bellow, recommended).
-2. Use setting `connectionTz` with value `auto-offset`, which will use "offset" time zone setting. This will produce correct datetime in PHP, however, your SQL functions may start returning incorrect results, because MySQL won't be able to calculate proper difference between two date time since in "offset" mode there are no day-light saving shifts.
+2. Use setting `connectionTz` with value `auto-offset`, which will use "offset" time zone setting. This will produce correct datetime in PHP, however, your SQL functions may start returning incorrect results, because MySQL will not be able to calculate proper difference between two date time since in "offset" mode there are no day-light saving shifts.
 
 Importing Named Timezones
 =========================

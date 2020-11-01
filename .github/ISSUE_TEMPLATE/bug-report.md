@@ -1,7 +1,7 @@
 ---
 name: "\U0001F41B Bug report"
 labels: "bug"
-about: Report if something isn't working as expected.
+about: Report if something is not working as expected.
 
 ---
 

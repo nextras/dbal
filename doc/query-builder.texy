@@ -22,7 +22,7 @@ FROM clause
 Let's create a Query builder instance. Set a source table name by `from()` method. You can pass an alias. The first argument is considered as a SQL expression, you should escape its table name manually with `[]` brackets, or use a modifier. The second argument is an optional table alias, other arguments are arguments for used modifiers.
 
 /--php
-// table useres, aliased a
+// table users, aliased a
 $builder->from('users', 'a');
 
 // escaping table name
@@ -52,7 +52,7 @@ $builder->andWhere('order_id = %i', $oderId);
 
 Methods `andHaving()` and `orHaving()` have the same signature and logic as where methods.
 
-Group by expressions are not connected with logic operators, therefore the method is called `addGroupBy()`. The group by method has signature as others, accepts an expression and optinal arguments.
+Group by expressions are not connected with logic operators, therefore the method is called `addGroupBy()`. The group-by method has signature as others, accepts an expression and optional arguments.
 
 Let's see an example: depending on `$cond` we build query which will retrieve daily number of issues created/resolved in the last week and filter only days with more than 10 issues.
 
@@ -87,11 +87,11 @@ You can also use these methods to empty the clause.
 SELECT, ORDER BY and LIMIT clause
 =================================
 
-Builder define methods for select, order by and limit clauses. Use appropriate methods: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. Select and order by methods accept modifier arguments as aformentioned methods.
+Builder define methods for select, order by and limit clauses. Use appropriate methods: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. Select and order by methods accept modifier arguments as aforementioned methods.
 
 /--php
-$builder->addSelect('id, %column, [another_ecpaced_column]', $myColumn);
-$builder->addSelect('COALESCE(colmun)');
+$builder->addSelect('id, %column, [another_escaped_column]', $myColumn);
+$builder->addSelect('COALESCE(column)');
 
 $builder->addOrderBy('FIELD(type, %s, %s, %s)', "type1", "type2", "type3");
 

@@ -1,8 +1,8 @@
 - [Connection | default]
-- [Param Modifiers | param-modifiers]
+- [Modifiers | param-modifiers]
 - [Result | result]
 - [Query Builder | query-builder]
-- [DateTime TimeZones | datetime]
+- [DateTime | datetime]
 
 /---div .[tuts]
 Tutorials:

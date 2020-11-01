@@ -1,7 +1,7 @@
-Parameter Modifiers
-###################
+Modifiers
+#########
 
-Dbal allows you to escape and build safe SQL query. It provides these powerful modifiers:
+Dbal allows you to escape and build safe SQL query. It provides these powerful parameter modifiers:
 
 |* `%s`, `%?s`, `%s[]`          | string   | not nullable, nullable, array of
 |* `%i`, `%?i`, `%i[]`          | integer  | not nullable, nullable, array of
@@ -12,7 +12,7 @@ Dbal allows you to escape and build safe SQL query. It provides these powerful m
 |* `%blob`, `%?blob`, `%blob[]` | binary string | not nullable, nullable, array of
 |* `%any`                       |               | any value
 |* `%_like`, `%like_`, `%_like_`| string   | like left, like right, like both sides
-|* `%json`, `%?json`, `%json[]` | any      | not nullabe, nullable, array of
+|* `%json`, `%?json`, `%json[]` | any      | not nullable, nullable, array of
 
 All modifiers require an argument of the specific data type - eg. `%f` accepts only floats and integers.
 
