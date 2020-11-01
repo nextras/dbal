@@ -140,7 +140,11 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function queryArgs($query, array $args = []): Result
 	{
-		array_unshift($args, $query);
+		if (is_array($query)) {
+			$args = $query;
+		} else {
+			array_unshift($args, $query);
+		}
 		return $this->query(...$args);
 	}
 
