@@ -102,11 +102,11 @@ class SqlProcessorScalarTest extends TestCase
 	}
 
 
-	public function testDateTimeSimple()
+	public function testLocalDateTime()
 	{
 		$dt = new DateTime('2012-03-05 12:01');
-		$this->driver->shouldReceive('convertDateTimeSimpleToSql')->once()->with($dt)->andReturn('DTS');
-		Assert::same('DTS', $this->parser->processModifier('dts', $dt));
+		$this->driver->shouldReceive('convertDateTimeSimpleToSql')->once()->with($dt)->andReturn('LDT');
+		Assert::same('LDT', $this->parser->processModifier('ldt', $dt));
 	}
 
 
@@ -185,7 +185,7 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('NULL', $this->parser->processModifier('?f', null));
 		Assert::same('NULL', $this->parser->processModifier('?b', null));
 		Assert::same('NULL', $this->parser->processModifier('?dt', null));
-		Assert::same('NULL', $this->parser->processModifier('?dts', null));
+		Assert::same('NULL', $this->parser->processModifier('?ldt', null));
 		Assert::same('NULL', $this->parser->processModifier('?di', null));
 		Assert::same('NULL', $this->parser->processModifier('?json', null));
 		Assert::same('NULL', $this->parser->processModifier('any', null));
@@ -400,22 +400,22 @@ class SqlProcessorScalarTest extends TestCase
 			['?b[]', [[]], 'Modifier %?b does not allow array value, use modifier %?b[] instead.'],
 			['?b[]', [new stdClass()], 'Modifier %?b expects value to be bool, stdClass given.'],
 
-			['dt', 'true', 'Modifier %dt expects value to be DateTime, string given.'],
-			['dt', 1, 'Modifier %dt expects value to be DateTime, integer given.'],
-			['dt', 1.0, 'Modifier %dt expects value to be DateTime, double given.'],
-			['dt', true, 'Modifier %dt expects value to be DateTime, boolean given.'],
+			['dt', 'true', 'Modifier %dt expects value to be DateTimeInterface, string given.'],
+			['dt', 1, 'Modifier %dt expects value to be DateTimeInterface, integer given.'],
+			['dt', 1.0, 'Modifier %dt expects value to be DateTimeInterface, double given.'],
+			['dt', true, 'Modifier %dt expects value to be DateTimeInterface, boolean given.'],
 			['dt', [], 'Modifier %dt does not allow array value, use modifier %dt[] instead.'],
-			['dt', new stdClass(), 'Modifier %dt expects value to be DateTime, stdClass given.'],
-			['dt', $file, 'Modifier %dt expects value to be DateTime, SplFileInfo given.'],
+			['dt', new stdClass(), 'Modifier %dt expects value to be DateTimeInterface, stdClass given.'],
+			['dt', $file, 'Modifier %dt expects value to be DateTimeInterface, SplFileInfo given.'],
 			['dt', null, 'Modifier %dt does not allow NULL value, use modifier %?dt instead.'],
 
-			['?dt', 'true', 'Modifier %?dt expects value to be DateTime, string given.'],
-			['?dt', 1, 'Modifier %?dt expects value to be DateTime, integer given.'],
-			['?dt', 1.0, 'Modifier %?dt expects value to be DateTime, double given.'],
-			['?dt', true, 'Modifier %?dt expects value to be DateTime, boolean given.'],
+			['?dt', 'true', 'Modifier %?dt expects value to be DateTimeInterface, string given.'],
+			['?dt', 1, 'Modifier %?dt expects value to be DateTimeInterface, integer given.'],
+			['?dt', 1.0, 'Modifier %?dt expects value to be DateTimeInterface, double given.'],
+			['?dt', true, 'Modifier %?dt expects value to be DateTimeInterface, boolean given.'],
 			['?dt', [], 'Modifier %?dt does not allow array value, use modifier %?dt[] instead.'],
-			['?dt', new stdClass(), 'Modifier %?dt expects value to be DateTime, stdClass given.'],
-			['?dt', $file, 'Modifier %?dt expects value to be DateTime, SplFileInfo given.'],
+			['?dt', new stdClass(), 'Modifier %?dt expects value to be DateTimeInterface, stdClass given.'],
+			['?dt', $file, 'Modifier %?dt expects value to be DateTimeInterface, SplFileInfo given.'],
 
 			['dt[]', '123', 'Modifier %dt[] expects value to be array, string given.'],
 			['dt[]', 123, 'Modifier %dt[] expects value to be array, integer given.'],
@@ -424,12 +424,12 @@ class SqlProcessorScalarTest extends TestCase
 			['dt[]', new stdClass(), 'Modifier %dt[] expects value to be array, stdClass given.'],
 			['dt[]', $file, 'Modifier %dt[] expects value to be array, SplFileInfo given.'],
 			['dt[]', null, 'Modifier %dt[] expects value to be array, NULL given.'],
-			['dt[]', ['true'], 'Modifier %dt expects value to be DateTime, string given.'],
-			['dt[]', [1], 'Modifier %dt expects value to be DateTime, integer given.'],
-			['dt[]', [1.0], 'Modifier %dt expects value to be DateTime, double given.'],
-			['dt[]', [true], 'Modifier %dt expects value to be DateTime, boolean given.'],
+			['dt[]', ['true'], 'Modifier %dt expects value to be DateTimeInterface, string given.'],
+			['dt[]', [1], 'Modifier %dt expects value to be DateTimeInterface, integer given.'],
+			['dt[]', [1.0], 'Modifier %dt expects value to be DateTimeInterface, double given.'],
+			['dt[]', [true], 'Modifier %dt expects value to be DateTimeInterface, boolean given.'],
 			['dt[]', [[]], 'Modifier %dt does not allow array value, use modifier %dt[] instead.'],
-			['dt[]', [new stdClass()], 'Modifier %dt expects value to be DateTime, stdClass given.'],
+			['dt[]', [new stdClass()], 'Modifier %dt expects value to be DateTimeInterface, stdClass given.'],
 			['dt[]', [null], 'Modifier %dt does not allow NULL value, use modifier %?dt instead.'],
 
 			['?dt[]', '123', 'Modifier %?dt[] expects value to be array, string given.'],
@@ -439,58 +439,58 @@ class SqlProcessorScalarTest extends TestCase
 			['?dt[]', new stdClass(), 'Modifier %?dt[] expects value to be array, stdClass given.'],
 			['?dt[]', $file, 'Modifier %?dt[] expects value to be array, SplFileInfo given.'],
 			['?dt[]', null, 'Modifier %?dt[] expects value to be array, NULL given.'],
-			['?dt[]', ['true'], 'Modifier %?dt expects value to be DateTime, string given.'],
-			['?dt[]', [1], 'Modifier %?dt expects value to be DateTime, integer given.'],
-			['?dt[]', [1.0], 'Modifier %?dt expects value to be DateTime, double given.'],
-			['?dt[]', [true], 'Modifier %?dt expects value to be DateTime, boolean given.'],
+			['?dt[]', ['true'], 'Modifier %?dt expects value to be DateTimeInterface, string given.'],
+			['?dt[]', [1], 'Modifier %?dt expects value to be DateTimeInterface, integer given.'],
+			['?dt[]', [1.0], 'Modifier %?dt expects value to be DateTimeInterface, double given.'],
+			['?dt[]', [true], 'Modifier %?dt expects value to be DateTimeInterface, boolean given.'],
 			['?dt[]', [[]], 'Modifier %?dt does not allow array value, use modifier %?dt[] instead.'],
-			['?dt[]', [new stdClass()], 'Modifier %?dt expects value to be DateTime, stdClass given.'],
+			['?dt[]', [new stdClass()], 'Modifier %?dt expects value to be DateTimeInterface, stdClass given.'],
 
-			['dts', 'true', 'Modifier %dts expects value to be DateTime, string given.'],
-			['dts', 1, 'Modifier %dts expects value to be DateTime, integer given.'],
-			['dts', 1.0, 'Modifier %dts expects value to be DateTime, double given.'],
-			['dts', true, 'Modifier %dts expects value to be DateTime, boolean given.'],
-			['dts', [], 'Modifier %dts does not allow array value, use modifier %dts[] instead.'],
-			['dts', new stdClass(), 'Modifier %dts expects value to be DateTime, stdClass given.'],
-			['dts', $file, 'Modifier %dts expects value to be DateTime, SplFileInfo given.'],
-			['dts', null, 'Modifier %dts does not allow NULL value, use modifier %?dts instead.'],
+			['ldt', 'true', 'Modifier %ldt expects value to be DateTimeInterface, string given.'],
+			['ldt', 1, 'Modifier %ldt expects value to be DateTimeInterface, integer given.'],
+			['ldt', 1.0, 'Modifier %ldt expects value to be DateTimeInterface, double given.'],
+			['ldt', true, 'Modifier %ldt expects value to be DateTimeInterface, boolean given.'],
+			['ldt', [], 'Modifier %ldt does not allow array value, use modifier %ldt[] instead.'],
+			['ldt', new stdClass(), 'Modifier %ldt expects value to be DateTimeInterface, stdClass given.'],
+			['ldt', $file, 'Modifier %ldt expects value to be DateTimeInterface, SplFileInfo given.'],
+			['ldt', null, 'Modifier %ldt does not allow NULL value, use modifier %?ldt instead.'],
 
-			['?dts', 'true', 'Modifier %?dts expects value to be DateTime, string given.'],
-			['?dts', 1, 'Modifier %?dts expects value to be DateTime, integer given.'],
-			['?dts', 1.0, 'Modifier %?dts expects value to be DateTime, double given.'],
-			['?dts', true, 'Modifier %?dts expects value to be DateTime, boolean given.'],
-			['?dts', [], 'Modifier %?dts does not allow array value, use modifier %?dts[] instead.'],
-			['?dts', new stdClass(), 'Modifier %?dts expects value to be DateTime, stdClass given.'],
-			['?dts', $file, 'Modifier %?dts expects value to be DateTime, SplFileInfo given.'],
+			['?ldt', 'true', 'Modifier %?ldt expects value to be DateTimeInterface, string given.'],
+			['?ldt', 1, 'Modifier %?ldt expects value to be DateTimeInterface, integer given.'],
+			['?ldt', 1.0, 'Modifier %?ldt expects value to be DateTimeInterface, double given.'],
+			['?ldt', true, 'Modifier %?ldt expects value to be DateTimeInterface, boolean given.'],
+			['?ldt', [], 'Modifier %?ldt does not allow array value, use modifier %?ldt[] instead.'],
+			['?ldt', new stdClass(), 'Modifier %?ldt expects value to be DateTimeInterface, stdClass given.'],
+			['?ldt', $file, 'Modifier %?ldt expects value to be DateTimeInterface, SplFileInfo given.'],
 
-			['dts[]', '123', 'Modifier %dts[] expects value to be array, string given.'],
-			['dts[]', 123, 'Modifier %dts[] expects value to be array, integer given.'],
-			['dts[]', 123.0, 'Modifier %dts[] expects value to be array, double given.'],
-			['dts[]', true, 'Modifier %dts[] expects value to be array, boolean given.'],
-			['dts[]', new stdClass(), 'Modifier %dts[] expects value to be array, stdClass given.'],
-			['dts[]', $file, 'Modifier %dts[] expects value to be array, SplFileInfo given.'],
-			['dts[]', null, 'Modifier %dts[] expects value to be array, NULL given.'],
-			['dts[]', ['true'], 'Modifier %dts expects value to be DateTime, string given.'],
-			['dts[]', [1], 'Modifier %dts expects value to be DateTime, integer given.'],
-			['dts[]', [1.0], 'Modifier %dts expects value to be DateTime, double given.'],
-			['dts[]', [true], 'Modifier %dts expects value to be DateTime, boolean given.'],
-			['dts[]', [[]], 'Modifier %dts does not allow array value, use modifier %dts[] instead.'],
-			['dts[]', [new stdClass()], 'Modifier %dts expects value to be DateTime, stdClass given.'],
-			['dts[]', [null], 'Modifier %dts does not allow NULL value, use modifier %?dts instead.'],
+			['ldt[]', '123', 'Modifier %ldt[] expects value to be array, string given.'],
+			['ldt[]', 123, 'Modifier %ldt[] expects value to be array, integer given.'],
+			['ldt[]', 123.0, 'Modifier %ldt[] expects value to be array, double given.'],
+			['ldt[]', true, 'Modifier %ldt[] expects value to be array, boolean given.'],
+			['ldt[]', new stdClass(), 'Modifier %ldt[] expects value to be array, stdClass given.'],
+			['ldt[]', $file, 'Modifier %ldt[] expects value to be array, SplFileInfo given.'],
+			['ldt[]', null, 'Modifier %ldt[] expects value to be array, NULL given.'],
+			['ldt[]', ['true'], 'Modifier %ldt expects value to be DateTimeInterface, string given.'],
+			['ldt[]', [1], 'Modifier %ldt expects value to be DateTimeInterface, integer given.'],
+			['ldt[]', [1.0], 'Modifier %ldt expects value to be DateTimeInterface, double given.'],
+			['ldt[]', [true], 'Modifier %ldt expects value to be DateTimeInterface, boolean given.'],
+			['ldt[]', [[]], 'Modifier %ldt does not allow array value, use modifier %ldt[] instead.'],
+			['ldt[]', [new stdClass()], 'Modifier %ldt expects value to be DateTimeInterface, stdClass given.'],
+			['ldt[]', [null], 'Modifier %ldt does not allow NULL value, use modifier %?ldt instead.'],
 
-			['?dts[]', '123', 'Modifier %?dts[] expects value to be array, string given.'],
-			['?dts[]', 123, 'Modifier %?dts[] expects value to be array, integer given.'],
-			['?dts[]', 123.0, 'Modifier %?dts[] expects value to be array, double given.'],
-			['?dts[]', true, 'Modifier %?dts[] expects value to be array, boolean given.'],
-			['?dts[]', new stdClass(), 'Modifier %?dts[] expects value to be array, stdClass given.'],
-			['?dts[]', $file, 'Modifier %?dts[] expects value to be array, SplFileInfo given.'],
-			['?dts[]', null, 'Modifier %?dts[] expects value to be array, NULL given.'],
-			['?dts[]', ['true'], 'Modifier %?dts expects value to be DateTime, string given.'],
-			['?dts[]', [1], 'Modifier %?dts expects value to be DateTime, integer given.'],
-			['?dts[]', [1.0], 'Modifier %?dts expects value to be DateTime, double given.'],
-			['?dts[]', [true], 'Modifier %?dts expects value to be DateTime, boolean given.'],
-			['?dts[]', [[]], 'Modifier %?dts does not allow array value, use modifier %?dts[] instead.'],
-			['?dts[]', [new stdClass()], 'Modifier %?dts expects value to be DateTime, stdClass given.'],
+			['?ldt[]', '123', 'Modifier %?ldt[] expects value to be array, string given.'],
+			['?ldt[]', 123, 'Modifier %?ldt[] expects value to be array, integer given.'],
+			['?ldt[]', 123.0, 'Modifier %?ldt[] expects value to be array, double given.'],
+			['?ldt[]', true, 'Modifier %?ldt[] expects value to be array, boolean given.'],
+			['?ldt[]', new stdClass(), 'Modifier %?ldt[] expects value to be array, stdClass given.'],
+			['?ldt[]', $file, 'Modifier %?ldt[] expects value to be array, SplFileInfo given.'],
+			['?ldt[]', null, 'Modifier %?ldt[] expects value to be array, NULL given.'],
+			['?ldt[]', ['true'], 'Modifier %?ldt expects value to be DateTimeInterface, string given.'],
+			['?ldt[]', [1], 'Modifier %?ldt expects value to be DateTimeInterface, integer given.'],
+			['?ldt[]', [1.0], 'Modifier %?ldt expects value to be DateTimeInterface, double given.'],
+			['?ldt[]', [true], 'Modifier %?ldt expects value to be DateTimeInterface, boolean given.'],
+			['?ldt[]', [[]], 'Modifier %?ldt does not allow array value, use modifier %?ldt[] instead.'],
+			['?ldt[]', [new stdClass()], 'Modifier %?ldt expects value to be DateTimeInterface, stdClass given.'],
 
 			['di', 'true', 'Modifier %di expects value to be DateInterval, string given.'],
 			['di', 1, 'Modifier %di expects value to be DateInterval, integer given.'],

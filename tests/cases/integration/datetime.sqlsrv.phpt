@@ -17,7 +17,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class DateTimeSqlsrvTest extends IntegrationTestCase
 {
-	public function testSimple()
+	public function testLocal()
 	{
 		$connection = $this->createConnection();
 		$connection->query('DROP TABLE IF EXISTS dates_write');
@@ -27,8 +27,8 @@ class DateTimeSqlsrvTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write VALUES (%dts)',
-			new DateTime('2015-01-01 12:00:00') // simple
+		$connection->query('INSERT INTO dates_write VALUES (%ldt)',
+			new DateTime('2015-01-01 12:00:00') // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -106,7 +106,7 @@ class DateTimeSqlsrvTest extends IntegrationTestCase
 
 		$now = new DateTime();
 		$connection->query('INSERT INTO dates_micro %values', [
-			'a%dts' => $now,
+			'a%ldt' => $now,
 			'b%dt' => $now,
 		]);
 

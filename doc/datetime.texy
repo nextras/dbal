@@ -1,58 +1,55 @@
 DateTime TimeZones Support
 ##########################
 
-Databases provide different types for storing datetimes. Also, the type naming is often misleading. This documentation page covers the basics and Dbal's solution to the datetime & timezone problem.
+Database engines provide different types for storing date-times. Also, the type naming is often misleading. This documentation page covers the basics and Dbal's solution to the datetime & timezone problem.
+
+Generally, we recognize three types of date time types:
+
+- **Local DateTime** - it is a date time which has not an exact position on the *time-line*; simply, we do not know in which time zone the event happened, therefore we consider the information as a local; example: date time when the school year begins, since the country may be across more the timezones, this type of information may be stored as a local date time, i.e. striping the "exactness" may be an advantage here;
+- **UTC DateTime** - is an exact timestamp on the *time-line*; example: timestamp of the meeting start in a calendar;
+- **Zoned DateTime** - is an exact timestamp on the *time-line* plus an added context of specific time-zone; either we use reader's timezone or timezone of the location when the timestamp "happened"; example: presenting an online streaming event start - since it is pretty usual that this event will be watched from multiple times, we need add reader's timezone context to the *stored* UTC DateTime.
+
+The following table presents a matrix of available data-time types and their behavior:
+
+|------------------------------------------------------------------------------
+|             | Local DateTime          | UTC DateTime        | Zoned DateTime
+|             | no timezone handling    | timezone conversion | timezone stored
+|------------------------------------------------------------------------------
+| MySQL       | `datetime`              | `timestamp`         | -
+| Postgres    | `timestamp`             | `timestamptz`       | -
+| SQL Server  | `datetime`, `datetime2` | -                   | `datetimeoffset`
+
+- **no timezone handling**: this is straightforward attitude; database just store your time-stamp and does not do any modification to the timestamp; this is the easiest solution, but brings a disadvantage: database cannot exactly diff two timestamps, i.e. it maz produce wrong results because day-light saving shift`
+- **timezone conversion**: database stores the time stamp unified in UTC and for MySQL, it converts the timestamp to connection's timezone for every read and write;
+- **timezone stored**: database does not do any conversion, it just stores the timezoned timestamp and returns it back;
 
 Dbal offers **connection time zone** configuration option (`connectionTz`) which defines the timezone for database connection communication; by default it equals to PHP's current default timezone. This option is configured by timezone name, e.g. `Europe/Prague` string.
 
 /--div .[note]
-By default, MySQL server doesn't support named timezones, see [the setup chapter | timezones-mysql-support] how to configure them. Still, there is a possiblity to pass only a timezone offset, e.g. `+03:00`, but this is not ideal if you server is in timezone with daylight saving time-shift. Use magic `auto-offset` value that will be dynamically converted to the current PHP's timezone offset.
+By default, MySQL server doesn't support named timezones, see [the setup chapter | timezones-mysql-support] how to configure them. Still, there is a possibility to pass only a timezone offset, e.g. `+03:00`, but this is not ideal. Use magic `auto-offset` value that will be dynamically converted to the current PHP's timezone offset.
 
-This will make Dbal fully functional, althought some SQL queries and expressions may not return corectly calculated results, e.g. functions which calculate two-date oprations directly in database - `TIMEDIFF`, `ADDDATE`, etc.
+This will make Dbal fully functional, although some SQL queries and expressions may not return correctly calculated results, e.g. functions that calculate two-date operations directly in the database - `TIMEDIFF`, `ADDDATE`, etc.
 \--
 
-------------------
+Storing
+=======
 
-Basically, there are three possibilities what database could do with time stamps ((the following text use the term `time stamp` in the meaning of identification of specific time)):
-
-- **no timezone handling**: this is straightforward attitude; database just store your time-stamp and does not do any modification to handle time zones; this is the easiest solution, but brings a disadvantage: you cannot exactly diff two time stamps in database, because database does not know anything about timezones - e.g. day-light saving shift, therefore functions like MySQL's `TIMEDIFF()` may give wrong result;
-- **timezone conversion**: database stores the time stamp unified in UTC and for every operation converts the time-stamp to proper working (connection's) timezone;
-- **timezone stored**: database does not do conversion, it just stores the timezone and returns it back with the timestamp;
-
-The following table presents matrix of available time stamp data types and their behavior:
-
-|             | no TZ handling       | TZ conversion  | TZ stored
-| MySQL       | datetime             | timestamp      | -
-| Postgres    | timestamp            | timestamptz    | -
-| SQL Server  | datetime, datetime2  | -              | datetimeoffset
-
-Let's describe **timezone conversion** for specific databases:
-
-- **MySQL's timestamp**:
-	- *input*: passed time stamp is interpreted in connection timezone; if time stamp has timezone defined, it is ignored and still interpreted in connection timezone;
-	- *output*: time stamp is returned in connection timezone without timezone identification;
-- **Postgre's timestamptz**:
-	- *input*: passed time stamp can contain timezone, if not, it is interpreted in connection timezone;
-	- *output*: time stamp is returned in connection timezone with timezone identification;
-
-Nextras Dbal comes with two query modifiers:
+Dbal comes with two query modifiers:
 - **`%dt`** (as datetime): converts DateTime object to connection timezone;
-- **`%dts`** (as datetime simple): pass DateTime object as it is, without any timezone conversion and identification;
+- **`%ldt`** (as local datetime): pass DateTime object as it is, without any timezone conversion and identification; formerly known as datetime simple (%dts);
 
-Usage matrix
-============
+|------------------------------------------------------------------------------
+|             | Local DateTime          | UTC DateTime        | Zoned DateTime
+|             | no timezone handling    | timezone conversion | timezone stored
+|------------------------------------------------------------------------------
+| MySQL       | `%ldt`                  | `%dt`               | -
+| Postgres    | `%ldt`                  | `%dt`               | -
+| SQL Server  | `%ldt`                  | -                   | `%dt`
 
-- MySQL's `datetime` + Postgres' `timestamp` + SQL Server's `datetime` & `datetime2`:
-	- use `%dts` for storing;
-	- use `%dt` for storing if and only if you have stable PHP's & connection timezone, this may be true for vast majority of Dbal's usage;
-	- value is read as it is, e.g. in PHP's timezone;
+Reading
+=======
 
-- MySQL's `timestamp` + Postgres `timestamptz`:
-	- use `%dt` for storing;
-	- use `%dts` for storing if and only if the value's timezone is the same as the connection timezone;
-	- value is read in connection timezone and then converted into PHP's timezone;
-
-- SQL Server's `datetimeoffset`:
-	- use `%dt` for storing;
-	- usage of `%dts` will strip the timezone;
-	- value is read with the stored timezone (and *not* converted into PHP's timezone);
+Database drivers also correctly read the stored values and convert them into `DateTimeImmutable` instances:
+- **MySQL** driver interprets `timestamp` column in connection's timezone and converts it to PHP's default timezone;
+- **Postgres** driver reads `timestamptz` (timezoned timestamp) and converts it to PHP's default timezone;
+- **SQL server** driver reads `datetimeoffset` (timezoned timestamp) and does not do any timezone conversion;
