@@ -36,15 +36,15 @@ Storing
 
 Dbal comes with two query modifiers:
 - **`%dt`** (as datetime): converts DateTime object to connection timezone;
-- **`%dts`** (as datetime simple): pass DateTime object as it is, without any timezone conversion and identification;
+- **`%ldt`** (as local datetime): pass DateTime object as it is, without any timezone conversion and identification; formerly known as datetime simple (%dts);
 
 |------------------------------------------------------------------------------
 |             | Local DateTime          | UTC DateTime        | Zoned DateTime
 |             | no timezone handling    | timezone conversion | timezone stored
 |------------------------------------------------------------------------------
-| MySQL       | `%dts`                  | `%dt`               | -
-| Postgres    | `%dts`                  | `%dt`               | -
-| SQL Server  | `%dts`                  | -                   | `%dt`
+| MySQL       | `%ldt`                  | `%dt`               | -
+| Postgres    | `%ldt`                  | `%dt`               | -
+| SQL Server  | `%ldt`                  | -                   | `%dt`
 
 Reading
 =======

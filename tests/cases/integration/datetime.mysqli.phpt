@@ -29,10 +29,10 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt, %dts)',
-			new DateTime('2015-01-01 12:00:00'), // simple
+		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
+			new DateTime('2015-01-01 12:00:00'), // local
 			new DateTime('2015-01-01 12:00:00'), // 11:00 UTC
-			new DateTime('2015-01-01 00:00:00')  // simple
+			new DateTime('2015-01-01 00:00:00')  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -44,10 +44,10 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		Assert::same('2015-01-01', $row->c);
 
 		$connection->query('DELETE FROM dates_write');
-		$connection->query('INSERT INTO dates_write VALUES (%dts, %dt, %dts)',
-			new DateTime('2015-01-01 12:00:00'),             // simple
+		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
+			new DateTime('2015-01-01 12:00:00'),             // local
 			new DateTime('2015-01-01 12:00:00 Europe/Kiev'), // 10:00 UTC,
-			new DateTime('2015-01-01 12:13:14')              // simple
+			new DateTime('2015-01-01 12:13:14')              // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -74,10 +74,10 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt, %dts)',
-			new \DateTimeImmutable('2015-01-01 12:00:00'), // simple
+		$connection->query('INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
+			new \DateTimeImmutable('2015-01-01 12:00:00'), // local
 			new \DateTimeImmutable('2015-01-01 12:00:00'), // 11:00 UTC
-			new \DateTimeImmutable('2015-01-01 00:00:00')  // simple
+			new \DateTimeImmutable('2015-01-01 00:00:00')  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -89,10 +89,10 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		Assert::same('2015-01-01', $row->c);
 
 		$connection->query('DELETE FROM dates_write2');
-		$connection->query('INSERT INTO dates_write2 VALUES (%dts, %dt, %dts)',
-			new \DateTimeImmutable('2015-01-01 12:00:00'),             // simple
+		$connection->query('INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
+			new \DateTimeImmutable('2015-01-01 12:00:00'),             // local
 			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev'), // 10:00 UTC
-			new \DateTimeImmutable('2015-01-01 12:13:14')              // simple
+			new \DateTimeImmutable('2015-01-01 12:13:14')              // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -118,7 +118,7 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		');
 
 		$connection->query('INSERT INTO dates_read VALUES (%s, %s, %s)',
-			'2015-01-01 12:00:00', // simple
+			'2015-01-01 12:00:00', // local
 			'2015-01-01 12:00:00', // 11:00 UTC
 			'2015-01-01'
 		);
@@ -150,7 +150,7 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		');
 
 		$connection->query('INSERT INTO dates_read2 VALUES (%s, %s, %s)',
-			'2015-01-01 12:00:00', // simple
+			'2015-01-01 12:00:00', // local
 			'2015-01-01 12:00:00', // 10:00 UTC
 			'2015-01-01'
 		);
@@ -179,7 +179,7 @@ class DateTimeMysqlTest extends IntegrationTestCase
 
 		$now = new DateTime();
 		$connection->query('INSERT INTO dates_micro %values', [
-			'a%dts' => $now,
+			'a%ldt' => $now,
 			'b%dt' => $now,
 		]);
 

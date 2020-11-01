@@ -28,7 +28,8 @@ class SqlProcessor
 		'f' => [true, true, '(finite) float'],
 		'b' => [true, true, 'bool'],
 		'dt' => [true, true, 'DateTime'],
-		'dts' => [true, true, 'DateTime'],
+		'dts' => [true, true, 'DateTime'], // @deprecated use ldt
+		'ldt' => [true, true, 'DateTime'],
 		'di' => [true, true, 'DateInterval'],
 		'blob' => [true, true, 'blob string'],
 		'_like' => [true, false, 'string'],
@@ -243,6 +244,7 @@ class SqlProcessor
 					case '?b':
 					case '?dt':
 					case '?dts':
+					case '?ldt':
 					case '?di':
 					case '?blob':
 					case '?json':
@@ -264,6 +266,8 @@ class SqlProcessor
 
 						case 'dts':
 						case '?dts':
+						case 'ldt':
+						case '?ldt':
 							return $this->driver->convertDateTimeSimpleToSql($value);
 					}
 

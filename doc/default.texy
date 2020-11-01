@@ -63,7 +63,7 @@ $connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id', 1);
 
 To retrieve the last inserted id use `getLastInsertedId()` method. For PostgreSQL the method accepts a sequence name. The number of affected rows is available through `getAffectedRows()` method.
 
-Each `query()` returns new `Nextras\Dbal\Result\Result` object. Result object allows to iterate over the fetched data and fetch each row into `Nextras\Dbal\Result\Row` instance. `Row` instance is simple value object with property access:
+Each `query()` returns new `Nextras\Dbal\Result\Result` object. Result object allows to iterate over the fetched data and fetch each row into `Nextras\Dbal\Result\Row` instance. `Row` instance is a simple value object with property access:
 
 /--php
 $users = $connection->query('SELECT * FROM [users]');
