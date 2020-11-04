@@ -45,5 +45,5 @@ class Column
 	 * @var mixed[]
 	 * @phpstan-var array<string, mixed>
 	 */
-	public $meta;
+	public $meta = [];
 }
