@@ -18,13 +18,13 @@ class DriverException extends Exception
 	public function __construct(
 		string $message,
 		int $errorCode = 0,
-		string $errorSqlState = null,
+		string $errorSqlState = '',
 		Exception $previousException = null
 	)
 	{
 		parent::__construct($message, 0, $previousException);
 		$this->errorCode = $errorCode;
-		$this->errorSqlState = (string) $errorSqlState;
+		$this->errorSqlState = $errorSqlState;
 	}
 
 

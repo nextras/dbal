@@ -327,13 +327,13 @@ class PgsqlDriver implements IDriver
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif ($sqlState === null && stripos($error, 'pg_connect()') !== false) {
-			return new ConnectionException($error, $errorNo, $sqlState);
+			return new ConnectionException($error, $errorNo, '');
 
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, (string) $sqlState, null, $query);
+			return new QueryException($error, $errorNo, $sqlState ?? '', null, $query);
 
 		} else {
-			return new DriverException($error, $errorNo, $sqlState);
+			return new DriverException($error, $errorNo, $sqlState ?? '');
 		}
 	}
 
