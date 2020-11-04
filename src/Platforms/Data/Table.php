@@ -29,6 +29,10 @@ class Table
 
 	public function getNameFqn(): string
 	{
-		return "$this->schema.$this->name";
+		if ($this->schema === '') {
+			return $this->name;
+		} else {
+			return "$this->schema.$this->name";
+		}
 	}
 }

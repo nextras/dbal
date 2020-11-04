@@ -38,12 +38,20 @@ class ForeignKey
 
 	public function getNameFqn(): string
 	{
-		return "$this->schema.$this->name";
+		if ($this->schema === '') {
+			return $this->name;
+		} else {
+			return "$this->schema.$this->name";
+		}
 	}
 
 
 	public function getRefTableFqn(): string
 	{
-		return "$this->refTableSchema.$this->refTable";
+		if ($this->refTableSchema === '') {
+			return $this->refTable;
+		} else {
+			return "$this->refTableSchema.$this->refTable";
+		}
 	}
 }
