@@ -6,6 +6,7 @@ namespace Nextras\Dbal\QueryBuilder;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\InvalidStateException;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function trigger_error;
 
@@ -15,8 +16,8 @@ class QueryBuilder
 	use StrictObjectTrait;
 
 
-	/** @var IDriver */
-	private $driver;
+	/** @var IPlatform */
+	private $platform;
 
 	/**
 	 * @var array
@@ -73,9 +74,9 @@ class QueryBuilder
 	private $generatedSql;
 
 
-	public function __construct(IDriver $driver)
+	public function __construct(IPlatform $platform)
 	{
-		$this->driver = $driver;
+		$this->platform = $platform;
 	}
 
 
@@ -110,19 +111,14 @@ class QueryBuilder
 
 	private function getSqlForSelect(): string
 	{
-		$query =
+		return
 			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
 			. ($this->where !== null ? ' WHERE ' . ($this->where) : '')
 			. ($this->group !== null ? ' GROUP BY ' . implode(', ', $this->group) : '')
 			. ($this->having !== null ? ' HAVING ' . ($this->having) : '')
-			. ($this->order !== null ? ' ORDER BY ' . implode(', ', $this->order) : '');
-
-		if ($this->limit !== null) {
-			$query = $this->driver->modifyLimitQuery($query, $this->limit[0], $this->limit[1]);
-		}
-
-		return $query;
+			. ($this->order !== null ? ' ORDER BY ' . implode(', ', $this->order) : '')
+			. ($this->limit !== null ? ' ' . $this->platform->formatLimitOffset(...$this->limit) : '');
 	}
 
 

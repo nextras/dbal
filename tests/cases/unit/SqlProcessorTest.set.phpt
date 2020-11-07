@@ -4,7 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Drivers\IDriver;
+
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
@@ -22,12 +22,12 @@ class SqlProcessorSetTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$driver = \Mockery::mock(IDriver::class);
-		$driver->shouldReceive('convertIdentifierToSql')->once()->with('id')->andReturn('id');
-		$driver->shouldReceive('convertStringToSql')->once()->with("'foo'")->andReturn("'\\'foo\\''");
-		$driver->shouldReceive('convertIdentifierToSql')->once()->with('title')->andReturn('title');
-		$driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('foo');
-		$this->parser = new SqlProcessor($driver, \Mockery::mock(IPlatform::class));
+		$platform = \Mockery::mock(IPlatform::class);
+		$platform->shouldReceive('formatString')->once()->with("'foo'")->andReturn("'\\'foo\\''");
+		$platform->shouldReceive('formatIdentifier')->once()->with('id')->andReturn('id');
+		$platform->shouldReceive('formatIdentifier')->once()->with('title')->andReturn('title');
+		$platform->shouldReceive('formatIdentifier')->once()->with('foo')->andReturn('foo');
+		$this->parser = new SqlProcessor($platform);
 	}
 
 

@@ -14,7 +14,6 @@ use Nextras\Dbal\Utils\MultiLogger;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function array_unshift;
 use function assert;
-use function call_user_func_array;
 use function is_array;
 use function spl_object_hash;
 use function ucfirst;
@@ -189,7 +188,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function createQueryBuilder(): QueryBuilder
 	{
-		return new QueryBuilder($this->driver);
+		return new QueryBuilder($this->getPlatform());
 	}
 
 
@@ -361,7 +360,7 @@ class Connection implements IConnection
 			assert($factory instanceof ISqlProcessorFactory);
 			return $factory->create($this);
 		} else {
-			return new SqlProcessor($this->driver, $this->getPlatform());
+			return new SqlProcessor($this->getPlatform());
 		}
 	}
 }

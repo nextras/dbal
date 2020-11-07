@@ -3,9 +3,9 @@
 namespace Nextras\Dbal;
 
 
+use DateInterval;
 use DateTime;
 use DateTimeImmutable;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Utils\StrictObjectTrait;
@@ -55,9 +55,6 @@ class SqlProcessor
 	 */
 	protected $customModifiers = [];
 
-	/** @var IDriver */
-	private $driver;
-
 	/**
 	 * @var array
 	 * @phpstan-var array<string, string>
@@ -68,9 +65,8 @@ class SqlProcessor
 	private $platform;
 
 
-	public function __construct(IDriver $driver, IPlatform $platform)
+	public function __construct(IPlatform $platform)
 	{
-		$this->driver = $driver;
 		$this->platform = $platform;
 	}
 
@@ -155,11 +151,11 @@ class SqlProcessor
 					case 'any':
 					case 's':
 					case '?s':
-						return $this->driver->convertStringToSql($value);
+						return $this->platform->formatString($value);
 
 					case 'json':
 					case '?json':
-						return $this->driver->convertJsonToSql($value);
+						return $this->platform->formatJson($value);
 
 					case 'i':
 					case '?i':
@@ -169,11 +165,11 @@ class SqlProcessor
 						return (string) $value;
 
 					case '_like':
-						return $this->driver->convertLikeToSql($value, -1);
+						return $this->platform->formatStringLike($value, -1);
 					case 'like_':
-						return $this->driver->convertLikeToSql($value, 1);
+						return $this->platform->formatStringLike($value, 1);
 					case '_like_':
-						return $this->driver->convertLikeToSql($value, 0);
+						return $this->platform->formatStringLike($value, 0);
 
 					/** @noinspection PhpMissingBreakStatementInspection */
 					case 'column':
@@ -185,7 +181,7 @@ class SqlProcessor
 						return $this->identifierToSql($value);
 
 					case 'blob':
-						return $this->driver->convertBlobToSql($value);
+						return $this->platform->formatBlob($value);
 
 					case 'raw':
 						return $value;
@@ -201,7 +197,7 @@ class SqlProcessor
 
 					case 'json':
 					case '?json':
-						return $this->driver->convertJsonToSql($value);
+						return $this->platform->formatJson($value);
 				}
 
 				break;
@@ -217,7 +213,7 @@ class SqlProcessor
 
 						case 'json':
 						case '?json':
-							return $this->driver->convertJsonToSql($value);
+							return $this->platform->formatJson($value);
 					}
 				}
 
@@ -227,11 +223,11 @@ class SqlProcessor
 					case 'any':
 					case 'b':
 					case '?b':
-						return $this->driver->convertBoolToSql($value);
+						return $this->platform->formatBool($value);
 
 					case 'json':
 					case '?json':
-						return $this->driver->convertJsonToSql($value);
+						return $this->platform->formatJson($value);
 				}
 
 				break;
@@ -254,7 +250,7 @@ class SqlProcessor
 				break;
 			case 'object':
 				if ($type === 'json' || $type === '?json') {
-					return $this->driver->convertJsonToSql($value);
+					return $this->platform->formatJson($value);
 				}
 
 				if ($value instanceof DateTimeImmutable || $value instanceof DateTime) {
@@ -262,21 +258,21 @@ class SqlProcessor
 						case 'any':
 						case 'dt':
 						case '?dt':
-							return $this->driver->convertDateTimeToSql($value);
+							return $this->platform->formatDateTime($value);
 
 						case 'dts':
 						case '?dts':
 						case 'ldt':
 						case '?ldt':
-							return $this->driver->convertDateTimeSimpleToSql($value);
+							return $this->platform->formatLocalDateTime($value);
 					}
 
-				} elseif ($value instanceof \DateInterval) {
+				} elseif ($value instanceof DateInterval) {
 					switch ($type) {
 						case 'any':
 						case 'di':
 						case '?di':
-							return $this->driver->convertDateIntervalToSql($value);
+							return $this->platform->formatDateInterval($value);
 					}
 
 				} elseif (method_exists($value, '__toString')) {
@@ -284,14 +280,14 @@ class SqlProcessor
 						case 'any':
 						case 's':
 						case '?s':
-							return $this->driver->convertStringToSql((string) $value);
+							return $this->platform->formatString((string) $value);
 
 						case '_like':
-							return $this->driver->convertLikeToSql((string) $value, -1);
+							return $this->platform->formatStringLike((string) $value, -1);
 						case 'like_':
-							return $this->driver->convertLikeToSql((string) $value, 1);
+							return $this->platform->formatStringLike((string) $value, 1);
 						case '_like_':
-							return $this->driver->convertLikeToSql((string) $value, 0);
+							return $this->platform->formatStringLike((string) $value, 0);
 					}
 				}
 
@@ -311,13 +307,13 @@ class SqlProcessor
 					case 's[]':
 						foreach ($value as &$subValue) {
 							if (!is_string($subValue)) break 2; // fallback to processArray
-							$subValue = $this->driver->convertStringToSql($subValue);
+							$subValue = $this->platform->formatString($subValue);
 						}
 						return '(' . implode(', ', $value) . ')';
 
 					case 'json':
 					case '?json':
-						return $this->driver->convertJsonToSql($value);
+						return $this->platform->formatJson($value);
 
 					// normal
 					case 'column[]':
@@ -336,13 +332,13 @@ class SqlProcessor
 						return $this->processMultiColumnOr($value);
 
 					case 'values':
-						return $this->processValues($type, $value);
+						return $this->processValues($value);
 
 					case 'values[]':
-						return $this->processMultiValues($type, $value);
+						return $this->processMultiValues($value);
 
 					case 'set':
-						return $this->processSet($type, $value);
+						return $this->processSet($value);
 
 					case 'ex':
 						return $this->process($value);
@@ -424,7 +420,7 @@ class SqlProcessor
 	/**
 	 * @phpstan-param array<string, mixed> $value
 	 */
-	protected function processSet(string $type, array $value): string
+	protected function processSet(array $value): string
 	{
 		$values = [];
 		foreach ($value as $_key => $val) {
@@ -441,7 +437,7 @@ class SqlProcessor
 	/**
 	 * @phpstan-param array<string, mixed> $value
 	 */
-	protected function processMultiValues(string $type, array $value): string
+	protected function processMultiValues(array $value): string
 	{
 		if (count($value) === 0) {
 			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
@@ -471,7 +467,7 @@ class SqlProcessor
 	/**
 	 * @phpstan-param array<string, mixed> $value
 	 */
-	private function processValues(string $type, array $value): string
+	private function processValues(array $value): string
 	{
 		if (count($value) === 0) {
 			return 'VALUES (DEFAULT)';
@@ -564,6 +560,11 @@ class SqlProcessor
 
 	protected function identifierToSql(string $key): string
 	{
-		return $this->identifiers[$key] ?? ($this->identifiers[$key] = $this->driver->convertIdentifierToSql($key)); // = intentionally
+		return $this->identifiers[$key] ??
+			($this->identifiers[$key] = // = intentionally
+				substr($key, -2) === '.*'
+					? $this->platform->formatIdentifier(substr($key, 0, -2)) . '.*'
+					: $this->platform->formatIdentifier($key)
+			);
 	}
 }

@@ -4,9 +4,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use DateTime;
 use Mockery;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
@@ -19,8 +19,8 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class SqlProcessorScalarTest extends TestCase
 {
-	/** @var IDriver|Mockery\MockInterface */
-	private $driver;
+	/** @var IPlatform|Mockery\MockInterface */
+	private $platform;
 
 	/** @var SqlProcessor */
 	private $parser;
@@ -29,37 +29,37 @@ class SqlProcessorScalarTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver, \Mockery::mock(IPlatform::class));
+		$this->platform = \Mockery::mock(IPlatform::class);
+		$this->parser = new SqlProcessor($this->platform);
 	}
 
 
 	public function testString()
 	{
-		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
+		$this->platform->shouldReceive('formatString')->once()->with('A')->andReturn('B');
 		Assert::same('B', $this->parser->processModifier('s', 'A'));
 
 		// object with __toString
 		$file = new \SplFileInfo('C');
-		$this->driver->shouldReceive('convertStringToSql')->once()->with('C')->andReturn('D');
+		$this->platform->shouldReceive('formatString')->once()->with('C')->andReturn('D');
 		Assert::same('D', $this->parser->processModifier('s', $file));
 	}
 
 
 	public function testJson()
 	{
-		$this->driver->shouldReceive('convertJsonToSql')->once()->with('A')->andReturn('{}');
+		$this->platform->shouldReceive('formatJson')->once()->with('A')->andReturn('{}');
 		Assert::same('{}', $this->parser->processModifier('json', 'A'));
-		$this->driver->shouldReceive('convertJsonToSql')->once()->with(1)->andReturn('{}');
+		$this->platform->shouldReceive('formatJson')->once()->with(1)->andReturn('{}');
 		Assert::same('{}', $this->parser->processModifier('json', 1));
-		$this->driver->shouldReceive('convertJsonToSql')->once()->with(1.2)->andReturn('{}');
+		$this->platform->shouldReceive('formatJson')->once()->with(1.2)->andReturn('{}');
 		Assert::same('{}', $this->parser->processModifier('json', 1.2));
-		$this->driver->shouldReceive('convertJsonToSql')->once()->with(true)->andReturn('{}');
+		$this->platform->shouldReceive('formatJson')->once()->with(true)->andReturn('{}');
 		Assert::same('{}', $this->parser->processModifier('json', true));
-		$this->driver->shouldReceive('convertJsonToSql')->once()->with([])->andReturn('{}');
+		$this->platform->shouldReceive('formatJson')->once()->with([])->andReturn('{}');
 		Assert::same('{}', $this->parser->processModifier('json', []));
 		$object = (object) [];
-		$this->driver->shouldReceive('convertJsonToSql')->once()->with($object)->andReturn('{}');
+		$this->platform->shouldReceive('formatJson')->once()->with($object)->andReturn('{}');
 		Assert::same('{}', $this->parser->processModifier('json', $object));
 	}
 
@@ -86,10 +86,10 @@ class SqlProcessorScalarTest extends TestCase
 
 	public function testBool()
 	{
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(true)->andReturn('T');
+		$this->platform->shouldReceive('formatBool')->once()->with(true)->andReturn('T');
 		Assert::same('T', $this->parser->processModifier('b', true));
 
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(false)->andReturn('F');
+		$this->platform->shouldReceive('formatBool')->once()->with(false)->andReturn('F');
 		Assert::same('F', $this->parser->processModifier('b', false));
 	}
 
@@ -97,7 +97,7 @@ class SqlProcessorScalarTest extends TestCase
 	public function testDateTime()
 	{
 		$dt = new DateTime('2012-03-05 12:01');
-		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
+		$this->platform->shouldReceive('formatDateTime')->once()->with($dt)->andReturn('DT');
 		Assert::same('DT', $this->parser->processModifier('dt', $dt));
 	}
 
@@ -105,31 +105,29 @@ class SqlProcessorScalarTest extends TestCase
 	public function testLocalDateTime()
 	{
 		$dt = new DateTime('2012-03-05 12:01');
-		$this->driver->shouldReceive('convertDateTimeSimpleToSql')->once()->with($dt)->andReturn('LDT');
+		$this->platform->shouldReceive('formatLocalDateTime')->once()->with($dt)->andReturn('LDT');
 		Assert::same('LDT', $this->parser->processModifier('ldt', $dt));
 	}
 
 
 	public function testBlob()
 	{
-		$this->driver->shouldReceive('convertBlobToSql')->once()->with('a10b')->andReturn('B');
+		$this->platform->shouldReceive('formatBlob')->once()->with('a10b')->andReturn('B');
 		Assert::same('B', $this->parser->processModifier('blob', 'a10b'));
 	}
 
 
 	public function testColumn()
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('FOO');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('foo')->andReturn('FOO');
 		Assert::same('FOO', $this->parser->processModifier('column', 'foo'));
 
-
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('B');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('c')->andReturn('C');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('A');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('B');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('c')->andReturn('C');
 		Assert::same('A, B, C', $this->parser->processModifier('column[]', ['a', 'b', 'c']));
 
-
-		Assert::exception(function() {
+		Assert::exception(function () {
 			// test break to process non-string values
 			$this->parser->processModifier('column[]', [1]);
 		}, InvalidArgumentException::class, 'Modifier %column expects value to be string, integer given.');
@@ -138,17 +136,15 @@ class SqlProcessorScalarTest extends TestCase
 
 	public function testTable()
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('foo')->andReturn('FOO');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('foo')->andReturn('FOO');
 		Assert::same('FOO', $this->parser->processModifier('table', 'foo'));
 
-
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('B');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('c')->andReturn('C');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('A');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('B');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('c')->andReturn('C');
 		Assert::same('A, B, C', $this->parser->processModifier('table[]', ['a', 'b', 'c']));
 
-
-		Assert::exception(function() {
+		Assert::exception(function () {
 			// test break to process non-string values
 			$this->parser->processModifier('table[]', [1]);
 		}, InvalidArgumentException::class, 'Modifier %table expects value to be string, integer given.');
@@ -160,9 +156,9 @@ class SqlProcessorScalarTest extends TestCase
 		$dt = new DateTime('2012-03-05 12:01');
 		$di = $dt->diff(new DateTime('2012-03-05 08:00'));
 
-		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(true)->andReturn('T');
-		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
+		$this->platform->shouldReceive('formatString')->once()->with('A')->andReturn('B');
+		$this->platform->shouldReceive('formatBool')->once()->with(true)->andReturn('T');
+		$this->platform->shouldReceive('formatDateTime')->once()->with($dt)->andReturn('DT');
 		Assert::same('B', $this->parser->processModifier('any', 'A'));
 		Assert::same('123', $this->parser->processModifier('any', 123));
 		Assert::same('123.4', $this->parser->processModifier('any', 123.4));
@@ -170,11 +166,19 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('DT', $this->parser->processModifier('any', $dt));
 		Assert::same('NULL', $this->parser->processModifier('any', null));
 
-		$this->driver->shouldReceive('convertStringToSql')->once()->with('A')->andReturn('B');
-		$this->driver->shouldReceive('convertBoolToSql')->once()->with(true)->andReturn('T');
-		$this->driver->shouldReceive('convertDateTimeToSql')->once()->with($dt)->andReturn('DT');
-		$this->driver->shouldReceive('convertDateIntervalToSql')->once()->with($di)->andReturn('DI');
-		Assert::same('(B, 123, 123.4, T, DT, DI, NULL)', $this->parser->processModifier('any', ['A', 123, 123.4, true, $dt, $di, null]));
+		$this->platform->shouldReceive('formatString')->once()->with('A')->andReturn('B');
+		$this->platform->shouldReceive('formatBool')->once()->with(true)->andReturn('T');
+		$this->platform->shouldReceive('formatDateTime')->once()->with($dt)->andReturn('DT');
+		$this->platform->shouldReceive('formatDateInterval')->once()->with($di)->andReturn('DI');
+		Assert::same('(B, 123, 123.4, T, DT, DI, NULL)', $this->parser->processModifier('any', [
+			'A',
+			123,
+			123.4,
+			true,
+			$dt,
+			$di,
+			null,
+		]));
 	}
 
 
@@ -198,7 +202,7 @@ class SqlProcessorScalarTest extends TestCase
 	public function testInvalid($type, $value, $message)
 	{
 		Assert::throws(
-			function() use ($type, $value) {
+			function () use ($type, $value) {
 				$this->parser->processModifier($type, $value);
 			},
 			InvalidArgumentException::class, $message

@@ -142,18 +142,18 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 
 	public function testLimitMethods()
 	{
-		$this->driver->shouldReceive('modifyLimitQuery')->with('SELECT * FROM foo', 10, null)->andReturn('X');
+		$this->platform->shouldReceive('formatLimitOffset')->with(10, null)->andReturn('LIMIT 10');
 
 		$this->assertBuilder(
-			['X'],
+			['SELECT * FROM foo LIMIT 10'],
 			$this->builder()
 				->from('foo')
 				->limitBy(10)
 		);
 
-		$this->driver->shouldReceive('modifyLimitQuery')->with('SELECT * FROM foo', 10, 20)->andReturn('Y');
+		$this->platform->shouldReceive('formatLimitOffset')->with(10, 20)->andReturn('LIMIT 10, 20');
 		$this->assertBuilder(
-			['Y'],
+			['SELECT * FROM foo LIMIT 10, 20'],
 			$this->builder()
 				->from('foo')
 				->limitBy(10, 20)

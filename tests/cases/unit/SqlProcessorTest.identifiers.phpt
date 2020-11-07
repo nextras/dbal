@@ -4,8 +4,8 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Mockery\MockInterface;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
@@ -16,8 +16,8 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class SqlProcessorIdentifiersTest extends TestCase
 {
-	/** @var MockInterface */
-	private $driver;
+	/** @var IPlatform|MockInterface */
+	private $platform;
 
 	/** @var SqlProcessor */
 	private $parser;
@@ -26,21 +26,33 @@ class SqlProcessorIdentifiersTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = \Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver, \Mockery::mock(IPlatform::class));
+		$this->platform = \Mockery::mock(IPlatform::class);
+		$this->parser = new SqlProcessor($this->platform);
 	}
 
 
 	public function testBasic()
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('`a`');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b.c')->andReturn('`b`.`c`');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('d.e')->andReturn('`d`.`e`');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('name')->andReturn('`name`');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('`a`');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b.c')->andReturn('`b`.`c`');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('d.e')->andReturn('`d`.`e`');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('name')->andReturn('`name`');
 
 		Assert::same(
 			'SELECT `a`, `b`.`c` FROM `d`.`e` WHERE `name` = ANY(ARRAY[\'Jan\'])',
 			$this->parser->process(["SELECT [a], [b.c] FROM [d.e] WHERE [name] = ANY(ARRAY[['Jan']])"])
+		);
+	}
+
+
+	public function testStar()
+	{
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('`a`');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b.c')->andReturn('`b`.`c`');
+
+		Assert::same(
+			'SELECT `a`.*, `b`.`c`.*',
+			$this->parser->process(["SELECT [a.*], [b.c.*]"])
 		);
 	}
 }

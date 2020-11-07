@@ -3,10 +3,15 @@
 namespace Nextras\Dbal\Platforms;
 
 
-use Nextras\Dbal\Connection;
+use DateInterval;
+use DateTimeInterface;
+use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
+use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function count;
 use function explode;
@@ -19,13 +24,17 @@ class SqlServerPlatform implements IPlatform
 
 	public const NAME = 'mssql';
 
-	/** @var Connection */
+	/** @var IConnection */
 	private $connection;
 
+	/** @var IDriver */
+	private $driver;
 
-	public function __construct(Connection $connection)
+
+	public function __construct(IConnection $connection)
 	{
 		$this->connection = $connection;
+		$this->driver = $connection->getDriver();
 	}
 
 
@@ -38,7 +47,7 @@ class SqlServerPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getTables(?string $schema = null): array
 	{
-		$result = $this->connection->query("
+		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT TABLE_NAME, TABLE_TYPE, TABLE_SCHEMA
  			FROM information_schema.tables
 			WHERE TABLE_SCHEMA = COALESCE(%?s, SCHEMA_NAME())
@@ -69,7 +78,7 @@ class SqlServerPlatform implements IPlatform
 			$schema = null;
 		}
 
-		$result = $this->connection->query("
+		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				[a].[COLUMN_NAME] AS [name],
 				UPPER([a].[DATA_TYPE]) AS [type],
@@ -140,7 +149,7 @@ class SqlServerPlatform implements IPlatform
 			$schema = null;
 		}
 
-		$result = $this->connection->query("
+		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				[a].[CONSTRAINT_NAME] AS [name],
 				[d].[COLUMN_NAME] AS [column],
@@ -185,6 +194,78 @@ class SqlServerPlatform implements IPlatform
 	public function getPrimarySequenceName(string $table): ?string
 	{
 		return null;
+	}
+
+
+	public function formatString(string $value): string
+	{
+		return $this->driver->convertStringToSql($value);
+	}
+
+
+	public function formatStringLike(string $value, int $mode)
+	{
+		// https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
+		$value = strtr($value, [
+			"'" => "''",
+			'%' => '[%]',
+			'_' => '[_]',
+			'[' => '[[]',
+		]);
+		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
+	}
+
+
+	public function formatJson($value): string
+	{
+		$encoded = JsonHelper::safeEncode($value);
+		return $this->driver->convertStringToSql($encoded);
+	}
+
+
+	public function formatBool(bool $value): string
+	{
+		return $value ? '1' : '0';
+	}
+
+
+	public function formatIdentifier(string $value): string
+	{
+		return '[' . str_replace([']', '.'], [']]', '].['], $value) . ']';
+	}
+
+
+	public function formatDateTime(DateTimeInterface $value): string
+	{
+		return "CAST('" . $value->format('Y-m-d H:i:s.u P') . "' AS DATETIMEOFFSET)";
+	}
+
+
+	public function formatLocalDateTime(DateTimeInterface $value): string
+	{
+		return "CAST('" . $value->format('Y-m-d H:i:s.u') . "' AS DATETIME2)";
+	}
+
+
+	public function formatDateInterval(DateInterval $value): string
+	{
+		throw new NotSupportedException();
+	}
+
+
+	public function formatBlob(string $value): string
+	{
+		return '0x' . bin2hex($value);
+	}
+
+
+	public function formatLimitOffset(?int $limit, ?int $offset): string
+	{
+		$clause = 'OFFSET ' . ($offset !== null ? $offset : 0) . ' ROWS';
+		if ($limit !== null) {
+			$clause .= ' FETCH NEXT ' . $limit . ' ROWS ONLY';
+		}
+		return $clause;
 	}
 
 

@@ -4,26 +4,27 @@ namespace NextrasTests\Dbal;
 
 use Mockery;
 use Mockery\MockInterface;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Tester\Assert;
 
 
 class QueryBuilderTestCase extends TestCase
 {
-	/** @var MockInterface */
-	protected $driver;
+	/** @var IPlatform|MockInterface */
+	protected $platform;
 
 
 	public function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock('Nextras\Dbal\Drivers\IDriver');
+		$this->platform = Mockery::mock(IPlatform::class);
 	}
 
 
 	protected function builder()
 	{
-		return new QueryBuilder($this->driver);
+		return new QueryBuilder($this->platform);
 	}
 
 

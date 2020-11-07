@@ -4,9 +4,6 @@ namespace Nextras\Dbal\Drivers\Mysqli;
 
 
 use DateInterval;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use mysqli;
@@ -18,7 +15,6 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -27,6 +23,7 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function assert;
+use function str_replace;
 
 
 /**
@@ -130,6 +127,12 @@ class MysqliDriver implements IDriver
 	public function getResourceHandle()
 	{
 		return $this->connection;
+	}
+
+
+	public function getConnectionTimeZone(): DateTimeZone
+	{
+		return $this->connectionTz;
 	}
 
 
@@ -237,19 +240,22 @@ class MysqliDriver implements IDriver
 
 	public function createSavepoint(string $name): void
 	{
-		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
+		$this->loggedQuery("SAVEPOINT $identifier");
 	}
 
 
 	public function releaseSavepoint(string $name): void
 	{
-		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
+		$this->loggedQuery("RELEASE SAVEPOINT $identifier");
 	}
 
 
 	public function rollbackSavepoint(string $name): void
 	{
-		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
+		$this->loggedQuery("ROLLBACK TO SAVEPOINT $identifier");
 	}
 
 
@@ -340,93 +346,6 @@ class MysqliDriver implements IDriver
 	{
 		assert($this->connection !== null);
 		return "'" . $this->connection->escape_string($value) . "'";
-	}
-
-
-	public function convertJsonToSql($value): string
-	{
-		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
-		if (json_last_error() !== JSON_ERROR_NONE) {
-			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
-		}
-		assert(is_string($encoded));
-		return $this->convertStringToSql($encoded);
-	}
-
-
-	public function convertLikeToSql(string $value, int $mode): string
-	{
-		$value = addcslashes(str_replace('\\', '\\\\', $value), "\x00\n\r\\'%_");
-		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
-	}
-
-
-	public function convertBoolToSql(bool $value): string
-	{
-		return $value ? '1' : '0';
-	}
-
-
-	public function convertIdentifierToSql(string $value): string
-	{
-		return str_replace('`*`', '*', '`' . str_replace(['`', '.'], ['``', '`.`'], $value) . '`');
-	}
-
-
-	public function convertDateTimeToSql(DateTimeInterface $value): string
-	{
-		$valueTimezone = $value->getTimezone();
-		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
-		assert($valueTimezone !== false); // @phpstan-ignore-line
-		if ($valueTimezone->getName() !== $this->connectionTz->getName()) {
-			if ($value instanceof DateTimeImmutable) {
-				$value = $value->setTimezone($this->connectionTz);
-			} else {
-				$value = clone $value;
-				$value->setTimezone($this->connectionTz);
-			}
-		}
-		return "'" . $value->format('Y-m-d H:i:s.u') . "'";
-	}
-
-
-	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
-	{
-		return "'" . $value->format('Y-m-d H:i:s.u') . "'";
-	}
-
-
-	public function convertDateIntervalToSql(DateInterval $value): string
-	{
-		$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
-		if ($totalHours >= 839) {
-			// see https://dev.mysql.com/doc/refman/5.0/en/time.html
-			throw new InvalidArgumentException('Mysql cannot store interval bigger than 839h:59m:59s.');
-		}
-		return "'" . $value->format("%r{$totalHours}:%I:%S") . "'";
-	}
-
-
-	public function convertBlobToSql(string $value): string
-	{
-		assert($this->connection !== null);
-		return "_binary'" . $this->connection->escape_string($value) . "'";
-	}
-
-
-	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
-	{
-		if ($limit !== null || $offset !== null) {
-			// 18446744073709551615 is maximum of unsigned BIGINT
-			// see http://dev.mysql.com/doc/refman/5.0/en/select.html
-			$query .= ' LIMIT ' . ($limit !== null ? (string) $limit : '18446744073709551615');
-		}
-
-		if ($offset !== null) {
-			$query .= ' OFFSET ' . $offset;
-		}
-
-		return $query;
 	}
 
 

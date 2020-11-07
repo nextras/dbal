@@ -3,11 +3,20 @@
 namespace Nextras\Dbal\Platforms;
 
 
-use Nextras\Dbal\Connection;
+use DateInterval;
+use DateTimeInterface;
+use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
+use Nextras\Dbal\Utils\DateTimeHelper;
+use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use function bin2hex;
+use function str_replace;
+use function strtr;
+use function trim;
 
 
 class PostgreSqlPlatform implements IPlatform
@@ -17,13 +26,17 @@ class PostgreSqlPlatform implements IPlatform
 
 	public const NAME = 'pgsql';
 
-	/** @var Connection */
+	/** @var IConnection */
 	private $connection;
 
+	/** @var IDriver */
+	private $driver;
 
-	public function __construct(Connection $connection)
+
+	public function __construct(IConnection $connection)
 	{
 		$this->connection = $connection;
+		$this->driver = $connection->getDriver();
 	}
 
 
@@ -36,7 +49,7 @@ class PostgreSqlPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getTables(?string $schema = null): array
 	{
-		$result = $this->connection->query("
+		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				DISTINCT ON (c.relname)
 				c.relname::varchar AS name,
@@ -70,7 +83,7 @@ class PostgreSqlPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getColumns(string $table): array
 	{
-		$result = $this->connection->query("
+		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				a.attname::varchar AS name,
 				UPPER(t.typname) AS type,
@@ -117,7 +130,7 @@ class PostgreSqlPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getForeignKeys(string $table): array
 	{
-		$result = $this->connection->query("
+		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				co.conname::varchar AS name,
 				ns.nspname::varchar AS schema,
@@ -162,6 +175,81 @@ class PostgreSqlPlatform implements IPlatform
 			}
 		}
 		return null;
+	}
+
+
+	public function formatString(string $value): string
+	{
+		return $this->driver->convertStringToSql($value);
+	}
+
+
+	public function formatStringLike(string $value, int $mode)
+	{
+		$value = strtr($value, [
+			"'" => "''",
+			'\\' => '\\\\',
+			'%' => '\\%',
+			'_' => '\\_',
+		]);
+		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
+	}
+
+
+	public function formatJson($value): string
+	{
+		$encoded = JsonHelper::safeEncode($value);
+		return $this->driver->convertStringToSql($encoded);
+	}
+
+
+	public function formatBool(bool $value): string
+	{
+		return $value ? 'TRUE' : 'FALSE';
+	}
+
+
+	public function formatIdentifier(string $value): string
+	{
+		return '"' . str_replace(['"', '.'], ['""', '"."'], $value) . '"';
+	}
+
+
+	public function formatDateTime(DateTimeInterface $value): string
+	{
+		$value = DateTimeHelper::convertToTimezone($value, $this->driver->getConnectionTimeZone());
+		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamptz";
+	}
+
+
+	public function formatLocalDateTime(DateTimeInterface $value): string
+	{
+		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamp";
+	}
+
+
+	public function formatDateInterval(DateInterval $value): string
+	{
+		return $value->format('P%yY%mM%dDT%hH%iM%sS');
+	}
+
+
+	public function formatBlob(string $value): string
+	{
+		return "E'\\\\x" . bin2hex($value) . "'";
+	}
+
+
+	public function formatLimitOffset(?int $limit, ?int $offset): string
+	{
+		$clause = '';
+		if ($limit !== null) {
+			$clause = 'LIMIT ' . $limit;
+		}
+		if ($offset !== null) {
+			$clause = trim("$clause OFFSET $offset");
+		}
+		return $clause;
 	}
 
 
