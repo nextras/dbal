@@ -321,7 +321,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function convertToPhp(string $value, $nativeType)
+	public function convertToPhp($value, $nativeType)
 	{
 		if ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
 			return $value . ' ' . $this->connectionTz->getName();

@@ -300,7 +300,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function convertToPhp(string $value, $nativeType)
+	public function convertToPhp($value, $nativeType)
 	{
 		if (
 			$nativeType === SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY

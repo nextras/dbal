@@ -165,10 +165,11 @@ interface IDriver
 
 	/**
 	 * Converts database value to php boolean.
+	 * @param mixed $value
 	 * @param mixed $nativeType
 	 * @return mixed
 	 */
-	public function convertToPhp(string $value, $nativeType);
+	public function convertToPhp($value, $nativeType);
 
 
 	/**

@@ -273,7 +273,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function convertToPhp(string $value, $nativeType)
+	public function convertToPhp($value, $nativeType)
 	{
 		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
 
