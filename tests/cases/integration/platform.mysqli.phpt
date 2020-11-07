@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 /**
  * @testCase
@@ -7,7 +7,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
+use Nextras\Dbal\Drivers\PdoMysql\PdoMysqlDriver;
 use Tester\Assert;
 use function array_map;
 use function version_compare;
@@ -42,16 +44,22 @@ class PlatformMysqlTest extends IntegrationTestCase
 	public function testColumns()
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
-		$columns = array_map(function ($table) { return (array) $table; }, $columns);
+		$columns = array_map(function ($table) {
+			return (array) $table;
+		}, $columns);
 
 		$driver = $this->connection->getDriver();
-		assert($driver instanceof MysqliDriver);
+		if ($driver instanceof MysqliDriver) {
+			$isMariaDb = stripos($driver->getResourceHandle()->server_info, 'MariaDB') !== false;
+		} elseif ($driver instanceof PdoMysqlDriver) {
+			$isMariaDb =
+				stripos($driver->getResourceHandle()->getAttribute(\PDO::ATTR_SERVER_INFO), 'MariaDB') !== false;
+		} else {
+			$isMariaDb = false;
+		}
 
-		$isMariaDb = stripos($driver->getResourceHandle()->server_info, 'MariaDB') !== false;
-		$isMySQL8 = version_compare(
-			$this->connection->getDriver()->getServerVersion(),
-			'8.0.19'
-		) >= 0 && !$isMariaDb;
+		$isMySQL8 = version_compare($this->connection->getDriver()->getServerVersion(), '8.0.19') >= 0
+			&& !$isMariaDb;
 
 		Assert::same([
 			'id' => [
@@ -125,7 +133,9 @@ class PlatformMysqlTest extends IntegrationTestCase
 		$dbName2 = $this->connection->getConfig()['database'] . '2';
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns("$dbName2.authors");
-		$schemaColumns = array_map(function ($table) { return (array) $table; }, $schemaColumns);
+		$schemaColumns = array_map(function ($table) {
+			return (array) $table;
+		}, $schemaColumns);
 
 		Assert::same([
 			'id' => [
@@ -180,7 +190,9 @@ class PlatformMysqlTest extends IntegrationTestCase
 	{
 		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
-		$keys = array_map(function ($key) { return (array) $key; }, $keys);
+		$keys = array_map(function ($key) {
+			return (array) $key;
+		}, $keys);
 
 		Assert::same([
 			'author_id' => [
@@ -227,7 +239,9 @@ class PlatformMysqlTest extends IntegrationTestCase
 		");
 
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
-		$schemaKeys = array_map(function ($key) { return (array) $key; }, $schemaKeys);
+		$schemaKeys = array_map(function ($key) {
+			return (array) $key;
+		}, $schemaKeys);
 		Assert::same([
 			'book_id' => [
 				'name' => 'book_id',

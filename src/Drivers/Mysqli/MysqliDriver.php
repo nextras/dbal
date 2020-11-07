@@ -27,7 +27,7 @@ use function str_replace;
 
 
 /**
- * Driver for php-mysqli ext.
+ * Driver for php_mysqli ext.
  *
  * Supported configuration options:
  * - host - server name to connect, if not defined, value is taken from ini's mysqli.default_host;

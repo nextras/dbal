@@ -27,7 +27,8 @@ class IntegrationTestCase extends TestCase
 
 	protected function lockConnection(Connection $connection)
 	{
-		Environment::lock('data-' . $connection->getPlatform()->getName(), TEMP_DIR);
+		$key = 'data-' . ($connection->getConfig()['port'] ?? $connection->getPlatform()->getName());
+		Environment::lock($key, TEMP_DIR);
 	}
 
 

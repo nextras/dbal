@@ -5,16 +5,16 @@ A powerful abstraction layer for database. **Fast & Save**.
 
 Supported platforms:
 
-- **MySQL** via mysqli extension,
-- **Postgres** via pgsql extension,
-- **MS SQL Server** via sqlsrv extension.
+- **MySQL** via `mysqli` or `pdo_mysql` extension,
+- **Postgres** via `pgsql` extension,
+- **MS SQL Server** via `sqlsrv` extension.
 
 Connection
 ==========
 
 The connection instance is a main object that provides an API for accessing your database. Connection's constructor accepts a configuration array. The possible keys depend on the specific driver; some configuration keys are the shared for all drivers:
 
-|* driver                               | driver name, use `mysqli`, `pgsql`, or `sqlsrv`
+|* driver                               | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`
 |* host                                 | database server name
 |* username                             | username for authentication
 |* password                             | password for authentication

@@ -18,9 +18,14 @@ Tester\Helpers::purge(__DIR__ . '/../temp');
 
 
 $config = parse_ini_file(__DIR__ . '/../databases.ini', TRUE);
+$processed = [];
 
 foreach ($config as $name => $configDatabase) {
-	echo "[setup] Bootstraping '{$name}' structure.\n";
+	$key = $configDatabase['port'] ?? $name;
+	if (isset($processed[$key])) continue;
+
+	$processed[$key] = true;
+	echo "[setup] Bootstrapping '{$name}' structure.\n";
 
 	$connection = new Connection($configDatabase);
 	$platform = $connection->getPlatform()->getName();

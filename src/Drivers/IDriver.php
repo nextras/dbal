@@ -104,6 +104,7 @@ interface IDriver
 
 	/**
 	 * Pings server.
+	 * Returns true if the ping was successful and connection is alive.
 	 * @internal
 	 */
 	public function ping(): bool;

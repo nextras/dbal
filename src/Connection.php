@@ -16,7 +16,9 @@ use function array_unshift;
 use function assert;
 use function is_array;
 use function spl_object_hash;
+use function str_replace;
 use function ucfirst;
+use function ucwords;
 
 
 class Connection implements IConnection
@@ -342,11 +344,12 @@ class Connection implements IConnection
 	private function createDriver(): IDriver
 	{
 		if (!isset($this->config['driver'])) {
-			throw new InvalidArgumentException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
+			throw new InvalidArgumentException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv, pdo_mysql.');
 		} elseif ($this->config['driver'] instanceof IDriver) {
 			return $this->config['driver'];
 		} else {
-			$name = ucfirst($this->config['driver']);
+			$driver = $this->config['driver'];
+			$name = ucfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $driver))));
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
 			return new $class();
 		}
