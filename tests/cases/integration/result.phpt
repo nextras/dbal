@@ -58,7 +58,18 @@ class ResultIntegrationTest extends IntegrationTestCase
 	public function testSeek()
 	{
 		$this->initData($this->connection);
-		$result = $this->connection->query('SELECT * FROM books');
+		$result = $this->connection->query('SELECT * FROM books ORDER BY id');
+
+		$books = $result->fetchPairs(null, 'id');
+		Assert::same([1, 2, 3, 4], $books);
+
+		$books = $result->fetchPairs(null, 'id');
+		Assert::same([1, 2, 3, 4], $books);
+
+		$result->seek(1);
+		$fetched = $result->fetch();
+		Assert::notNull($fetched);
+		Assert::same(2, $fetched->id);
 
 		Assert::exception(function () use ($result) {
 			$result->seek(10);

@@ -51,30 +51,6 @@ class ResultTest extends TestCase
 	}
 
 
-	public function testSeek()
-	{
-		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-		$adapter->shouldReceive('seek')->once();
-		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
-		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
-		$adapter->shouldReceive('fetch')->once()->andReturn(null);
-
-		$driver = Mockery::mock(IDriver::class);
-
-		$result = new Result($adapter, $driver);
-		$result->setValueNormalization(false);
-
-		$names = [];
-		$result->seek(0);
-		while ($row = $result->fetch()) {
-			$names[] = $row->name;
-		}
-
-		Assert::same(['First', 'Third'], $names);
-	}
-
-
 	public function testFetchField()
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
