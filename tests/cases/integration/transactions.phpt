@@ -9,7 +9,7 @@ namespace NextrasTests\Dbal;
 
 
 use Nextras\Dbal\Connection;
-use Nextras\Dbal\Drivers\PdoMysql\PdoMysqlDriver;
+use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Tester\Assert;
@@ -115,7 +115,7 @@ class TransactionsTest extends IntegrationTestCase
 	{
 		if (
 			$this->connection->getPlatform() instanceof SqlServerPlatform
-			|| $this->connection->getDriver() instanceof PdoMysqlDriver
+			|| $this->connection->getDriver() instanceof PdoDriver
 		) {
 			Environment::skip("Platform or driver does not support wrongly called transaction operations.");
 		}
@@ -136,7 +136,7 @@ class TransactionsTest extends IntegrationTestCase
 	{
 		if (
 			$this->connection->getPlatform() instanceof SqlServerPlatform
-			|| $this->connection->getDriver() instanceof PdoMysqlDriver
+			|| $this->connection->getDriver() instanceof PdoDriver
 		) {
 			Environment::skip("Platform or driver does not support wrongly called transaction operations.");
 		}

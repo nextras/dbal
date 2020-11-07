@@ -9,6 +9,7 @@ namespace NextrasTests\Dbal;
 
 
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
+use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
@@ -47,7 +48,10 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$result->setValueNormalization(false);
 		$follower = $result->fetch();
 
-		if ($this->connection->getPlatform() instanceof SqlServerPlatform) {
+		if (
+			$this->connection->getPlatform() instanceof SqlServerPlatform
+			|| $this->connection->getDriver() instanceof PdoPgsqlDriver
+		) {
 			Assert::same(2, $follower->tag_id);
 			Assert::same(2, $follower->author_id);
 		} else {
