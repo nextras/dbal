@@ -22,8 +22,9 @@ class TransactionsTest extends IntegrationTestCase
 	public function testRollback()
 	{
 		$this->lockConnection($this->connection);
-		$this->connection->beginTransaction();
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_TRANS_ROLLBACK_');
 
+		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
 			'name' => '_TRANS_ROLLBACK_',
 		]);
@@ -40,8 +41,9 @@ class TransactionsTest extends IntegrationTestCase
 	public function testCommit()
 	{
 		$this->lockConnection($this->connection);
-		$this->connection->beginTransaction();
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_TRANS_COMMIT_');
 
+		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
 			'name' => '_TRANS_COMMIT_',
 		]);
@@ -58,6 +60,8 @@ class TransactionsTest extends IntegrationTestCase
 	public function testTransactionalFail()
 	{
 		$this->lockConnection($this->connection);
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_');
+
 		Assert::exception(function () {
 			$this->connection->transactional(function (Connection $connection) {
 				$connection->query('INSERT INTO tags %values', [
@@ -78,6 +82,8 @@ class TransactionsTest extends IntegrationTestCase
 	public function testTransactionalOk()
 	{
 		$this->lockConnection($this->connection);
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_OK_');
+
 		$returnValue = $this->connection->transactional(function (Connection $connection) {
 			$connection->query('INSERT INTO tags %values', [
 				'name' => '_TRANS_TRANSACTIONAL_OK_',

@@ -20,6 +20,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 	public function testWriteStorageSameTZ()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_write');
 		$connection->query('
 			CREATE TABLE dates_write (
@@ -65,6 +67,7 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection = $this->createConnection([
 			'connectionTz' => 'Europe/Kiev',
 		]);
+		$this->lockConnection($connection);
 
 		$connection->query('DROP TABLE IF EXISTS dates_write2');
 		$connection->query('
@@ -109,6 +112,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 	public function testReadStorageSameTZ()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_read');
 		$connection->query('
 			CREATE TABLE dates_read (
@@ -141,6 +146,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection = $this->createConnection([
 			'connectionTz' => 'Europe/Kiev',
 		]);
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_read2');
 		$connection->query('
 			CREATE TABLE dates_read2 (
@@ -181,6 +188,8 @@ class DateTimePostgreTest extends IntegrationTestCase
 	public function testMicroseconds()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('
 			CREATE TABLE dates_micro (
 				a timestamp,
@@ -205,6 +214,7 @@ class DateTimePostgreTest extends IntegrationTestCase
 		$connection = $this->createConnection([
 			'connectionTz' => '+02:00',
 		]);
+		$this->lockConnection($connection);
 
 		$connection->query('DROP TABLE IF EXISTS dates_write3');
 		$connection->query('

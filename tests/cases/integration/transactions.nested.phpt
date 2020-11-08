@@ -18,6 +18,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 	public function testRollback()
 	{
 		$this->lockConnection($this->connection);
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_NTRANS_ROLLBACK_');
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
@@ -46,6 +47,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 	public function testCommitOuter()
 	{
 		$this->lockConnection($this->connection);
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_NTRANS_COMMIT_');
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
@@ -74,6 +76,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 	public function testCommitInner()
 	{
 		$this->lockConnection($this->connection);
+		$this->connection->query('DELETE FROM tags WHERE name = %s', '_NTRANS_COMMIT2_');
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
