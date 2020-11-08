@@ -190,6 +190,7 @@ class DateTimePostgresTest extends IntegrationTestCase
 		$connection = $this->createConnection();
 		$this->lockConnection($connection);
 
+		$connection->query('DROP TABLE IF EXISTS dates_micro');
 		$connection->query('
 			CREATE TABLE dates_micro (
 				a timestamp,
