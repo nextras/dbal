@@ -7,7 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
+
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Tester\Assert;
 
@@ -37,22 +37,6 @@ class ConnectionPostgresTest extends IntegrationTestCase
 		Assert::exception(function () {
 			$this->connection->getLastInsertedId();
 		}, InvalidArgumentException::class, 'PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
-	}
-
-
-	public function testReconnectWithConfig()
-	{
-		$config = $this->connection->getConfig();
-		$this->connection->connect();
-
-		Assert::true($this->connection->getDriver()->isConnected());
-		$oldDriver = $this->connection->getDriver();
-
-		$config['driver'] = new PgsqlDriver();
-		$this->connection->reconnectWithConfig($config);
-
-		$newDriver = $this->connection->getDriver();
-		Assert::notSame($oldDriver, $newDriver);
 	}
 }
 
