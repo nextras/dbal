@@ -63,6 +63,18 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
+	public function toBuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
 	public function seek(int $index): void
 	{
 		if ($this->result->num_rows !== 0 && !$this->result->data_seek($index)) {

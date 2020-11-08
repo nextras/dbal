@@ -13,6 +13,18 @@ class MysqliEmptyResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
+	public function toBuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
 	public function seek(int $index): void
 	{
 		throw new InvalidArgumentException("Unable to seek in row set to {$index} index.");

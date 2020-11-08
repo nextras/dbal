@@ -5,6 +5,7 @@ namespace Nextras\Dbal\Drivers\PdoMysql;
 
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\Result\BufferedResultAdapter;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use PDO;
@@ -58,10 +59,25 @@ class PdoMysqlResultAdapter implements IResultAdapter
 	}
 
 
+	public function toBuffered(): IResultAdapter
+	{
+		return new BufferedResultAdapter($this);
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
 	public function seek(int $index): void
 	{
-		if ($index === 0 && $this->beforeFirstFetch) return;
-		throw new NotSupportedException("PDO does not support seek & replay. Use Result::fetchAll() to and result its result.");
+		if ($index === 0 && $this->beforeFirstFetch) {
+			return;
+		}
+
+		throw new NotSupportedException("PDO does not support rewinding or seeking. Use Result::buffered() before first consume of the result.");
 	}
 
 

@@ -71,6 +71,30 @@ class Result implements SeekableIterator, Countable
 	}
 
 
+	/**
+	 * Enables emulated buffering mode to allow rewinding the result multiple times or seeking to specific position.
+	 * This will enable emulated buffering for drivers that do not support buffering & scrolling the result.
+	 * @return static
+	 */
+	public function buffered(): Result
+	{
+		$this->adapter = $this->adapter->toBuffered();
+		return $this;
+	}
+
+
+	/**
+	 * Disables emulated buffering mode.
+	 * Emulated buffering may not be disabled when the result was already (partially) consumed.
+	 * @return static
+	 */
+	public function unbuffered(): Result
+	{
+		$this->adapter = $this->adapter->toUnbuffered();
+		return $this;
+	}
+
+
 	public function getAdapter(): IResultAdapter
 	{
 		return $this->adapter;
@@ -163,7 +187,9 @@ class Result implements SeekableIterator, Countable
 	public function getColumns(): array
 	{
 		return array_map(
-			function($name): string { return (string) $name; }, // @phpstan-ignore-line
+			function ($name): string {
+				return (string) $name; // @phpstan-ignore-line
+			},
 			array_keys($this->adapter->getTypes())
 		);
 	}

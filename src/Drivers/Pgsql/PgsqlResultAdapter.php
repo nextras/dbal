@@ -70,6 +70,18 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
+	public function toBuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
 	public function seek(int $index): void
 	{
 		if (pg_num_rows($this->result) !== 0 && !pg_result_seek($this->result, $index)) {

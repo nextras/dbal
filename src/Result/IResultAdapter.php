@@ -18,6 +18,21 @@ interface IResultAdapter
 
 
 	/**
+	 * Converts result adapter to buffered version.
+	 * @internal
+	 */
+	public function toBuffered(): IResultAdapter;
+
+
+	/**
+	 * Converts result adapter to not explicitly buffered version.
+	 * The resulting adapter may be naturally buffered by PHP's extension implementation.
+	 * @internal
+	 */
+	public function toUnbuffered(): IResultAdapter;
+
+
+	/**
 	 * @throws InvalidArgumentException
 	 */
 	public function seek(int $index): void;

@@ -110,7 +110,7 @@ class PdoPgsqlDriver extends PdoDriver
 
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
-		return new PdoPgsqlResultAdapter($statement);
+		return (new PdoPgsqlResultAdapter($statement))->toBuffered();
 	}
 
 

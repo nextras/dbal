@@ -55,6 +55,18 @@ class SqlsrvResultAdapter implements IResultAdapter
 	}
 
 
+	public function toBuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
 	public function seek(int $index): void
 	{
 		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index) !== true) {

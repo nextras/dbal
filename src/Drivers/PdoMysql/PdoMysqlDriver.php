@@ -135,7 +135,7 @@ class PdoMysqlDriver extends PdoDriver
 
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
-		return new PdoMysqlResultAdapter($statement);
+		return (new PdoMysqlResultAdapter($statement))->toBuffered();
 	}
 
 
