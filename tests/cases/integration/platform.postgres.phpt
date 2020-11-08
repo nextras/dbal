@@ -13,7 +13,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class PlatformPostgreTest extends IntegrationTestCase
+class PlatformPostgresTest extends IntegrationTestCase
 {
 	public function testTables()
 	{
@@ -237,5 +237,5 @@ class PlatformPostgreTest extends IntegrationTestCase
 }
 
 
-$test = new PlatformPostgreTest();
+$test = new PlatformPostgresTest();
 $test->run();

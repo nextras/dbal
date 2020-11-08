@@ -15,7 +15,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class DateTimeSqlsrvTest extends IntegrationTestCase
+class DateTimeSqlServerTest extends IntegrationTestCase
 {
 	public function testLocal()
 	{
@@ -117,5 +117,5 @@ class DateTimeSqlsrvTest extends IntegrationTestCase
 }
 
 
-$test = new DateTimeSqlsrvTest();
+$test = new DateTimeSqlServerTest();
 $test->run();

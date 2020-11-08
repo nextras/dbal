@@ -14,7 +14,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class TypesSqlsrvTest extends IntegrationTestCase
+class TypesSqlserverTest extends IntegrationTestCase
 {
 	public function testRead()
 	{
@@ -105,5 +105,5 @@ class TypesSqlsrvTest extends IntegrationTestCase
 }
 
 
-$test = new TypesSqlsrvTest();
+$test = new TypesSqlserverTest();
 $test->run();

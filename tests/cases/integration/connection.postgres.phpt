@@ -15,7 +15,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class ConnectionPgsqlTest extends IntegrationTestCase
+class ConnectionPostgresTest extends IntegrationTestCase
 {
 	public function testReconnect()
 	{
@@ -57,5 +57,5 @@ class ConnectionPgsqlTest extends IntegrationTestCase
 }
 
 
-$test = new ConnectionPgsqlTest();
+$test = new ConnectionPostgresTest();
 $test->run();

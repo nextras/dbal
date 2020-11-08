@@ -15,7 +15,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class DateTimePostgreTest extends IntegrationTestCase
+class DateTimePostgresTest extends IntegrationTestCase
 {
 	public function testWriteStorageSameTZ()
 	{
@@ -236,5 +236,5 @@ class DateTimePostgreTest extends IntegrationTestCase
 }
 
 
-$test = new DateTimePostgreTest();
+$test = new DateTimePostgresTest();
 $test->run();

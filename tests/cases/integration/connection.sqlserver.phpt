@@ -15,7 +15,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class ConnectionSqlsrvTest extends IntegrationTestCase
+class ConnectionSqlServerTest extends IntegrationTestCase
 {
 	public function testReconnect()
 	{
@@ -65,5 +65,5 @@ class ConnectionSqlsrvTest extends IntegrationTestCase
 }
 
 
-$test = new ConnectionSqlsrvTest();
+$test = new ConnectionSqlServerTest();
 $test->run();

@@ -16,7 +16,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class PlatformFormatSqlSrvTest extends IntegrationTestCase
+class PlatformFormatSqlServerTest extends IntegrationTestCase
 {
 	public function testDelimite()
 	{
@@ -65,5 +65,5 @@ class PlatformFormatSqlSrvTest extends IntegrationTestCase
 }
 
 
-$test = new PlatformFormatSqlSrvTest();
+$test = new PlatformFormatSqlServerTest();
 $test->run();

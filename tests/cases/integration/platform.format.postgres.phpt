@@ -15,7 +15,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class PlatformFormatPostgreTest extends IntegrationTestCase
+class PlatformFormatPostgresTest extends IntegrationTestCase
 {
 	public function testDelimite()
 	{
@@ -79,5 +79,5 @@ class PlatformFormatPostgreTest extends IntegrationTestCase
 }
 
 
-$test = new PlatformFormatPostgreTest();
+$test = new PlatformFormatPostgresTest();
 $test->run();

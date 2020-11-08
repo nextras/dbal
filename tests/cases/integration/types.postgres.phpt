@@ -14,7 +14,7 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class TypesPostgreTest extends IntegrationTestCase
+class TypesPostgresTest extends IntegrationTestCase
 {
 	public function testRead()
 	{
@@ -88,5 +88,5 @@ class TypesPostgreTest extends IntegrationTestCase
 }
 
 
-$test = new TypesPostgreTest();
+$test = new TypesPostgresTest();
 $test->run();
