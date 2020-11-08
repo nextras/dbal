@@ -5,7 +5,6 @@ namespace Nextras\Dbal\Drivers\Pdo;
 
 use DateTimeZone;
 use Exception;
-use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
@@ -20,6 +19,7 @@ use PDOException;
 use PDOStatement;
 use function gettype;
 use function is_string;
+use function preg_match;
 
 
 abstract class PdoDriver implements IDriver
@@ -60,7 +60,12 @@ abstract class PdoDriver implements IDriver
 			$connection = new PDO($dsn, $username, $password, $options);
 			$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 		} catch (PDOException $e) {
-			throw new ConnectionException($e->getMessage(), $e->getCode(), '', $e);
+			if (preg_match('~SQLSTATE\[([^]]+)]~', $e->getMessage(), $matches) === 1) {
+				$sqlState = $matches[1];
+			} else {
+				$sqlState = '';
+			}
+			throw $this->createException($e->getMessage(), (int) $e->getCode(), $sqlState);
 		}
 
 		$this->connection = $connection;
