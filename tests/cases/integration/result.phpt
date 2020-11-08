@@ -8,10 +8,8 @@
 namespace NextrasTests\Dbal;
 
 
-use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
-use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
@@ -69,13 +67,6 @@ class ResultIntegrationTest extends IntegrationTestCase
 
 		$books = $result->fetchPairs(null, 'id');
 		Assert::same([1, 2, 3, 4], $books);
-
-		if ($this->connection->getDriver() instanceof PdoDriver) {
-			Assert::throws(function () use ($result): void {
-				$result->fetchPairs(null, 'id');
-			}, NotSupportedException::class);
-			return;
-		}
 
 		$books = $result->fetchPairs(null, 'id');
 		Assert::same([1, 2, 3, 4], $books);

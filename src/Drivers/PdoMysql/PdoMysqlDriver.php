@@ -14,13 +14,13 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
+use Nextras\Dbal\Result\IResultAdapter;
 use PDO;
 use PDOStatement;
 use function array_key_exists;
@@ -135,7 +135,7 @@ class PdoMysqlDriver extends PdoDriver
 
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
-		return new PdoMysqlResultAdapter($statement);
+		return (new PdoMysqlResultAdapter($statement))->toBuffered();
 	}
 
 

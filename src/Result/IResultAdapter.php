@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Nextras\Dbal\Drivers;
+namespace Nextras\Dbal\Result;
 
 
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -15,6 +15,21 @@ interface IResultAdapter
 	public const TYPE_BOOL = 16;
 	public const TYPE_DATETIME = 32;
 	public const TYPE_AS_IS = 64;
+
+
+	/**
+	 * Converts result adapter to buffered version.
+	 * @internal
+	 */
+	public function toBuffered(): IResultAdapter;
+
+
+	/**
+	 * Converts result adapter to not explicitly buffered version.
+	 * The resulting adapter may be naturally buffered by PHP's extension implementation.
+	 * @internal
+	 */
+	public function toUnbuffered(): IResultAdapter;
 
 
 	/**

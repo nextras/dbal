@@ -6,7 +6,6 @@ namespace Nextras\Dbal\Result;
 use Countable;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\StrictObjectTrait;
@@ -69,6 +68,30 @@ class Result implements SeekableIterator, Countable
 		$this->driver = $driver;
 		$this->applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 		$this->initColumnConversions();
+	}
+
+
+	/**
+	 * Enables emulated buffering mode to allow rewinding the result multiple times or seeking to specific position.
+	 * This will enable emulated buffering for drivers that do not support buffering & scrolling the result.
+	 * @return static
+	 */
+	public function buffered(): Result
+	{
+		$this->adapter = $this->adapter->toBuffered();
+		return $this;
+	}
+
+
+	/**
+	 * Disables emulated buffering mode.
+	 * Emulated buffering may not be disabled when the result was already (partially) consumed.
+	 * @return static
+	 */
+	public function unbuffered(): Result
+	{
+		$this->adapter = $this->adapter->toUnbuffered();
+		return $this;
 	}
 
 
@@ -164,7 +187,9 @@ class Result implements SeekableIterator, Countable
 	public function getColumns(): array
 	{
 		return array_map(
-			function($name): string { return (string) $name; }, // @phpstan-ignore-line
+			function ($name): string {
+				return (string) $name; // @phpstan-ignore-line
+			},
 			array_keys($this->adapter->getTypes())
 		);
 	}

@@ -50,3 +50,16 @@ echo $row->age;
 
 echo $row->getNthField(0); // prints name
 \--
+
+
+Buffering
+=========
+
+Some database drivers do not support rewinding or seeking the result. I.e. you cannot iterate over the result multiple times. Similarly, you cannot use `seek()` method to skip some rows. Dbal's emulated buffering comes to solve this for you. The relevant drivers automatically enable emulated buffering. You can disable or enable it for particular `Result` instances.
+
+/--php
+$result = $connection->query('...')->buffered(); // enable emulated buffering
+$result->unbuffered(); // disable the emulated buffering
+\--
+
+If the unbuffered Result was already partially consumed, enabling buffering does nothing and Result will potentially throw an exception when rewinded or seeked. If the buffered Result was already partially consumed, disabling buffering does nothing and Result will still use the buffer.

@@ -3,14 +3,26 @@
 namespace Nextras\Dbal\Drivers\Mysqli;
 
 
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 class MysqliEmptyResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
+
+
+	public function toBuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
+	}
 
 
 	public function seek(int $index): void

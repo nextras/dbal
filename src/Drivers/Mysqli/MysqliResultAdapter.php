@@ -4,8 +4,8 @@ namespace Nextras\Dbal\Drivers\Mysqli;
 
 
 use mysqli_result;
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
@@ -60,6 +60,18 @@ class MysqliResultAdapter implements IResultAdapter
 	public function __destruct()
 	{
 		$this->result->free();
+	}
+
+
+	public function toBuffered(): IResultAdapter
+	{
+		return $this;
+	}
+
+
+	public function toUnbuffered(): IResultAdapter
+	{
+		return $this;
 	}
 
 
