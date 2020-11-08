@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Nextras\Dbal\Drivers;
+namespace Nextras\Dbal\Result;
 
 
 use Nextras\Dbal\Exception\InvalidArgumentException;

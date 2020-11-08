@@ -3,13 +3,12 @@
 namespace Nextras\Dbal\Drivers\PdoPgsql;
 
 
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use PDO;
 use PDOStatement;
-use function assert;
 
 
 class PdoPgsqlResultAdapter implements IResultAdapter

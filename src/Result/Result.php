@@ -6,7 +6,6 @@ namespace Nextras\Dbal\Result;
 use Countable;
 use DateTimeZone;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\StrictObjectTrait;

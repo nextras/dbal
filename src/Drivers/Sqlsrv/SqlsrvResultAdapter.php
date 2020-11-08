@@ -3,8 +3,8 @@
 namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 
-use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
