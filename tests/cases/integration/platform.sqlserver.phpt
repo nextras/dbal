@@ -162,6 +162,8 @@ class PlatformSqlServerTest extends IntegrationTestCase
 
 	public function testForeignKeys()
 	{
+		$this->lockConnection($this->connection);
+
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
 

@@ -33,6 +33,18 @@ use function stream_get_contents;
 /**
  * Driver for php_pdo_pgsql ext.
  *
+ * Supported configuration options:
+ * - host - server name to connect;
+ * - port - port to connect;
+ * - database - db name to connect;
+ * - options - options for PDO();
+ * - username - username to connect;
+ * - password - password to connect;
+ * - searchPath - default search path for connection;
+ * - connectionTz - timezone for database connection; possible values are:
+ *    - "auto"
+ *    - "auto-offset"
+ *    - specific +-00:00 timezone offset;
  */
 class PdoPgsqlDriver extends PdoDriver
 {
@@ -124,7 +136,7 @@ class PdoPgsqlDriver extends PdoDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, ?string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 		if ($sqlState === '0A000' && strpos($error, 'truncate') !== false) {
@@ -141,11 +153,11 @@ class PdoPgsqlDriver extends PdoDriver
 		} elseif ($sqlState === '23505') {
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif ($sqlState === null && stripos($error, 'pg_connect()') !== false) {
+		} elseif ($sqlState === '08006') {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, (string) $sqlState, null, $query);
+			return new QueryException($error, $errorNo, $sqlState, null, $query);
 
 		} else {
 			return new DriverException($error, $errorNo, $sqlState);

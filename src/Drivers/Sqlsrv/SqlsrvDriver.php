@@ -24,7 +24,7 @@ use Nextras\Dbal\Utils\StrictObjectTrait;
 
 
 /**
- * Driver for php-sqlsrv ext available at github.com/microsoft/msphpsql.
+ * Driver for php-sqlsrv ext available at PECL or github.com/microsoft/msphpsql.
  *
  * Supported configuration options:
  * - host - server name to connect;
@@ -39,7 +39,7 @@ use Nextras\Dbal\Utils\StrictObjectTrait;
  *    - CharacterSet
  *    - ConnectionPooling
  *    - Encrypt
- *    - Falover_Partner
+ *    - Failover_Partner
  *    - LoginTimeout
  *    - MultipleActiveResultSet
  *    - MultiSubnetFailover
@@ -86,7 +86,7 @@ class SqlsrvDriver implements IDriver
 			'CharacterSet',
 			'ConnectionPooling',
 			'Encrypt',
-			'Falover_Partner',
+			'Failover_Partner',
 			'LoginTimeout',
 			'MultipleActiveResultSet',
 			'MultiSubnetFailover',
@@ -122,7 +122,6 @@ class SqlsrvDriver implements IDriver
 			throw new NotSupportedException("SqlsrvDriver does not allow to modify 'ReturnDatesAsStrings' parameter.");
 		}
 		$connectionOptions['ReturnDatesAsStrings'] = true;
-
 		$connectionResource = sqlsrv_connect($connectionString, $connectionOptions);
 		if ($connectionResource === false) {
 			$this->throwErrors();
@@ -236,7 +235,7 @@ class SqlsrvDriver implements IDriver
 			Connection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
 		];
 		if (!isset($levels[$level])) {
-			throw new NotSupportedException("Unsupported transation level $level");
+			throw new NotSupportedException("Unsupported transaction level $level");
 		}
 		$this->loggedQuery("SET SESSION TRANSACTION ISOLATION LEVEL {$levels[$level]}");
 	}

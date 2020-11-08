@@ -7,8 +7,8 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Drivers\Sqlsrv\SqlsrvDriver;
-use Nextras\Dbal\QueryException;
+
+use Nextras\Dbal\Drivers\Exception\QueryException;
 use Tester\Assert;
 
 
@@ -31,6 +31,10 @@ class ConnectionSqlServerTest extends IntegrationTestCase
 
 	public function testLastInsertId()
 	{
+		$this->lockConnection($this->connection);
+		$this->connection->query('DROP TABLE IF EXISTS autoi_1');
+		$this->connection->query('DROP TABLE IF EXISTS autoi_2');
+
 		$this->connection->query('CREATE TABLE autoi_1 (a int NOT NULL IDENTITY PRIMARY KEY)');
 		$this->connection->query('CREATE TABLE autoi_2 (b int NOT NULL IDENTITY PRIMARY KEY)');
 
@@ -45,22 +49,6 @@ class ConnectionSqlServerTest extends IntegrationTestCase
 		$this->connection->query('CREATE TRIGGER autoi_2_ai ON autoi_2 AFTER INSERT AS INSERT INTO autoi_1 DEFAULT VALUES');
 		$this->connection->query('INSERT INTO autoi_2 DEFAULT VALUES');
 		Assert::same(2, $this->connection->getLastInsertedId());
-	}
-
-
-	public function testReconnectWithConfig()
-	{
-		$config = $this->connection->getConfig();
-		$this->connection->connect();
-
-		Assert::true($this->connection->getDriver()->isConnected());
-		$oldDriver = $this->connection->getDriver();
-
-		$config['driver'] = new SqlsrvDriver($config);
-		$this->connection->reconnectWithConfig($config);
-
-		$newDriver = $this->connection->getDriver();
-		Assert::notSame($oldDriver, $newDriver);
 	}
 }
 

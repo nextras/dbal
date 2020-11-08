@@ -9,8 +9,8 @@ namespace NextrasTests\Dbal;
 
 
 use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
+use Nextras\Dbal\Drivers\Sqlsrv\SqlsrvDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
-use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
@@ -47,7 +47,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$follower = $result->fetch();
 
 		if (
-			$this->connection->getPlatform() instanceof SqlServerPlatform
+			$this->connection->getDriver() instanceof SqlsrvDriver
 			|| $this->connection->getDriver() instanceof PdoPgsqlDriver
 		) {
 			Assert::same(2, $follower->tag_id);
