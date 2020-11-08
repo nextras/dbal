@@ -7,6 +7,8 @@
 
 namespace NextrasTests\Dbal;
 
+
+use Nextras\Dbal\Drivers\Exception\QueryException;
 use Tester\Assert;
 
 
@@ -29,6 +31,10 @@ class ConnectionSqlServerTest extends IntegrationTestCase
 
 	public function testLastInsertId()
 	{
+		$this->lockConnection($this->connection);
+		$this->connection->query('DROP TABLE IF EXISTS autoi_1');
+		$this->connection->query('DROP TABLE IF EXISTS autoi_2');
+
 		$this->connection->query('CREATE TABLE autoi_1 (a int NOT NULL IDENTITY PRIMARY KEY)');
 		$this->connection->query('CREATE TABLE autoi_2 (b int NOT NULL IDENTITY PRIMARY KEY)');
 

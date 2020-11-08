@@ -82,6 +82,9 @@ class TypesSqlserverTest extends IntegrationTestCase
 
 	public function testWrite()
 	{
+		$this->lockConnection($this->connection);
+
+		$this->connection->query('DROP TABLE IF EXISTS [types_write]');
 		$this->connection->query("
 			CREATE TABLE [types_write] (
 				[blob] varbinary(1000),

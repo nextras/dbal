@@ -20,6 +20,8 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 	public function testLocal()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_write');
 		$connection->query('
 			CREATE TABLE dates_write (
@@ -51,6 +53,8 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 	public function testDateTimeOffset()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates');
 		$connection->query('
 			CREATE TABLE dates (
@@ -97,6 +101,9 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 	public function testMicroseconds()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
+		$connection->query('DROP TABLE IF EXISTS dates_micro');
 		$connection->query('
 			CREATE TABLE dates_micro (
 				a datetime2,
