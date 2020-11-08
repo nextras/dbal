@@ -6,6 +6,11 @@ namespace Nextras\Dbal\Drivers\Sqlsrv;
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use function sqlsrv_fetch;
+use function sqlsrv_fetch_array;
+use function sqlsrv_field_metadata;
+use function sqlsrv_free_stmt;
+use function sqlsrv_num_rows;
 
 
 class SqlsrvResultAdapter implements IResultAdapter

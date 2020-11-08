@@ -23,8 +23,7 @@ class SqlProcessorCustomModifierTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$driver = \Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($driver, \Mockery::mock(IPlatform::class));
+		$this->parser = new SqlProcessor(\Mockery::mock(IPlatform::class));
 	}
 
 

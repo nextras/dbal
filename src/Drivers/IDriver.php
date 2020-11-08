@@ -3,10 +3,10 @@
 namespace Nextras\Dbal\Drivers;
 
 
-use DateInterval;
-use DateTimeInterface;
+use DateTimeZone;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
@@ -55,6 +55,13 @@ interface IDriver
 
 
 	/**
+	 * Returns connection time zone.
+	 * If unsupported by driver, throws {@link NotSupportedException}.
+	 */
+	public function getConnectionTimeZone(): DateTimeZone;
+
+
+	/**
 	 * Runs query and returns a result. Returns a null if the query does not select any data.
 	 * @throws DriverException
 	 * @internal
@@ -97,6 +104,7 @@ interface IDriver
 
 	/**
 	 * Pings server.
+	 * Returns true if the ping was successful and connection is alive.
 	 * @internal
 	 */
 	public function ping(): bool;
@@ -158,48 +166,15 @@ interface IDriver
 
 	/**
 	 * Converts database value to php boolean.
+	 * @param mixed $value
 	 * @param mixed $nativeType
 	 * @return mixed
 	 */
-	public function convertToPhp(string $value, $nativeType);
+	public function convertToPhp($value, $nativeType);
 
 
+	/**
+	 * Converts string to safe escaped SQL expression including surrounding quotes.
+	 */
 	public function convertStringToSql(string $value): string;
-
-
-	/**
-	 * @param mixed $value
-	 */
-	public function convertJsonToSql($value): string;
-
-
-	/**
-	 * @param int $mode -1 = left, 0 = both, 1 = right
-	 * @return mixed
-	 */
-	public function convertLikeToSql(string $value, int $mode);
-
-
-	public function convertBoolToSql(bool $value): string;
-
-
-	public function convertIdentifierToSql(string $value): string;
-
-
-	public function convertDateTimeToSql(DateTimeInterface $value): string;
-
-
-	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string;
-
-
-	public function convertDateIntervalToSql(DateInterval $value): string;
-
-
-	public function convertBlobToSql(string $value): string;
-
-
-	/**
-	 * Adds driver-specific limit clause to the query.
-	 */
-	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string;
 }

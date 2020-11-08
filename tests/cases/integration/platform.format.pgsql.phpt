@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use DateTime;
 use Tester\Assert;
 
@@ -14,18 +15,16 @@ use Tester\Assert;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-class DriverPostgreTest extends IntegrationTestCase
+class PlatformFormatPostgreTest extends IntegrationTestCase
 {
 	public function testDelimite()
 	{
-		$driver = $this->connection->getDriver();
+		$platform = $this->connection->getPlatform();
 		$this->connection->connect();
 
-		Assert::same('"foo"', $driver->convertIdentifierToSql('foo'));
-		Assert::same('"foo"."bar"', $driver->convertIdentifierToSql('foo.bar'));
-		Assert::same('"foo".*', $driver->convertIdentifierToSql('foo.*'));
-		Assert::same('"foo"."bar"."baz"', $driver->convertIdentifierToSql('foo.bar.baz'));
-		Assert::same('"foo"."bar".*', $driver->convertIdentifierToSql('foo.bar.*'));
+		Assert::same('"foo"', $platform->formatIdentifier('foo'));
+		Assert::same('"foo"."bar"', $platform->formatIdentifier('foo.bar'));
+		Assert::same('"foo"."bar"."baz"', $platform->formatIdentifier('foo.bar.baz'));
 	}
 
 
@@ -44,13 +43,13 @@ class DriverPostgreTest extends IntegrationTestCase
 
 	public function testDateInterval()
 	{
-		$driver = $this->connection->getDriver();
+		$platform = $this->connection->getPlatform();
 
 		$interval1 = (new DateTime('2015-01-03 12:01:01'))->diff(new DateTime('2015-01-01 09:00:00'));
 		$interval2 = (new DateTime('2015-01-01 09:00:00'))->diff(new DateTime('2015-01-03 12:01:01'));
 
-		Assert::same('P0Y0M2DT3H1M1S', $driver->convertDateIntervalToSql($interval1));
-		Assert::same('P0Y0M2DT3H1M1S', $driver->convertDateIntervalToSql($interval2));
+		Assert::same('P0Y0M2DT3H1M1S', $platform->formatDateInterval($interval1));
+		Assert::same('P0Y0M2DT3H1M1S', $platform->formatDateInterval($interval2));
 	}
 
 
@@ -58,28 +57,27 @@ class DriverPostgreTest extends IntegrationTestCase
 	{
 		$c = $this->connection;
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A'B")->fetchField());
-		Assert::true( $c->query("SELECT 'AA''BB' LIKE %_like_", "A'B")->fetchField());
+		Assert::true($c->query("SELECT 'AA''BB' LIKE %_like_", "A'B")->fetchField());
 
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A\\B")->fetchField());
-		Assert::true( $c->query("SELECT 'AA\\BB' LIKE %_like_", "A\\B")->fetchField());
+		Assert::true($c->query("SELECT 'AA\\BB' LIKE %_like_", "A\\B")->fetchField());
 
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A%B")->fetchField());
-		Assert::true( $c->query("SELECT %raw     LIKE %_like_", "'AA%BB'", "A%B")->fetchField());
+		Assert::true($c->query("SELECT %raw     LIKE %_like_", "'AA%BB'", "A%B")->fetchField());
 
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A_B")->fetchField());
-		Assert::true( $c->query("SELECT 'AA_BB'  LIKE %_like_", "A_B")->fetchField());
-
+		Assert::true($c->query("SELECT 'AA_BB'  LIKE %_like_", "A_B")->fetchField());
 
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", "AAAxBB")->fetchField());
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", "AxB")->fetchField());
-		Assert::true( $c->query("SELECT 'AAxBB'  LIKE %_like", "AxBB")->fetchField());
+		Assert::true($c->query("SELECT 'AAxBB'  LIKE %_like", "AxBB")->fetchField());
 
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxBBB")->fetchField());
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", "AxB")->fetchField());
-		Assert::true( $c->query("SELECT 'AAxBB'  LIKE %like_", "AAxB")->fetchField());
+		Assert::true($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxB")->fetchField());
 	}
 }
 
 
-$test = new DriverPostgreTest();
+$test = new PlatformFormatPostgreTest();
 $test->run();

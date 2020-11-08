@@ -19,9 +19,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class SqlProcessorWhereTest extends TestCase
 {
-	/** @var IDriver|Mockery\MockInterface */
-	private $driver;
-
 	/** @var IPlatform|Mockery\MockInterface */
 	private $platform;
 
@@ -32,9 +29,8 @@ class SqlProcessorWhereTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock(IDriver::class);
 		$this->platform = Mockery::mock(IPlatform::class);
-		$this->parser = new SqlProcessor($this->driver, $this->platform);
+		$this->parser = new SqlProcessor($this->platform);
 	}
 
 
@@ -44,9 +40,9 @@ class SqlProcessorWhereTest extends TestCase
 	 */
 	public function testImplicitAndExplicitTypes($expected, $operands)
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->with('col')->andReturn('`col`');
-		$this->driver->shouldReceive('convertStringToSql')->with('x')->andReturn('"x"');
-		$this->driver->shouldReceive('convertDateTimeToSql')->with(Mockery::type('DateTime'))->andReturn('DT');
+		$this->platform->shouldReceive('formatString')->with('x')->andReturn('"x"');
+		$this->platform->shouldReceive('formatIdentifier')->with('col')->andReturn('`col`');
+		$this->platform->shouldReceive('formatDateTime')->with(Mockery::type('DateTime'))->andReturn('DT');
 
 		Assert::same($expected, $this->parser->processModifier('and', $operands));
 	}
@@ -140,14 +136,14 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testAssoc()
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('A');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b.c')->andReturn('BC');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('d')->andReturn('D');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('e')->andReturn('E');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('f')->andReturn('F');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('A');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b.c')->andReturn('BC');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('d')->andReturn('D');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('e')->andReturn('E');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('f')->andReturn('F');
 
-		$this->driver->shouldReceive('convertStringToSql')->once()->with(1)->andReturn("'1'");
-		$this->driver->shouldReceive('convertStringToSql')->twice()->with('a')->andReturn("'a'");
+		$this->platform->shouldReceive('formatString')->once()->with(1)->andReturn("'1'");
+		$this->platform->shouldReceive('formatString')->twice()->with('a')->andReturn("'a'");
 
 		Assert::same(
 			'A = 1 AND BC = 2 AND D IS NULL AND E IN (\'1\', \'a\') AND F IN (1, \'a\')',
@@ -164,8 +160,8 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testComplex()
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('a');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('b');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('a');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('b');
 
 		Assert::same(
 			'(a = 1 AND b IS NULL) OR a = 2 OR (a IS NULL AND b = 1) OR b = 3',
@@ -195,8 +191,8 @@ class SqlProcessorWhereTest extends TestCase
 
 	public function testMultiColumnOr()
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('a')->andReturn('a');
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('b')->andReturn('b');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('a');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('b');
 		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
 
 		Assert::same(
@@ -226,8 +222,8 @@ class SqlProcessorWhereTest extends TestCase
 	 */
 	public function testInvalid($type, $value, $message)
 	{
-		$this->driver->shouldReceive('convertIdentifierToSql')->andReturn('`col`');
-		$this->driver->shouldIgnoreMissing();
+		$this->platform->shouldReceive('formatIdentifier')->andReturn('`col`');
+		$this->platform->shouldIgnoreMissing();
 		Assert::throws(
 			function() use ($type, $value) {
 				$this->parser->processModifier($type, $value);

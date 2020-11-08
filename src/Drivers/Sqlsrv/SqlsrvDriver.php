@@ -3,8 +3,7 @@
 namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 
-use DateInterval;
-use DateTimeInterface;
+use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
@@ -14,7 +13,6 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
-use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -151,6 +149,12 @@ class SqlsrvDriver implements IDriver
 	public function getResourceHandle()
 	{
 		return $this->connection;
+	}
+
+
+	public function getConnectionTimeZone(): DateTimeZone
+	{
+		throw new NotSupportedException();
 	}
 
 
@@ -296,7 +300,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function convertToPhp(string $value, $nativeType)
+	public function convertToPhp($value, $nativeType)
 	{
 		if (
 			$nativeType === SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY
@@ -319,73 +323,9 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function convertJsonToSql($value): string
+	protected function convertIdentifierToSql(string $value): string
 	{
-		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
-		if (json_last_error() !== JSON_ERROR_NONE) {
-			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
-		}
-		assert(is_string($encoded));
-		return $this->convertStringToSql($encoded);
-	}
-
-
-	public function convertLikeToSql(string $value, int $mode)
-	{
-		// https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
-		$value = strtr($value, [
-			"'" => "''",
-			'%' => '[%]',
-			'_' => '[_]',
-			'[' => '[[]',
-		]);
-		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
-	}
-
-
-	public function convertBoolToSql(bool $value): string
-	{
-		return $value ? '1' : '0';
-	}
-
-
-	public function convertIdentifierToSql(string $value): string
-	{
-		return str_replace('[*]', '*', '[' . str_replace([']', '.'], [']]', '].['], $value) . ']');
-	}
-
-
-	public function convertDateTimeToSql(DateTimeInterface $value): string
-	{
-		return "CAST('" . $value->format('Y-m-d H:i:s.u P') . "' AS DATETIMEOFFSET)";
-	}
-
-
-	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
-	{
-		return "CAST('" . $value->format('Y-m-d H:i:s.u') . "' AS DATETIME2)";
-	}
-
-
-	public function convertDateIntervalToSql(DateInterval $value): string
-	{
-		throw new NotSupportedException();
-	}
-
-
-	public function convertBlobToSql(string $value): string
-	{
-		return '0x' . bin2hex($value);
-	}
-
-
-	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
-	{
-		$query .= ' OFFSET ' . ($offset !== null ? $offset : 0) . ' ROWS';
-		if ($limit !== null) {
-			$query .= ' FETCH NEXT ' . $limit . ' ROWS ONLY';
-		}
-		return $query;
+		return '[' . str_replace([']', '.'], [']]', '].['], $value) . ']';
 	}
 
 

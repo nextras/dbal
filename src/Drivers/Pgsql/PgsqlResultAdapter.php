@@ -6,6 +6,13 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 use Nextras\Dbal\Drivers\IResultAdapter;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use function pg_fetch_array;
+use function pg_field_name;
+use function pg_field_type;
+use function pg_free_result;
+use function pg_num_fields;
+use function pg_num_rows;
+use function pg_result_seek;
 
 
 class PgsqlResultAdapter implements IResultAdapter

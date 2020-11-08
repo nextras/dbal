@@ -4,9 +4,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Mockery;
 use Mockery\MockInterface;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
@@ -18,8 +18,8 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class SqlProcessorExpandTest extends TestCase
 {
-	/** @var IDriver|MockInterface */
-	private $driver;
+	/** @var IPlatform|MockInterface */
+	private $platform;
 
 	/** @var SqlProcessor */
 	private $parser;
@@ -28,8 +28,8 @@ class SqlProcessorExpandTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver, \Mockery::mock(IPlatform::class));
+		$this->platform = Mockery::mock(IPlatform::class);
+		$this->parser = new SqlProcessor($this->platform);
 	}
 
 
@@ -55,7 +55,7 @@ class SqlProcessorExpandTest extends TestCase
 			$this->parser->processModifier('ex', ['IS NULL'])
 		);
 
-		$this->driver->shouldReceive('convertIdentifierToSql')->once()->with('A')->andReturn('B');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('A')->andReturn('B');
 		Assert::same(
 			'= B + 123',
 			$this->parser->processModifier('ex', ['= [A] + 123'])

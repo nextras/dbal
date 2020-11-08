@@ -18,6 +18,8 @@ class SqlPreprocessorIntegrationTest extends IntegrationTestCase
 {
 	public function testEmptyInsert()
 	{
+		$this->lockConnection($this->connection);
+		$this->connection->query('DELETE FROM table_with_defaults');
 		$this->connection->query('INSERT INTO table_with_defaults %values', []);
 		$this->connection->query('INSERT INTO table_with_defaults %values[]', [[]]);
 		$this->connection->query('INSERT INTO table_with_defaults %values[]', [[], []]);

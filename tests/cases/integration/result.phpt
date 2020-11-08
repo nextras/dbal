@@ -7,7 +7,11 @@
 
 namespace NextrasTests\Dbal;
 
+
+use Nextras\Dbal\Drivers\Pdo\PdoDriver;
+use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
@@ -44,7 +48,10 @@ class ResultIntegrationTest extends IntegrationTestCase
 		$result->setValueNormalization(false);
 		$follower = $result->fetch();
 
-		if ($this->connection->getPlatform() instanceof SqlServerPlatform) {
+		if (
+			$this->connection->getPlatform() instanceof SqlServerPlatform
+			|| $this->connection->getDriver() instanceof PdoPgsqlDriver
+		) {
 			Assert::same(2, $follower->tag_id);
 			Assert::same(2, $follower->author_id);
 		} else {
@@ -58,7 +65,25 @@ class ResultIntegrationTest extends IntegrationTestCase
 	public function testSeek()
 	{
 		$this->initData($this->connection);
-		$result = $this->connection->query('SELECT * FROM books');
+		$result = $this->connection->query('SELECT * FROM books ORDER BY id');
+
+		$books = $result->fetchPairs(null, 'id');
+		Assert::same([1, 2, 3, 4], $books);
+
+		if ($this->connection->getDriver() instanceof PdoDriver) {
+			Assert::throws(function () use ($result): void {
+				$result->fetchPairs(null, 'id');
+			}, NotSupportedException::class);
+			return;
+		}
+
+		$books = $result->fetchPairs(null, 'id');
+		Assert::same([1, 2, 3, 4], $books);
+
+		$result->seek(1);
+		$fetched = $result->fetch();
+		Assert::notNull($fetched);
+		Assert::same(2, $fetched->id);
 
 		Assert::exception(function () use ($result) {
 			$result->seek(10);

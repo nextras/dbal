@@ -20,6 +20,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testWriteStorageSameTZ()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_write');
 		$connection->query('
 			CREATE TABLE dates_write (
@@ -65,6 +67,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		$connection = $this->createConnection([
 			'connectionTz' => 'Europe/Kiev',
 		]);
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_write2');
 		$connection->query('
 			CREATE TABLE dates_write2 (
@@ -108,6 +112,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testReadStorageSameTZ()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_read');
 		$connection->query('
 			CREATE TABLE dates_read (
@@ -140,6 +146,8 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		$connection = $this->createConnection([
 			'connectionTz' => 'Europe/Kiev',
 		]);
+		$this->lockConnection($connection);
+
 		$connection->query('DROP TABLE IF EXISTS dates_read2');
 		$connection->query('
 			CREATE TABLE dates_read2 (
@@ -170,6 +178,9 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testMicroseconds()
 	{
 		$connection = $this->createConnection();
+		$this->lockConnection($connection);
+
+		$connection->query('DROP TABLE IF EXISTS dates_micro');
 		$connection->query('
 			CREATE TABLE dates_micro (
 				a datetime(6),

@@ -4,9 +4,6 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 
 
 use DateInterval;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Connection;
@@ -26,6 +23,7 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function is_string;
+use function pg_escape_identifier;
 
 
 /**
@@ -117,7 +115,9 @@ class PgsqlDriver implements IDriver
 		}
 
 		if (isset($params['searchPath'])) {
-			$schemas = array_map([$this, 'convertIdentifierToSql',], (array) $params['searchPath']);
+			$schemas = array_map(function ($part) use ($connection): string {
+				return pg_escape_identifier($connection, $part);
+			}, (array) $params['searchPath']);
 			$this->loggedQuery('SET search_path TO ' . implode(', ', $schemas));
 		}
 	}
@@ -141,6 +141,12 @@ class PgsqlDriver implements IDriver
 	public function getResourceHandle()
 	{
 		return $this->connection;
+	}
+
+
+	public function getConnectionTimeZone(): DateTimeZone
+	{
+		return $this->connectionTz;
 	}
 
 
@@ -248,35 +254,34 @@ class PgsqlDriver implements IDriver
 
 	public function createSavepoint(string $name): void
 	{
-		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		assert($this->connection !== null);
+		$this->loggedQuery('SAVEPOINT ' . pg_escape_identifier($this->connection, $name));
 	}
 
 
 	public function releaseSavepoint(string $name): void
 	{
-		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		assert($this->connection !== null);
+		$this->loggedQuery('RELEASE SAVEPOINT ' . pg_escape_identifier($this->connection, $name));
 	}
 
 
 	public function rollbackSavepoint(string $name): void
 	{
-		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
+		assert($this->connection !== null);
+		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . pg_escape_identifier($this->connection, $name));
 	}
 
 
-	public function convertToPhp(string $value, $nativeType)
+	public function convertToPhp($value, $nativeType)
 	{
 		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
 
 		if ($nativeType === 'bool') {
 			return in_array(strtolower($value), $trues, true);
 
-		} elseif ($nativeType === 'int8') {
-			// called only on 32bit
-			// hack for phpstan
-			/** @var int|float $numeric */
-			$numeric = $value;
-			return is_float($tmp = $numeric * 1) ? $numeric : $tmp;
+		} elseif ($nativeType === 'int8') { // called only on 32bit
+			return is_float($tmp = $value * 1) ? $value : $tmp; // @phpstan-ignore-line
 
 		} elseif ($nativeType === 'interval') {
 			return DateInterval::createFromDateString($value);
@@ -297,96 +302,6 @@ class PgsqlDriver implements IDriver
 	{
 		assert($this->connection !== null);
 		return pg_escape_literal($this->connection, $value);
-	}
-
-
-	public function convertJsonToSql($value): string
-	{
-		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
-		if (json_last_error() !== JSON_ERROR_NONE) {
-			throw new InvalidArgumentException('JSON Encode Error: ' . json_last_error_msg());
-		}
-		assert(is_string($encoded));
-		return $this->convertStringToSql($encoded);
-	}
-
-
-	public function convertLikeToSql(string $value, int $mode)
-	{
-		$value = strtr($value, [
-			"'" => "''",
-			'\\' => '\\\\',
-			'%' => '\\%',
-			'_' => '\\_',
-		]);
-		return ($mode <= 0 ? "'%" : "'") . $value . ($mode >= 0 ? "%'" : "'");
-	}
-
-
-	public function convertBoolToSql(bool $value): string
-	{
-		return $value ? 'TRUE' : 'FALSE';
-	}
-
-
-	public function convertIdentifierToSql(string $value): string
-	{
-		assert($this->connection !== null);
-		$parts = explode('.', $value);
-		foreach ($parts as &$part) {
-			if ($part !== '*') {
-				$part = pg_escape_identifier($this->connection, $part);
-			}
-		}
-		return implode('.', $parts);
-	}
-
-
-	public function convertDateTimeToSql(DateTimeInterface $value): string
-	{
-		$valueTimezone = $value->getTimezone();
-		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
-		assert($valueTimezone !== false); // @phpstan-ignore-line
-		if ($valueTimezone->getName() !== $this->connectionTz->getName()) {
-			if ($value instanceof DateTimeImmutable) {
-				$value = $value->setTimezone($this->connectionTz);
-			} else {
-				$value = clone $value;
-				$value->setTimezone($this->connectionTz);
-			}
-		}
-		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamptz";
-	}
-
-
-	public function convertDateTimeSimpleToSql(DateTimeInterface $value): string
-	{
-		return "'" . $value->format('Y-m-d H:i:s.u') . "'::timestamp";
-	}
-
-
-	public function convertDateIntervalToSql(DateInterval $value): string
-	{
-		return $value->format('P%yY%mM%dDT%hH%iM%sS');
-	}
-
-
-	public function convertBlobToSql(string $value): string
-	{
-		assert($this->connection !== null);
-		return "'" . pg_escape_bytea($this->connection, $value) . "'";
-	}
-
-
-	public function modifyLimitQuery(string $query, ?int $limit, ?int $offset): string
-	{
-		if ($limit !== null) {
-			$query .= ' LIMIT ' . $limit;
-		}
-		if ($offset !== null) {
-			$query .= ' OFFSET ' . $offset;
-		}
-		return $query;
 	}
 
 

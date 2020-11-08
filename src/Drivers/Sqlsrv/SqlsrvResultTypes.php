@@ -4,6 +4,7 @@ namespace Nextras\Dbal\Drivers\Sqlsrv;
 
 
 /**
+ * @internal
  * @see https://docs.microsoft.com/en-us/sql/connect/php/sqlsrv-field-metadata
  */
 final class SqlsrvResultTypes

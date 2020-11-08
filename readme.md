@@ -9,8 +9,8 @@ Nextras Dbal
 A powerful abstraction layer for a database. **Fast & Safe**.
 
 Supported platforms:
-- **MySQL** via `mysqli` extension,
-- **PostgreSQL** via `pgsql` extension,
+- **MySQL** via `mysqli` or `pdo_mysql` extension,
+- **PostgreSQL** via `pgsql` or `pdo_pgsql` extension,
 - **MS SQL Server** via `sqlsrv` extension.
 
 Integrations:

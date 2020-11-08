@@ -4,8 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Mockery;
-use Nextras\Dbal\Drivers\IDriver;
+
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
@@ -17,9 +16,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class SqlProcessorRawTest extends TestCase
 {
-	/** @var IDriver|Mockery\MockInterface */
-	private $driver;
-
 	/** @var SqlProcessor */
 	private $parser;
 
@@ -27,8 +23,7 @@ class SqlProcessorRawTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->driver = Mockery::mock(IDriver::class);
-		$this->parser = new SqlProcessor($this->driver, \Mockery::mock(IPlatform::class));
+		$this->parser = new SqlProcessor(\Mockery::mock(IPlatform::class));
 	}
 
 

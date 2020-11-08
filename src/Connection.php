@@ -14,10 +14,11 @@ use Nextras\Dbal\Utils\MultiLogger;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function array_unshift;
 use function assert;
-use function call_user_func_array;
 use function is_array;
 use function spl_object_hash;
+use function str_replace;
 use function ucfirst;
+use function ucwords;
 
 
 class Connection implements IConnection
@@ -189,7 +190,7 @@ class Connection implements IConnection
 	/** @inheritdoc */
 	public function createQueryBuilder(): QueryBuilder
 	{
-		return new QueryBuilder($this->driver);
+		return new QueryBuilder($this->getPlatform());
 	}
 
 
@@ -343,11 +344,12 @@ class Connection implements IConnection
 	private function createDriver(): IDriver
 	{
 		if (!isset($this->config['driver'])) {
-			throw new InvalidArgumentException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv.');
+			throw new InvalidArgumentException('Undefined driver. Choose from: mysqli, pgsql, sqlsrv, pdo_mysql, pdo_pgsql.');
 		} elseif ($this->config['driver'] instanceof IDriver) {
 			return $this->config['driver'];
 		} else {
-			$name = ucfirst($this->config['driver']);
+			$driver = $this->config['driver'];
+			$name = ucfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $driver))));
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
 			return new $class();
 		}
@@ -361,7 +363,7 @@ class Connection implements IConnection
 			assert($factory instanceof ISqlProcessorFactory);
 			return $factory->create($this);
 		} else {
-			return new SqlProcessor($this->driver, $this->getPlatform());
+			return new SqlProcessor($this->getPlatform());
 		}
 	}
 }

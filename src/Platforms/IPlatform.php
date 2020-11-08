@@ -3,6 +3,8 @@
 namespace Nextras\Dbal\Platforms;
 
 
+use DateInterval;
+use DateTimeInterface;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
@@ -53,5 +55,72 @@ interface IPlatform
 	public function getPrimarySequenceName(string $table): ?string;
 
 
+	/**
+	 * Formats string value to SQL string.
+	 */
+	public function formatString(string $value): string;
+
+
+	/**
+	 * Formats left/right/both LIKE wildcard string value to SQL string.
+	 * @param int $mode -1 = left, 0 = both, 1 = right
+	 * @return mixed
+	 */
+	public function formatStringLike(string $value, int $mode);
+
+
+	/**
+	 * Formats Json value to SQL string.
+	 * @param mixed $value
+	 */
+	public function formatJson($value): string;
+
+
+	/**
+	 * Formats boolean to SQL string.
+	 */
+	public function formatBool(bool $value): string;
+
+
+	/**
+	 * Formats column or dot separated identifier to SQL string.
+	 */
+	public function formatIdentifier(string $value): string;
+
+
+	/**
+	 * Formats time-zone aware DateTimeInterface instance to SQL string.
+	 */
+	public function formatDateTime(DateTimeInterface $value): string;
+
+
+	/**
+	 * Formats local DateTimeInterface instance to SQL string.
+	 */
+	public function formatLocalDateTime(DateTimeInterface $value): string;
+
+
+	/**
+	 * Formats DateInterval to SQL string.
+	 */
+	public function formatDateInterval(DateInterval $value): string;
+
+
+	/**
+	 * Formats blob value to SQL string.
+	 */
+	public function formatBlob(string $value): string;
+
+
+	/**
+	 * Formats LIMIT & OFFSET values to SQL string.
+	 */
+	public function formatLimitOffset(?int $limit, ?int $offset): string;
+
+
+	/**
+	 * Checks whether any feature from IPlatform::SUPPORT_* is supported.
+	 * @internal
+	 */
 	public function isSupported(int $feature): bool;
 }
