@@ -37,6 +37,9 @@ class Result implements SeekableIterator, Countable
 	/** @var IDriver */
 	private $driver;
 
+	/** @var bool */
+	private $typesDetected = false;
+
 	/** @var string[] list of columns which should be casted to int */
 	private $toIntColumns;
 
@@ -67,7 +70,6 @@ class Result implements SeekableIterator, Countable
 		$this->adapter = $adapter;
 		$this->driver = $driver;
 		$this->applicationTimeZone = new DateTimeZone(date_default_timezone_get());
-		$this->initColumnConversions();
 	}
 
 
@@ -107,7 +109,7 @@ class Result implements SeekableIterator, Countable
 	public function setValueNormalization(bool $enabled = false): void
 	{
 		if ($enabled === true) {
-			$this->initColumnConversions();
+			$this->initColumnTypes();
 		} else {
 			$this->toIntColumns = [];
 			$this->toFloatColumns = [];
@@ -115,6 +117,7 @@ class Result implements SeekableIterator, Countable
 			$this->toBoolColumns = [];
 			$this->toDateTimeColumns = [];
 			$this->toDriverColumns = [];
+			$this->typesDetected = true;
 		}
 	}
 
@@ -195,7 +198,7 @@ class Result implements SeekableIterator, Countable
 	}
 
 
-	protected function initColumnConversions(): void
+	protected function initColumnTypes(): void
 	{
 		$this->toIntColumns = [];
 		$this->toFloatColumns = [];
@@ -228,6 +231,8 @@ class Result implements SeekableIterator, Countable
 				$this->toDriverColumns[] = [$key, $nativeType];
 			}
 		}
+
+		$this->typesDetected = true;
 	}
 
 
@@ -237,6 +242,10 @@ class Result implements SeekableIterator, Countable
 	 */
 	protected function normalize(array $data): array
 	{
+		if (!$this->typesDetected) {
+			$this->initColumnTypes();
+		}
+
 		foreach ($this->toDriverColumns as $meta) {
 			[$column, $nativeType] = $meta;
 			if ($data[$column] !== null) {
