@@ -328,9 +328,6 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	/**
-	 * @phpstan-return never
-	 */
 	private function throwErrors(?string $query = null): void
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
