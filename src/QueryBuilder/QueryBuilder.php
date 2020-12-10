@@ -294,7 +294,7 @@ class QueryBuilder
 	private function join(string $type, string $toExpression, string $onExpression, array $args): self
 	{
 		$this->dirty();
-		$this->join[$toExpression] = [
+		$this->join[] = [
 			'type' => $type,
 			'table' => $toExpression,
 			'on' => $onExpression,
