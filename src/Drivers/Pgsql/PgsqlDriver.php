@@ -15,6 +15,7 @@ use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -115,8 +116,8 @@ class PgsqlDriver implements IDriver
 		}
 
 		if (isset($params['searchPath'])) {
-			$schemas = array_map(function ($part) use ($connection): string {
-				return pg_escape_identifier($connection, $part);
+			$schemas = array_map(function ($part): string {
+				return $this->convertIdentifierToSql($part);
 			}, (array) $params['searchPath']);
 			$this->loggedQuery('SET search_path TO ' . implode(', ', $schemas));
 		}
@@ -255,21 +256,21 @@ class PgsqlDriver implements IDriver
 	public function createSavepoint(string $name): void
 	{
 		assert($this->connection !== null);
-		$this->loggedQuery('SAVEPOINT ' . pg_escape_identifier($this->connection, $name));
+		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function releaseSavepoint(string $name): void
 	{
 		assert($this->connection !== null);
-		$this->loggedQuery('RELEASE SAVEPOINT ' . pg_escape_identifier($this->connection, $name));
+		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	public function rollbackSavepoint(string $name): void
 	{
 		assert($this->connection !== null);
-		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . pg_escape_identifier($this->connection, $name));
+		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
@@ -301,7 +302,22 @@ class PgsqlDriver implements IDriver
 	public function convertStringToSql(string $value): string
 	{
 		assert($this->connection !== null);
-		return pg_escape_literal($this->connection, $value);
+		$escaped = pg_escape_literal($this->connection, $value);
+		if ($escaped === false) {
+			throw new InvalidStateException();
+		}
+		return $escaped;
+	}
+
+
+	protected function convertIdentifierToSql(string $identifier): string
+	{
+		assert($this->connection !== null);
+		$escaped = pg_escape_identifier($this->connection, $identifier);
+		if ($escaped === false) {
+			throw new InvalidStateException();
+		}
+		return $escaped;
 	}
 
 
