@@ -350,6 +350,7 @@ class Connection implements IConnection
 		} else {
 			$driver = $this->config['driver'];
 			$name = ucfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $driver))));
+			/** @var class-string<IDriver> $class */
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
 			return new $class();
 		}
