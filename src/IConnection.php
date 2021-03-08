@@ -3,6 +3,9 @@
 namespace Nextras\Dbal;
 
 
+use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
