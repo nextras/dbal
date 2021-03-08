@@ -51,7 +51,7 @@ class SqlProcessor
 
 	/**
 	 * @var array (modifier => callable)
-	 * @phpstan-var array<string, callable(mixed, string): mixed>
+	 * @phpstan-var array<string, callable(SqlProcessor, mixed, string): mixed>
 	 */
 	protected $customModifiers = [];
 
@@ -72,8 +72,8 @@ class SqlProcessor
 
 
 	/**
-	 * @param callable $callback (mixed $value, string $modifier): mixed
-	 * @phpstan-param callable(mixed, string): mixed $callback
+	 * @param callable $callback (SqlProcessor, mixed $value, string $modifier): mixed
+	 * @phpstan-param callable(SqlProcessor, mixed, string): mixed $callback
 	 */
 	public function setCustomModifier(string $modifier, callable $callback): void
 	{
@@ -352,11 +352,12 @@ class SqlProcessor
 				}
 		}
 
-		if (isset($this->customModifiers[$type])) {
-			return $this->customModifiers[$type]($value, $type);
+		$baseType = trim($type, '[]?');
+
+		if (isset($this->customModifiers[$baseType])) {
+			return $this->customModifiers[$baseType]($this, $value, $type);
 		}
 
-		$baseType = trim($type, '[]?');
 		$typeNullable = $type[0] === '?';
 		$typeArray = substr($type, -2) === '[]';
 

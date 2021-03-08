@@ -7,7 +7,12 @@
 
 namespace NextrasTests\Dbal;
 
+
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\IConnection;
+use Nextras\Dbal\ISqlProcessorFactory;
 use Nextras\Dbal\Result\Row;
+use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
 
@@ -42,7 +47,37 @@ class SqlPreprocessorIntegrationTest extends IntegrationTestCase
 			WHERE %multiOr
 		', $query)->fetchAll();
 
-		Assert::same($query, array_map(function (Row $row) { return $row->toArray(); }, $rows));
+		Assert::same($query, array_map(function (Row $row) {
+			return $row->toArray();
+		}, $rows));
+	}
+
+
+	public function testCustomModifier()
+	{
+		$sqlProcessorFactory = new class implements ISqlProcessorFactory {
+			public function create(IConnection $connection): SqlProcessor
+			{
+				$sqlProcessor = new SqlProcessor($connection->getPlatform());
+				$sqlProcessor->setCustomModifier(
+					'%test',
+					function (SqlProcessor $sqlProcessor, $value, string $type) {
+						if (!is_array($value)) throw new InvalidArgumentException('%test modifer accepts only array.');
+						return 'ARRAY[' .
+							implode(', ', array_map(function ($subValue) use ($sqlProcessor): string {
+								return $sqlProcessor->processModifier('any', $subValue);
+							}, $value)) .
+							']';
+					}
+				);
+				return $sqlProcessor;
+			}
+		};
+
+		$this->connection->connect();
+		$sqlProcessor = $sqlProcessorFactory->create($this->connection);
+		$result = $sqlProcessor->processModifier('%test', [1, '2', false, null]);
+		Assert::same($result, "ARRAY[1, '2', 0, NULL]");
 	}
 }
 

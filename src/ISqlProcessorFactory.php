@@ -5,5 +5,5 @@ namespace Nextras\Dbal;
 
 interface ISqlProcessorFactory
 {
-	public function create(Connection $connection): SqlProcessor;
+	public function create(IConnection $connection): SqlProcessor;
 }
