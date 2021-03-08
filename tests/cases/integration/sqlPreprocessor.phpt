@@ -11,6 +11,7 @@ namespace NextrasTests\Dbal;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ISqlProcessorFactory;
+use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Row;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
@@ -77,7 +78,11 @@ class SqlPreprocessorIntegrationTest extends IntegrationTestCase
 		$this->connection->connect();
 		$sqlProcessor = $sqlProcessorFactory->create($this->connection);
 		$result = $sqlProcessor->processModifier('%test', [1, '2', false, null]);
-		Assert::same($result, "ARRAY[1, '2', 0, NULL]");
+		if ($this->connection->getPlatform()->getName() === PostgreSqlPlatform::NAME) {
+			Assert::same("ARRAY[1, '2', FALSE, NULL]", $result);
+		} else {
+			Assert::same("ARRAY[1, '2', 0, NULL]", $result);
+		}
 	}
 }
 

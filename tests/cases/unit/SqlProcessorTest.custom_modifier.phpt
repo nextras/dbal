@@ -4,7 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Drivers\IDriver;
+
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
@@ -29,7 +29,7 @@ class SqlProcessorCustomModifierTest extends TestCase
 
 	public function testArray()
 	{
-		$this->parser->setCustomModifier('yesBool', function ($val) {
+		$this->parser->setCustomModifier('yesBool', function (SqlProcessor $sqlProcessor, $val) {
 			return $val ? "'yes'" : "'no'";
 		});
 
@@ -44,22 +44,28 @@ class SqlProcessorCustomModifierTest extends TestCase
 	}
 
 
-	public function testWhereTuplets()
+	public function testModifierOverride()
 	{
-		Assert::exception(function() {
-			$this->parser->setCustomModifier('s', function () {});
+		Assert::exception(function () {
+			$this->parser->setCustomModifier(
+				's',
+				function () {
+				}
+			);
 		}, InvalidArgumentException::class);
-		Assert::exception(function() {
-			$this->parser->setCustomModifier('s?', function () {});
+		Assert::exception(function () {
+			$this->parser->setCustomModifier(
+				's?',
+				function () {
+				}
+			);
 		}, InvalidArgumentException::class);
-		Assert::exception(function() {
-			$this->parser->setCustomModifier('s[]', function () {});
-		}, InvalidArgumentException::class);
-
-		$this->parser->setCustomModifier('yesBool', function () {});
-
-		Assert::exception(function() {
-			$this->convert('SELECT FROM test WHERE published IN %yesBool[]', [false]);
+		Assert::exception(function () {
+			$this->parser->setCustomModifier(
+				's[]',
+				function () {
+				}
+			);
 		}, InvalidArgumentException::class);
 	}
 
