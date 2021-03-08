@@ -33,8 +33,7 @@
 		"tracy/tracy": "~2.7"
 	},
 	"autoload": {
-		"psr-4": { "Nextras\\Dbal\\": "src/" },
-		"files": ["srcCompat/compatibility.php"]
+		"psr-4": { "Nextras\\Dbal\\": "src/" }
 	},
 	"scripts": {
 		"phpstan": "phpstan analyze -c .phpstan.neon"
