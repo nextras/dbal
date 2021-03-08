@@ -4,9 +4,9 @@ namespace Nextras\Dbal\Drivers;
 
 
 use DateTimeZone;
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
@@ -93,7 +93,7 @@ interface IDriver
 	/**
 	 * Creates database platform.
 	 */
-	public function createPlatform(Connection $connection): IPlatform;
+	public function createPlatform(IConnection $connection): IPlatform;
 
 
 	/**

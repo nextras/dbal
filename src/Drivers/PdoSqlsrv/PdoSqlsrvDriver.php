@@ -4,7 +4,6 @@ namespace Nextras\Dbal\Drivers\PdoSqlsrv;
 
 
 use Exception;
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
@@ -13,6 +12,7 @@ use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
@@ -86,7 +86,7 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	public function createPlatform(Connection $connection): IPlatform
+	public function createPlatform(IConnection $connection): IPlatform
 	{
 		return new SqlServerPlatform($connection);
 	}
@@ -101,10 +101,10 @@ class PdoSqlsrvDriver extends PdoDriver
 	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
-			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
-			Connection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
-			Connection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
-			Connection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
+			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
+			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
+			IConnection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
+			IConnection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
 		];
 		if (!isset($levels[$level])) {
 			throw new NotSupportedException("Unsupported transaction level $level");
@@ -160,7 +160,14 @@ class PdoSqlsrvDriver extends PdoDriver
 
 	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
 	{
-		if (in_array($sqlState, ['HYT00', '08001', '28000'], true) || stripos($error, 'Cannot open database') !== false) {
+		if (
+			in_array($sqlState, [
+				'HYT00',
+				'08001',
+				'28000',
+			], true)
+			|| stripos($error, 'Cannot open database') !== false
+		) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif (in_array($errorNo, [547], true)) {

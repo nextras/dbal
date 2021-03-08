@@ -14,6 +14,7 @@ use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
@@ -202,7 +203,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function createPlatform(Connection $connection): IPlatform
+	public function createPlatform(IConnection $connection): IPlatform
 	{
 		return new SqlServerPlatform($connection);
 	}

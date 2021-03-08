@@ -7,7 +7,6 @@ use DateInterval;
 use DateTimeZone;
 use Exception;
 use mysqli;
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
@@ -16,6 +15,7 @@ use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
@@ -181,7 +181,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function createPlatform(Connection $connection): IPlatform
+	public function createPlatform(IConnection $connection): IPlatform
 	{
 		return new MySqlPlatform($connection);
 	}
@@ -208,10 +208,10 @@ class MysqliDriver implements IDriver
 	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
-			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
-			Connection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
-			Connection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
-			Connection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
+			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
+			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
+			IConnection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
+			IConnection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
 		];
 		if (!isset($levels[$level])) {
 			throw new NotSupportedException("Unsupported transaction level $level");

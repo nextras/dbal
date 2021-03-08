@@ -6,7 +6,6 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 use DateInterval;
 use DateTimeZone;
 use Exception;
-use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
@@ -17,6 +16,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
@@ -200,7 +200,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function createPlatform(Connection $connection): IPlatform
+	public function createPlatform(IConnection $connection): IPlatform
 	{
 		return new PostgreSqlPlatform($connection);
 	}
@@ -223,10 +223,10 @@ class PgsqlDriver implements IDriver
 	public function setTransactionIsolationLevel(int $level): void
 	{
 		static $levels = [
-			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
-			Connection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
-			Connection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
-			Connection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
+			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
+			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
+			IConnection::TRANSACTION_REPEATABLE_READ => 'REPEATABLE READ',
+			IConnection::TRANSACTION_SERIALIZABLE => 'SERIALIZABLE',
 		];
 		if (!isset($levels[$level])) {
 			throw new NotSupportedException("Unsupported transaction level $level");
