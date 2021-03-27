@@ -188,6 +188,8 @@ class PlatformMysqlTest extends IntegrationTestCase
 
 	public function testForeignKeys()
 	{
+		$this->lockConnection($this->connection);
+
 		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		$keys = array_map(function ($key) {
