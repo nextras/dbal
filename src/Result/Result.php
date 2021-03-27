@@ -4,8 +4,6 @@ namespace Nextras\Dbal\Result;
 
 
 use Countable;
-use DateTimeZone;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\StrictObjectTrait;
@@ -13,7 +11,6 @@ use SeekableIterator;
 use function array_keys;
 use function array_map;
 use function assert;
-use function date_default_timezone_get;
 use function iterator_to_array;
 
 
@@ -29,51 +26,29 @@ class Result implements SeekableIterator, Countable
 	private $adapter;
 
 	/** @var int */
-	private $iteratorIndex;
+	private $iteratorIndex = -1;
 
 	/** @var Row|null */
 	private $iteratorRow;
 
-	/** @var IDriver */
-	private $driver;
-
-	/** @var string[] list of columns which should be casted to int */
-	private $toIntColumns;
-
-	/** @var string[] list of columns which should be casted to float */
-	private $toFloatColumns;
-
-	/** @var string[] list of columns which should be casted to string */
-	private $toStringColumns;
-
-	/** @var string[] list of columns which should be casted to bool */
-	private $toBoolColumns;
-
-	/** @var string[] list of columns which should be casted to DateTime */
-	private $toDateTimeColumns;
-
 	/**
-	 * @var array[] list of columns which should be casted using driver-specific logic
-	 * @phpstan-var array<array{string, int}>
+	 * @var array
+	 * @phpstan-var array<string, callable (mixed): mixed>
 	 */
-	private $toDriverColumns;
-
-	/** @var DateTimeZone */
-	private $applicationTimeZone;
+	private $normalizers;
 
 
-	public function __construct(IResultAdapter $adapter, IDriver $driver)
+	public function __construct(IResultAdapter $adapter)
 	{
 		$this->adapter = $adapter;
-		$this->driver = $driver;
-		$this->applicationTimeZone = new DateTimeZone(date_default_timezone_get());
-		$this->initColumnConversions();
+		$this->normalizers = $adapter->getNormalizers();
 	}
 
 
 	/**
-	 * Enables emulated buffering mode to allow rewinding the result multiple times or seeking to specific position.
-	 * This will enable emulated buffering for drivers that do not support buffering & scrolling the result.
+	 * Enables emulated buffering mode to allow rewinding the result multiple times or seeking
+	 * to a specific position. This will enable emulated buffering for drivers that do not support
+	 * buffering & scrolling the result.
 	 * @return static
 	 */
 	public function buffered(): Result
@@ -84,8 +59,8 @@ class Result implements SeekableIterator, Countable
 
 
 	/**
-	 * Disables emulated buffering mode.
-	 * Emulated buffering may not be disabled when the result was already (partially) consumed.
+	 * Disables emulated buffering mode. Emulated buffering may not be disabled when the result was
+	 * already (partially) consumed.
 	 * @return static
 	 */
 	public function unbuffered(): Result
@@ -101,30 +76,46 @@ class Result implements SeekableIterator, Countable
 	}
 
 
+	public function fetch(): ?Row
+	{
+		$data = $this->adapter->fetch();
+		if ($data === null) {
+			$row = null;
+		} else {
+			$this->normalize($data);
+			$row = new Row($data);
+		}
+		$this->iteratorIndex++;
+		return $this->iteratorRow = $row;
+	}
+
+
 	/**
 	 * Enables and disables value normalization.
+	 * Disabling removes all normalizers, enabling resets the default driver's normalizers.
 	 */
 	public function setValueNormalization(bool $enabled = false): void
 	{
 		if ($enabled === true) {
-			$this->initColumnConversions();
+			$this->normalizers = $this->adapter->getNormalizers();
 		} else {
-			$this->toIntColumns = [];
-			$this->toFloatColumns = [];
-			$this->toStringColumns = [];
-			$this->toBoolColumns = [];
-			$this->toDateTimeColumns = [];
-			$this->toDriverColumns = [];
+			$this->normalizers = [];
 		}
 	}
 
 
-	public function fetch(): ?Row
+	/**
+	 * @param array<mixed> $data
+	 */
+	private function normalize(array &$data): void
 	{
-		$data = $this->adapter->fetch();
-		$row = ($data === null ? null : new Row($this->normalize($data)));
-		$this->iteratorIndex++;
-		return $this->iteratorRow = $row;
+		foreach ($this->normalizers as $column => $normalizer) {
+			if (!isset($data[$column]) && !array_key_exists($column, $data)) {
+				continue;
+			}
+
+			$data[$column] = $normalizer($data[$column]);
+		}
 	}
 
 
@@ -195,91 +186,6 @@ class Result implements SeekableIterator, Countable
 	}
 
 
-	protected function initColumnConversions(): void
-	{
-		$this->toIntColumns = [];
-		$this->toFloatColumns = [];
-		$this->toStringColumns = [];
-		$this->toBoolColumns = [];
-		$this->toDateTimeColumns = [];
-		$this->toDriverColumns = [];
-
-		$types = $this->adapter->getTypes();
-		foreach ($types as $key => $typePair) {
-			[$type, $nativeType] = $typePair;
-
-			if (($type & IResultAdapter::TYPE_STRING) > 0) {
-				$this->toStringColumns[] = $key;
-
-			} elseif (($type & IResultAdapter::TYPE_INT) > 0) {
-				$this->toIntColumns[] = $key;
-
-			} elseif (($type & IResultAdapter::TYPE_FLOAT) > 0) {
-				$this->toFloatColumns[] = $key;
-
-			} elseif (($type & IResultAdapter::TYPE_BOOL) > 0) {
-				$this->toBoolColumns[] = $key;
-
-			} elseif (($type & IResultAdapter::TYPE_DATETIME) > 0) {
-				$this->toDateTimeColumns[] = $key;
-			}
-
-			if (($type & IResultAdapter::TYPE_DRIVER_SPECIFIC) > 0) {
-				$this->toDriverColumns[] = [$key, $nativeType];
-			}
-		}
-	}
-
-
-	/**
-	 * @phpstan-param array<string, mixed> $data
-	 * @phpstan-return array<string, mixed>
-	 */
-	protected function normalize(array $data): array
-	{
-		foreach ($this->toDriverColumns as $meta) {
-			[$column, $nativeType] = $meta;
-			if ($data[$column] !== null) {
-				$data[$column] = $this->driver->convertToPhp($data[$column], $nativeType);
-			}
-		}
-
-		foreach ($this->toIntColumns as $column) {
-			if ($data[$column] !== null) {
-				$data[$column] = (int) $data[$column];
-			}
-		}
-
-		foreach ($this->toFloatColumns as $column) {
-			if ($data[$column] !== null) {
-				$data[$column] = (float) $data[$column];
-			}
-		}
-
-		foreach ($this->toBoolColumns as $column) {
-			if ($data[$column] !== null) {
-				$data[$column] = (bool) $data[$column];
-			}
-		}
-
-		foreach ($this->toStringColumns as $column) {
-			if ($data[$column] !== null) {
-				$data[$column] = (string) $data[$column];
-			}
-		}
-
-		foreach ($this->toDateTimeColumns as $column) {
-			if ($data[$column] !== null) {
-				$data[$column] = (new DateTimeImmutable($data[$column]))->setTimezone($this->applicationTimeZone);
-			}
-		}
-
-		return $data;
-	}
-
-
-	// === SeekableIterator ============================================================================================
-
 	public function key(): int
 	{
 		return $this->iteratorIndex;
@@ -321,8 +227,6 @@ class Result implements SeekableIterator, Countable
 		$this->iteratorIndex = $index - 1;
 	}
 
-
-	// === Countable ===================================================================================================
 
 	public function count(): int
 	{

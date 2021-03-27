@@ -37,14 +37,20 @@ class MysqliEmptyResultAdapter implements IResultAdapter
 	}
 
 
+	public function getRowsCount(): int
+	{
+		return 0;
+	}
+
+
 	public function getTypes(): array
 	{
 		return [];
 	}
 
 
-	public function getRowsCount(): int
+	public function getNormalizers(): array
 	{
-		return 0;
+		return [];
 	}
 }

@@ -8,7 +8,6 @@ use Exception;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
-use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Result\Result;
@@ -114,7 +113,7 @@ abstract class PdoDriver implements IDriver
 
 		$this->affectedRows = $result->rowCount();
 		$resultAdapter = $this->createResultAdapter($result);
-		return new Result($resultAdapter, $this);
+		return new Result($resultAdapter);
 	}
 
 
@@ -225,12 +224,6 @@ abstract class PdoDriver implements IDriver
 	{
 		$identifier = $this->convertIdentifierToSql($name);
 		$this->loggedQuery("ROLLBACK TO SAVEPOINT $identifier");
-	}
-
-
-	public function convertToPhp($value, $nativeType)
-	{
-		throw new NotSupportedException("Abstract PdoDriver does not support '{$nativeType}' type conversion.");
 	}
 
 

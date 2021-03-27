@@ -17,45 +17,23 @@ class PdoMysqlResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var array<string, int> */
-	protected static $types = [
-		'TIME' => self::TYPE_DRIVER_SPECIFIC,
-		'DATE' => self::TYPE_DATETIME,
-		'DATETIME' => self::TYPE_DATETIME,
-		'TIMESTAMP' => self::TYPE_DRIVER_SPECIFIC | self::TYPE_DATETIME,
-
-		'BIT' => self::TYPE_INT,
-		'INT24' => self::TYPE_INT,
-		'INTERVAL' => self::TYPE_INT,
-		'TINY' => self::TYPE_INT,
-		'SHORT' => self::TYPE_INT,
-		'LONG' => self::TYPE_INT,
-		'LONGLONG' => self::TYPE_INT,
-		'YEAR' => self::TYPE_INT,
-
-		'DECIMAL' => self::TYPE_FLOAT,
-		'NEWDECIMAL' => self::TYPE_FLOAT,
-		'DOUBLE' => self::TYPE_FLOAT,
-		'FLOAT' => self::TYPE_FLOAT,
-
-		'VAR_STRING' => self::TYPE_AS_IS,
-		'STRING' => self::TYPE_AS_IS,
-		'BLOB' => self::TYPE_AS_IS,
-	];
-
 	/** @var PDOStatement<mixed> */
-	protected $statement;
+	private $statement;
 
 	/** @var bool */
-	protected $beforeFirstFetch = true;
+	private $beforeFirstFetch = true;
+
+	/** @var PdoMysqlResultNormalizerFactory */
+	private $normalizerFactory;
 
 
 	/**
 	 * @param PDOStatement<mixed> $statement
 	 */
-	public function __construct(PDOStatement $statement)
+	public function __construct(PDOStatement $statement, PdoMysqlResultNormalizerFactory $normalizerFactory)
 	{
 		$this->statement = $statement;
+		$this->normalizerFactory = $normalizerFactory;
 	}
 
 
@@ -89,6 +67,12 @@ class PdoMysqlResultAdapter implements IResultAdapter
 	}
 
 
+	public function getRowsCount(): int
+	{
+		return $this->statement->rowCount();
+	}
+
+
 	public function getTypes(): array
 	{
 		$types = [];
@@ -99,18 +83,15 @@ class PdoMysqlResultAdapter implements IResultAdapter
 			if ($field === false) { // @phpstan-ignore-line
 				throw new InvalidStateException("Should not happen.");
 			}
-			$types[(string) $field['name']] = [
-				0 => self::$types[$field['native_type']] ?? self::TYPE_AS_IS,
-				1 => $field['native_type'],
-			];
+			$types[(string) $field['name']] = $field['native_type'];
 		}
 
 		return $types;
 	}
 
 
-	public function getRowsCount(): int
+	public function getNormalizers(): array
 	{
-		return $this->statement->rowCount();
+		return $this->normalizerFactory->resolve($this->getTypes());
 	}
 }

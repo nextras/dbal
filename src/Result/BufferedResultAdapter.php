@@ -68,15 +68,21 @@ class BufferedResultAdapter implements IResultAdapter
 	}
 
 
+	public function getRowsCount(): int
+	{
+		return $this->getData()->count();
+	}
+
+
 	public function getTypes(): array
 	{
 		return $this->adapter->getTypes();
 	}
 
 
-	public function getRowsCount(): int
+	public function getNormalizers(): array
 	{
-		return $this->getData()->count();
+		return $this->adapter->getNormalizers();
 	}
 
 

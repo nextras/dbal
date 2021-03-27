@@ -3,7 +3,6 @@
 namespace Nextras\Dbal\Drivers\PdoMysql;
 
 
-use DateInterval;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
@@ -26,7 +25,6 @@ use PDOStatement;
 use function array_key_exists;
 use function date;
 use function date_default_timezone_get;
-use function preg_match;
 
 
 /**
@@ -59,6 +57,10 @@ use function preg_match;
  */
 class PdoMysqlDriver extends PdoDriver
 {
+	/** @var PdoMysqlResultNormalizerFactory */
+	private $resultNormalizerFactory;
+
+
 	public function connect(array $params, ILogger $logger): void
 	{
 		$host = $params['host'] ?? null;
@@ -87,6 +89,8 @@ class PdoMysqlDriver extends PdoDriver
 		$dsn = "mysql:{$target}port=$port;dbname=$database;charset=$charset";
 
 		$this->connectPdo($dsn, $username, $password, $options, $logger);
+		$this->resultNormalizerFactory = new PdoMysqlResultNormalizerFactory($this);
+
 		$this->processInitialSettings($params);
 	}
 
@@ -118,24 +122,9 @@ class PdoMysqlDriver extends PdoDriver
 	}
 
 
-	public function convertToPhp($value, $nativeType)
-	{
-		if ($nativeType === 'TIMESTAMP') {
-			return $value . ' ' . $this->connectionTz->getName();
-		} elseif ($nativeType === 'TIME') {
-			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
-			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
-			$value->invert = $m[1] ? 1 : 0;
-			return $value;
-		}
-
-		return parent::convertToPhp($value, $nativeType);
-	}
-
-
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
-		return (new PdoMysqlResultAdapter($statement))->toBuffered();
+		return (new PdoMysqlResultAdapter($statement, $this->resultNormalizerFactory))->toBuffered();
 	}
 
 

@@ -17,42 +17,23 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var array<string, int> */
-	protected static $types = [
-		'bit' => self::TYPE_BOOL,
-
-		'bigint' => self::TYPE_INT,
-		'int' => self::TYPE_INT,
-		'smallint' => self::TYPE_INT,
-		'tinyint' => self::TYPE_INT,
-
-		'real' => self::TYPE_FLOAT,
-		'numeric' => self::TYPE_DRIVER_SPECIFIC,
-		'decimal' => self::TYPE_DRIVER_SPECIFIC,
-		'money' => self::TYPE_DRIVER_SPECIFIC,
-		'smallmoney' => self::TYPE_DRIVER_SPECIFIC,
-
-		'time' => self::TYPE_DATETIME,
-		'date' => self::TYPE_DATETIME,
-		'smalldatetime' => self::TYPE_DATETIME,
-		'datetimeoffset' => self::TYPE_DRIVER_SPECIFIC,
-		'datetime' => self::TYPE_DATETIME,
-		'datetime2' => self::TYPE_DATETIME,
-	];
-
 	/** @var PDOStatement<mixed> */
-	protected $statement;
+	private $statement;
 
 	/** @var bool */
-	protected $beforeFirstFetch = true;
+	private $beforeFirstFetch = true;
+
+	/** @var PdoSqlsrvResultNormalizerFactory */
+	private $normalizerFactory;
 
 
 	/**
 	 * @param PDOStatement<mixed> $statement
 	 */
-	public function __construct(PDOStatement $statement)
+	public function __construct(PDOStatement $statement, PdoSqlsrvResultNormalizerFactory $normalizerFactory)
 	{
 		$this->statement = $statement;
+		$this->normalizerFactory = $normalizerFactory;
 	}
 
 
@@ -86,6 +67,12 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 	}
 
 
+	public function getRowsCount(): int
+	{
+		return $this->statement->rowCount();
+	}
+
+
 	public function getTypes(): array
 	{
 		$types = [];
@@ -96,20 +83,15 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 			if ($field === false) { // @phpstan-ignore-line
 				throw new InvalidStateException("Should not happen.");
 			}
-			$types[(string) $field['name']] = [
-				0 => self::$types[$field['sqlsrv:decl_type']]
-					?? self::$types[substr($field['sqlsrv:decl_type'], 0, -9)] // strip " identity" suffix
-					?? self::TYPE_AS_IS,
-				1 => $field['sqlsrv:decl_type'],
-			];
+			$types[(string) $field['name']] = $field['sqlsrv:decl_type'];
 		}
 
 		return $types;
 	}
 
 
-	public function getRowsCount(): int
+	public function getNormalizers(): array
 	{
-		return $this->statement->rowCount();
+		return $this->normalizerFactory->resolve($this->getTypes());
 	}
 }

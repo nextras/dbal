@@ -17,41 +17,23 @@ class PdoPgsqlResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var array<string, int> */
-	protected static $types = [
-		'bit' => self::TYPE_DRIVER_SPECIFIC,
-		'varbit' => self::TYPE_DRIVER_SPECIFIC,
-		'bytea' => self::TYPE_DRIVER_SPECIFIC,
-		'interval' => self::TYPE_DRIVER_SPECIFIC,
-
-		'int8' => self::TYPE_INT,
-		'int4' => self::TYPE_INT,
-		'int2' => self::TYPE_INT,
-
-		'numeric' => self::TYPE_FLOAT,
-		'float4' => self::TYPE_FLOAT,
-		'float8' => self::TYPE_FLOAT,
-
-		'time' => self::TYPE_DATETIME,
-		'date' => self::TYPE_DATETIME,
-		'timestamp' => self::TYPE_DATETIME,
-		'timetz' => self::TYPE_DATETIME,
-		'timestamptz' => self::TYPE_DATETIME,
-	];
-
 	/** @var PDOStatement<mixed> */
-	protected $statement;
+	private $statement;
 
 	/** @var bool */
-	protected $beforeFirstFetch = true;
+	private $beforeFirstFetch = true;
+
+	/** @var PdoPgsqlResultNormalizerFactory */
+	private $normalizerFactory;
 
 
 	/**
 	 * @param PDOStatement<mixed> $statement
 	 */
-	public function __construct(PDOStatement $statement)
+	public function __construct(PDOStatement $statement, PdoPgsqlResultNormalizerFactory $normalizerFactory)
 	{
 		$this->statement = $statement;
+		$this->normalizerFactory = $normalizerFactory;
 	}
 
 
@@ -90,6 +72,12 @@ class PdoPgsqlResultAdapter implements IResultAdapter
 	}
 
 
+	public function getRowsCount(): int
+	{
+		return $this->statement->rowCount();
+	}
+
+
 	public function getTypes(): array
 	{
 		$types = [];
@@ -100,18 +88,15 @@ class PdoPgsqlResultAdapter implements IResultAdapter
 			if ($field === false) { // @phpstan-ignore-line
 				throw new InvalidStateException("Should not happen.");
 			}
-			$types[(string) $field['name']] = [
-				0 => self::$types[$field['native_type']] ?? self::TYPE_AS_IS,
-				1 => $field['native_type'],
-			];
+			$types[(string) $field['name']] = $field['native_type'];
 		}
 
 		return $types;
 	}
 
 
-	public function getRowsCount(): int
+	public function getNormalizers(): array
 	{
-		return $this->statement->rowCount();
+		return $this->normalizerFactory->resolve($this->getTypes());
 	}
 }

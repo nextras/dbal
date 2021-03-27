@@ -3,7 +3,6 @@
 namespace Nextras\Dbal\Drivers\Pgsql;
 
 
-use DateInterval;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
@@ -65,6 +64,9 @@ class PgsqlDriver implements IDriver
 	/** @var float */
 	private $timeTaken = 0.0;
 
+	/** @var PgsqlResultNormalizerFactory */
+	private $resultNormalizationFactory;
+
 
 	public function __destruct()
 	{
@@ -107,6 +109,8 @@ class PgsqlDriver implements IDriver
 		$this->connection = $connection;
 
 		restore_error_handler();
+
+		$this->resultNormalizationFactory = new PgsqlResultNormalizerFactory();
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		if (strpos($this->connectionTz->getName(), ':') !== false) {
@@ -173,7 +177,7 @@ class PgsqlDriver implements IDriver
 		}
 
 		$this->affectedRows = pg_affected_rows($resource);
-		return new Result(new PgsqlResultAdapter($resource), $this);
+		return new Result(new PgsqlResultAdapter($resource, $this->resultNormalizationFactory));
 	}
 
 
@@ -271,31 +275,6 @@ class PgsqlDriver implements IDriver
 	{
 		assert($this->connection !== null);
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
-	}
-
-
-	public function convertToPhp($value, $nativeType)
-	{
-		static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
-
-		if ($nativeType === 'bool') {
-			return in_array(strtolower($value), $trues, true);
-
-		} elseif ($nativeType === 'int8') { // called only on 32bit
-			return is_float($tmp = $value * 1) ? $value : $tmp; // @phpstan-ignore-line
-
-		} elseif ($nativeType === 'interval') {
-			return DateInterval::createFromDateString($value);
-
-		} elseif ($nativeType === 'bit' || $nativeType === 'varbit') {
-			return bindec($value);
-
-		} elseif ($nativeType === 'bytea') {
-			return pg_unescape_bytea($value);
-
-		} else {
-			throw new NotSupportedException("PgsqlDriver does not support '{$nativeType}' type conversion.");
-		}
 	}
 
 

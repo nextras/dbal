@@ -3,7 +3,6 @@
 namespace Nextras\Dbal\Drivers\Mysqli;
 
 
-use DateInterval;
 use DateTimeZone;
 use Exception;
 use mysqli;
@@ -70,6 +69,9 @@ class MysqliDriver implements IDriver
 	/** @var float */
 	private $timeTaken = 0.0;
 
+	/** @var MysqliResultNormalizerFactory */
+	private $resultNormalizerFactory;
+
 
 	public function __destruct()
 	{
@@ -89,6 +91,7 @@ class MysqliDriver implements IDriver
 		$flags = $params['flags'] ?? 0;
 
 		$this->connection = new mysqli();
+		$this->resultNormalizerFactory = new MysqliResultNormalizerFactory($this);
 
 		$this->setupSsl($params);
 
@@ -154,10 +157,10 @@ class MysqliDriver implements IDriver
 		}
 
 		if ($result === true) {
-			return new Result(new MysqliEmptyResultAdapter(), $this);
+			return new Result(new MysqliEmptyResultAdapter());
 		}
 
-		return new Result(new MysqliResultAdapter($result), $this);
+		return new Result(new MysqliResultAdapter($result, $this->resultNormalizerFactory));
 	}
 
 
@@ -318,27 +321,6 @@ class MysqliDriver implements IDriver
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		$this->loggedQuery('SET time_zone = ' . $this->convertStringToSql($this->connectionTz->getName()));
-	}
-
-
-	public function convertToPhp($value, $nativeType)
-	{
-		if ($nativeType === MYSQLI_TYPE_TIMESTAMP) {
-			return $value . ' ' . $this->connectionTz->getName();
-		} elseif ($nativeType === MYSQLI_TYPE_LONGLONG) {
-			// called only on 32bit
-			// hack for phpstan
-			/** @var int|float $numeric */
-			$numeric = $value;
-			return is_float($tmp = $numeric * 1) ? $numeric : $tmp;
-		} elseif ($nativeType === MYSQLI_TYPE_TIME) {
-			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
-			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
-			$value->invert = $m[1] ? 1 : 0;
-			return $value;
-		} else {
-			throw new NotSupportedException("MysqliDriver does not support '{$nativeType}' type conversion.");
-		}
 	}
 
 

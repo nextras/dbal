@@ -19,7 +19,6 @@ use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Result\Result;
-use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 
@@ -69,6 +68,9 @@ class SqlsrvDriver implements IDriver
 
 	/** @var float */
 	private $timeTaken = 0.0;
+
+	/** @var SqlsrvResultNormalizationFactory */
+	private $resultNormalizationFactory;
 
 
 	public function __destruct()
@@ -128,6 +130,7 @@ class SqlsrvDriver implements IDriver
 			$this->throwErrors();
 		}
 		$this->connection = $connectionResource;
+		$this->resultNormalizationFactory = new SqlsrvResultNormalizationFactory();
 	}
 
 
@@ -181,7 +184,7 @@ class SqlsrvDriver implements IDriver
 		}
 		$this->affectedRows = $affectedRowsResult[0];
 
-		return new Result(new SqlsrvResultAdapter($statement), $this);
+		return new Result(new SqlsrvResultAdapter($statement, $this->resultNormalizationFactory));
 	}
 
 
@@ -297,23 +300,6 @@ class SqlsrvDriver implements IDriver
 	public function rollbackSavepoint(string $name): void
 	{
 		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
-	}
-
-
-	public function convertToPhp($value, $nativeType)
-	{
-		if (
-			$nativeType === SqlsrvResultTypes::TYPE_DECIMAL_MONEY_SMALLMONEY
-			|| $nativeType === SqlsrvResultTypes::TYPE_NUMERIC
-		) {
-			return strpos($value, '.') === false ? (int) $value : (float) $value;
-
-		} elseif ($nativeType === SqlsrvResultTypes::TYPE_DATETIMEOFFSET) {
-			return new DateTimeImmutable($value);
-
-		} else {
-			throw new NotSupportedException("SqlsrvDriver does not support '{$nativeType}' type conversion.");
-		}
 	}
 
 

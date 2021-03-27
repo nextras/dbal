@@ -17,7 +17,6 @@ use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Result\IResultAdapter;
-use Nextras\Dbal\Utils\DateTimeImmutable;
 use PDO;
 use PDOStatement;
 use function in_array;
@@ -47,6 +46,10 @@ use function in_array;
  */
 class PdoSqlsrvDriver extends PdoDriver
 {
+	/** @var PdoSqlsrvResultNormalizerFactory */
+	private $resultNormalizerFactory;
+
+
 	public function connect(array $params, ILogger $logger): void
 	{
 		// see https://msdn.microsoft.com/en-us/library/ff628167.aspx
@@ -82,7 +85,7 @@ class PdoSqlsrvDriver extends PdoDriver
 			PDO::SQLSRV_ATTR_DIRECT_QUERY => true,
 		];
 		$this->connectPdo($dsn, $username, $password, $options, $logger);
-
+		$this->resultNormalizerFactory = new PdoSqlsrvResultNormalizerFactory();
 	}
 
 
@@ -132,23 +135,9 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	public function convertToPhp($value, $nativeType)
-	{
-		if (in_array($nativeType, ['numeric', 'decimal', 'money', 'smallmoney'], true)) {
-			return strpos($value, '.') === false ? (int) $value : (float) $value;
-
-		} elseif ($nativeType === 'datetimeoffset') {
-			return new DateTimeImmutable($value);
-
-		} else {
-			return parent::convertToPhp($value, $nativeType);
-		}
-	}
-
-
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
-		return (new PdoSqlsrvResultAdapter($statement))->toBuffered();
+		return (new PdoSqlsrvResultAdapter($statement, $this->resultNormalizerFactory))->toBuffered();
 	}
 
 

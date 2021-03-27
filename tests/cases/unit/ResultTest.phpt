@@ -4,8 +4,8 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Mockery;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Result\Result;
@@ -22,17 +22,15 @@ class ResultTest extends TestCase
 	public function testIterator()
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 		$adapter->shouldReceive('seek')->once()->with(0);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First']);
 
-		$driver = Mockery::mock(IDriver::class);
-
 		$names = [];
-		$result = new Result($adapter, $driver);
+		$result = new Result($adapter);
 		$result->setValueNormalization(false);
 		foreach ($result as $row) {
 			$names[] = $row->name;
@@ -54,12 +52,10 @@ class ResultTest extends TestCase
 	public function testFetchField()
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 		$adapter->shouldReceive('fetch')->times(3)->andReturn(['name' => 'First', 'surname' => 'Two']);
 
-		$driver = Mockery::mock(IDriver::class);
-
-		$result = new Result($adapter, $driver);
+		$result = new Result($adapter);
 		$result->setValueNormalization(false);
 		Assert::same('First', $result->fetchField());
 		Assert::same('Two', $result->fetchField(1));
@@ -67,14 +63,11 @@ class ResultTest extends TestCase
 			$result->fetchField(2);
 		}, InvalidArgumentException::class);
 
-
 		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
-		$driver = Mockery::mock(IDriver::class);
-
-		$result = new Result($adapter, $driver);
+		$result = new Result($adapter);
 		$result->setValueNormalization(false);
 		Assert::null($result->fetchField());
 	}
@@ -83,7 +76,7 @@ class ResultTest extends TestCase
 	public function testFetchAll()
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+		$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 		$adapter->shouldReceive('seek')->once();
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'First', 'surname' => 'Two']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
@@ -93,9 +86,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('fetch')->once()->andReturn(['name' => 'Third', 'surname' => 'Four']);
 		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
-		$driver = Mockery::mock(IDriver::class);
-
-		$result = new Result($adapter, $driver);
+		$result = new Result($adapter);
 		$result->setValueNormalization(false);
 
 		Assert::equal([
@@ -124,14 +115,13 @@ class ResultTest extends TestCase
 		];
 		$createResult = function () use ($one, $two) {
 			$adapter = Mockery::mock(IResultAdapter::class);
-			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
+			$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 			$adapter->shouldReceive('seek')->once();
 			$adapter->shouldReceive('fetch')->once()->andReturn($one);
 			$adapter->shouldReceive('fetch')->once()->andReturn($two);
 			$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
-			$driver = Mockery::mock(IDriver::class);
-			$result = new Result($adapter, $driver);
+			$result = new Result($adapter);
 			$result->setValueNormalization(false);
 			return $result;
 		};
@@ -163,70 +153,23 @@ class ResultTest extends TestCase
 
 		Assert::exception(function () {
 			$adapter = Mockery::mock(IResultAdapter::class);
-			$adapter->shouldReceive('getTypes')->once()->andReturn([]);
-			$driver = Mockery::mock(IDriver::class);
-			$result = new Result($adapter, $driver);
+			$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
+			$result = new Result($adapter);
 			$result->setValueNormalization(false);
 			$result->fetchPairs();
 		}, InvalidArgumentException::class, 'Result::fetchPairs() requires defined key or value.');
 	}
 
 
-	public function testNormalization()
-	{
-		$one = [
-			'name' => 'jon snow',
-			'age' => '16',
-			'weight' => '90.5',
-			'is_single' => 'Yes',
-			'born' => '2015-01-01 20:00:00',
-		];
-		$two = [
-			'name' => 'oberyn martell',
-			'age' => '20',
-			'weight' => '60.5',
-			'is_single' => '',
-			'born' => '2015-02-01 20:00:00',
-		];
-
-		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->once()->andReturn([
-			'name' => [IResultAdapter::TYPE_STRING, null],
-			'age' => [IResultAdapter::TYPE_INT, null],
-			'weight' => [IResultAdapter::TYPE_FLOAT, null],
-			'is_single' => [IResultAdapter::TYPE_BOOL, null],
-			'born' => [IResultAdapter::TYPE_DATETIME, null],
-		]);
-		$adapter->shouldReceive('fetch')->once()->andReturn($one);
-		$adapter->shouldReceive('fetch')->once()->andReturn($two);
-		$driver = Mockery::mock(IDriver::class);
-
-		$result = new Result($adapter, $driver);
-		$row = $result->fetch();
-		Assert::same('jon snow', $row->name);
-		Assert::same(16, $row->age);
-		Assert::same(90.5, $row->weight);
-		Assert::same(true, $row->is_single);
-		Assert::same('2015-01-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
-
-		$row = $result->fetch();
-		Assert::same('oberyn martell', $row->name);
-		Assert::same(20, $row->age);
-		Assert::same(60.5, $row->weight);
-		Assert::same(false, $row->is_single);
-		Assert::same('2015-02-01 20:00:00', $row->born->format('Y-m-d H:i:s'));
-	}
-
-
 	public function testColumns()
 	{
 		$adapter = Mockery::mock(IResultAdapter::class);
-		$adapter->shouldReceive('getTypes')->twice()->andReturn([
-			'age' => [IResultAdapter::TYPE_INT, null],
-			'123' => [IResultAdapter::TYPE_INT, null],
+		$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
+		$adapter->shouldReceive('getTypes')->once()->andReturn([
+			'age' => 'varchar',
+			'123' => 'int',
 		]);
-		$driver = Mockery::mock(IDriver::class);
-		$result = new Result($adapter, $driver);
+		$result = new Result($adapter);
 
 		Assert::same(['age', '123'], $result->getColumns());
 	}

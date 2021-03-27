@@ -165,15 +165,6 @@ interface IDriver
 
 
 	/**
-	 * Converts database value to php boolean.
-	 * @param mixed $value
-	 * @param mixed $nativeType
-	 * @return mixed
-	 */
-	public function convertToPhp($value, $nativeType);
-
-
-	/**
 	 * Converts string to safe escaped SQL expression including surrounding quotes.
 	 */
 	public function convertStringToSql(string $value): string;

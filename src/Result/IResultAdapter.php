@@ -8,15 +8,6 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 
 interface IResultAdapter
 {
-	public const TYPE_DRIVER_SPECIFIC = 1;
-	public const TYPE_STRING = 2;
-	public const TYPE_INT = 4;
-	public const TYPE_FLOAT = 8;
-	public const TYPE_BOOL = 16;
-	public const TYPE_DATETIME = 32;
-	public const TYPE_AS_IS = 64;
-
-
 	/**
 	 * Converts result adapter to buffered version.
 	 * @internal
@@ -33,23 +24,35 @@ interface IResultAdapter
 
 
 	/**
+	 * Seeks the result of specific position. Throws if position does not exist.
 	 * @throws InvalidArgumentException
 	 */
 	public function seek(int $index): void;
 
 
 	/**
+	 * Returns next unfetched row. Returns a null if there is no unfetched row.
 	 * @phpstan-return array<mixed>|null
 	 */
 	public function fetch(): ?array;
 
 
 	/**
-	 * Returns row's column types, array of [type, nativeType]
-	 * @phpstan-return array<string, array{int, mixed}>
+	 * Returns number of row in Result.
+	 */
+	public function getRowsCount(): int;
+
+
+	/**
+	 * Returns Result's column types as map of column name and native driver type.
+	 * @phpstan-return array<string, mixed>
 	 */
 	public function getTypes(): array;
 
 
-	public function getRowsCount(): int;
+	/**
+	 * Returns driver specific normalizers.
+	 * @phpstan-return array<string, callable(mixed): mixed>
+	 */
+	public function getNormalizers(): array;
 }

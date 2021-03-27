@@ -23,44 +23,17 @@ class PgsqlResultAdapter implements IResultAdapter
 	/** @var resource */
 	private $result;
 
-	/**
-	 * @var array
-	 * @phpstan-var array<string, int>
-	 * @see http://www.postgresql.org/docs/9.4/static/datatype.html
-	 */
-	protected static $types = [
-		'bool' => self::TYPE_DRIVER_SPECIFIC,
-		'bit' => self::TYPE_DRIVER_SPECIFIC,
-		'varbit' => self::TYPE_DRIVER_SPECIFIC,
-		'bytea' => self::TYPE_DRIVER_SPECIFIC,
-		'interval' => self::TYPE_DRIVER_SPECIFIC,
-
-		'int8' => self::TYPE_INT,
-		'int4' => self::TYPE_INT,
-		'int2' => self::TYPE_INT,
-
-		'numeric' => self::TYPE_FLOAT,
-		'float4' => self::TYPE_FLOAT,
-		'float8' => self::TYPE_FLOAT,
-
-		'time' => self::TYPE_DATETIME,
-		'date' => self::TYPE_DATETIME,
-		'timestamp' => self::TYPE_DATETIME,
-		'timetz' => self::TYPE_DATETIME,
-		'timestamptz' => self::TYPE_DATETIME,
-	];
+	/** @var PgsqlResultNormalizerFactory */
+	private $normalizerFactory;
 
 
 	/**
 	 * @param resource $result
 	 */
-	public function __construct($result)
+	public function __construct($result, PgsqlResultNormalizerFactory $normalizerFactory)
 	{
 		$this->result = $result;
-
-		if (PHP_INT_SIZE < 8) {
-			self::$types['int8'] = self::TYPE_DRIVER_SPECIFIC;
-		}
+		$this->normalizerFactory = $normalizerFactory;
 	}
 
 
@@ -97,6 +70,12 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
+	public function getRowsCount(): int
+	{
+		return pg_num_rows($this->result);
+	}
+
+
 	public function getTypes(): array
 	{
 		$types = [];
@@ -104,18 +83,15 @@ class PgsqlResultAdapter implements IResultAdapter
 
 		for ($i = 0; $i < $count; $i++) {
 			$nativeType = pg_field_type($this->result, $i);
-			$types[pg_field_name($this->result, $i)] = [
-				0 => self::$types[$nativeType] ?? self::TYPE_AS_IS,
-				1 => $nativeType,
-			];
+			$types[pg_field_name($this->result, $i)] = $nativeType;
 		}
 
 		return $types;
 	}
 
 
-	public function getRowsCount(): int
+	public function getNormalizers(): array
 	{
-		return pg_num_rows($this->result);
+		return $this->normalizerFactory->resolve($this->getTypes());
 	}
 }

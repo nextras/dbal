@@ -3,7 +3,6 @@
 namespace Nextras\Dbal\Drivers\PdoPgsql;
 
 
-use DateInterval;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
@@ -15,7 +14,6 @@ use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
-use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
@@ -27,7 +25,6 @@ use function array_map;
 use function date;
 use function date_default_timezone_get;
 use function implode;
-use function stream_get_contents;
 
 
 /**
@@ -48,6 +45,10 @@ use function stream_get_contents;
  */
 class PdoPgsqlDriver extends PdoDriver
 {
+	/** @var PdoPgsqlResultNormalizerFactory */
+	private $resultNormalizerFactory;
+
+
 	public function connect(array $params, ILogger $logger): void
 	{
 		$host = $params['host'] ?? '';
@@ -60,6 +61,8 @@ class PdoPgsqlDriver extends PdoDriver
 		$dsn = "pgsql:host=$host;port=$port;dbname=$database";
 
 		$this->connectPdo($dsn, $username, $password, $options, $logger);
+		$this->resultNormalizerFactory = new PdoPgsqlResultNormalizerFactory();
+
 		$this->processInitialSettings($params);
 	}
 
@@ -97,32 +100,9 @@ class PdoPgsqlDriver extends PdoDriver
 	}
 
 
-	public function convertToPhp($value, $nativeType)
-	{
-		if ($nativeType === 'int8') { // called only on 32bit
-			return is_float($tmp = $value * 1) ? $value : $tmp; // @phpstan-ignore-line
-
-		} elseif ($nativeType === 'interval') {
-			return DateInterval::createFromDateString($value);
-
-		} elseif ($nativeType === 'bit' || $nativeType === 'varbit') {
-			return bindec($value);
-
-		} elseif ($nativeType === 'bytea') {
-			if (!is_resource($value)) {
-				throw new InvalidStateException();
-			}
-			return stream_get_contents($value);
-
-		} else {
-			return parent::convertToPhp($value, $nativeType);
-		}
-	}
-
-
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
-		return (new PdoPgsqlResultAdapter($statement))->toBuffered();
+		return (new PdoPgsqlResultAdapter($statement, $this->resultNormalizerFactory))->toBuffered();
 	}
 
 
