@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
+use Nextras\MultiQueryParser\IMultiQueryParser;
 
 
 interface IPlatform
@@ -115,6 +116,13 @@ interface IPlatform
 	 * Formats LIMIT & OFFSET values to SQL string.
 	 */
 	public function formatLimitOffset(?int $limit, ?int $offset): string;
+
+
+	/**
+	 * Returns SQL file parser
+	 * !!!This function requires nextras/multi-query-parser dependency!!!
+	 */
+	public function createMultiQueryParser(): IMultiQueryParser;
 
 
 	/**

@@ -7,6 +7,7 @@ use DateInterval;
 use DateTimeInterface;
 use Nette\Caching\Cache;
 use Nextras\Dbal\Platforms\IPlatform;
+use Nextras\MultiQueryParser\IMultiQueryParser;
 
 
 class CachedPlatform implements IPlatform
@@ -121,6 +122,12 @@ class CachedPlatform implements IPlatform
 	public function formatLimitOffset(?int $limit, ?int $offset): string
 	{
 		return $this->platform->formatLimitOffset($limit, $offset);
+	}
+
+
+	public function createMultiQueryParser(): IMultiQueryParser
+	{
+		return $this->platform->createMultiQueryParser();
 	}
 
 
