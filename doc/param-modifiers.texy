@@ -7,8 +7,8 @@ Dbal allows you to escape and build safe SQL query. It provides these powerful p
 |* `%i`, `%?i`, `%i[]`          | integer  | not nullable, nullable, array of
 |* `%f`, `%?f`, `%f[]`          | float    | not nullable, nullable, array of
 |* `%b`, `%?b`, `%b[]`          | boolean  | not nullable, nullable, array of
-|* `%dt`, `%?dt`, `%dt[]`       | datetime | not nullable, nullable, array of
-|* `%ldt`, `%?ldt`, `%ldt[]`    | local datetime | datetime without timezone conversion
+|* `%dt`, `%?dt`, `%dt[]`       | datetime | not nullable, nullable, array of<br>read more about [DateTime | datetime handling]; using wrong modifier may damage your data
+|* `%ldt`, `%?ldt`, `%ldt[]`    | local datetime | datetime without timezone conversion<br>read more about [DateTime | datetime handling];  using wrong modifier may damage your data
 |* `%blob`, `%?blob`, `%blob[]` | binary string | not nullable, nullable, array of
 |* `%any`                       |               | any value
 |* `%_like`, `%like_`, `%_like_`| string   | like left, like right, like both sides
