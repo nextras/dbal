@@ -1,0 +1,132 @@
+## Modifiers
+
+Dbal allows you to escape and build safe SQL query. It provides these powerful parameter modifiers:
+
+| Modifier                      | Type     | Description
+|-------------------------------|----------|------------
+| `%s`, `%?s`, `%s[]`           | string   | not nullable, nullable, array of
+| `%i`, `%?i`, `%i[]`           | integer  | not nullable, nullable, array of
+| `%f`, `%?f`, `%f[]`           | float    | not nullable, nullable, array of
+| `%b`, `%?b`, `%b[]`           | boolean  | not nullable, nullable, array of
+| `%dt`, `%?dt`, `%dt[]`        | datetime | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data
+| `%ldt`, `%?ldt`, `%ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime);  using wrong modifier may damage your data
+| `%blob`, `%?blob`, `%blob[]`  | binary string | not nullable, nullable, array of
+| `%any`                        |               | any value
+| `%_like`, `%like_`, `%_like_` | string   | like left, like right, like both sides
+| `%json`, `%?json`, `%json[]`  | any      | not nullable, nullable, array of
+
+All modifiers require an argument of the specific data type - eg. `%f` accepts only floats and integers.
+
+```php
+$connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
+// `id` = 1 AND name IN (NULL, 'foo')
+
+$connection->query('name LIKE %_like_', $query);
+// escapes query and adds % to both sides
+// name LIKE '%escaped query expression%'
+```
+
+Other available modifiers:
+
+| Modifier                 | Description
+|--------------------------|------------
+| `%and`                   | AND condition
+| `%or`                    | OR condition
+| `%multiOr`               | OR condition with multiple conditions in pairs
+| `%values`, `%values[]`   | expands array for INSERT clause, multi insert
+| `%set`                   | expands array for SET clause
+| `%table`, `%table[]`     | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier;
+| `%column`, `%column[]`   | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier;
+| `%ex`                    | expands array as processor arguments
+| `%raw`                   | inserts string argument as is
+| `%%`                     | escapes to single `%` (useful in `date_format()`, etc.)
+| `[[`, `]]`               | escapes to single `[` or `]` (useful when working with array, etc.)
+
+Let's examine `%and` and `%or` behavior. If array key is numeric and its value is an array, value is expanded with `%ex` modifier. (See below.)
+
+```php
+$connection->query('%and', [
+	'city' => 'Winterfell',
+	'age'  => 23,
+]);
+// `city` = 'Winterfell' AND `age` = 23
+
+
+$connection->query('%or', [
+	'city' => 'Winterfell',
+	'age'  => [23, 25],
+]);
+// `city` = 'Winterfell' OR `age` IN (23, 25)
+
+
+$connection->query('%or', [
+	'city' => 'Winterfell',
+	['[age] IN %i[]', [23, 25]],
+]);
+// `city` = 'Winterfell' OR `age` IN (23, 25)
+```
+
+If you want select multiple rows with combined condition for each row, you may use multi-column `IN` expression. However, some databases do not support this feature, therefore Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax; let's see an example:
+
+```php
+$connection->query('%multiOr', [
+	['tag_id' => 1, 'book_id' => 23],
+	['tag_id' => 4, 'book_id' => 12],
+	['tag_id' => 9, 'book_id' => 83],
+]);
+// MySQL or PostgreSQL
+// (tag_id, book_id) IN ((1, 23), (4, 12), (9, 83))
+
+// SQL Server
+// (tag_id = 1 AND book_id = 23) OR (tag_id = 4 AND book_id = 12) OR (tag_id = 9 AND book_id = 83)
+```
+
+Examples of inserting and updating:
+
+```php
+$connection->query('INSERT INTO [users] %values', [
+    'name' => 'Jon Snow'
+]);
+// INSERT INTO `users` (`name`) VALUES ('Jon Snow')
+
+
+$connection->query('INSERT INTO [users] %values[]', [
+    ['name' => 'Jon Snow'],
+    ['name' => 'The Imp'],
+]);
+// INSERT INTO `users` (`name`) VALUES ('Jon Snow'), ('The Imp')
+
+
+$connection->query('UPDATE [users] SET %set WHERE [id] = %i', [
+    'name' => 'Jon Snow'
+], 1);
+// UPDATE `users` SET `name` = 'Jon Snow' WHERE `id` = 1
+```
+
+`%ex` modifier expands passed array as arguments of new `query()` method call.
+
+```php
+$connection->query('%ex', ['id = %i', 1]);
+// equals to
+$connection->query('id = %i', 1);
+```
+
+
+### Custom Modifiers
+
+You may add support for own modifier. To do that, create new factory class for SqlProcessor and use `setCustomModifier()` method:
+
+```php
+class SqlProcessorFactory implements Nextras\Dbal\ISqlProcessorFactory
+{
+	public function create(Nextras\Dbal\IDriver $driver, array $config)
+		: Nextras\Dbal\SqlProcessor
+	{
+		$processor = new Nextras\Dbal\SqlProcessor($driver);
+		$processor->setCustomModifier('mybool', function ($bool, $modifier) use ($driver) {
+			return $driver->convertStringToSql($bool ? 'yes' : 'no');
+		});
+		return $processor;
+	}
+}
+```
