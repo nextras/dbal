@@ -16,7 +16,7 @@ class BufferedResultAdapter implements IResultAdapter
 	/** @var IResultAdapter */
 	protected $adapter;
 
-	/** @var ArrayIterator<mixed, mixed>|null */
+	/** @var ArrayIterator<array-key, mixed>|null */
 	protected $data;
 
 
@@ -87,7 +87,7 @@ class BufferedResultAdapter implements IResultAdapter
 
 
 	/**
-	 * @return ArrayIterator<mixed, mixed>
+	 * @return ArrayIterator<array-key, mixed>
 	 */
 	protected function getData(): ArrayIterator
 	{
@@ -99,7 +99,7 @@ class BufferedResultAdapter implements IResultAdapter
 
 
 	/**
-	 * @return ArrayIterator<mixed, mixed>
+	 * @return ArrayIterator<array-key, mixed>
 	 */
 	protected function fetchData(): ArrayIterator
 	{
