@@ -13,6 +13,10 @@ use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\DateTimeHelper;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use Nextras\MultiQueryParser\IMultiQueryParser;
+use Nextras\MultiQueryParser\MySqlMultiQueryParser;
+use Nextras\MultiQueryParser\PostgreSqlMultiQueryParser;
+use Nextras\Orm\Exception\RuntimeException;
 use function bin2hex;
 use function str_replace;
 use function strtr;
@@ -250,6 +254,15 @@ class PostgreSqlPlatform implements IPlatform
 			$clause = trim("$clause OFFSET $offset");
 		}
 		return $clause;
+	}
+
+
+	public function createMultiQueryParser(): IMultiQueryParser
+	{
+		if (!class_exists(MySqlMultiQueryParser::class)) {
+			throw new RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+		}
+		return new PostgreSqlMultiQueryParser();
 	}
 
 

@@ -14,6 +14,9 @@ use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\DateTimeHelper;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use Nextras\MultiQueryParser\IMultiQueryParser;
+use Nextras\MultiQueryParser\MySqlMultiQueryParser;
+use Nextras\Orm\Exception\RuntimeException;
 use function addcslashes;
 use function count;
 use function explode;
@@ -228,6 +231,15 @@ class MySqlPlatform implements IPlatform
 		}
 
 		return $clause;
+	}
+
+
+	public function createMultiQueryParser(): IMultiQueryParser
+	{
+		if (!class_exists(MySqlMultiQueryParser::class)) {
+			throw new RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+		}
+		return new MySqlMultiQueryParser();
 	}
 
 

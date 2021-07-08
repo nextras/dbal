@@ -23,6 +23,7 @@
 		"nette/utils": "~3.0",
 		"nette/finder": "~2.5",
 		"nette/neon": "~3.0",
+		"nextras/multi-query-parser": "dev-master",
 		"phpstan/extension-installer": "1.1.0",
 		"phpstan/phpstan": "0.12.90",
 		"phpstan/phpstan-deprecation-rules": "0.12.6",
@@ -31,6 +32,9 @@
 		"symfony/dependency-injection": "~4.4 || ~5.0",
 		"symfony/http-kernel": "~4.4 || ~5.0",
 		"tracy/tracy": "~2.7"
+	},
+	"suggest": {
+		"nextras/multi-query-parser": "Install to support SQL file import."
 	},
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" }
