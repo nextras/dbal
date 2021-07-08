@@ -117,15 +117,60 @@ $connection->query('id = %i', 1);
 You may add support for own modifier. To do that, create new factory class for SqlProcessor and use `setCustomModifier()` method:
 
 ```php
-class SqlProcessorFactory implements Nextras\Dbal\ISqlProcessorFactory
+use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\ISqlProcessorFactory;
+use Nextras\Dbal\SqlProcessor;
+
+class SqlProcessorFactory implements ISqlProcessorFactory
 {
-	public function create(Nextras\Dbal\IDriver $driver, array $config)
-		: Nextras\Dbal\SqlProcessor
+	public function create(IDriver $driver, array $config): SqlProcessor
 	{
-		$processor = new Nextras\Dbal\SqlProcessor($driver);
-		$processor->setCustomModifier('mybool', function ($bool, $modifier) use ($driver) {
-			return $driver->convertStringToSql($bool ? 'yes' : 'no');
-		});
+		$processor = new SqlProcessor($driver);
+		$processor->setCustomModifier(
+		    'mybool',
+		    function (SqlProcessor $processor, $value) {
+			    return $processor->processModifier('s', $bool ? 'yes' : 'no');
+		    }
+		);
+		return $processor;
+	}
+}
+```
+
+### Modifier Resolver
+
+SqlProcessor allows setting custom modifier resolver for any values passed for both implicit and explicit `%any` modifier. This way you may introduce custom processing for your custom types. For safety reasons it is possible to override only the `%any` modifier. To do so, implement `ISqlProcessorModifierResolver` interface and return the modifier name for the passed value. Finally, register the custom modifier resolver into SqlProcessor. This API is especially powerful in combination with custom modifiers.
+
+```php
+use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\ISqlProcessorModifierResolver;
+use Nextras\Dbal\ISqlProcessorFactory;
+use Nextras\Dbal\SqlProcessor;
+
+class BrickSqlProcessorModifierResolver implements ISqlProcessorModifierResolver
+{
+    public function resolve($value): ?string
+    {
+        if ($value instanceof \Brick\DayOfWeek) {
+            return 'brickDoW';
+        }
+        return null;
+    }
+}
+
+class SqlProcessorFactory implements ISqlProcessorFactory
+{
+	public function create(IDriver $driver, array $config): SqlProcessor
+	{
+		$processor = new SqlProcessor($driver);
+		$processor->setCustomModifier(
+		    'brickDoW',
+		    function (SqlProcessor $processor, $value) {
+		        assert($value instanceof \Brick\DayOfWeek);
+			    return $processor->processModifier('s', $value->getValue());
+		    }
+		);
+		$processor->addModifierResolver(new BrickSqlProcessorModifierResolver());
 		return $processor;
 	}
 }
