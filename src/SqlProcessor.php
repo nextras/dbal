@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use SplObjectStorage;
 
 
 class SqlProcessor
@@ -55,6 +56,9 @@ class SqlProcessor
 	 */
 	protected $customModifiers = [];
 
+	/** @var SplObjectStorage<ISqlProcessorModifierResolver,mixed>|ISqlProcessorModifierResolver[] */
+	protected $modifierResolvers;
+
 	/**
 	 * @var array
 	 * @phpstan-var array<string, string>
@@ -68,6 +72,7 @@ class SqlProcessor
 	public function __construct(IPlatform $platform)
 	{
 		$this->platform = $platform;
+		$this->modifierResolvers = new SplObjectStorage();
 	}
 
 
@@ -83,6 +88,24 @@ class SqlProcessor
 		}
 
 		$this->customModifiers[$modifier] = $callback;
+	}
+
+
+	/**
+	 * Adds a modifier resolver for any unspecified type (either implicit or explicit `%any` modifier).
+	 */
+	public function addModifierResolver(ISqlProcessorModifierResolver $resolver): void
+	{
+		$this->modifierResolvers->attach($resolver);
+	}
+
+
+	/**
+	 * Removes modifier resolver.
+	 */
+	public function removeModifierResolver(ISqlProcessorModifierResolver $resolver): void
+	{
+		$this->modifierResolvers->detach($resolver);
 	}
 
 
@@ -145,6 +168,10 @@ class SqlProcessor
 	 */
 	public function processModifier(string $type, $value): string
 	{
+		if ($type === 'any') {
+			$type = $this->detectType($value) ?? 'any';
+		}
+
 		switch (gettype($value)) {
 			case 'string':
 				switch ($type) {
@@ -379,6 +406,19 @@ class SqlProcessor
 		} else {
 			$this->throwInvalidValueTypeException($type, $value, $this->modifiers[$baseType][2]);
 		}
+	}
+
+
+	/**
+	 * @param mixed $value
+	 */
+	protected function detectType($value): ?string
+	{
+		foreach ($this->modifierResolvers as $modifierResolver) {
+			$resolved = $modifierResolver->resolve($value);
+			if ($resolved !== null) return $resolved;
+		}
+		return null;
 	}
 
 
