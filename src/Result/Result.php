@@ -219,12 +219,12 @@ class Result implements SeekableIterator, Countable
 
 
 	/**
-	 * @param int $index
+	 * @param int $offset
 	 */
-	public function seek($index): void
+	public function seek($offset): void
 	{
-		$this->adapter->seek($index);
-		$this->iteratorIndex = $index - 1;
+		$this->adapter->seek($offset);
+		$this->iteratorIndex = $offset - 1;
 	}
 
 
