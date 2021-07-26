@@ -467,7 +467,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$column = $this->identifierToSql($key[0]);
-			$expr = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
+			$expr = $this->processModifier($key[1] ?? 'any', $val);
 			$values[] = "$column = $expr";
 		}
 
@@ -495,7 +495,7 @@ class SqlProcessor
 				$subValues = [];
 				foreach ($subValue as $_key => $val) {
 					$key = explode('%', (string) $_key, 2);
-					$subValues[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
+					$subValues[] = $this->processModifier($key[1] ?? 'any', $val);
 				}
 				$values[] = '(' . implode(', ', $subValues) . ')';
 			}
@@ -518,7 +518,7 @@ class SqlProcessor
 		foreach ($value as $_key => $val) {
 			$key = explode('%', $_key, 2);
 			$keys[] = $this->identifierToSql($key[0]);
-			$values[] = $this->processModifier(isset($key[1]) ? $key[1] : 'any', $val);
+			$values[] = $this->processModifier($key[1] ?? 'any', $val);
 		}
 
 		return '(' . implode(', ', $keys) . ') VALUES (' . implode(', ', $values) . ')';
@@ -547,7 +547,7 @@ class SqlProcessor
 			} else {
 				$key = explode('%', $_key, 2);
 				$column = $this->identifierToSql($key[0]);
-				$subType = isset($key[1]) ? $key[1] : 'any';
+				$subType = $key[1] ?? 'any';
 
 				if ($subValue === null) {
 					$op = ' IS ';

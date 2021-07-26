@@ -3,6 +3,7 @@
 namespace Nextras\Dbal;
 
 
+use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Result\Result;
 
 
@@ -32,6 +33,6 @@ interface ILogger
 	public function onQueryException(
 		string $sqlQuery,
 		float $timeTaken,
-		?\Nextras\Dbal\Drivers\Exception\DriverException $exception
+		?DriverException $exception
 	): void;
 }
