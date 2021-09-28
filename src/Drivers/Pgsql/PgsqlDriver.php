@@ -111,9 +111,9 @@ class PgsqlDriver implements IDriver
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		if (strpos($this->connectionTz->getName(), ':') !== false) {
-			$this->loggedQuery('SET TIME ZONE INTERVAL ' . pg_escape_literal($this->connectionTz->getName()) . ' HOUR TO MINUTE');
+			$this->loggedQuery('SET TIME ZONE INTERVAL ' . pg_escape_literal($connection, $this->connectionTz->getName()) . ' HOUR TO MINUTE');
 		} else {
-			$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($this->connectionTz->getName()));
+			$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($connection, $this->connectionTz->getName()));
 		}
 
 		if (isset($params['searchPath'])) {
