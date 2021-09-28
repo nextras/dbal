@@ -27,6 +27,7 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function assert;
+use function mysqli_report;
 
 
 /**
@@ -91,6 +92,7 @@ class MysqliDriver implements IDriver
 		$socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
 		$flags = $params['flags'] ?? 0;
 
+		mysqli_report(MYSQLI_REPORT_OFF); // Errors are checked explicitly.
 		$this->connection = new mysqli();
 
 		$this->setupSsl($params);
