@@ -3,7 +3,6 @@
 namespace Nextras\Dbal\Utils;
 
 
-use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 
