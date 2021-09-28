@@ -1,0 +1,26 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+category-template: '### $TITLE'
+categories:
+  - title: '🚀 Features'
+    label: 'feature'
+  - title: '🐛 Bug Fixes'
+    label: 'bug'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+version-resolver:
+  major:
+    labels:
+      - 'semver:major'
+  minor:
+    labels:
+      - 'semver:minor'
+  patch:
+    labels:
+      - 'semver:patch'
+  default: minor
+exclude-labels:
+  - dependencies
+template: |
+  Changes in this release:
+  $CHANGES
