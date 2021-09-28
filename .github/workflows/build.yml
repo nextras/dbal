@@ -13,7 +13,7 @@ on:
       - v*.*
 
 env:
-  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv-5.9.0preview1, pdo_sqlsrv-5.9.0preview1
+  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv-5.10.0-beta1, pdo_sqlsrv-5.10.0-beta1
   php-extensions-key: v1
   php-tools: "composer:v2, pecl"
 
@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ '7.4', '8.0' ]
+        php-version: [ '7.4', '8.0', '8.1' ]
 
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: [ '7.1', '7.2', '7.3', '7.4', '8.0' ]
+        php-version: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
 
     runs-on: ubuntu-latest
 
