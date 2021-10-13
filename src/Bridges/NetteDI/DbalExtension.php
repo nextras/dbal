@@ -4,6 +4,7 @@ namespace Nextras\Dbal\Bridges\NetteDI;
 
 
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\ServiceDefinition;
 use Nextras\Dbal\Bridges\NetteTracy\BluescreenQueryPanel;
 use Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel;
 use Nextras\Dbal\Connection;
@@ -27,7 +28,9 @@ class DbalExtension extends CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 
-		$definition = $builder->addDefinition($this->prefix('connection'))
+		/** @var ServiceDefinition */
+		$definition = $builder->addDefinition($this->prefix('connection')); // @phpstan-ignore-line
+		$definition = $definition
 			->setType(Connection::class)
 			->setArguments([
 				'config' => $config,
