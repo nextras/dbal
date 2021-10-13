@@ -2,20 +2,21 @@
 
 Dbal allows you to escape and build safe SQL query. It provides these powerful parameter modifiers:
 
-| Modifier                      | Type     | Description
-|-------------------------------|----------|------------
-| `%s`, `%?s`, `%s[]`           | string   | not nullable, nullable, array of
-| `%i`, `%?i`, `%i[]`           | integer  | not nullable, nullable, array of
-| `%f`, `%?f`, `%f[]`           | float    | not nullable, nullable, array of
-| `%b`, `%?b`, `%b[]`           | boolean  | not nullable, nullable, array of
-| `%dt`, `%?dt`, `%dt[]`        | datetime | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data
-| `%ldt`, `%?ldt`, `%ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime);  using wrong modifier may damage your data
-| `%blob`, `%?blob`, `%blob[]`  | binary string | not nullable, nullable, array of
-| `%any`                        |               | any value
-| `%_like`, `%like_`, `%_like_` | string   | like left, like right, like both sides
-| `%json`, `%?json`, `%json[]`  | any      | not nullable, nullable, array of
+| Modifier                                   | Type           | Description
+|--------------------------------------------|----------------|------------
+| `%s`, `%?s`, `%s[]`, `%...s[]`             | string         | not nullable, nullable, array of
+| `%i`, `%?i`, `%i[]`, `%...i[]`             | integer        | not nullable, nullable, array of
+| `%f`, `%?f`, `%f[]`, `%...f[]`             | float          | not nullable, nullable, array of
+| `%b`, `%?b`, `%b[]`, `%...b[]`             | boolean        | not nullable, nullable, array of
+| `%dt`, `%?dt`, `%dt[]`, `%...dt[]`         | datetime       | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data
+| `%ldt`, `%?ldt`, `%ldt[]`, `%...ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime);  using wrong modifier may damage your data
+| `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance
+| `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of
+| `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of
+| `%any             `                        |                | any value
+| `%_like`, `%like_`, `%_like_`              | string         | like left, like right, like both sides
 
-All modifiers require an argument of the specific data type - eg. `%f` accepts only floats and integers.
+All modifiers require an argument of the specific data type - e.g. `%f` accepts only floats and integers.
 
 ```php
 $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
@@ -24,6 +25,16 @@ $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
 $connection->query('name LIKE %_like_', $query);
 // escapes query and adds % to both sides
 // name LIKE '%escaped query expression%'
+```
+
+Array modifiers are able to process array of the required type. The basic `[]` suffix syntax denotes such array. This way Dbal also adds wrapping parenthesis. You may want to omit them for more complex SQL. To do so, use a "spread" variant of array operator -- add three dots after the `%` character.
+
+```php
+$connection->query('WHERE id IN %i[]', [1, 3, 4]);
+// WHERE `id` IN (1, 3, 4)
+
+$connection->query('WHERE [roles.privileges] ?| ARRAY[%...s[]]', ['backend', 'frontend']);
+// WHERE "roles"."privileges" ?| ARRAY['backend', 'frontend']
 ```
 
 Other available modifiers:

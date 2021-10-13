@@ -127,7 +127,7 @@ class SqlProcessor
 
 			$i = $j;
 			$fragments[] = preg_replace_callback(
-				'#%(\??+\w++(?:\[\]){0,2}+)|(%%)|(\[\[)|(\]\])|\[(.+?)\]#S', // %modifier | %% | %[ | %] | [identifier]
+				'#%((?:\.\.\.)?+\??+\w++(?:\[]){0,2}+)|(%%)|(\[\[)|(]])|\[(.+?)]#S', // %modifier | %% | %[ | %] | [identifier]
 				function ($matches) use ($args, &$j, $last): string {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
@@ -344,7 +344,9 @@ class SqlProcessor
 
 					// normal
 					case 'column[]':
+					case '...column[]':
 					case 'table[]':
+					case '...table[]':
 						$subType = substr($type, 0, -2);
 						foreach ($value as &$subValue) {
 							$subValue = $this->processModifier($subType, $subValue);
@@ -372,14 +374,14 @@ class SqlProcessor
 				}
 
 				if (substr($type, -1) === ']') {
-					$baseType = trim($type, '[]?');
+					$baseType = trim(trim($type, '.'), '[]?');
 					if (isset($this->modifiers[$baseType]) && $this->modifiers[$baseType][1]) {
 						return $this->processArray($type, $value);
 					}
 				}
 		}
 
-		$baseType = trim($type, '[]?');
+		$baseType = trim(trim($type, '.'), '[]?');
 
 		if (isset($this->customModifiers[$baseType])) {
 			return $this->customModifiers[$baseType]($this, $value, $type);
@@ -450,11 +452,22 @@ class SqlProcessor
 	protected function processArray(string $type, array $value): string
 	{
 		$subType = substr($type, 0, -2);
+		$wrapped = true;
+
+		if (strncmp($subType, '...', 3) === 0) {
+			$subType = substr($subType, 3);
+			$wrapped = false;
+		}
+
 		foreach ($value as &$subValue) {
 			$subValue = $this->processModifier($subType, $subValue);
 		}
 
-		return '(' . implode(', ', $value) . ')';
+		if ($wrapped) {
+			return '(' . implode(', ', $value) . ')';
+		} else {
+			return implode(', ', $value);
+		}
 	}
 
 
