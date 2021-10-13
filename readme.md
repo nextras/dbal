@@ -12,6 +12,7 @@ Supported platforms:
 - **MySQL** via `mysqli` or `pdo_mysql` extension,
 - **PostgreSQL** via `pgsql` or `pdo_pgsql` extension,
 - **MS SQL Server** via `sqlsrv` or `pdo_sqlsrv` extension.
+- **Sqlite** via `pdo_sqlite` extension.
 
 Integrations:
 - Symfony Bundle

@@ -39,6 +39,11 @@ class IntegrationTestCase extends TestCase
 			'password' => NULL,
 			'searchPath' => ['public'],
 		], Environment::loadData(), $params);
+
+		if (isset($options['filename']) && $options['filename'] !== ':memory:') {
+			$options['filename'] = __DIR__ . '/../temp/' . $options['filename'];
+		}
+
 		return new Connection($options);
 	}
 
