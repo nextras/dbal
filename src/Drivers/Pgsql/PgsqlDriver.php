@@ -18,6 +18,7 @@ use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -296,7 +297,11 @@ class PgsqlDriver implements IDriver
 	public function convertStringToSql(string $value): string
 	{
 		assert($this->connection !== null);
-		return pg_escape_literal($this->connection, $value);
+		$escaped = pg_escape_literal($this->connection, $value);
+		if ($escaped === false) {
+			throw new InvalidStateException();
+		}
+		return $escaped;
 	}
 
 
@@ -345,7 +350,6 @@ class PgsqlDriver implements IDriver
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
 		$valueTimezone = $value->getTimezone();
-		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
 		assert($valueTimezone !== false); // @phpstan-ignore-line
 		if ($valueTimezone->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof DateTimeImmutable) {

@@ -85,7 +85,9 @@ class PgsqlResultAdapter implements IResultAdapter
 
 		for ($i = 0; $i < $count; $i++) {
 			$nativeType = pg_field_type($this->result, $i);
-			$types[pg_field_name($this->result, $i)] = [
+			$name = pg_field_name($this->result, $i);
+			assert($name !== false); // @phpstan-ignore-line
+			$types[$name] = [
 				0 => self::$types[$nativeType] ?? self::TYPE_AS_IS,
 				1 => $nativeType,
 			];

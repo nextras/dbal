@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
 use Tester\Assert;
 
 
@@ -41,11 +42,21 @@ class PlatformMysqlTest extends IntegrationTestCase
 		$columns = $this->connection->getPlatform()->getColumns('books');
 		$columns = \array_map(function ($table) { return (array) $table; }, $columns);
 
+		$driver = $this->connection->getDriver();
+		if ($driver instanceof MysqliDriver) {
+			$isMariaDb = stripos($driver->getResourceHandle()->server_info, 'MariaDB') !== false;
+		} else {
+			$isMariaDb = false;
+		}
+
+		$isMySQL8 = version_compare($this->connection->getDriver()->getServerVersion(), '8.0.19') >= 0
+			&& !$isMariaDb;
+
 		Assert::same([
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => true,
 				'isAutoincrement' => true,
@@ -56,7 +67,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'author_id' => [
 				'name' => 'author_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -67,7 +78,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'translator_id' => [
 				'name' => 'translator_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -89,7 +100,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'publisher_id' => [
 				'name' => 'publisher_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -100,7 +111,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'ean_id' => [
 				'name' => 'ean_id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => false,
 				'isAutoincrement' => false,
@@ -119,7 +130,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			'id' => [
 				'name' => 'id',
 				'type' => 'INT',
-				'size' => 11,
+				'size' => $isMySQL8 ? null : 11,
 				'default' => null,
 				'isPrimary' => true,
 				'isAutoincrement' => true,

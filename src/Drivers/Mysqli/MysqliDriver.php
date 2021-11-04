@@ -378,7 +378,6 @@ class MysqliDriver implements IDriver
 	public function convertDateTimeToSql(DateTimeInterface $value): string
 	{
 		$valueTimezone = $value->getTimezone();
-		assert($value instanceof DateTime || $value instanceof DateTimeImmutable);
 		assert($valueTimezone !== false); // @phpstan-ignore-line
 		if ($valueTimezone->getName() !== $this->connectionTz->getName()) {
 			if ($value instanceof DateTimeImmutable) {

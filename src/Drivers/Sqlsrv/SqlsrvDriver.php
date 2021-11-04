@@ -389,9 +389,6 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	/**
-	 * @phpstan-return never
-	 */
 	private function throwErrors(?string $query = null): void
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
@@ -412,7 +409,7 @@ class SqlsrvDriver implements IDriver
 
 	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
 	{
-		if (in_array($sqlState, ['HYT00', '08001', '28000'], true)) {
+		if (in_array($sqlState, ['HYT00', '08001', '28000'], true) || $errorNo === 4060) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif (in_array($errorNo, [547], true)) {
