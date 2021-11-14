@@ -27,6 +27,10 @@ foreach ($config as $name => $configDatabase) {
 	$processed[$key] = true;
 	echo "[setup] Bootstrapping '{$name}' structure.\n";
 
+	if (isset($configDatabase['filename']) && $configDatabase['filename'] !== ':memory:') {
+		$configDatabase['filename'] = __DIR__ . '/../temp/' . $configDatabase['filename'];
+	}
+
 	$connection = new Connection($configDatabase);
 	$platform = $connection->getPlatform()->getName();
 	$resetFunction = require __DIR__ . "/../data/{$platform}-reset.php";

@@ -6,15 +6,16 @@ Supported platforms:
 
 - **MySQL** via `mysqli` or `pdo_mysql` extension,
 - **Postgres** via `pgsql` or `pdo_pgsql` extension,
-- **MS SQL Server** via `sqlsrv` or `pdo_sqlsrv` extension.
+- **MS SQL Server** via `sqlsrv` or `pdo_sqlsrv` extension,
+- **Sqlite** via `pdo_sqlite` extension.
 
 ### Connection
 
 The Connection instance is the main access point to the database. Connection's constructor accepts a configuration array. The possible keys depend on the specific driver; some configuration keys are shared for all drivers. To actual list of supported keys are enumerated in PhpDoc comment in driver's source code.
 
-| Key                                   | Description
-| ---                                   | ---                |
-| `driver`                         | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, `pdo_sqlsrv`
+| Key                                    | Description
+| ---                                    | ---                |
+| `driver`                               | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, `pdo_sqlsrv`, `pdo_sqlite`
 | `host`                                 | database server name
 | `username`                             | username for authentication
 | `password`                             | password for authentication

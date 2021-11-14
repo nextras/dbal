@@ -16,6 +16,7 @@ The following table presents a matrix of available DB date-time types:
 | MySQL       | `datetime`                               | `timestamp`                     | -                |
 | Postgres    | `timestamp`                              | `timestamptz`                   | -                |
 | SQL Server  | `datetime`, `datetime2`                  | -                               | `datetimeoffset` |
+| Sqlite      | -                                        | -                               | -
 
 - **no timezone handling**: database stores the time-stamp and does not do any modification to it; this is the easiest solution, but brings a disadvantage: database cannot exactly diff two time-stamps, i.e. it may produce wrong results because day-light saving shift is needed but db does not know which zone to use for the calculation;
 - **timezone conversion**: database stores the time-stamp unified in UTC and reads it in connection's timezone;
@@ -90,3 +91,25 @@ This will make Dbal fully functional, although some SQL queries and expressions 
 |------|-------------|--------
 | local datetime     | `datetime`  | value is converted into application timezone
 | datetime           | `datetimeoffset` | value is read with timezone offset and no further modification is done - i.e. no application timezone conversion happens
+
+--------------------------
+
+### Sqlite
+
+Sqlite does not have a dedicated type for date time at all. However, Sqlite provides a function that helps to transform unix time to a local time zone.
+
+Use `datetime(your_column, 'unixepoch', 'localtime')` to convert stored timestamp to your local time-zone. Read more in the [official documentation](https://sqlite.org/lang_datefunc.html#modifiers).
+
+##### Writing
+
+| Type | Modifier | Comment
+|------|----------|--------
+| local datetime  | `%ldt`  | the timezone offset is removed and value is formatter as ISO string without the timezone offset
+| datetime        | `%dt`   | no timezone conversion is done and value is formatted as ISO string with timezone offset
+
+##### Reading
+
+| Type               | Column Type | Comment
+|--------------------|-------------|--------
+| local datetime     | ❌ | cannot be auto-detected
+| datetime           | ❌ | cannot be auto-detected

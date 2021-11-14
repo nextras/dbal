@@ -15,6 +15,7 @@ interface IPlatform
 	public const SUPPORT_MULTI_COLUMN_IN = 1;
 	public const SUPPORT_QUERY_EXPLAIN = 2;
 	public const SUPPORT_WHITESPACE_EXPLAIN = 3;
+	public const SUPPORT_INSERT_DEFAULT_KEYWORD = 4;
 
 
 	/**

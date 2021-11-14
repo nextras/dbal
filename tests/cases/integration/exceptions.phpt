@@ -7,12 +7,16 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
+use Nextras\Dbal\Drivers\PdoSqlite\PdoSqliteDriver;
 use Tester\Assert;
+use Tester\Environment;
+
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -22,6 +26,10 @@ class ExceptionsTest extends IntegrationTestCase
 
 	public function testConnection()
 	{
+		if ($this->connection->getDriver() instanceof PdoSqliteDriver) {
+			Environment::skip('Connection cannot fail because wrong configuration.');
+		}
+
 		Assert::exception(function () {
 			$connection = $this->createConnection(['database' => 'unknown']);
 			$connection->connect();
