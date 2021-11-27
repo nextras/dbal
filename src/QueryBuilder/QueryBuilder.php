@@ -32,34 +32,52 @@ class QueryBuilder
 		'order' => null,
 	];
 
-	/** @var string[]|null */
+	/**
+	 * @var string[]|null
+	 * @phpstan literal-string[]|null
+	 */
 	private $select;
 
 	/**
 	 * @var array|null
-	 * @phpstan-var array{string, ?string}|null
+	 * @phpstan-var array{literal-string, literal-string|null}|null
 	 */
 	private $from;
 
-	/** @var string|null */
+	/**
+	 * @var string|null
+	 * @phpstan-var literal-string|null
+	 */
 	private $indexHints;
 
 	/**
 	 * @var array|null
-	 * @phpstan-var array<array{type: string, from: string, alias: string, table: string, on: string}>|null
+	 * @phpstan-var array<array{type: string, alias: literal-string, table: literal-string, on: string}>|null
 	 */
 	private $join;
 
-	/** @var string|null */
+	/**
+	 * @var string|null
+	 * @phpstan-var literal-string|null
+	 */
 	private $where;
 
-	/** @var string[]|null */
+	/**
+	 * @var string[]|null
+	 * @phpstan-var literal-string[]|null
+	 */
 	private $group;
 
-	/** @var string|null */
+	/**
+	 * @var string|null
+	 * @phpstan-var literal-string|null
+	 */
 	private $having;
 
-	/** @var string[]|null */
+	/**
+	 * @var string[]|null
+	 * @phpstan-var literal-string[]|null
+	 */
 	private $order;
 
 	/**
@@ -153,6 +171,8 @@ class QueryBuilder
 
 
 	/**
+	 * @phpstan-param literal-string $fromExpression
+	 * @phpstan-param literal-string $alias
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function from(string $fromExpression, ?string $alias = null, ...$args): self
@@ -166,6 +186,7 @@ class QueryBuilder
 
 	/**
 	 * MySQL only feature.
+	 * @phpstan-param literal-string $indexHintsExpression
 	 * @phpstan-param array<int, mixed> $args
 	 * @return static
 	 */
@@ -178,6 +199,9 @@ class QueryBuilder
 	}
 
 
+	/**
+	 * @phpstan-return literal-string
+	 */
 	public function getFromAlias(): ?string
 	{
 		if ($this->from === null) {
@@ -189,6 +213,8 @@ class QueryBuilder
 
 
 	/**
+	 * @phpstan-param literal-string $toExpression
+	 * @phpstan-param literal-string $onExpression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function joinInner(string $toExpression, string $onExpression, ...$args): self
@@ -198,6 +224,8 @@ class QueryBuilder
 
 
 	/**
+	 * @phpstan-param literal-string $toExpression
+	 * @phpstan-param literal-string $onExpression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function joinLeft(string $toExpression, string $onExpression, ...$args): self
@@ -207,6 +235,8 @@ class QueryBuilder
 
 
 	/**
+	 * @phpstan-param literal-string $toExpression
+	 * @phpstan-param literal-string $onExpression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function joinRight(string $toExpression, string $onExpression, ...$args): self
@@ -224,6 +254,8 @@ class QueryBuilder
 
 
 	/**
+	 * @phpstan-param literal-string $toExpression
+	 * @phpstan-param literal-string $onExpression
 	 * @phpstan-param array<mixed> $args
 	 */
 	private function join(string $type, string $toExpression, string $onExpression, array $args): self
@@ -241,6 +273,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as SELECT clause. Passing null sets clause to the default state.
+	 * @phpstan-param literal-string|null $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function select(?string $expression = null, ...$args): self
@@ -254,6 +287,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression to SELECT clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function addSelect(string $expression, ...$args): self
@@ -267,6 +301,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as WHERE clause. Passing null sets clause to the default state.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function where(?string $expression = null, ...$args): self
@@ -280,6 +315,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with AND to WHERE clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function andWhere(string $expression, ...$args): self
@@ -293,6 +329,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with OR to WHERE clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function orWhere(string $expression, ...$args): self
@@ -306,6 +343,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as GROUP BY clause. Passing null sets clause to the default state.
+	 * @phpstan-param literal-string|null $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function groupBy(?string $expression = null, ...$args): self
@@ -319,6 +357,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression to GROUP BY clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function addGroupBy(string $expression, ...$args): self
@@ -332,6 +371,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as HAVING clause. Passing null sets clause to the default state.
+	 * @phpstan-param literal-string|null $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function having(?string $expression = null, ...$args): self
@@ -345,6 +385,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with AND to HAVING clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function andHaving(string $expression, ...$args): self
@@ -358,6 +399,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression with OR to HAVING clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function orHaving(string $expression, ...$args): self
@@ -371,6 +413,7 @@ class QueryBuilder
 
 	/**
 	 * Sets expression as ORDER BY clause. Passing null sets clause to the default state.
+	 * @phpstan-param literal-string|null $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function orderBy(?string $expression = null, ...$args): self
@@ -384,6 +427,7 @@ class QueryBuilder
 
 	/**
 	 * Adds expression to ORDER BY clause.
+	 * @phpstan-param literal-string $expression
 	 * @phpstan-param array<int, mixed> $args
 	 */
 	public function addOrderBy(string $expression, ...$args): self
