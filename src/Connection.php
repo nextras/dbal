@@ -128,11 +128,12 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function query(...$args): Result
+	public function query(string $expression, ...$args): Result
 	{
 		if (!$this->connected) {
 			$this->connect();
 		}
+		array_unshift($args, $expression);
 		$sql = $this->sqlPreprocessor->process($args);
 		return $this->nativeQuery($sql);
 	}
@@ -146,13 +147,17 @@ class Connection implements IConnection
 		} else {
 			array_unshift($args, $query);
 		}
-		return $this->query(...$args);
+		$sql = $this->sqlPreprocessor->process($args);
+		return $this->nativeQuery($sql);
 	}
 
 
 	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result
 	{
-		return $this->queryArgs($queryBuilder->getQuerySql(), $queryBuilder->getQueryParameters());
+		return $this->queryArgs(
+			$queryBuilder->getQuerySql(),
+			$queryBuilder->getQueryParameters()
+		);
 	}
 
 

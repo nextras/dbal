@@ -57,12 +57,20 @@ interface IConnection
 
 
 	/**
-	 * Executes a query.
+	 * Executes an query.
+	 *
+	 * Write an SQL query first, use modifiers instead of actual variable values and pass the variable
+	 * values as additional arguments.
+	 *
+	 * ```php
+	 * $connection->query('SELECT * FROM books WHERE id = %i', $id);
+	 * ```
+	 * @phpstan-param literal-string $expression
 	 * @param mixed ...$args
 	 * @phpstan-param mixed ...$args
 	 * @throws QueryException
 	 */
-	public function query(...$args): Result;
+	public function query(string $expression, ...$args): Result;
 
 
 	/**
