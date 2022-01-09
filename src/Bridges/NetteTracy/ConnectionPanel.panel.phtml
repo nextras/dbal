@@ -83,13 +83,13 @@ namespace Nextras\Dbal\Bridges\NetteTracy;
 						<table class="tracy-collapsed nextras-dbal-explain">
 							<tr>
 								<?php foreach ($explain[0] as $col => $foo): ?>
-									<th><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></th>
+									<th><?php echo htmlSpecialChars($col ?? '', ENT_NOQUOTES, 'UTF-8') ?></th>
 								<?php endforeach ?>
 							</tr>
 							<?php foreach ($explain as $row): ?>
 								<tr>
 									<?php foreach ($row as $col): ?>
-										<td class="<?php echo $whitespaceExplain ? 'whitespace-explain' : '' ?>"><?php echo htmlSpecialChars($col, ENT_NOQUOTES, 'UTF-8') ?></td>
+										<td class="<?php echo $whitespaceExplain ? 'whitespace-explain' : '' ?>"><?php echo htmlSpecialChars($col ?? '', ENT_NOQUOTES, 'UTF-8') ?></td>
 									<?php endforeach ?>
 								</tr>
 							<?php endforeach ?>
