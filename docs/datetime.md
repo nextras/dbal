@@ -11,11 +11,11 @@ Generally, we recognize two types of date-time types:
 
 The following table presents a matrix of available DB date-time types:
 
-|             | Local DateTime<br>no timezone handling   | DateTime<br>timezone conversion | DateTime<br>timezone stored | 
-|-------------|------------------------------------------|---------------------------------|-----------------------------|
-| MySQL       | `datetime`                               | `timestamp`                     | -                |
-| Postgres    | `timestamp`                              | `timestamptz`                   | -                |
-| SQL Server  | `datetime`, `datetime2`                  | -                               | `datetimeoffset` |
+|             | Local DateTime<br>no timezone handling  | DateTime<br>timezone conversion | DateTime<br>timezone stored | 
+|-------------|-----------------------------------------|---------------------------------|-----------------------------|
+| MySQL       | `datetime`                              | `timestamp`                     | -                           |
+| Postgres    | `timestamp`                             | `timestamptz`                   | -                           |
+| SQL Server  | `datetime`, `datetime2`                 | -                               | `datetimeoffset`            |
 
 - **no timezone handling**: database stores the time-stamp and does not do any modification to it; this is the easiest solution, but brings a disadvantage: database cannot exactly diff two time-stamps, i.e. it may produce wrong results because day-light saving shift is needed but db does not know which zone to use for the calculation;
 - **timezone conversion**: database stores the time-stamp unified in UTC and reads it in connection's timezone;
@@ -25,10 +25,10 @@ Dbal offers a **connection time zone** configuration option (`connectionTz`) tha
 
 Dbal comes with two query modifiers:
 
-| Type           | Modifier | Description
-|----------------|----------|------------
-| local datetime | `%ldt`   | passes DateTime(Interface) object as it is, without any timezone conversion and identification; formerly known as datetime simple (`%dts`)
-| datetime       | `%dt`    | converts DateTime(Interface) object to connection timezone;
+| Type           | Modifier | Description                                                                                                                                |
+|----------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| local datetime | `%ldt`   | passes DateTime(Interface) object as it is, without any timezone conversion and identification; formerly known as datetime simple (`%dts`) |
+| datetime       | `%dt`    | converts DateTime(Interface) object to connection timezone;                                                                                |
 
 ---------------
 
@@ -36,17 +36,17 @@ Dbal comes with two query modifiers:
 
 ##### Writing 
 
-| Type | Modifier | Comment
-|------|----------|--------
-| local datetime  | `%ldt`  | timezone (offset) is removed
-| datetime        | `%dt`   | value is converted to connection timezone and timezone offset is removed if properly stored to `timestamp` column type
+| Type           | Modifier | Comment                                                                                                                  |
+|----------------|----------|--------------------------------------------------------------------------------------------------------------------------|
+| local datetime | `%ldt`   | timezone (offset) is removed                                                                                             |
+| datetime       | `%dt`    | value is converted to connection timezone and timezone offset is removed if properly stored to `timestamp` column type   |
 
 ##### Reading
 
-| Type | Column Type | Comment
-|------|-------------|--------
-| local datetime     | `datetime`  | value is converted into application timezone
-| datetime           | `timestamp` | value is interpreted in connection timezone and converted into application timezone
+| Type           | Column Type | Comment                                                                             |
+|----------------|-------------|-------------------------------------------------------------------------------------|
+| local datetime | `datetime`  | value is converted into application timezone                                        |
+| datetime       | `timestamp` | value is interpreted in connection timezone and converted into application timezone |
 
 ##### Connection Time Zone
 
@@ -60,17 +60,17 @@ This will make Dbal fully functional, although some SQL queries and expressions 
 
 ##### Writing
 
-| Type | Modifier | Comment
-|------|----------|--------
-| local datetime  | `%ldt`  | timezone (offset) is removed
-| datetime        | `%dt`   | value is converted to connection timezone and timezone offset is removed if properly stored to `timestamptz` column type
+| Type           | Modifier | Comment                                                                                                                  |
+|----------------|----------|--------------------------------------------------------------------------------------------------------------------------|
+| local datetime | `%ldt`   | timezone (offset) is removed                                                                                             |
+| datetime       | `%dt`    | value is converted to connection timezone and timezone offset is removed if properly stored to `timestamptz` column type |
 
 ##### Reading
 
-| Type | Column Type | Comment
-|------|-------------|--------
-| local datetime     | `timestamp`  | value is converted into application timezone
-| datetime           | `timestamptz` | value is converted into application timezone
+| Type           | Column Type   | Comment                                      |
+|----------------|---------------|----------------------------------------------|
+| local datetime | `timestamp`   | value is converted into application timezone |
+| datetime       | `timestamptz` | value is converted into application timezone |
 
 ---------------
 
@@ -79,14 +79,14 @@ This will make Dbal fully functional, although some SQL queries and expressions 
 
 ##### Writing
 
-| Type | Modifier | Comment
-|------|----------|--------
-| local datetime  | `%ldt`  | timezone (offset) is removed
-| datetime        | `%dt`   | no timezone conversion is done and the timezone offset is stored in `datetimeoffset` db type
+| Type           | Modifier | Comment                                                                                      |
+|----------------|----------|----------------------------------------------------------------------------------------------|
+| local datetime | `%ldt`   | timezone (offset) is removed                                                                 |
+| datetime       | `%dt`    | no timezone conversion is done and the timezone offset is stored in `datetimeoffset` db type |
 
 ##### Reading
 
-| Type | Column Type | Comment
-|------|-------------|--------
-| local datetime     | `datetime`  | value is converted into application timezone
-| datetime           | `datetimeoffset` | value is read with timezone offset and no further modification is done - i.e. no application timezone conversion happens
+| Type           | Column Type      | Comment                                                                                                                  |
+|----------------|------------------|--------------------------------------------------------------------------------------------------------------------------|
+| local datetime | `datetime`       | value is converted into application timezone                                                                             |
+| datetime       | `datetimeoffset` | value is read with timezone offset and no further modification is done - i.e. no application timezone conversion happens |

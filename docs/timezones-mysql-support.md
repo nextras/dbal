@@ -11,7 +11,7 @@ Solutions:
 
 #### Linux
 
-Run this command, where `root` is the user name which has access to `mysql` database.
+Run this command, where `root` is the username which has access to `mysql` database.
 
 ```
 mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql

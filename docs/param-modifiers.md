@@ -2,19 +2,19 @@
 
 Dbal allows you to escape and build safe SQL query. It provides these powerful parameter modifiers:
 
-| Modifier                                   | Type           | Description
-|--------------------------------------------|----------------|------------
-| `%s`, `%?s`, `%s[]`, `%...s[]`             | string         | not nullable, nullable, array of
-| `%i`, `%?i`, `%i[]`, `%...i[]`             | integer        | not nullable, nullable, array of
-| `%f`, `%?f`, `%f[]`, `%...f[]`             | float          | not nullable, nullable, array of
-| `%b`, `%?b`, `%b[]`, `%...b[]`             | boolean        | not nullable, nullable, array of
-| `%dt`, `%?dt`, `%dt[]`, `%...dt[]`         | datetime       | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data
-| `%ldt`, `%?ldt`, `%ldt[]`, `%...ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime);  using wrong modifier may damage your data
-| `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance
-| `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of
-| `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of
-| `%any             `                        |                | any value
-| `%_like`, `%like_`, `%_like_`              | string         | like left, like right, like both sides
+| Modifier                                   | Type           | Description                                                                                                                       |
+|--------------------------------------------|----------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `%s`, `%?s`, `%s[]`, `%...s[]`             | string         | not nullable, nullable, array of                                                                                                  |
+| `%i`, `%?i`, `%i[]`, `%...i[]`             | integer        | not nullable, nullable, array of                                                                                                  |
+| `%f`, `%?f`, `%f[]`, `%...f[]`             | float          | not nullable, nullable, array of                                                                                                  |
+| `%b`, `%?b`, `%b[]`, `%...b[]`             | boolean        | not nullable, nullable, array of                                                                                                  |
+| `%dt`, `%?dt`, `%dt[]`, `%...dt[]`         | datetime       | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data      |
+| `%ldt`, `%?ldt`, `%ldt[]`, `%...ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime);  using wrong modifier may damage your data |
+| `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance                                                                                                             |
+| `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of                                                                                                  |
+| `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of                                                                                                  |
+| `%any             `                        |                | any value                                                                                                                         |
+| `%_like`, `%like_`, `%_like_`              | string         | like left, like right, like both sides                                                                                            |
 
 All modifiers require an argument of the specific data type - e.g. `%f` accepts only floats and integers.
 
@@ -39,19 +39,19 @@ $connection->query('WHERE [roles.privileges] ?| ARRAY[%...s[]]', ['backend', 'fr
 
 Other available modifiers:
 
-| Modifier                 | Description
-|--------------------------|------------
-| `%and`                   | AND condition
-| `%or`                    | OR condition
-| `%multiOr`               | OR condition with multiple conditions in pairs
-| `%values`, `%values[]`   | expands array for INSERT clause, multi insert
-| `%set`                   | expands array for SET clause
-| `%table`, `%table[]`     | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier;
-| `%column`, `%column[]`   | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier;
-| `%ex`                    | expands array as processor arguments
-| `%raw`                   | inserts string argument as is
-| `%%`                     | escapes to single `%` (useful in `date_format()`, etc.)
-| `[[`, `]]`               | escapes to single `[` or `]` (useful when working with array, etc.)
+| Modifier               | Description                                                                                                                                                                  |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `%and`                 | AND condition                                                                                                                                                                |
+| `%or`                  | OR condition                                                                                                                                                                 |
+| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                               |
+| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                |
+| `%set`                 | expands array for SET clause                                                                                                                                                 |
+| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier;                        |
+| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier; |
+| `%ex`                  | expands array as processor arguments                                                                                                                                         |
+| `%raw`                 | inserts string argument as is                                                                                                                                                |
+| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                      |
+| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                          |
 
 Let's examine `%and` and `%or` behavior. If array key is numeric and its value is an array, value is expanded with `%ex` modifier. (See below.)
 
