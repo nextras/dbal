@@ -177,7 +177,7 @@ class MysqliDriver implements IDriver
 	{
 		assert($this->connection !== null);
 		$affectedRows = $this->connection->affected_rows;
-		if (is_string($affectedRows)) {
+		if (is_string($affectedRows)) { // @phpstan-ignore-line
 			// Integer overflow, read the real value via IConnection::getDriver()::getResourceHandle()->affected_rows
 			return -2;
 		}
