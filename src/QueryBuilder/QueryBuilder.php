@@ -52,7 +52,7 @@ class QueryBuilder
 
 	/**
 	 * @var array|null
-	 * @phpstan-var array<array{type: string, alias: literal-string, table: literal-string, on: string}>|null
+	 * @phpstan-var array<array{type: string, table: literal-string, on: string}>|null
 	 */
 	private $join;
 

@@ -176,7 +176,12 @@ class MysqliDriver implements IDriver
 	public function getAffectedRows(): int
 	{
 		assert($this->connection !== null);
-		return $this->connection->affected_rows;
+		$affectedRows = $this->connection->affected_rows;
+		if (is_string($affectedRows)) {
+			// Integer overflow, read the real value via IConnection::getDriver()::getResourceHandle()->affected_rows
+			return -2;
+		}
+		return $affectedRows;
 	}
 
 

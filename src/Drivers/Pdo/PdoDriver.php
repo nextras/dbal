@@ -165,7 +165,7 @@ abstract class PdoDriver implements IDriver
 			$time = microtime(true);
 			$this->connection->beginTransaction();
 		} catch (PDOException $e) {
-			throw new DriverException($e->getMessage(), $e->getCode(), '', $e);
+			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
 		}
 
 		$timeTaken = microtime(true) - $time;
@@ -182,7 +182,7 @@ abstract class PdoDriver implements IDriver
 
 			$this->connection->commit();
 		} catch (PDOException $e) {
-			throw new DriverException($e->getMessage(), $e->getCode(), '', $e);
+			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
 		}
 
 		$timeTaken = microtime(true) - $time;
@@ -198,7 +198,7 @@ abstract class PdoDriver implements IDriver
 			$time = microtime(true);
 			$this->connection->rollBack();
 		} catch (PDOException $e) {
-			throw new DriverException($e->getMessage(), $e->getCode(), '', $e);
+			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
 		}
 
 		$timeTaken = microtime(true) - $time;
