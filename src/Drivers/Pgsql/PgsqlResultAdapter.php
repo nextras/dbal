@@ -72,7 +72,9 @@ class PgsqlResultAdapter implements IResultAdapter
 
 	public function getRowsCount(): int
 	{
-		return pg_num_rows($this->result);
+		/** @phpstan-var int<-1, max> $count */
+		$count = pg_num_rows($this->result);
+		return $count === -1 ? 0 : $count;
 	}
 
 

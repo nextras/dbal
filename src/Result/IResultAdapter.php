@@ -39,6 +39,7 @@ interface IResultAdapter
 
 	/**
 	 * Returns number of row in Result.
+	 * @phpstan-return int<0, max>
 	 */
 	public function getRowsCount(): int;
 
