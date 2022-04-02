@@ -5,6 +5,7 @@ Nextras Dbal
 [![Downloads this Month](https://img.shields.io/packagist/dm/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Stable Version](https://img.shields.io/packagist/v/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Code coverage](https://img.shields.io/coveralls/nextras/dbal.svg?style=flat)](https://coveralls.io/r/nextras/dbal)
+[![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/nextras/dbal)](https://packagist.org/packages/nextras/dbal)
 
 A powerful abstraction layer for a database. **Fast & Safe**.
 
