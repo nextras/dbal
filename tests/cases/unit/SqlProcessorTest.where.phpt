@@ -214,6 +214,24 @@ class SqlProcessorWhereTest extends TestCase
 				['a' => 3, 'b' => 4],
 			])
 		);
+
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
+
+		Assert::throws(function () {
+			$this->parser->processModifier('multiOr', [
+				['a%i' => 1, 'b' => 2],
+				['a%i' => 'a', 'b' => 2],
+			]);
+		}, InvalidArgumentException::class, 'Modifier %i expects value to be int, string given.');
+
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(false);
+
+		Assert::throws(function () {
+			$this->parser->processModifier('multiOr', [
+				['a%i' => 1, 'b' => 2],
+				['a%i' => 'a', 'b' => 2],
+			]);
+		}, InvalidArgumentException::class, 'Modifier %i expects value to be int, string given.');
 	}
 
 

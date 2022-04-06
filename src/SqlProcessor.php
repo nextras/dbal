@@ -587,10 +587,20 @@ class SqlProcessor
 	{
 		if ($this->platform->isSupported(IPlatform::SUPPORT_MULTI_COLUMN_IN)) {
 			$keys = [];
+			$modifiers = [];
 			foreach (array_keys(reset($values)) as $key) {
-				$keys[] = $this->identifierToSql(explode('%', (string) $key, 2)[0]);
+				$exploded = explode('%', (string) $key, 2);
+				$keys[] = $this->identifierToSql($exploded[0]);
+				$modifiers[] = $exploded[1] ?? 'any';
 			}
-			return '(' . implode(', ', $keys) . ') IN ' . $this->processModifier('any', $values);
+			foreach ($values as &$subValue) {
+				$i = 0;
+				foreach ($subValue as &$subSubValue) {
+					$subSubValue = $this->processModifier($modifiers[$i++], $subSubValue);
+				}
+				$subValue = '('. implode(', ', $subValue) . ')';
+			}
+			return '(' . implode(', ', $keys) . ') IN (' . implode(', ', $values) . ')';
 
 		} else {
 			$sqls = [];
