@@ -77,13 +77,13 @@ $connection->query('%or', [
 // `city` = 'Winterfell' OR `age` IN (23, 25)
 ```
 
-If you want select multiple rows with combined condition for each row, you may use multi-column `IN` expression. However, some databases do not support this feature, therefore Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax; let's see an example:
+If you want select multiple rows with combined condition for each row, you may use multi-column `IN` expression. However, some databases do not support this feature, therefore Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax. MultiOr modifier supports optional modifier appended to the column name, set it for all entries. Let's see an example:
 
 ```php
 $connection->query('%multiOr', [
-	['tag_id' => 1, 'book_id' => 23],
-	['tag_id' => 4, 'book_id' => 12],
-	['tag_id' => 9, 'book_id' => 83],
+	['tag_id%i' => 1, 'book_id' => 23],
+	['tag_id%i' => 4, 'book_id' => 12],
+	['tag_id%i' => 9, 'book_id' => 83],
 ]);
 // MySQL or PostgreSQL
 // (tag_id, book_id) IN ((1, 23), (4, 12), (9, 83))

@@ -53,7 +53,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			$isMariaDb = stripos($driver->getResourceHandle()->server_info, 'MariaDB') !== false;
 		} elseif ($driver instanceof PdoMysqlDriver) {
 			$isMariaDb =
-				stripos($driver->getResourceHandle()->getAttribute(\PDO::ATTR_SERVER_INFO), 'MariaDB') !== false;
+				stripos($driver->getResourceHandle()->getAttribute(\PDO::ATTR_SERVER_VERSION), 'MariaDB') !== false;
 		} else {
 			$isMariaDb = false;
 		}
