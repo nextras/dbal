@@ -69,7 +69,7 @@ class MySqlPlatform implements IPlatform
 			$table->schema = (string) $row->TABLE_SCHEMA;
 			$table->isView = $row->TABLE_TYPE === 'VIEW';
 
-			$tables[$table->getNameFqn()] = $table;
+			$tables[$table->getUnescapedFqn()] = $table;
 		}
 		return $tables;
 	}

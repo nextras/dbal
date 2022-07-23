@@ -24,7 +24,7 @@ interface IPlatform
 
 
 	/**
-	 * Returns list of tables names indexed by FQN table name.
+	 * Returns list of tables names indexed by fully qualified unescaped table name.
 	 * If no schema is provided, uses current schema name (search path).
 	 * @return Table[]
 	 * @phpstan-return array<string, Table>
