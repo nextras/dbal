@@ -47,7 +47,7 @@ class DbalExtension extends CompilerExtension
 			$definition->addSetup('@Tracy\BlueScreen::addPanel', [BluescreenQueryPanel::class . '::renderBluescreenPanel']);
 			$definition->addSetup(
 				ConnectionPanel::class . '::install',
-				['@self', $config['panelQueryExplain'] ?? true]
+				['@self', $config['panelQueryExplain'] ?? true, $config['maxQueries'] ?? 100]
 			);
 		}
 	}

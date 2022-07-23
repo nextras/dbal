@@ -17,7 +17,7 @@ use Tracy\IBarPanel;
 class ConnectionPanel implements IBarPanel, ILogger
 {
 	/** @var int */
-	private $maxQueries = 100;
+	private $maxQueries;
 
 	/** @var int */
 	private $count = 0;
@@ -38,18 +38,19 @@ class ConnectionPanel implements IBarPanel, ILogger
 	private $doExplain;
 
 
-	public static function install(IConnection $connection, bool $doExplain = true): void
+	public static function install(IConnection $connection, bool $doExplain = true, int $maxQueries = 100): void
 	{
 		$doExplain = $doExplain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
-		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain));
+		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain, $maxQueries));
 	}
 
 
-	public function __construct(IConnection $connection, bool $doExplain)
+	public function __construct(IConnection $connection, bool $doExplain, int $maxQueries = 100)
 	{
 		$connection->addLogger($this);
 		$this->connection = $connection;
 		$this->doExplain = $doExplain;
+		$this->maxQueries = $maxQueries;
 	}
 
 

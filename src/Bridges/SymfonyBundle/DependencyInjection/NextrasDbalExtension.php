@@ -26,13 +26,15 @@ class NextrasDbalExtension extends Extension
 		foreach ($config['connections'] as $name => $connectionConfig) {
 			$profiler = $connectionConfig['profiler'];
 			$explain = $connectionConfig['profilerExplain'];
+			$maxQueries = $config['max_queries'];
 			$this->loadConnection(
 				$container,
 				$name,
 				$connectionConfig,
 				$name === $defaultConnectionName,
 				$profiler,
-				$explain
+				$explain,
+				$maxQueries
 			);
 		}
 	}
@@ -47,7 +49,8 @@ class NextrasDbalExtension extends Extension
 		array $config,
 		bool $isDefault,
 		bool $profiler,
-		bool $explain
+		bool $explain,
+		int $maxQueries
 	): void
 	{
 		$connectionDefinition = new Definition(Connection::class);
@@ -69,6 +72,7 @@ class NextrasDbalExtension extends Extension
 			$collectorDefinition->setArgument('$connection', new Reference("nextras_dbal.$name.connection"));
 			$collectorDefinition->setArgument('$explain', $explain);
 			$collectorDefinition->setArgument('$name', $collectorName);
+			$collectorDefinition->setArgument('$maxQueries', $maxQueries);
 			$collectorDefinition->addTag('data_collector', [
 				'template' => '@NextrasDbal/DataCollector/template.html.twig',
 				'id' => $collectorName,

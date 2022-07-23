@@ -33,12 +33,16 @@ class QueryDataCollector extends DataCollector implements ILogger
 	 */
 	private $queries = [];
 
+	/** @var int */
+	private $maxQueries;
 
-	public function __construct(IConnection $connection, bool $explain, string $name)
+
+	public function __construct(IConnection $connection, bool $explain, string $name, int $maxQueries = 100)
 	{
 		$this->connection = $connection;
 		$this->explain = $explain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
 		$this->data['name'] = $name;
+		$this->maxQueries = $maxQueries;
 		$this->reset();
 	}
 
@@ -136,7 +140,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
 	{
 		$this->data['count']++;
-		if ($this->data['count'] > 100) {
+		if ($this->data['count'] > $this->maxQueries) {
 			return;
 		}
 
