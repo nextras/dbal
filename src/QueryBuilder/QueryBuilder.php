@@ -15,13 +15,13 @@ class QueryBuilder
 
 
 	/** @var IPlatform */
-	private $platform;
+	protected $platform;
 
 	/**
 	 * @var array
 	 * @phpstan-var array<string, array<mixed>|null>
 	 */
-	private $args = [
+	protected $args = [
 		'select' => null,
 		'from' => null,
 		'indexHints' => null,
@@ -36,58 +36,58 @@ class QueryBuilder
 	 * @var string[]|null
 	 * @phpstan literal-string[]|null
 	 */
-	private $select;
+	protected $select;
 
 	/**
 	 * @var array|null
 	 * @phpstan-var array{literal-string, literal-string|null}|null
 	 */
-	private $from;
+	protected $from;
 
 	/**
 	 * @var string|null
 	 * @phpstan-var literal-string|null
 	 */
-	private $indexHints;
+	protected $indexHints;
 
 	/**
 	 * @var array|null
 	 * @phpstan-var array<array{type: string, table: literal-string, on: string}>|null
 	 */
-	private $join;
+	protected $join;
 
 	/**
 	 * @var string|null
 	 * @phpstan-var literal-string|null
 	 */
-	private $where;
+	protected $where;
 
 	/**
 	 * @var string[]|null
 	 * @phpstan-var literal-string[]|null
 	 */
-	private $group;
+	protected $group;
 
 	/**
 	 * @var string|null
 	 * @phpstan-var literal-string|null
 	 */
-	private $having;
+	protected $having;
 
 	/**
 	 * @var string[]|null
 	 * @phpstan-var literal-string[]|null
 	 */
-	private $order;
+	protected $order;
 
 	/**
 	 * @var array|null
 	 * @phpstan-var array{?int, ?int}|null
 	 */
-	private $limit;
+	protected $limit;
 
 	/** @var string|null */
-	private $generatedSql;
+	protected $generatedSql;
 
 
 	public function __construct(IPlatform $platform)
@@ -125,7 +125,7 @@ class QueryBuilder
 	}
 
 
-	private function getSqlForSelect(): string
+	protected function getSqlForSelect(): string
 	{
 		return
 			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
@@ -138,7 +138,7 @@ class QueryBuilder
 	}
 
 
-	private function getFromClauses(): string
+	protected function getFromClauses(): string
 	{
 		if ($this->from === null) {
 			throw new InvalidStateException();
@@ -258,7 +258,7 @@ class QueryBuilder
 	 * @phpstan-param literal-string $onExpression
 	 * @phpstan-param array<mixed> $args
 	 */
-	private function join(string $type, string $toExpression, string $onExpression, array $args): self
+	protected function join(string $type, string $toExpression, string $onExpression, array $args): self
 	{
 		$this->dirty();
 		$this->join[] = [
@@ -469,7 +469,7 @@ class QueryBuilder
 	}
 
 
-	private function dirty(): void
+	protected function dirty(): void
 	{
 		$this->generatedSql = null;
 	}
@@ -478,7 +478,7 @@ class QueryBuilder
 	/**
 	 * @phpstan-param array<mixed> $args
 	 */
-	private function pushArgs(string $type, array $args): void
+	protected function pushArgs(string $type, array $args): void
 	{
 		$this->args[$type] = array_merge((array) $this->args[$type], $args);
 	}
