@@ -1,4 +1,6 @@
 - [Connection](default)
+- [Config with Nette](config-nette)
+- [Config with Symfony](config-symfony)
 - [Modifiers](param-modifiers)
 - [Result](result)
 - [Query Builder](query-builder)

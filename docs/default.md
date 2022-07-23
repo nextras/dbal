@@ -39,6 +39,8 @@ $connection = new Nextras\Dbal\Connection([
 
 The Connection's implementation is lazy; it connects to database only when needed. You can explicitly connect by calling `connect()` method; you can also `disconnect()` or `reconnect()` the connection. Use `ping()` method to avoid connection timeouts.
 
+In real world application, you are expected to you use a Dependency Injection Container. Dbal comes with integration for [Nette framework](config-nette) and [Symfony framework](config-symfony). Utilizing those extensions helps you to set up the Connection.
+
 ### Querying
 
 Use `query()` method to run SQL queries. The query method accepts a single SQL statement. Dbal supports parameter placeholders called modifiers - values are passed separately and its value will replace the placeholder with properly escaped and sanitized value. Read more in [Parameter Modifiers| param-modifiers] chapter.
