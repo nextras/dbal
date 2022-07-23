@@ -20,7 +20,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var resource */
+	/** @var \PgSql\Result */
 	private $result;
 
 	/** @var PgsqlResultNormalizerFactory */
@@ -28,7 +28,7 @@ class PgsqlResultAdapter implements IResultAdapter
 
 
 	/**
-	 * @param resource $result
+	 * @param \PgSql\Result $result
 	 */
 	public function __construct($result, PgsqlResultNormalizerFactory $normalizerFactory)
 	{
