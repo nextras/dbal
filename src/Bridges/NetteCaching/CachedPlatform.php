@@ -11,7 +11,7 @@ use Nextras\Dbal\Platforms\IPlatform;
 
 class CachedPlatform implements IPlatform
 {
-	private const CACHE_VERSION = 'v2';
+	private const CACHE_VERSION = 'v3';
 
 	/** @var IPlatform */
 	private $platform;
@@ -43,28 +43,37 @@ class CachedPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table): array
+	public function getColumns(string $table, ?string $schema = null): array
 	{
-		return $this->cache->load(self::CACHE_VERSION . '.columns.' . $table, function () use ($table): array {
-			return $this->platform->getColumns($table);
-		});
+		return $this->cache->load(
+			self::CACHE_VERSION . '.columns.' . $table . $schema,
+			function () use ($table, $schema): array {
+				return $this->platform->getColumns($table, $schema);
+			}
+		);
 	}
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table): array
+	public function getForeignKeys(string $table, ?string $schema = null): array
 	{
-		return $this->cache->load(self::CACHE_VERSION . '.foreign_keys.' . $table, function () use ($table): array {
-			return $this->platform->getForeignKeys($table);
-		});
+		return $this->cache->load(
+			self::CACHE_VERSION . '.foreign_keys.' . $table . $schema,
+			function () use ($table, $schema): array {
+				return $this->platform->getForeignKeys($table, $schema);
+			}
+		);
 	}
 
 
-	public function getPrimarySequenceName(string $table): ?string
+	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
 	{
-		return $this->cache->load(self::CACHE_VERSION . '.sequence.' . $table, function () use ($table): array {
-			return [$this->platform->getPrimarySequenceName($table)];
-		})[0];
+		return $this->cache->load(
+			self::CACHE_VERSION . '.sequence.' . $table . $schema,
+			function () use ($table, $schema): array {
+				return [$this->platform->getPrimarySequenceName($table, $schema)];
+			}
+		)[0];
 	}
 
 

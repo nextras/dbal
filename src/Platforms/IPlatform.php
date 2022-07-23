@@ -37,7 +37,7 @@ interface IPlatform
 	 * @return Column[]
 	 * @phpstan-return array<string, Column>
 	 */
-	public function getColumns(string $table): array;
+	public function getColumns(string $table, ?string $schema = null): array;
 
 
 	/**
@@ -45,14 +45,14 @@ interface IPlatform
 	 * @return ForeignKey[]
 	 * @phpstan-return array<string, ForeignKey>
 	 */
-	public function getForeignKeys(string $table): array;
+	public function getForeignKeys(string $table, ?string $schema = null): array;
 
 
 	/**
 	 * Returns primary sequence name for the table.
 	 * If not supported nor present, returns a null.
 	 */
-	public function getPrimarySequenceName(string $table): ?string;
+	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string;
 
 
 	/**
