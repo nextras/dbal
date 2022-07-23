@@ -81,9 +81,10 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table): array
+	public function getColumns(string $table, ?string $schema = null): array
 	{
-		$result = $this->connection->query(/** @lang GenericSQL */ "
+		$tableArgs = $schema !== null ? [$schema, $table] : [$table];
+		$result = $this->connection->query((/** @lang GenericSQL */ "
 			SELECT
 				a.attname::varchar AS name,
 				UPPER(t.typname) AS type,
@@ -101,12 +102,16 @@ class PostgreSqlPlatform implements IPlatform
 				LEFT JOIN pg_catalog.pg_constraint AS co ON co.connamespace = c.relnamespace AND contype = 'p' AND co.conrelid = c.oid AND a.attnum = ANY(co.conkey)
 			WHERE
 				c.relkind IN ('r', 'v')
-				AND c.oid = '%table'::regclass
+				") . (
+			count($tableArgs) > 1
+				? "AND c.oid = '%table.%table'::regclass"
+				: "AND c.oid = '%table'::regclass"
+			) . (/** @lang GenericSQL */ "
 				AND a.attnum > 0
 				AND NOT a.attisdropped
 			ORDER BY
 				a.attnum
-		", "nextval[(]'\"?([^'\"]+)", $table);
+		"), "nextval[(]'\"?([^'\"]+)", ...$tableArgs);
 
 		$columns = [];
 		foreach ($result as $row) {
@@ -128,9 +133,10 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table): array
+	public function getForeignKeys(string $table, ?string $schema = null): array
 	{
-		$result = $this->connection->query(/** @lang GenericSQL */ "
+		$tableArgs = $schema !== null ? [$schema, $table] : [$table];
+		$result = $this->connection->query((/** @lang PostgreSQL */ "
 			SELECT
 				co.conname::varchar AS name,
 				ns.nspname::varchar AS schema,
@@ -148,8 +154,11 @@ class PostgreSqlPlatform implements IPlatform
 				JOIN pg_catalog.pg_attribute AS atf ON atf.attrelid = clf.oid AND atf.attnum = co.confkey[[1]]
 			WHERE
 				co.contype = 'f'
-				AND cl.oid = '%column'::regclass
-		", $table);
+				") . (
+			count($tableArgs) > 1
+				? "AND cl.oid = '%table.%table'::regclass"
+				: "AND cl.oid = '%table'::regclass"
+			), ...$tableArgs);
 
 		$keys = [];
 		foreach ($result as $row) {
@@ -167,9 +176,9 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table): ?string
+	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
 	{
-		foreach ($this->getColumns($table) as $column) {
+		foreach ($this->getColumns($table, $schema) as $column) {
 			if ($column->isPrimary) {
 				return $column->meta['sequence'] ?? null;
 			}

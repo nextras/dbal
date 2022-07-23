@@ -108,7 +108,7 @@ class PlatformSqlServerTest extends IntegrationTestCase
 			],
 		], $columns);
 
-		$schemaColumns = $this->connection->getPlatform()->getColumns('second_schema.authors');
+		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', 'second_schema');
 		$schemaColumns = \array_map(function ($column) { return (array) $column; }, $schemaColumns);
 
 		Assert::same([
@@ -210,7 +210,7 @@ class PlatformSqlServerTest extends IntegrationTestCase
 			);
 		");
 
-		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('second_schema.book_fk');
+		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', 'second_schema');
 		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
 
 		Assert::same([

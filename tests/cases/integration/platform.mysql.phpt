@@ -132,7 +132,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 
 		$dbName2 = $this->connection->getConfig()['database'] . '2';
 
-		$schemaColumns = $this->connection->getPlatform()->getColumns("$dbName2.authors");
+		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', $dbName2);
 		$schemaColumns = array_map(function ($table) {
 			return (array) $table;
 		}, $schemaColumns);
@@ -240,7 +240,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 			);
 		");
 
-		$schemaKeys = $this->connection->getPlatform()->getForeignKeys("$dbName2.book_fk");
+		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', $dbName2);
 		$schemaKeys = array_map(function ($key) {
 			return (array) $key;
 		}, $schemaKeys);

@@ -58,7 +58,7 @@ class CachedPlatformTest extends TestCase
 		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
 		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
 		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedCols, [])->once();
-		$this->platformMock->shouldReceive('getColumns')->with('foo')->once()->andReturn($expectedCols);
+		$this->platformMock->shouldReceive('getColumns')->with('foo', null)->once()->andReturn($expectedCols);
 
 		$cols = $this->platform->getColumns('foo');
 		Assert::same($expectedCols, $cols);
@@ -84,7 +84,7 @@ class CachedPlatformTest extends TestCase
 		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
 		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
 		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedFk, [])->once();
-		$this->platformMock->shouldReceive('getForeignKeys')->with('foo')->once()->andReturn($expectedFk);
+		$this->platformMock->shouldReceive('getForeignKeys')->with('foo', null)->once()->andReturn($expectedFk);
 
 		$cols = $this->platform->getForeignKeys('foo');
 		Assert::same($expectedFk, $cols);
@@ -97,17 +97,16 @@ class CachedPlatformTest extends TestCase
 		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
 		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
 		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), [$expectedPs], [])->once();
-		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn($expectedPs);
+		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo', null)->once()->andReturn($expectedPs);
 
 		$cols = $this->platform->getPrimarySequenceName('foo');
 		Assert::same($expectedPs, $cols);
 
 
-		$expectedPs = null;
 		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
 		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
 		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), [null], [])->once();
-		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo')->once()->andReturn(null);
+		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo', null)->once()->andReturn(null);
 
 		$cols = $this->platform->getPrimarySequenceName('foo');
 		Assert::same(null, $cols);

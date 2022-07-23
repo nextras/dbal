@@ -76,10 +76,15 @@ class MySqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table): array
+	public function getColumns(string $table, ?string $schema = null): array
 	{
+		if ($schema !== null) {
+			$query = $this->connection->query('SHOW FULL COLUMNS FROM %table.%table', $schema, $table);
+		} else {
+			$query = $this->connection->query('SHOW FULL COLUMNS FROM %table', $table);
+		}
 		$columns = [];
-		foreach ($this->connection->query('SHOW FULL COLUMNS FROM %table', $table) as $row) {
+		foreach ($query as $row) {
 			$type = explode('(', $row->Type);
 
 			$column = new Column();
@@ -100,16 +105,8 @@ class MySqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table): array
+	public function getForeignKeys(string $table, ?string $schema = null): array
 	{
-		$parts = explode('.', $table);
-		if (count($parts) === 2) {
-			$db = $parts[0];
-			$table = $parts[1];
-		} else {
-			$db = null;
-		}
-
 		$result = $this->connection->query(/** @lang GenericSQL */ '
 			SELECT
 				CONSTRAINT_NAME,
@@ -126,7 +123,7 @@ class MySqlPlatform implements IPlatform
 				AND TABLE_NAME = %s
 			ORDER BY
 				CONSTRAINT_NAME
-		', $db, $table);
+		', $schema, $table);
 
 		/** @var array<string, ForeignKey> $keys */
 		$keys = [];
@@ -145,7 +142,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table): ?string
+	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
 	{
 		return null;
 	}

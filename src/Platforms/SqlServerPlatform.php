@@ -68,16 +68,8 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table): array
+	public function getColumns(string $table, ?string $schema = null): array
 	{
-		$parts = explode('.', $table);
-		if (count($parts) === 2) {
-			$schema = $parts[0];
-			$table = $parts[1];
-		} else {
-			$schema = null;
-		}
-
 		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				[a].[COLUMN_NAME] AS [name],
@@ -139,16 +131,8 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table): array
+	public function getForeignKeys(string $table, ?string $schema = null): array
 	{
-		$parts = explode('.', $table);
-		if (count($parts) === 2) {
-			$schema = $parts[0];
-			$table = $parts[1];
-		} else {
-			$schema = null;
-		}
-
 		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				[a].[CONSTRAINT_NAME] AS [name],
@@ -191,7 +175,7 @@ class SqlServerPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table): ?string
+	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
 	{
 		return null;
 	}
