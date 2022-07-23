@@ -40,6 +40,7 @@ class Table
 	 * ```php
 	 * $connection->query('... WHERE %ex.[id] = 1', $table->getFqnExpression());
 	 * ```
+	 * @return array<mixed>
 	 */
 	public function getFqnExpression(): array
 	{
