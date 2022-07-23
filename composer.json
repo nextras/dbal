@@ -42,5 +42,10 @@
 		"branch-alias": {
 			"dev-main": "5.0-dev"
 		}
+	},
+	"config": {
+		"allow-plugins": {
+			"phpstan/extension-installer": true
+		}
 	}
 }

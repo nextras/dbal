@@ -74,7 +74,7 @@ class PostgreSqlPlatform implements IPlatform
 			$table->schema = (string) $row->schema;
 			$table->isView = (bool) $row->is_view;
 
-			$tables[$table->getNameFqn()] = $table;
+			$tables[$table->getUnescapedFqn()] = $table;
 		}
 		return $tables;
 	}
