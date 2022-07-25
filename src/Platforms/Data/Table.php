@@ -19,6 +19,14 @@ class Table
 
 	/** @var bool */
 	public $isView;
+	
+	/**
+	* @deprecated  Use getUnescapedFqn()
+	*/
+	public function getNameFqn(): string
+	{
+		return $this->getUnescapedFqn();
+	}
 
 
 	/**
