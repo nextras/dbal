@@ -107,6 +107,15 @@ class MySqlPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getForeignKeys(string $table, ?string $schema = null): array
 	{
+		if($schema===null){
+		    $parts = explode('.', $table);
+		    if (count($parts) === 2) {
+			$schema = $parts[0];
+			$table = $parts[1];
+		    } else {
+			$schema = null;
+		    }
+        	}
 		$result = $this->connection->query(/** @lang GenericSQL */ '
 			SELECT
 				CONSTRAINT_NAME,
