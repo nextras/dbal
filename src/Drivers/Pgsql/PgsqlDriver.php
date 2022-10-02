@@ -49,7 +49,7 @@ class PgsqlDriver implements IDriver
 	use StrictObjectTrait;
 
 
-	/** @var resource|null */
+	/** @var \PgSql\Connection|null */
 	private $connection;
 
 	/** @var DateTimeZone */
@@ -213,7 +213,7 @@ class PgsqlDriver implements IDriver
 	public function getServerVersion(): string
 	{
 		assert($this->connection !== null);
-		return pg_version($this->connection)['server'];
+		return (string) pg_version($this->connection)['server'];
 	}
 
 

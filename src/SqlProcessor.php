@@ -189,7 +189,7 @@ class SqlProcessor
 						if (preg_match('#^-?[1-9][0-9]*+\z#', $value) !== 1) {
 							break;
 						}
-						return (string) $value;
+						return $value;
 
 					case '_like':
 						return $this->platform->formatStringLike($value, -1);
