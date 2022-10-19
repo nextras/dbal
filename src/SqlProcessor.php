@@ -320,6 +320,8 @@ class SqlProcessor
 					$valueType = gettype($value->value);
 					if ($type === 's') {
 						if ($valueType === 'string') {
+							// we know for sure that value is string...
+							// @phpstan-ignore-next-line
 							return $this->platform->formatString($value->value);
 						} elseif ($valueType === 'integer') {
 							return (string) $value->value;
