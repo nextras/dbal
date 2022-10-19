@@ -1,0 +1,121 @@
+<?php declare(strict_types = 1);
+
+/**
+ * @testCase
+ * @phpVersion >= 8.1
+ */
+
+namespace NextrasTests\Dbal;
+
+
+use Mockery;
+use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Platforms\IPlatform;
+use Nextras\Dbal\SqlProcessor;
+use Tester\Assert;
+
+
+require_once __DIR__ . '/../../bootstrap.php';
+
+
+enum DirectionEnum: string
+{
+	case LEFT = 'left';
+	case RIGHT = 'right';
+}
+
+
+enum BinaryEnum: int
+{
+	case ZERO = 0;
+	case ONE = 1;
+}
+
+
+class SqlProcessorBackedEnumTest extends TestCase
+{
+	/** @var IPlatform|Mockery\MockInterface */
+	private $platform;
+
+	/** @var SqlProcessor */
+	private $parser;
+
+
+	protected function setUp()
+	{
+		parent::setUp();
+		$this->platform = \Mockery::mock(IPlatform::class);
+		$this->parser = new SqlProcessor($this->platform);
+	}
+
+
+	public function testString()
+	{
+		$cases = DirectionEnum::cases();
+		foreach ($cases as $case) {
+			$this->platform->shouldReceive('formatString')->once()->with($case->value)->andReturn('hit');
+			Assert::same('hit', $this->parser->processModifier('s', $case));
+		}
+
+		$cases = BinaryEnum::cases();
+		foreach ($cases as $case) {
+			Assert::same((string) $case->value, $this->parser->processModifier('s', $case));
+		}
+
+	}
+
+
+	public function testStringArray()
+	{
+
+		$cases = DirectionEnum::cases();
+		$this->platform->shouldReceive('formatString')->times(count($cases))
+			->andReturnArg(0);
+		Assert::same('(left, right)', $this->parser->processModifier('s[]', $cases));
+
+		$cases = BinaryEnum::cases();
+		Assert::same('(0, 1)', $this->parser->processModifier('s[]', $cases));
+
+	}
+
+
+	public function testInt()
+	{
+		$cases = DirectionEnum::cases();
+		foreach ($cases as $case) {
+			Assert::exception(
+				function () use ($case) {
+					$this->parser->processModifier('i', $case);
+				},
+				InvalidArgumentException::class,
+				'Modifier %i expects value to be int, NextrasTests\Dbal\DirectionEnum given.');
+		}
+
+		$cases = BinaryEnum::cases();
+		foreach ($cases as $case) {
+			Assert::same((string) $case->value, $this->parser->processModifier('i', $case));
+		}
+
+	}
+
+
+	public function testIntArray()
+	{
+		$cases = DirectionEnum::cases();
+		Assert::exception(
+			function () use ($cases) {
+				$this->parser->processModifier('i[]', $cases);
+			},
+			InvalidArgumentException::class,
+			'Modifier %i expects value to be int, NextrasTests\Dbal\DirectionEnum given.'
+		);
+
+		$cases = BinaryEnum::cases();
+		Assert::same('(0, 1)', $this->parser->processModifier('i[]', $cases));
+
+	}
+}
+
+
+$test = new SqlProcessorBackedEnumTest();
+$test->run();

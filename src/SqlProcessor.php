@@ -316,6 +316,19 @@ class SqlProcessor
 						case '_like_':
 							return $this->platform->formatStringLike((string) $value, 0);
 					}
+				} elseif ($value instanceof \BackedEnum) {
+					$valueType = gettype($value->value);
+					if ($type === 's') {
+						if ($valueType === 'string') {
+							return $this->platform->formatString($value->value);
+						} elseif ($valueType === 'integer') {
+							return (string) $value->value;
+						}
+					} elseif ($type === 'i') {
+						if ($valueType === 'integer') {
+							return (string) $value->value;
+						}
+					}
 				}
 
 				break;
