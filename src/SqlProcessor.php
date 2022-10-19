@@ -168,6 +168,10 @@ class SqlProcessor
 	 */
 	public function processModifier(string $type, $value): string
 	{
+		if ($value instanceof \BackedEnum) {
+			$value = $value->value;
+		}
+
 		if ($type === 'any') {
 			$type = $this->detectType($value) ?? 'any';
 		}
@@ -315,21 +319,6 @@ class SqlProcessor
 							return $this->platform->formatStringLike((string) $value, 1);
 						case '_like_':
 							return $this->platform->formatStringLike((string) $value, 0);
-					}
-				} elseif ($value instanceof \BackedEnum) {
-					$valueType = gettype($value->value);
-					if ($type === 's') {
-						if ($valueType === 'string') {
-							// we know for sure that value is string...
-							// @phpstan-ignore-next-line
-							return $this->platform->formatString($value->value);
-						} elseif ($valueType === 'integer') {
-							return (string) $value->value;
-						}
-					} elseif ($type === 'i') {
-						if ($valueType === 'integer') {
-							return (string) $value->value;
-						}
 					}
 				}
 

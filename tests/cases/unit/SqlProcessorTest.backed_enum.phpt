@@ -59,7 +59,13 @@ class SqlProcessorBackedEnumTest extends TestCase
 
 		$cases = BinaryEnum::cases();
 		foreach ($cases as $case) {
-			Assert::same((string) $case->value, $this->parser->processModifier('s', $case));
+			Assert::exception(
+				function () use ($case) {
+					$this->parser->processModifier('s', $case);
+				},
+				InvalidArgumentException::class,
+				'Modifier %s expects value to be string, integer given.'
+			);
 		}
 
 	}
@@ -73,8 +79,14 @@ class SqlProcessorBackedEnumTest extends TestCase
 			->andReturnArg(0);
 		Assert::same('(left, right)', $this->parser->processModifier('s[]', $cases));
 
-		$cases = BinaryEnum::cases();
-		Assert::same('(0, 1)', $this->parser->processModifier('s[]', $cases));
+		Assert::exception(
+			function () {
+				$cases = BinaryEnum::cases();
+				$this->parser->processModifier('s[]', $cases);
+			},
+			InvalidArgumentException::class,
+			'Modifier %s expects value to be string, integer given.'
+		);
 
 	}
 
@@ -88,7 +100,8 @@ class SqlProcessorBackedEnumTest extends TestCase
 					$this->parser->processModifier('i', $case);
 				},
 				InvalidArgumentException::class,
-				'Modifier %i expects value to be int, NextrasTests\Dbal\DirectionEnum given.');
+				'Modifier %i expects value to be int, string given.'
+			);
 		}
 
 		$cases = BinaryEnum::cases();
@@ -107,7 +120,7 @@ class SqlProcessorBackedEnumTest extends TestCase
 				$this->parser->processModifier('i[]', $cases);
 			},
 			InvalidArgumentException::class,
-			'Modifier %i expects value to be int, NextrasTests\Dbal\DirectionEnum given.'
+			'Modifier %i expects value to be int, string given.'
 		);
 
 		$cases = BinaryEnum::cases();
