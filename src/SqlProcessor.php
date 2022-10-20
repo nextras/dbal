@@ -168,6 +168,10 @@ class SqlProcessor
 	 */
 	public function processModifier(string $type, $value): string
 	{
+		if ($value instanceof \BackedEnum) {
+			$value = $value->value;
+		}
+
 		if ($type === 'any') {
 			$type = $this->detectType($value) ?? 'any';
 		}
