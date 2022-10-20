@@ -148,6 +148,10 @@ class SqlProcessor
 	 */
 	public function processModifier(string $type, $value): string
 	{
+		if ($value instanceof \BackedEnum) {
+			$value = $value->value;
+		}
+
 		switch (gettype($value)) {
 			case 'string':
 				switch ($type) {
