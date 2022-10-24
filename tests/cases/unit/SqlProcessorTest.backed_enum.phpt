@@ -9,6 +9,7 @@ namespace NextrasTests\Dbal;
 
 
 use Mockery;
+use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
@@ -37,6 +38,9 @@ class SqlProcessorBackedEnumTest extends TestCase
 	/** @var IPlatform|Mockery\MockInterface */
 	private $platform;
 
+	/** @var IDriver|Mockery\MockInterface */
+	private $driver;
+
 	/** @var SqlProcessor */
 	private $parser;
 
@@ -44,8 +48,9 @@ class SqlProcessorBackedEnumTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
+		$this->driver = Mockery::mock(IDriver::class);
 		$this->platform = \Mockery::mock(IPlatform::class);
-		$this->parser = new SqlProcessor($this->platform);
+		$this->parser = new SqlProcessor($this->driver, $this->platform);
 	}
 
 
@@ -53,7 +58,7 @@ class SqlProcessorBackedEnumTest extends TestCase
 	{
 		$cases = DirectionEnum::cases();
 		foreach ($cases as $case) {
-			$this->platform->shouldReceive('formatString')->once()->with($case->value)->andReturn('hit');
+			$this->driver->shouldReceive('convertStringToSql')->once()->with($case->value)->andReturn('hit');
 			Assert::same('hit', $this->parser->processModifier('s', $case));
 		}
 
@@ -75,7 +80,7 @@ class SqlProcessorBackedEnumTest extends TestCase
 	{
 
 		$cases = DirectionEnum::cases();
-		$this->platform->shouldReceive('formatString')->times(count($cases))
+		$this->driver->shouldReceive('convertStringToSql')->times(count($cases))
 			->andReturnArg(0);
 		Assert::same('(left, right)', $this->parser->processModifier('s[]', $cases));
 
