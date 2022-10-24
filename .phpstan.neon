@@ -20,3 +20,10 @@ parameters:
 		-
 			message: '~Call to an undefined method .+::children\(\)\.~'
 			path: "src/Bridges/SymfonyBundle/DependencyInjection/Configuration.php"
+		-
+			message: '~Class BackedEnum not found\.~'
+			path: "src/SqlProcessor.php"
+		-
+			message: '~Access to property \$value on an unknown class BackedEnum\.~'
+			path: "src/SqlProcessor.php"
+
