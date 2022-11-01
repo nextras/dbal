@@ -23,7 +23,7 @@
 		"nette/utils": "~3.0",
 		"nette/finder": "~2.5",
 		"nette/neon": "~3.0",
-		"phpstan/extension-installer": "1.1.0",
+		"phpstan/extension-installer": "1.2.0",
 		"phpstan/phpstan": "1.8.6",
 		"phpstan/phpstan-deprecation-rules": "1.0.0",
 		"phpstan/phpstan-strict-rules": "1.1.0",
