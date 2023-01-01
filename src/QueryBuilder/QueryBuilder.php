@@ -14,8 +14,7 @@ class QueryBuilder
 	use StrictObjectTrait;
 
 
-	/** @var IPlatform */
-	protected $platform;
+	protected IPlatform $platform;
 
 	/**
 	 * @var array

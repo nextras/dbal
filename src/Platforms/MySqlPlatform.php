@@ -15,7 +15,6 @@ use Nextras\Dbal\Utils\DateTimeHelper;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function addcslashes;
-use function count;
 use function explode;
 use function str_replace;
 use function strstr;
@@ -28,18 +27,13 @@ class MySqlPlatform implements IPlatform
 	use StrictObjectTrait;
 
 
-	public const NAME = 'mysql';
+	final public const NAME = 'mysql';
 
-	/** @var IConnection */
-	private $connection;
-
-	/** @var IDriver */
-	private $driver;
+	private readonly IDriver $driver;
 
 
-	public function __construct(IConnection $connection)
+	public function __construct(private readonly IConnection $connection)
 	{
-		$this->connection = $connection;
 		$this->driver = $connection->getDriver();
 	}
 
@@ -85,7 +79,7 @@ class MySqlPlatform implements IPlatform
 		}
 		$columns = [];
 		foreach ($query as $row) {
-			$type = explode('(', $row->Type);
+			$type = explode('(', (string) $row->Type);
 
 			$column = new Column();
 			$column->name = (string) $row->Field;
@@ -94,7 +88,7 @@ class MySqlPlatform implements IPlatform
 			$column->default = $row->Default !== null ? (string) $row->Default : null;
 			$column->isPrimary = $row->Key === 'PRI';
 			$column->isAutoincrement = $row->Extra === 'auto_increment';
-			$column->isUnsigned = (bool) strstr($row->Type, 'unsigned');
+			$column->isUnsigned = (bool) strstr((string) $row->Type, 'unsigned');
 			$column->isNullable = $row->Null === 'YES';
 			$column->meta = [];
 
@@ -161,7 +155,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function formatJson($value): string
+	public function formatJson(mixed $value): string
 	{
 		$encoded = JsonHelper::safeEncode($value);
 		return $this->driver->convertStringToSql($encoded);

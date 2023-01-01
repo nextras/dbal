@@ -19,23 +19,12 @@ class PdoSqlsrvResultNormalizerFactory
 	use StrictObjectTrait;
 
 
-	/** @var Closure(mixed): mixed */
-	private $intNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $floatNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $boolNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $dateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $offsetDateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $moneyNormalizer;
+	private Closure $intNormalizer;
+	private Closure $floatNormalizer;
+	private Closure $boolNormalizer;
+	private Closure $dateTimeNormalizer;
+	private Closure $offsetDateTimeNormalizer;
+	private Closure $moneyNormalizer;
 
 
 	public function __construct()
@@ -70,7 +59,7 @@ class PdoSqlsrvResultNormalizerFactory
 
 		$this->moneyNormalizer = static function ($value) {
 			if ($value === null) return null;
-			return strpos($value, '.') === false ? (int) $value : (float) $value;
+			return !str_contains($value, '.') ? (int) $value : (float) $value;
 		};
 	}
 
@@ -105,8 +94,8 @@ class PdoSqlsrvResultNormalizerFactory
 
 		$normalizers = [];
 		foreach ($types as $column => $type) {
-			if (substr($type, -9) === ' identity') { // strip " identity" suffix
-				$type = substr($type, 0, -9);
+			if (str_ends_with((string) $type, ' identity')) { // strip " identity" suffix
+				$type = substr((string) $type, 0, -9);
 			}
 
 			if ($type === 'nvarchar' || $type === 'varchar') {

@@ -70,17 +70,15 @@ interface IConnection
 	 * @phpstan-param mixed ...$args
 	 * @throws QueryException
 	 */
-	public function query(string $expression, ...$args): Result;
+	public function query(string $expression, mixed ...$args): Result;
 
 
 	/**
-	 * @param string|array $query
-	 * @param array $args
 	 * @phpstan-param string|array<mixed> $query
 	 * @phpstan-param array<mixed> $args
 	 * @throws QueryException
 	 */
-	public function queryArgs($query, array $args = []): Result;
+	public function queryArgs(string|array $query, array $args = []): Result;
 
 
 	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result;
@@ -111,11 +109,13 @@ interface IConnection
 	/**
 	 * Performs operation in a transaction.
 	 * @param callable $callback function(Connection $conn): mixed
-	 * @phpstan-param callable(Connection):mixed $callback
 	 * @return mixed value returned by callback
+	 * @template T
+	 * @phpstan-param callable(Connection):T $callback
+	 * @phpstan-return T
 	 * @throws \Exception
 	 */
-	public function transactional(callable $callback);
+	public function transactional(callable $callback): mixed;
 
 
 	/**

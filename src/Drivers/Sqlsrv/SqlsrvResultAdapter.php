@@ -18,23 +18,17 @@ class SqlsrvResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var int|null */
-	private $index;
-
-	/** @var resource */
-	private $statement;
-
-	/** @var SqlsrvResultNormalizationFactory */
-	private $normalizationFactory;
+	private ?int $index = null;
 
 
 	/**
 	 * @param resource $statement
 	 */
-	public function __construct($statement, SqlsrvResultNormalizationFactory $normalizationFactory)
+	public function __construct(
+		private $statement,
+		private readonly SqlsrvResultNormalizationFactory $normalizationFactory,
+	)
 	{
-		$this->statement = $statement;
-		$this->normalizationFactory = $normalizationFactory;
 	}
 
 

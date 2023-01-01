@@ -13,8 +13,6 @@ use Nextras\Dbal\Platforms\Data\ForeignKey;
 use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
-use function count;
-use function explode;
 
 
 class SqlServerPlatform implements IPlatform
@@ -22,18 +20,13 @@ class SqlServerPlatform implements IPlatform
 	use StrictObjectTrait;
 
 
-	public const NAME = 'mssql';
+	final public const NAME = 'mssql';
 
-	/** @var IConnection */
-	private $connection;
-
-	/** @var IDriver */
-	private $driver;
+	private readonly IDriver $driver;
 
 
-	public function __construct(IConnection $connection)
+	public function __construct(private readonly IConnection $connection)
 	{
-		$this->connection = $connection;
 		$this->driver = $connection->getDriver();
 	}
 
@@ -200,7 +193,7 @@ class SqlServerPlatform implements IPlatform
 	}
 
 
-	public function formatJson($value): string
+	public function formatJson(mixed $value): string
 	{
 		$encoded = JsonHelper::safeEncode($value);
 		return $this->driver->convertStringToSql($encoded);
@@ -245,7 +238,7 @@ class SqlServerPlatform implements IPlatform
 
 	public function formatLimitOffset(?int $limit, ?int $offset): string
 	{
-		$clause = 'OFFSET ' . ($offset !== null ? $offset : 0) . ' ROWS';
+		$clause = 'OFFSET ' . ($offset ?? 0) . ' ROWS';
 		if ($limit !== null) {
 			$clause .= ' FETCH NEXT ' . $limit . ' ROWS ONLY';
 		}

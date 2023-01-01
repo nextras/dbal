@@ -13,17 +13,12 @@ class CachedPlatform implements IPlatform
 {
 	private const CACHE_VERSION = 'v3';
 
-	/** @var IPlatform */
-	private $platform;
 
-	/** @var Cache */
-	private $cache;
-
-
-	public function __construct(IPlatform $platform, Cache $cache)
+	public function __construct(
+		private readonly IPlatform $platform,
+		private readonly Cache $cache,
+	)
 	{
-		$this->platform = $platform;
-		$this->cache = $cache;
 	}
 
 
@@ -33,35 +28,29 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	/** @inheritDoc */
 	public function getTables(?string $schema = null): array
 	{
-		return $this->cache->load(self::CACHE_VERSION . '.tables.' . $schema, function () use ($schema): array {
-			return $this->platform->getTables($schema);
-		});
-	}
-
-
-	/** @inheritDoc */
-	public function getColumns(string $table, ?string $schema = null): array
-	{
 		return $this->cache->load(
-			self::CACHE_VERSION . '.columns.' . $table . $schema,
-			function () use ($table, $schema): array {
-				return $this->platform->getColumns($table, $schema);
-			}
+			self::CACHE_VERSION . '.tables.' . $schema,
+			fn(): array => $this->platform->getTables($schema),
 		);
 	}
 
 
-	/** @inheritDoc */
+	public function getColumns(string $table, ?string $schema = null): array
+	{
+		return $this->cache->load(
+			self::CACHE_VERSION . '.columns.' . $table . $schema,
+			fn(): array => $this->platform->getColumns($table, $schema),
+		);
+	}
+
+
 	public function getForeignKeys(string $table, ?string $schema = null): array
 	{
 		return $this->cache->load(
 			self::CACHE_VERSION . '.foreign_keys.' . $table . $schema,
-			function () use ($table, $schema): array {
-				return $this->platform->getForeignKeys($table, $schema);
-			}
+			fn(): array => $this->platform->getForeignKeys($table, $schema),
 		);
 	}
 
@@ -70,9 +59,7 @@ class CachedPlatform implements IPlatform
 	{
 		return $this->cache->load(
 			self::CACHE_VERSION . '.sequence.' . $table . $schema,
-			function () use ($table, $schema): array {
-				return [$this->platform->getPrimarySequenceName($table, $schema)];
-			}
+			fn(): array => [$this->platform->getPrimarySequenceName($table, $schema)],
 		)[0];
 	}
 
@@ -89,7 +76,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function formatJson($value): string
+	public function formatJson(mixed $value): string
 	{
 		return $this->platform->formatJson($value);
 	}

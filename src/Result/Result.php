@@ -22,25 +22,18 @@ class Result implements SeekableIterator, Countable
 	use StrictObjectTrait;
 
 
-	/** @var IResultAdapter */
-	private $adapter;
+	private int $iteratorIndex = -1;
 
-	/** @var int */
-	private $iteratorIndex = -1;
-
-	/** @var Row|null */
-	private $iteratorRow;
+	private ?Row $iteratorRow = null;
 
 	/**
-	 * @var array
-	 * @phpstan-var array<string, callable (mixed): mixed>
+	 * @phpstan-var array<string, callable(mixed): mixed>
 	 */
-	private $normalizers;
+	private array $normalizers;
 
 
-	public function __construct(IResultAdapter $adapter)
+	public function __construct(private IResultAdapter $adapter)
 	{
-		$this->adapter = $adapter;
 		$this->normalizers = $adapter->getNormalizers();
 	}
 
@@ -49,7 +42,6 @@ class Result implements SeekableIterator, Countable
 	 * Enables emulated buffering mode to allow rewinding the result multiple times or seeking
 	 * to a specific position. This will enable emulated buffering for drivers that do not support
 	 * buffering & scrolling the result.
-	 * @return static
 	 */
 	public function buffered(): Result
 	{
@@ -61,7 +53,6 @@ class Result implements SeekableIterator, Countable
 	/**
 	 * Disables emulated buffering mode. Emulated buffering may not be disabled when the result was
 	 * already (partially) consumed.
-	 * @return static
 	 */
 	public function unbuffered(): Result
 	{
@@ -178,10 +169,10 @@ class Result implements SeekableIterator, Countable
 	public function getColumns(): array
 	{
 		return array_map(
-			function ($name): string {
+			function($name): string {
 				return (string) $name; // @phpstan-ignore-line
 			},
-			array_keys($this->adapter->getTypes())
+			array_keys($this->adapter->getTypes()),
 		);
 	}
 

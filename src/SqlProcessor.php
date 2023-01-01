@@ -57,21 +57,16 @@ class SqlProcessor
 	protected $customModifiers = [];
 
 	/** @var SplObjectStorage<ISqlProcessorModifierResolver,mixed>|ISqlProcessorModifierResolver[] */
-	protected $modifierResolvers;
+	protected SplObjectStorage $modifierResolvers;
 
 	/**
-	 * @var array
 	 * @phpstan-var array<string, string>
 	 */
-	private $identifiers;
-
-	/** @var IPlatform */
-	private $platform;
+	private ?array $identifiers = null;
 
 
-	public function __construct(IPlatform $platform)
+	public function __construct(private readonly IPlatform $platform)
 	{
-		$this->platform = $platform;
 		$this->modifierResolvers = new SplObjectStorage();
 	}
 
@@ -128,7 +123,7 @@ class SqlProcessor
 			$i = $j;
 			$fragments[] = preg_replace_callback(
 				'#%((?:\.\.\.)?+\??+\w++(?:\[]){0,2}+)|(%%)|(\[\[)|(]])|\[(.+?)]#S', // %modifier | %% | %[ | %] | [identifier]
-				function ($matches) use ($args, &$j, $last): string {
+				function($matches) use ($args, &$j, $last): string {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
 							throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
@@ -151,7 +146,7 @@ class SqlProcessor
 						return "[$matches[5]]";
 					}
 				},
-				$args[$i]
+				(string) $args[$i],
 			);
 
 			if ($i === $j && $j !== $last) {
@@ -163,10 +158,7 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param mixed $value
-	 */
-	public function processModifier(string $type, $value): string
+	public function processModifier(string $type, mixed $value): string
 	{
 		if ($value instanceof \BackedEnum) {
 			$value = $value->value;
@@ -238,9 +230,8 @@ class SqlProcessor
 						case 'any':
 						case 'f':
 						case '?f':
-							$tmp = json_encode($value);
-							assert(is_string($tmp));
-							return $tmp . (strpos($tmp, '.') === false ? '.0' : '');
+							$tmp = json_encode($value, JSON_THROW_ON_ERROR);
+							return $tmp . (!str_contains($tmp, '.') ? '.0' : '');
 
 						case 'json':
 						case '?json':
@@ -377,7 +368,7 @@ class SqlProcessor
 						return $this->process($value);
 				}
 
-				if (substr($type, -1) === ']') {
+				if (str_ends_with($type, ']')) {
 					$baseType = trim(trim($type, '.'), '[]?');
 					if (isset($this->modifiers[$baseType]) && $this->modifiers[$baseType][1]) {
 						return $this->processArray($type, $value);
@@ -392,7 +383,7 @@ class SqlProcessor
 		}
 
 		$typeNullable = $type[0] === '?';
-		$typeArray = substr($type, -2) === '[]';
+		$typeArray = str_ends_with($type, '[]');
 
 		if (!isset($this->modifiers[$baseType])) {
 			throw new InvalidArgumentException("Unknown modifier %$type.");
@@ -415,10 +406,7 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param mixed $value
-	 */
-	protected function detectType($value): ?string
+	protected function detectType(mixed $value): ?string
 	{
 		foreach ($this->modifierResolvers as $modifierResolver) {
 			$resolved = $modifierResolver->resolve($value);
@@ -429,10 +417,9 @@ class SqlProcessor
 
 
 	/**
-	 * @param mixed $value
 	 * @phpstan-return never
 	 */
-	protected function throwInvalidValueTypeException(string $type, $value, string $expectedType): void
+	protected function throwInvalidValueTypeException(string $type, mixed $value, string $expectedType): never
 	{
 		$actualType = $this->getVariableTypeName($value);
 		throw new InvalidArgumentException("Modifier %$type expects value to be $expectedType, $actualType given.");
@@ -440,10 +427,9 @@ class SqlProcessor
 
 
 	/**
-	 * @param mixed $value
 	 * @phpstan-return never
 	 */
-	protected function throwWrongModifierException(string $type, $value, string $hint): void
+	protected function throwWrongModifierException(string $type, mixed $value, string $hint): never
 	{
 		$valueLabel = is_scalar($value) ? var_export($value, true) : gettype($value);
 		throw new InvalidArgumentException("Modifier %$type does not allow $valueLabel value, use modifier %$hint instead.");
@@ -458,7 +444,7 @@ class SqlProcessor
 		$subType = substr($type, 0, -2);
 		$wrapped = true;
 
-		if (strncmp($subType, '...', 3) === 0) {
+		if (str_starts_with($subType, '...')) {
 			$subType = substr($subType, 3);
 			$wrapped = false;
 		}
@@ -602,7 +588,7 @@ class SqlProcessor
 				foreach ($subValue as &$subSubValue) {
 					$subSubValue = $this->processModifier($modifiers[$i++], $subSubValue);
 				}
-				$subValue = '('. implode(', ', $subValue) . ')';
+				$subValue = '(' . implode(', ', $subValue) . ')';
 			}
 			return '(' . implode(', ', $keys) . ') IN (' . implode(', ', $values) . ')';
 
@@ -616,13 +602,9 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @param mixed $value
-	 * @return float|string
-	 */
-	protected function getVariableTypeName($value)
+	protected function getVariableTypeName(mixed $value): float|string
 	{
-		return is_object($value) ? get_class($value) : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+		return is_object($value) ? $value::class : (is_float($value) && !is_finite($value) ? $value : gettype($value));
 	}
 
 
@@ -630,7 +612,7 @@ class SqlProcessor
 	{
 		return $this->identifiers[$key] ??
 			($this->identifiers[$key] = // = intentionally
-				substr($key, -2) === '.*'
+				str_ends_with($key, '.*')
 					? $this->platform->formatIdentifier(substr($key, 0, -2)) . '.*'
 					: $this->platform->formatIdentifier($key)
 			);

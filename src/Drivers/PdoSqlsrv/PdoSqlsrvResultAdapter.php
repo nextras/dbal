@@ -17,23 +17,17 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var PDOStatement<mixed> */
-	private $statement;
-
-	/** @var bool */
-	private $beforeFirstFetch = true;
-
-	/** @var PdoSqlsrvResultNormalizerFactory */
-	private $normalizerFactory;
+	private bool $beforeFirstFetch = true;
 
 
 	/**
 	 * @param PDOStatement<mixed> $statement
 	 */
-	public function __construct(PDOStatement $statement, PdoSqlsrvResultNormalizerFactory $normalizerFactory)
+	public function __construct(
+		private readonly PDOStatement $statement,
+		private readonly PdoSqlsrvResultNormalizerFactory $normalizerFactory,
+	)
 	{
-		$this->statement = $statement;
-		$this->normalizerFactory = $normalizerFactory;
 	}
 
 

@@ -11,18 +11,14 @@ class Table
 	use StrictObjectTrait;
 
 
-	/** @var string */
-	public $name;
+	public string $name;
+	public string $schema;
+	public bool $isView;
 
-	/** @var string */
-	public $schema;
 
-	/** @var bool */
-	public $isView;
-	
 	/**
-	* @deprecated  Use getUnescapedFqn()
-	*/
+	 * @deprecated  Use getUnescapedFqn()
+	 */
 	public function getNameFqn(): string
 	{
 		return $this->getUnescapedFqn();

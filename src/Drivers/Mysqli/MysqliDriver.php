@@ -13,6 +13,7 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
@@ -58,20 +59,11 @@ class MysqliDriver implements IDriver
 	use StrictObjectTrait;
 
 
-	/** @var mysqli|null */
-	private $connection;
-
-	/** @var DateTimeZone */
-	private $connectionTz;
-
-	/** @var ILogger */
-	private $logger;
-
-	/** @var float */
-	private $timeTaken = 0.0;
-
-	/** @var MysqliResultNormalizerFactory */
-	private $resultNormalizerFactory;
+	private ?\mysqli $connection = null;
+	private ?\DateTimeZone $connectionTz = null;
+	private ?ILogger $logger = null;
+	private float $timeTaken = 0.0;
+	private ?MysqliResultNormalizerFactory $resultNormalizerFactory = null;
 
 
 	public function __destruct()
@@ -126,10 +118,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	/**
-	 * @return mysqli|null
-	 */
-	public function getResourceHandle()
+	public function getResourceHandle(): ?mysqli
 	{
 		return $this->connection;
 	}
@@ -137,13 +126,17 @@ class MysqliDriver implements IDriver
 
 	public function getConnectionTimeZone(): DateTimeZone
 	{
+		$this->checkConnection();
+		assert($this->connectionTz !== null);
 		return $this->connectionTz;
 	}
 
 
 	public function query(string $query): Result
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->resultNormalizerFactory !== null);
 
 		$time = microtime(true);
 		$result = @$this->connection->query($query);
@@ -166,8 +159,9 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): mixed
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return $this->connection->insert_id;
 	}
@@ -175,6 +169,7 @@ class MysqliDriver implements IDriver
 
 	public function getAffectedRows(): int
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$affectedRows = $this->connection->affected_rows;
 		if (is_string($affectedRows)) { // @phpstan-ignore-line
@@ -199,6 +194,7 @@ class MysqliDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$version = $this->connection->server_version;
 		$majorVersion = floor($version / 10000);
@@ -210,6 +206,7 @@ class MysqliDriver implements IDriver
 
 	public function ping(): bool
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return $this->connection->ping();
 	}
@@ -217,6 +214,7 @@ class MysqliDriver implements IDriver
 
 	public function setTransactionIsolationLevel(int $level): void
 	{
+		$this->checkConnection();
 		static $levels = [
 			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -232,24 +230,28 @@ class MysqliDriver implements IDriver
 
 	public function beginTransaction(): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('START TRANSACTION');
 	}
 
 
 	public function commitTransaction(): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('COMMIT');
 	}
 
 
 	public function rollbackTransaction(): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('ROLLBACK');
 	}
 
 
 	public function createSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
 		$this->loggedQuery("SAVEPOINT $identifier");
 	}
@@ -257,6 +259,7 @@ class MysqliDriver implements IDriver
 
 	public function releaseSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
 		$this->loggedQuery("RELEASE SAVEPOINT $identifier");
 	}
@@ -264,6 +267,7 @@ class MysqliDriver implements IDriver
 
 	public function rollbackSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
 		$this->loggedQuery("ROLLBACK TO SAVEPOINT $identifier");
 	}
@@ -274,6 +278,7 @@ class MysqliDriver implements IDriver
 	 */
 	protected function setupSsl(array $params): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 
 		if (
@@ -301,6 +306,7 @@ class MysqliDriver implements IDriver
 	 */
 	protected function processInitialSettings(array $params): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 
 		if (isset($params['charset'])) {
@@ -333,6 +339,7 @@ class MysqliDriver implements IDriver
 
 	public function convertStringToSql(string $value): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return "'" . $this->connection->escape_string($value) . "'";
 	}
@@ -362,6 +369,16 @@ class MysqliDriver implements IDriver
 
 	protected function loggedQuery(string $sql): Result
 	{
+		$this->checkConnection();
+		assert($this->logger !== null);
 		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
+	}
+
+
+	protected function checkConnection(): void
+	{
+		if ($this->connection === null) {
+			throw new InvalidStateException("Driver is not connected to database.");
+		}
 	}
 }

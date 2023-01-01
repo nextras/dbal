@@ -11,23 +11,12 @@ class ForeignKey
 	use StrictObjectTrait;
 
 
-	/** @var string */
-	public $name;
-
-	/** @var string */
-	public $schema;
-
-	/** @var string */
-	public $column;
-
-	/** @var string */
-	public $refTable;
-
-	/** @var string */
-	public $refTableSchema;
-
-	/** @var string */
-	public $refColumn;
+	public string $name;
+	public string $schema;
+	public string $column;
+	public string $refTable;
+	public string $refTableSchema;
+	public string $refColumn;
 
 
 	public function getNameFqn(): string

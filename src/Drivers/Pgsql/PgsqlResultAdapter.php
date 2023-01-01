@@ -6,6 +6,7 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use PgSql\Result;
 use function pg_fetch_array;
 use function pg_field_name;
 use function pg_field_type;
@@ -20,20 +21,11 @@ class PgsqlResultAdapter implements IResultAdapter
 	use StrictObjectTrait;
 
 
-	/** @var \PgSql\Result */
-	private $result;
-
-	/** @var PgsqlResultNormalizerFactory */
-	private $normalizerFactory;
-
-
-	/**
-	 * @param \PgSql\Result $result
-	 */
-	public function __construct($result, PgsqlResultNormalizerFactory $normalizerFactory)
+	public function __construct(
+		private readonly Result $result,
+		private readonly PgsqlResultNormalizerFactory $normalizerFactory,
+	)
 	{
-		$this->result = $result;
-		$this->normalizerFactory = $normalizerFactory;
 	}
 
 

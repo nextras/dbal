@@ -11,10 +11,7 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
  */
 class JsonHelper
 {
-	/**
-	 * @param mixed $value
-	 */
-	public static function safeEncode($value): string
+	public static function safeEncode(mixed $value): string
 	{
 		$encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
 		if (json_last_error() !== JSON_ERROR_NONE) {

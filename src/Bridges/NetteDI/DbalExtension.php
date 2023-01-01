@@ -35,19 +35,19 @@ class DbalExtension extends CompilerExtension
 			->setArguments([
 				'config' => $config,
 			])
-			->setAutowired(isset($config['autowired']) ? $config['autowired'] : true);
+			->setAutowired($config['autowired'] ?? true);
 
 		if (isset($config['debugger'])) {
 			$debugger = (bool) $config['debugger'];
 		} else {
-			$debugger = class_exists('Tracy\Debugger', false) && Debugger::$productionMode === Debugger::DEVELOPMENT;
+			$debugger = class_exists(\Tracy\Debugger::class, false) && Debugger::$productionMode === Debugger::DEVELOPMENT;
 		}
 
 		if ($debugger) {
 			$definition->addSetup('@Tracy\BlueScreen::addPanel', [BluescreenQueryPanel::class . '::renderBluescreenPanel']);
 			$definition->addSetup(
 				ConnectionPanel::class . '::install',
-				['@self', $config['panelQueryExplain'] ?? true, $config['maxQueries'] ?? 100]
+				['@self', $config['panelQueryExplain'] ?? true, $config['maxQueries'] ?? 100],
 			);
 		}
 	}

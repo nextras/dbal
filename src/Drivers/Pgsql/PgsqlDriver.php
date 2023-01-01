@@ -22,6 +22,7 @@ use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use PgSql\Connection;
 use function is_string;
 use function pg_escape_identifier;
 
@@ -49,23 +50,12 @@ class PgsqlDriver implements IDriver
 	use StrictObjectTrait;
 
 
-	/** @var \PgSql\Connection|null */
-	private $connection;
-
-	/** @var DateTimeZone */
-	private $connectionTz;
-
-	/** @var ILogger */
-	private $logger;
-
-	/** @var int */
-	private $affectedRows = 0;
-
-	/** @var float */
-	private $timeTaken = 0.0;
-
-	/** @var PgsqlResultNormalizerFactory */
-	private $resultNormalizationFactory;
+	private ?Connection $connection = null;
+	private ?\DateTimeZone $connectionTz = null;
+	private ?ILogger $logger = null;
+	private int $affectedRows = 0;
+	private float $timeTaken = 0.0;
+	private ?PgsqlResultNormalizerFactory $resultNormalizationFactory = null;
 
 
 	public function __destruct()
@@ -99,7 +89,7 @@ class PgsqlDriver implements IDriver
 			}
 		}
 
-		set_error_handler(function (int $code, string $message): bool {
+		set_error_handler(function(int $code, string $message): never {
 			restore_error_handler();
 			throw $this->createException($message, $code, null);
 		}, E_ALL);
@@ -113,16 +103,17 @@ class PgsqlDriver implements IDriver
 		$this->resultNormalizationFactory = new PgsqlResultNormalizerFactory();
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
-		if (strpos($this->connectionTz->getName(), ':') !== false) {
+		if (str_contains($this->connectionTz->getName(), ':')) {
 			$this->loggedQuery('SET TIME ZONE INTERVAL ' . pg_escape_literal($connection, $this->connectionTz->getName()) . ' HOUR TO MINUTE');
 		} else {
 			$this->loggedQuery('SET TIME ZONE ' . pg_escape_literal($connection, $this->connectionTz->getName()));
 		}
 
 		if (isset($params['searchPath'])) {
-			$schemas = array_map(function ($part): string {
-				return $this->convertIdentifierToSql($part);
-			}, (array) $params['searchPath']);
+			$schemas = array_map(
+				fn($part): string => $this->convertIdentifierToSql($part),
+				(array) $params['searchPath'],
+			);
 			$this->loggedQuery('SET search_path TO ' . implode(', ', $schemas));
 		}
 	}
@@ -143,7 +134,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getResourceHandle()
+	public function getResourceHandle(): ?Connection
 	{
 		return $this->connection;
 	}
@@ -151,13 +142,18 @@ class PgsqlDriver implements IDriver
 
 	public function getConnectionTimeZone(): DateTimeZone
 	{
+		$this->checkConnection();
+		assert($this->connectionTz !== null);
 		return $this->connectionTz;
 	}
 
 
 	public function query(string $query): Result
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->resultNormalizationFactory !== null);
+
 		if (pg_send_query($this->connection, $query) === false) {
 			throw $this->createException(pg_last_error($this->connection), 0, null);
 		}
@@ -181,11 +177,12 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
 		}
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
 		return $this->loggedQuery($sql)->fetchField();
@@ -212,6 +209,7 @@ class PgsqlDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return (string) pg_version($this->connection)['server'];
 	}
@@ -219,6 +217,7 @@ class PgsqlDriver implements IDriver
 
 	public function ping(): bool
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return pg_ping($this->connection);
 	}
@@ -226,6 +225,7 @@ class PgsqlDriver implements IDriver
 
 	public function setTransactionIsolationLevel(int $level): void
 	{
+		$this->checkConnection();
 		static $levels = [
 			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -241,24 +241,28 @@ class PgsqlDriver implements IDriver
 
 	public function beginTransaction(): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('START TRANSACTION');
 	}
 
 
 	public function commitTransaction(): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('COMMIT');
 	}
 
 
 	public function rollbackTransaction(): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('ROLLBACK');
 	}
 
 
 	public function createSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -266,6 +270,7 @@ class PgsqlDriver implements IDriver
 
 	public function releaseSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -273,6 +278,7 @@ class PgsqlDriver implements IDriver
 
 	public function rollbackSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -280,6 +286,7 @@ class PgsqlDriver implements IDriver
 
 	public function convertStringToSql(string $value): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$escaped = pg_escape_literal($this->connection, $value);
 		if ($escaped === false) {
@@ -291,6 +298,7 @@ class PgsqlDriver implements IDriver
 
 	protected function convertIdentifierToSql(string $identifier): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$escaped = pg_escape_identifier($this->connection, $identifier);
 		if ($escaped === false) {
@@ -307,7 +315,7 @@ class PgsqlDriver implements IDriver
 	protected function createException(string $error, int $errorNo, ?string $sqlState, ?string $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-		if ($sqlState === '0A000' && strpos($error, 'truncate') !== false) {
+		if ($sqlState === '0A000' && str_contains($error, 'truncate')) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
@@ -335,6 +343,7 @@ class PgsqlDriver implements IDriver
 
 	protected function loggedQuery(string $sql): Result
 	{
+		assert($this->logger !== null);
 		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
 	}
 
@@ -357,5 +366,13 @@ class PgsqlDriver implements IDriver
 			$params['connectionTz'] = date('P');
 		}
 		return $params;
+	}
+
+
+	protected function checkConnection(): void
+	{
+		if ($this->connection === null) {
+			throw new InvalidStateException("Driver is not connected to database.");
+		}
 	}
 }

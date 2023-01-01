@@ -21,28 +21,23 @@ use function uniqid;
 
 class QueryDataCollector extends DataCollector implements ILogger
 {
-	/** @var IConnection */
-	private $connection;
-
-	/** @var bool */
-	private $explain;
+	private readonly bool $explain;
 
 	/**
-	 * @var array
 	 * @phpstan-var array<array{string, float, ?int}>
 	 */
-	private $queries = [];
-
-	/** @var int */
-	private $maxQueries;
+	private array $queries = [];
 
 
-	public function __construct(IConnection $connection, bool $explain, string $name, int $maxQueries = 100)
+	public function __construct(
+		private readonly IConnection $connection,
+		bool $explain,
+		string $name,
+		private readonly int $maxQueries = 100,
+	)
 	{
-		$this->connection = $connection;
 		$this->explain = $explain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
 		$this->data['name'] = $name;
-		$this->maxQueries = $maxQueries;
 		$this->reset();
 	}
 
@@ -71,7 +66,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 						$row['explain'] = $this->connection->getDriver()->query($explainSql)->fetchAll();
 					}
 				}
-			} catch (\Throwable $e) {
+			} catch (\Throwable) {
 				$row['explain'] = null;
 				$row['rowsCount'] = null; // rows count is also irrelevant
 			}
@@ -148,7 +143,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 		$this->queries[] = [
 			$sqlQuery,
 			$timeTaken,
-			$result !== null ? $result->count() : null,
+			$result?->count(),
 		];
 	}
 

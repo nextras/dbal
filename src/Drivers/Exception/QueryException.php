@@ -8,20 +8,15 @@ use Exception;
 
 class QueryException extends DriverException
 {
-	/** @var string|null */
-	private $sqlQuery;
-
-
 	public function __construct(
 		string $message,
 		int $errorCode = 0,
 		string $errorSqlState = '',
 		Exception $previousException = null,
-		?string $sqlQuery = null
+		private readonly ?string $sqlQuery = null
 	)
 	{
 		parent::__construct($message, $errorCode, $errorSqlState, $previousException);
-		$this->sqlQuery = $sqlQuery;
 	}
 
 

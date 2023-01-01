@@ -41,9 +41,8 @@ interface IDriver
 
 	/**
 	 * Returns connection resource.
-	 * @return mixed
 	 */
-	public function getResourceHandle();
+	public function getResourceHandle(): mixed;
 
 
 	/**
@@ -63,10 +62,9 @@ interface IDriver
 
 	/**
 	 * Returns the last inserted id.
-	 * @return mixed
 	 * @internal
 	 */
-	public function getLastInsertedId(?string $sequenceName = null);
+	public function getLastInsertedId(?string $sequenceName = null): mixed;
 
 
 	/**

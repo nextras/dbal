@@ -13,6 +13,7 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
@@ -59,18 +60,10 @@ class SqlsrvDriver implements IDriver
 
 	/** @var resource|null */
 	private $connection;
-
-	/** @var ILogger */
-	private $logger;
-
-	/** @var int */
-	private $affectedRows = 0;
-
-	/** @var float */
-	private $timeTaken = 0.0;
-
-	/** @var SqlsrvResultNormalizationFactory */
-	private $resultNormalizationFactory;
+	private ?ILogger $logger = null;
+	private int $affectedRows = 0;
+	private float $timeTaken = 0.0;
+	private ?SqlsrvResultNormalizationFactory $resultNormalizationFactory = null;
 
 
 	public function __destruct()
@@ -149,7 +142,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function getResourceHandle()
+	public function getResourceHandle(): mixed
 	{
 		return $this->connection;
 	}
@@ -163,9 +156,11 @@ class SqlsrvDriver implements IDriver
 
 	public function query(string $query): Result
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
-		/** @see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx */
+		assert($this->resultNormalizationFactory !== null);
 
+		// see https://msdn.microsoft.com/en-us/library/ee376927(SQL.90).aspx
 		$time = microtime(true);
 		$statement = sqlsrv_query($this->connection, $query, [], ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
 		$this->timeTaken = microtime(true) - $time;
@@ -188,8 +183,9 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): mixed
 	{
+		$this->checkConnection();
 		return $this->loggedQuery('SELECT SCOPE_IDENTITY()')->fetchField();
 	}
 
@@ -214,6 +210,7 @@ class SqlsrvDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return sqlsrv_server_info($this->connection)['SQLServerVersion'];
 	}
@@ -221,10 +218,11 @@ class SqlsrvDriver implements IDriver
 
 	public function ping(): bool
 	{
+		$this->checkConnection();
 		try {
 			$this->query('SELECT 1');
 			return true;
-		} catch (DriverException $e) {
+		} catch (DriverException) {
 			return false;
 		}
 	}
@@ -232,6 +230,7 @@ class SqlsrvDriver implements IDriver
 
 	public function setTransactionIsolationLevel(int $level): void
 	{
+		$this->checkConnection();
 		static $levels = [
 			Connection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			Connection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -247,7 +246,10 @@ class SqlsrvDriver implements IDriver
 
 	public function beginTransaction(): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->logger !== null);
+
 		$time = microtime(true);
 		$result = sqlsrv_begin_transaction($this->connection);
 		$timeTaken = microtime(true) - $time;
@@ -260,7 +262,10 @@ class SqlsrvDriver implements IDriver
 
 	public function commitTransaction(): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->logger !== null);
+
 		$time = microtime(true);
 		$result = sqlsrv_commit($this->connection);
 		$timeTaken = microtime(true) - $time;
@@ -273,7 +278,10 @@ class SqlsrvDriver implements IDriver
 
 	public function rollbackTransaction(): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->logger !== null);
+
 		$time = microtime(true);
 		$result = sqlsrv_rollback($this->connection);
 		$timeTaken = microtime(true) - $time;
@@ -286,6 +294,7 @@ class SqlsrvDriver implements IDriver
 
 	public function createSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('SAVE TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
@@ -299,6 +308,7 @@ class SqlsrvDriver implements IDriver
 
 	public function rollbackSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
@@ -328,7 +338,7 @@ class SqlsrvDriver implements IDriver
 			$error['message'],
 			$error['code'],
 			$error['SQLSTATE'],
-			$query
+			$query,
 		);
 	}
 
@@ -358,6 +368,15 @@ class SqlsrvDriver implements IDriver
 
 	protected function loggedQuery(string $sql): Result
 	{
+		assert($this->logger !== null);
 		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
+	}
+
+
+	protected function checkConnection(): void
+	{
+		if ($this->connection === null) {
+			throw new InvalidStateException("Driver is not connected to database.");
+		}
 	}
 }

@@ -71,9 +71,8 @@ interface IPlatform
 
 	/**
 	 * Formats Json value to SQL string.
-	 * @param mixed $value
 	 */
-	public function formatJson($value): string;
+	public function formatJson(mixed $value): string;
 
 
 	/**

@@ -8,23 +8,14 @@ use Exception;
 
 class DriverException extends Exception
 {
-	/** @var int */
-	private $errorCode;
-
-	/** @var string */
-	private $errorSqlState;
-
-
 	public function __construct(
 		string $message,
-		int $errorCode = 0,
-		string $errorSqlState = '',
+		private readonly int $errorCode = 0,
+		private readonly string $errorSqlState = '',
 		Exception $previousException = null
 	)
 	{
 		parent::__construct($message, 0, $previousException);
-		$this->errorCode = $errorCode;
-		$this->errorSqlState = $errorSqlState;
 	}
 
 

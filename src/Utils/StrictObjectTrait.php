@@ -18,7 +18,7 @@ trait StrictObjectTrait
 	 */
 	public function __call(string $name, array $args)
 	{
-		$class = get_class($this);
+		$class = $this::class;
 		throw new MemberAccessException("Call to undefined method $class::$name().");
 	}
 
@@ -30,7 +30,7 @@ trait StrictObjectTrait
 	 */
 	public static function __callStatic(string $name, array $args)
 	{
-		$class = get_class();
+		$class = self::class;
 		throw new MemberAccessException("Call to undefined static method $class::$name().");
 	}
 
@@ -41,19 +41,18 @@ trait StrictObjectTrait
 	 */
 	public function &__get(string $name)
 	{
-		$class = get_class();
+		$class = self::class;
 		throw new MemberAccessException("Cannot read an undeclared property $class::\$$name.");
 	}
 
 
 	/**
-	 * @param mixed $value
 	 * @phpstan-return never
 	 * @throws MemberAccessException
 	 */
-	public function __set(string $name, $value)
+	public function __set(string $name, mixed $value)
 	{
-		$class = get_class();
+		$class = self::class;
 		throw new MemberAccessException("Cannot write to an undeclared property $class::\$$name.");
 	}
 
@@ -64,7 +63,7 @@ trait StrictObjectTrait
 	 */
 	public function __unset(string $name)
 	{
-		$class = get_class();
+		$class = self::class;
 		throw new MemberAccessException("Cannot unset an undeclared property $class::\$$name.");
 	}
 
