@@ -1,7 +1,7 @@
 Nextras Dbal
 ============
 
-[![Build Status](https://img.shields.io/github/workflow/status/nextras/dbal/Build/main?logo=github)](https://github.com/nextras/dbal/actions?query=workflow%3ABuild+branch%3Amain)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/nextras/dbal/build.yml?branch=main)](https://github.com/nextras/dbal/actions?query=workflow%3ABuild+branch%3Amain)
 [![Downloads this Month](https://img.shields.io/packagist/dm/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Stable Version](https://img.shields.io/packagist/v/nextras/dbal.svg?style=flat)](https://packagist.org/packages/nextras/dbal)
 [![Code coverage](https://img.shields.io/coveralls/nextras/dbal.svg?style=flat)](https://coveralls.io/r/nextras/dbal)
