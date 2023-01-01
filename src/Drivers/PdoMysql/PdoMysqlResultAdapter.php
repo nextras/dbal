@@ -80,10 +80,10 @@ class PdoMysqlResultAdapter implements IResultAdapter
 
 		for ($i = 0; $i < $count; $i++) {
 			$field = $this->statement->getColumnMeta($i);
-			if ($field === false) { // @phpstan-ignore-line
+			if ($field === false) {
 				throw new InvalidStateException("Should not happen.");
 			}
-			$types[(string) $field['name']] = $field['native_type'];
+			$types[$field['name']] = $field['native_type'] ?? null;
 		}
 
 		return $types;

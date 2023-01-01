@@ -54,7 +54,7 @@ class MysqliResultNormalizerFactory
 			if ($value === null) return null;
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
-			$value->invert = $m[1] ? 1 : 0;
+			$value->invert = $m[1] === '-' ? 1 : 0;
 			return $value;
 		};
 

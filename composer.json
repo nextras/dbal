@@ -24,9 +24,9 @@
 		"nette/finder": "~2.5",
 		"nette/neon": "~3.0",
 		"phpstan/extension-installer": "1.2.0",
-		"phpstan/phpstan": "1.8.11",
+		"phpstan/phpstan": "1.9.4",
 		"phpstan/phpstan-deprecation-rules": "1.0.0",
-		"phpstan/phpstan-strict-rules": "1.1.0",
+		"phpstan/phpstan-strict-rules": "1.4.4",
 		"symfony/config": "~4.4 || ~5.0",
 		"symfony/dependency-injection": "~4.4 || ~5.0",
 		"symfony/http-kernel": "~4.4 || ~5.0",
@@ -36,7 +36,7 @@
 		"psr-4": { "Nextras\\Dbal\\": "src/" }
 	},
 	"scripts": {
-		"phpstan": "phpstan analyze -c .phpstan.neon"
+		"phpstan": "phpstan analyze -c .phpstan.neon --memory-limit=512M"
 	},
 	"extra": {
 		"branch-alias": {
