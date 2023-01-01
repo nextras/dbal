@@ -3,7 +3,7 @@
 namespace Nextras\Dbal\Utils;
 
 
-final class DateTimeImmutable extends \DateTimeImmutable
+final class DateTimeImmutable extends \DateTimeImmutable implements \Stringable
 {
 	public function __toString(): string
 	{
@@ -11,11 +11,7 @@ final class DateTimeImmutable extends \DateTimeImmutable
 	}
 
 
-	/**
-	 * @param int $timestamp
-	 * @return static
-	 */
-	public function setTimestamp($timestamp): self
+	public function setTimestamp(int $timestamp): self
 	{
 		$zone = $this->getTimezone();
 		$datetime = new static('@' . (string) $timestamp);

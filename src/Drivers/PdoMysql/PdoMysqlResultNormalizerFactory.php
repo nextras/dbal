@@ -20,20 +20,11 @@ class PdoMysqlResultNormalizerFactory
 	use StrictObjectTrait;
 
 
-	/** @var Closure(mixed): mixed */
-	private $intNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $floatNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $timeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $dateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $localDateTimeNormalizer;
+	private Closure $intNormalizer;
+	private Closure $floatNormalizer;
+	private Closure $timeNormalizer;
+	private Closure $dateTimeNormalizer;
+	private Closure $localDateTimeNormalizer;
 
 
 	public function __construct(PdoMysqlDriver $driver)

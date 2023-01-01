@@ -34,20 +34,11 @@ class SqlsrvResultNormalizationFactory
 	private const TYPE_NUMERIC = 2;
 	private const TYPE_DECIMAL_MONEY_SMALLMONEY = 3;
 
-	/** @var Closure(mixed): mixed */
-	private $intNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $boolNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $dateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $offsetDateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $moneyNormalizer;
+	private Closure $intNormalizer;
+	private Closure $boolNormalizer;
+	private Closure $dateTimeNormalizer;
+	private Closure $offsetDateTimeNormalizer;
+	private Closure $moneyNormalizer;
 
 
 	public function __construct()
@@ -77,7 +68,7 @@ class SqlsrvResultNormalizationFactory
 
 		$this->moneyNormalizer = static function ($value) {
 			if ($value === null) return null;
-			return strpos($value, '.') === false ? (int) $value : (float) $value;
+			return !str_contains($value, '.') ? (int) $value : (float) $value;
 		};
 	}
 

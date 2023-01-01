@@ -57,8 +57,7 @@ use function date_default_timezone_get;
  */
 class PdoMysqlDriver extends PdoDriver
 {
-	/** @var PdoMysqlResultNormalizerFactory */
-	private $resultNormalizerFactory;
+	private ?PdoMysqlResultNormalizerFactory $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
@@ -101,7 +100,7 @@ class PdoMysqlDriver extends PdoDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): int
 	{
 		return (int) parent::getLastInsertedId($sequenceName);
 	}
@@ -124,6 +123,7 @@ class PdoMysqlDriver extends PdoDriver
 
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
+		assert($this->resultNormalizerFactory !== null);
 		return (new PdoMysqlResultAdapter($statement, $this->resultNormalizerFactory))->toBuffered();
 	}
 

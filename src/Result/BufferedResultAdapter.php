@@ -13,16 +13,14 @@ use OutOfBoundsException;
  */
 class BufferedResultAdapter implements IResultAdapter
 {
-	/** @var IResultAdapter */
-	protected $adapter;
-
 	/** @var ArrayIterator<array-key, mixed>|null */
-	protected $data;
+	protected ?ArrayIterator $data = null;
 
 
-	public function __construct(IResultAdapter $adapter)
+	public function __construct(
+		protected readonly IResultAdapter $adapter,
+	)
 	{
-		$this->adapter = $adapter;
 	}
 
 

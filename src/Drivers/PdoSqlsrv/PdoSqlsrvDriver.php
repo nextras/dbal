@@ -46,8 +46,7 @@ use function in_array;
  */
 class PdoSqlsrvDriver extends PdoDriver
 {
-	/** @var PdoSqlsrvResultNormalizerFactory */
-	private $resultNormalizerFactory;
+	private ?PdoSqlsrvResultNormalizerFactory $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
@@ -95,14 +94,16 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): mixed
 	{
+		$this->checkConnection();
 		return $this->loggedQuery('SELECT SCOPE_IDENTITY()')->fetchField();
 	}
 
 
 	public function setTransactionIsolationLevel(int $level): void
 	{
+		$this->checkConnection();
 		static $levels = [
 			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -118,6 +119,7 @@ class PdoSqlsrvDriver extends PdoDriver
 
 	public function createSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('SAVE TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
@@ -131,12 +133,14 @@ class PdoSqlsrvDriver extends PdoDriver
 
 	public function rollbackSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
 
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
+		assert($this->resultNormalizerFactory !== null);
 		return (new PdoSqlsrvResultAdapter($statement, $this->resultNormalizerFactory))->toBuffered();
 	}
 

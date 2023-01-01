@@ -11,13 +11,8 @@ use function is_array;
 
 class Configuration implements ConfigurationInterface
 {
-	/** @var bool */
-	private $debug;
-
-
-	public function __construct(bool $debug)
+	public function __construct(private readonly bool $debug)
 	{
-		$this->debug = $debug;
 	}
 
 
@@ -28,15 +23,11 @@ class Configuration implements ConfigurationInterface
 		// @formatter:off
 		$treeBuilder->getRootNode()
 			->beforeNormalization()
-				->ifTrue(static function ($v): bool {
-					return is_array($v) && !array_key_exists('connections', $v);
-				})
-				->then(static function ($v): array {
-					return [
+				->ifTrue(static fn($v): bool => is_array($v) && !array_key_exists('connections', $v))
+				->then(static fn($v): array => [
 						'connections' => ['default' => $v],
 						'default_connection' => 'default',
-					];
-				})
+					])
 			->end()
 			->children()
 				->integerNode('max_queries')

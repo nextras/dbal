@@ -26,20 +26,11 @@ abstract class PdoDriver implements IDriver
 	use StrictObjectTrait;
 
 
-	/** @var PDO|null */
-	protected $connection;
-
-	/** @var DateTimeZone */
-	protected $connectionTz;
-
-	/** @var ILogger */
-	protected $logger;
-
-	/** @var float */
-	protected $timeTaken = 0.0;
-
-	/** @var int */
-	protected $affectedRows = 0;
+	protected ?PDO $connection = null;
+	protected ?DateTimeZone $connectionTz = null;
+	protected ?ILogger $logger = null;
+	protected float $timeTaken = 0.0;
+	protected int $affectedRows = 0;
 
 
 	/**
@@ -50,7 +41,7 @@ abstract class PdoDriver implements IDriver
 		string $username,
 		string $password,
 		array $options,
-		ILogger $logger
+		ILogger $logger,
 	): void
 	{
 		$this->logger = $logger;
@@ -83,10 +74,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	/**
-	 * @return PDO|null
-	 */
-	public function getResourceHandle()
+	public function getResourceHandle(): ?PDO
 	{
 		return $this->connection;
 	}
@@ -94,12 +82,15 @@ abstract class PdoDriver implements IDriver
 
 	public function getConnectionTimeZone(): DateTimeZone
 	{
+		$this->checkConnection();
+		assert($this->connectionTz !== null);
 		return $this->connectionTz;
 	}
 
 
 	public function query(string $query): Result
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 
 		$time = microtime(true);
@@ -117,8 +108,9 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): mixed
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return $this->connection->lastInsertId($sequenceName); // @phpstan-ignore-line
 	}
@@ -126,6 +118,7 @@ abstract class PdoDriver implements IDriver
 
 	public function getAffectedRows(): int
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return $this->affectedRows;
 	}
@@ -139,6 +132,7 @@ abstract class PdoDriver implements IDriver
 
 	public function getServerVersion(): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$serverVersion = $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 		if (!is_string($serverVersion)) {
@@ -151,6 +145,7 @@ abstract class PdoDriver implements IDriver
 
 	public function ping(): bool
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$this->connection->query('SELECT 1');
 		return $this->connection->errorCode() === '00000';
@@ -159,7 +154,9 @@ abstract class PdoDriver implements IDriver
 
 	public function beginTransaction(): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->logger !== null);
 
 		try {
 			$time = microtime(true);
@@ -175,7 +172,9 @@ abstract class PdoDriver implements IDriver
 
 	public function commitTransaction(): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->logger !== null);
 
 		try {
 			$time = microtime(true);
@@ -192,7 +191,9 @@ abstract class PdoDriver implements IDriver
 
 	public function rollbackTransaction(): void
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
+		assert($this->logger !== null);
 
 		try {
 			$time = microtime(true);
@@ -208,6 +209,7 @@ abstract class PdoDriver implements IDriver
 
 	public function createSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
 		$this->loggedQuery("SAVEPOINT $identifier");
 	}
@@ -215,6 +217,7 @@ abstract class PdoDriver implements IDriver
 
 	public function releaseSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
 		$this->loggedQuery("RELEASE SAVEPOINT $identifier");
 	}
@@ -222,6 +225,7 @@ abstract class PdoDriver implements IDriver
 
 	public function rollbackSavepoint(string $name): void
 	{
+		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
 		$this->loggedQuery("ROLLBACK TO SAVEPOINT $identifier");
 	}
@@ -229,6 +233,7 @@ abstract class PdoDriver implements IDriver
 
 	public function convertStringToSql(string $value): string
 	{
+		$this->checkConnection();
 		assert($this->connection !== null);
 		return $this->connection->quote($value); // @phpstan-ignore-line
 	}
@@ -247,12 +252,21 @@ abstract class PdoDriver implements IDriver
 		string $error,
 		int $errorNo,
 		string $sqlState,
-		?string $query = null
+		?string $query = null,
 	): Exception;
 
 
 	protected function loggedQuery(string $sql): Result
 	{
+		assert($this->logger !== null);
 		return LoggerHelper::loggedQuery($this, $this->logger, $sql);
+	}
+
+
+	protected function checkConnection(): void
+	{
+		if ($this->connection === null) {
+			throw new InvalidStateException("Driver is not connected to database.");
+		}
 	}
 }

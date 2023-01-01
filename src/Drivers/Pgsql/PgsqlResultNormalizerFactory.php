@@ -23,26 +23,13 @@ class PgsqlResultNormalizerFactory
 	use StrictObjectTrait;
 
 
-	/** @var Closure(mixed): mixed */
-	private $intNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $floatNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $boolNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $dateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $intervalNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $varBitNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $byteaNormalizer;
+	private Closure $intNormalizer;
+	private Closure $floatNormalizer;
+	private Closure $boolNormalizer;
+	private Closure $dateTimeNormalizer;
+	private Closure $intervalNormalizer;
+	private Closure $varBitNormalizer;
+	private Closure $byteaNormalizer;
 
 
 	public function __construct()

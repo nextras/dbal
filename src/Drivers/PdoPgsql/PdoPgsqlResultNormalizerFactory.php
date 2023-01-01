@@ -23,56 +23,45 @@ class PdoPgsqlResultNormalizerFactory
 	use StrictObjectTrait;
 
 
-	/** @var Closure(mixed): mixed */
-	private $intNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $floatNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $dateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $intervalNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $varBitNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $byteaNormalizer;
+	private Closure $intNormalizer;
+	private Closure $floatNormalizer;
+	private Closure $dateTimeNormalizer;
+	private Closure $intervalNormalizer;
+	private Closure $varBitNormalizer;
+	private Closure $byteaNormalizer;
 
 
 	public function __construct()
 	{
 		$applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 
-		$this->intNormalizer = static function ($value): ?int {
+		$this->intNormalizer = static function($value): ?int {
 			if ($value === null) return null;
 			return (int) $value;
 		};
 
-		$this->floatNormalizer = static function ($value): ?float {
+		$this->floatNormalizer = static function($value): ?float {
 			if ($value === null) return null;
 			return (float) $value;
 		};
 
-		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): ?DateTimeImmutable {
+		$this->dateTimeNormalizer = static function($value) use ($applicationTimeZone): ?DateTimeImmutable {
 			if ($value === null) return null;
 			$dateTime = new DateTimeImmutable($value);
 			return $dateTime->setTimezone($applicationTimeZone);
 		};
 
-		$this->intervalNormalizer = static function ($value): ?DateInterval {
+		$this->intervalNormalizer = static function($value): ?DateInterval {
 			if ($value === null) return null;
 			return DateInterval::createFromDateString($value);
 		};
 
-		$this->varBitNormalizer = static function ($value) {
+		$this->varBitNormalizer = static function($value) {
 			if ($value === null) return null;
 			return bindec($value);
 		};
 
-		$this->byteaNormalizer = static function ($value) {
+		$this->byteaNormalizer = static function($value) {
 			if ($value === null) return null;
 			if (!is_resource($value)) {
 				throw new InvalidStateException();

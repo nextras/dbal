@@ -26,41 +26,21 @@ class Connection implements IConnection
 	use StrictObjectTrait;
 
 
-	/**
-	 * @var array
-	 * @phpstan-var array<string, mixed>
-	 */
-	private $config;
-
-	/** @var IDriver */
-	private $driver;
-
-	/** @var IPlatform */
-	private $platform;
-
-	/** @var SqlProcessor */
-	private $sqlPreprocessor;
-
-	/** @var bool */
-	private $connected;
-
-	/** @var int */
-	private $nestedTransactionIndex = 0;
-
-	/** @var bool */
-	private $nestedTransactionsWithSavepoint = true;
-
-	/** @var MultiLogger */
-	private $logger;
+	private IDriver $driver;
+	private ?IPlatform $platform = null;
+	private SqlProcessor $sqlPreprocessor;
+	private bool $connected;
+	private int $nestedTransactionIndex = 0;
+	private bool $nestedTransactionsWithSavepoint = true;
+	private MultiLogger $logger;
 
 
 	/**
 	 * @param array $config see drivers for supported options
 	 * @phpstan-param array<string, mixed> $config
 	 */
-	public function __construct(array $config)
+	public function __construct(private array $config)
 	{
-		$this->config = $config;
 		$this->driver = $this->createDriver();
 		$this->sqlPreprocessor = $this->createSqlProcessor();
 		$this->connected = $this->driver->isConnected();
@@ -159,7 +139,7 @@ class Connection implements IConnection
 	{
 		return $this->queryArgs(
 			$queryBuilder->getQuerySql(),
-			$queryBuilder->getQueryParameters()
+			$queryBuilder->getQueryParameters(),
 		);
 	}
 
@@ -209,7 +189,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function transactional(callable $callback)
+	public function transactional(callable $callback): mixed
 	{
 		$this->beginTransaction();
 		try {
@@ -344,7 +324,7 @@ class Connection implements IConnection
 		return LoggerHelper::loggedQuery(
 			$this->driver,
 			$this->logger,
-			$sql
+			$sql,
 		);
 	}
 
@@ -357,7 +337,7 @@ class Connection implements IConnection
 			return $this->config['driver'];
 		} else {
 			$driver = $this->config['driver'];
-			$name = ucfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $driver))));
+			$name = ucfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', (string) $driver))));
 			/** @var class-string<IDriver> $class */
 			$class = "Nextras\\Dbal\\Drivers\\{$name}\\{$name}Driver";
 			return new $class();

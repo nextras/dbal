@@ -24,18 +24,13 @@ class PostgreSqlPlatform implements IPlatform
 	use StrictObjectTrait;
 
 
-	public const NAME = 'pgsql';
+	final public const NAME = 'pgsql';
 
-	/** @var IConnection */
-	private $connection;
-
-	/** @var IDriver */
-	private $driver;
+	private readonly IDriver $driver;
 
 
-	public function __construct(IConnection $connection)
+	public function __construct(private readonly IConnection $connection)
 	{
-		$this->connection = $connection;
 		$this->driver = $connection->getDriver();
 	}
 
@@ -205,7 +200,7 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function formatJson($value): string
+	public function formatJson(mixed $value): string
 	{
 		$encoded = JsonHelper::safeEncode($value);
 		return $this->driver->convertStringToSql($encoded);

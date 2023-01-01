@@ -19,38 +19,28 @@ class MysqliResultNormalizerFactory
 {
 	use StrictObjectTrait;
 
-
-	/** @var Closure(mixed): mixed */
-	private $intNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $floatNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $timeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $dateTimeNormalizer;
-
-	/** @var Closure(mixed): mixed */
-	private $localDateTimeNormalizer;
+	private Closure $intNormalizer;
+	private Closure $floatNormalizer;
+	private Closure $timeNormalizer;
+	private Closure $dateTimeNormalizer;
+	private Closure $localDateTimeNormalizer;
 
 
 	public function __construct(MysqliDriver $driver)
 	{
 		$applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 
-		$this->intNormalizer = static function ($value): ?int {
+		$this->intNormalizer = static function($value): ?int {
 			if ($value === null) return null;
 			return (int) $value;
 		};
 
-		$this->floatNormalizer = static function ($value): ?float {
+		$this->floatNormalizer = static function($value): ?float {
 			if ($value === null) return null;
 			return (float) $value;
 		};
 
-		$this->timeNormalizer = static function ($value): ?DateInterval {
+		$this->timeNormalizer = static function($value): ?DateInterval {
 			if ($value === null) return null;
 			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
@@ -58,14 +48,14 @@ class MysqliResultNormalizerFactory
 			return $value;
 		};
 
-		$this->dateTimeNormalizer = static function ($value) use ($driver, $applicationTimeZone): ?DateTimeImmutable {
+		$this->dateTimeNormalizer = static function($value) use ($driver, $applicationTimeZone): ?DateTimeImmutable {
 			if ($value === null) return null;
 			$value = $value . ' ' . $driver->getConnectionTimeZone()->getName();
 			$dateTime = new DateTimeImmutable($value);
 			return $dateTime->setTimezone($applicationTimeZone);
 		};
 
-		$this->localDateTimeNormalizer = static function ($value) use ($applicationTimeZone): ?DateTimeImmutable {
+		$this->localDateTimeNormalizer = static function($value) use ($applicationTimeZone): ?DateTimeImmutable {
 			if ($value === null) return null;
 			$dateTime = new DateTimeImmutable($value);
 			return $dateTime->setTimezone($applicationTimeZone);

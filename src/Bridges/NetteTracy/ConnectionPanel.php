@@ -16,26 +16,16 @@ use Tracy\IBarPanel;
 
 class ConnectionPanel implements IBarPanel, ILogger
 {
-	/** @var int */
-	private $maxQueries;
+	private int $count = 0;
 
-	/** @var int */
-	private $count = 0;
-
-	/** @var float */
-	private $totalTime; // @phpstan-ignore-line
+	private float $totalTime = 0; // @phpstan-ignore-line
 
 	/**
-	 * @var array
 	 * @phpstan-var array<array{IConnection, string, float, ?int}>
 	 */
-	private $queries = [];
+	private array $queries = [];
 
-	/** @var IConnection */
-	private $connection;
-
-	/** @var bool */
-	private $doExplain;
+	private readonly IConnection $connection;
 
 
 	public static function install(IConnection $connection, bool $doExplain = true, int $maxQueries = 100): void
@@ -45,12 +35,14 @@ class ConnectionPanel implements IBarPanel, ILogger
 	}
 
 
-	public function __construct(IConnection $connection, bool $doExplain, int $maxQueries = 100)
+	public function __construct(
+		IConnection $connection,
+		private readonly bool $doExplain,
+		private readonly int $maxQueries = 100,
+	)
 	{
 		$connection->addLogger($this);
 		$this->connection = $connection;
-		$this->doExplain = $doExplain;
-		$this->maxQueries = $maxQueries;
 	}
 
 
@@ -76,7 +68,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 			$this->connection,
 			$sqlQuery,
 			$timeTaken,
-			$result !== null ? $result->count() : null,
+			$result?->count(),
 		];
 	}
 
@@ -101,7 +93,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	{
 		$count = $this->count;
 		$queries = $this->queries;
-		$queries = array_map(function ($row): array {
+		$queries = array_map(function($row): array {
 			try {
 				$row[4] = null;
 				if ($this->doExplain) {
@@ -110,7 +102,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 						$row[4] = $this->connection->getDriver()->query($explainSql)->fetchAll();
 					}
 				}
-			} catch (\Throwable $e) {
+			} catch (\Throwable) {
 				$row[4] = null;
 				$row[3] = null; // rows count is also irrelevant
 			}

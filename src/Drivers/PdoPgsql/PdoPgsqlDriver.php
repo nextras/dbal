@@ -45,8 +45,7 @@ use function implode;
  */
 class PdoPgsqlDriver extends PdoDriver
 {
-	/** @var PdoPgsqlResultNormalizerFactory */
-	private $resultNormalizerFactory;
+	private ?PdoPgsqlResultNormalizerFactory $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
@@ -73,12 +72,13 @@ class PdoPgsqlDriver extends PdoDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(?string $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
 		}
 
+		$this->checkConnection();
 		assert($this->connection !== null);
 		$sql = 'SELECT CURRVAL(' . $this->convertStringToSql($sequenceName) . ')';
 		return $this->loggedQuery($sql)->fetchField();
@@ -87,6 +87,7 @@ class PdoPgsqlDriver extends PdoDriver
 
 	public function setTransactionIsolationLevel(int $level): void
 	{
+		$this->checkConnection();
 		static $levels = [
 			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -102,6 +103,7 @@ class PdoPgsqlDriver extends PdoDriver
 
 	protected function createResultAdapter(PDOStatement $statement): IResultAdapter
 	{
+		assert($this->resultNormalizerFactory !== null);
 		return (new PdoPgsqlResultAdapter($statement, $this->resultNormalizerFactory))->toBuffered();
 	}
 
@@ -119,7 +121,7 @@ class PdoPgsqlDriver extends PdoDriver
 	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-		if ($sqlState === '0A000' && strpos($error, 'truncate') !== false) {
+		if ($sqlState === '0A000' && str_contains($error, 'truncate')) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
@@ -157,16 +159,17 @@ class PdoPgsqlDriver extends PdoDriver
 		}
 
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
-		if (strpos($this->connectionTz->getName(), ':') !== false) {
+		if (str_contains($this->connectionTz->getName(), ':')) {
 			$this->loggedQuery('SET TIME ZONE INTERVAL ' . $this->convertStringToSql($this->connectionTz->getName()) . ' HOUR TO MINUTE');
 		} else {
 			$this->loggedQuery('SET TIME ZONE ' . $this->convertStringToSql($this->connectionTz->getName()));
 		}
 
 		if (isset($params['searchPath'])) {
-			$schemas = array_map(function ($part): string {
-				return $this->convertIdentifierToSql($part);
-			}, (array) $params['searchPath']);
+			$schemas = array_map(
+				fn($part): string => $this->convertIdentifierToSql($part),
+				(array) $params['searchPath'],
+			);
 			$this->loggedQuery('SET search_path TO ' . implode(', ', $schemas));
 		}
 	}

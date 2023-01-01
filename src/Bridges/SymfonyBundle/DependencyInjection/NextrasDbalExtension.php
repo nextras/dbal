@@ -34,7 +34,7 @@ class NextrasDbalExtension extends Extension
 				$name === $defaultConnectionName,
 				$profiler,
 				$explain,
-				$maxQueries
+				$maxQueries,
 			);
 		}
 	}
@@ -50,7 +50,7 @@ class NextrasDbalExtension extends Extension
 		bool $isDefault,
 		bool $profiler,
 		bool $explain,
-		int $maxQueries
+		int $maxQueries,
 	): void
 	{
 		$connectionDefinition = new Definition(Connection::class);
