@@ -2,7 +2,6 @@
 
 /**
  * @testCase
- * @phpVersion >= 8.1
  */
 
 namespace NextrasTests\Dbal;
