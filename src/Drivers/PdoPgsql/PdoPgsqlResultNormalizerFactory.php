@@ -53,7 +53,8 @@ class PdoPgsqlResultNormalizerFactory
 
 		$this->intervalNormalizer = static function($value): ?DateInterval {
 			if ($value === null) return null;
-			return DateInterval::createFromDateString($value);
+			$interval = DateInterval::createFromDateString($value);
+			return $interval !== false ? $interval : null;
 		};
 
 		$this->varBitNormalizer = static function($value) {
