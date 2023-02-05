@@ -42,7 +42,7 @@ class SqlProcessor
 		'multiOr' => [false, false, 'array'],
 
 		// SQL constructs
-		'table' => [false, true, 'string'],
+		'table' => [false, true, 'string|array'],
 		'column' => [false, true, 'string'],
 		'values' => [false, true, 'array'],
 		'set' => [false, false, 'array'],
@@ -338,6 +338,16 @@ class SqlProcessor
 						return $this->platform->formatJson($value);
 
 					// normal
+					case 'table':
+						$valueCount = count($value);
+						if ($valueCount === 0 || $valueCount > 2) {
+							throw new InvalidArgumentException("Modifier %table expects array(table) or array(schema, table), $valueCount values given.");
+						}
+						foreach ($value as &$subValue) {
+							$subValue = $this->identifierToSql($subValue);
+						}
+						return implode('.', $value);
+
 					case 'column[]':
 					case '...column[]':
 					case 'table[]':
