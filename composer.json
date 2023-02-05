@@ -24,7 +24,7 @@
 		"nette/finder": "~2.5",
 		"nette/neon": "~3.0",
 		"phpstan/extension-installer": "1.2.0",
-		"phpstan/phpstan": "1.9.4",
+		"phpstan/phpstan": "1.9.14",
 		"phpstan/phpstan-deprecation-rules": "1.1.1",
 		"phpstan/phpstan-strict-rules": "1.4.4",
 		"symfony/config": "~4.4 || ~5.0",
