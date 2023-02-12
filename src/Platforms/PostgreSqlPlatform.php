@@ -66,11 +66,10 @@ class PostgreSqlPlatform implements IPlatform
 		$tables = [];
 		foreach ($result as $row) {
 			$table = new Table(
-				name: (string) $row->name,
-				schema: (string) $row->schema,
+				fqnName: new Fqn((string) $row->name, (string) $row->schema),
 				isView: (bool) $row->is_view,
 			);
-			$tables[$table->getUnescapedFqn()] = $table;
+			$tables[$table->fqnName->getUnescaped()] = $table;
 		}
 		return $tables;
 	}

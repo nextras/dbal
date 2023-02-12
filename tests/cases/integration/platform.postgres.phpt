@@ -21,16 +21,16 @@ class PlatformPostgresTest extends IntegrationTestCase
 		$tables = $this->connection->getPlatform()->getTables();
 
 		Assert::true(isset($tables["public.books"]));
-		Assert::same('books', $tables["public.books"]->name);
+		Assert::same('books', $tables["public.books"]->fqnName->name);
 		Assert::same(false, $tables["public.books"]->isView);
 
 		Assert::true(isset($tables["public.my_books"]));
-		Assert::same('my_books', $tables["public.my_books"]->name);
+		Assert::same('my_books', $tables["public.my_books"]->fqnName->name);
 		Assert::same(true, $tables["public.my_books"]->isView);
 
 		$tables = $this->connection->getPlatform()->getTables('second_schema');
 		Assert::true(isset($tables['second_schema.authors']));
-		Assert::same('authors', $tables['second_schema.authors']->name);
+		Assert::same('authors', $tables['second_schema.authors']->fqnName->name);
 		Assert::same(false, $tables['second_schema.authors']->isView);
 	}
 

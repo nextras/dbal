@@ -51,11 +51,10 @@ class SqlServerPlatform implements IPlatform
 		$tables = [];
 		foreach ($result as $row) {
 			$table = new Table(
-				name: (string) $row->TABLE_NAME,
-				schema: (string) $row->TABLE_SCHEMA,
+				fqnName: new Fqn((string) $row->TABLE_NAME, (string) $row->TABLE_SCHEMA),
 				isView: $row->TABLE_TYPE === 'VIEW',
 			);
-			$tables[$table->getUnescapedFqn()] = $table;
+			$tables[$table->fqnName->getUnescaped()] = $table;
 		}
 		return $tables;
 	}
