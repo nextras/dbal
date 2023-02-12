@@ -6,6 +6,7 @@ namespace NextrasTests\Dbal;
 
 
 use Mockery\MockInterface;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
@@ -40,7 +41,19 @@ class SqlProcessorIdentifiersTest extends TestCase
 
 		Assert::same(
 			'SELECT `a`, `b`.`c` FROM `d`.`e` WHERE `name` = ANY(ARRAY[\'Jan\'])',
-			$this->parser->process(["SELECT [a], [b.c] FROM [d.e] WHERE [name] = ANY(ARRAY[['Jan']])"])
+			$this->parser->process(["SELECT [a], [b.c] FROM [d.e] WHERE [name] = ANY(ARRAY[['Jan']])"]),
+		);
+	}
+
+
+	public function testFqn()
+	{
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('`a`');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('`b`');
+
+		Assert::same(
+			'`a`.`b`',
+			$this->parser->process(['%table', new Fqn('b', schema: 'a')]),
 		);
 	}
 
@@ -52,7 +65,7 @@ class SqlProcessorIdentifiersTest extends TestCase
 
 		Assert::same(
 			'SELECT `a`.*, `b`.`c`.*',
-			$this->parser->process(["SELECT [a.*], [b.c.*]"])
+			$this->parser->process(["SELECT [a.*], [b.c.*]"]),
 		);
 	}
 }
