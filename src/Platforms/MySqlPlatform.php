@@ -10,6 +10,7 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\DateTimeHelper;
 use Nextras\Dbal\Utils\JsonHelper;
@@ -58,12 +59,11 @@ class MySqlPlatform implements IPlatform
 
 		$tables = [];
 		foreach ($result as $row) {
-			$table = new Table();
-			$table->name = (string) $row->TABLE_NAME;
-			$table->schema = (string) $row->TABLE_SCHEMA;
-			$table->isView = $row->TABLE_TYPE === 'VIEW';
-
-			$tables[$table->getUnescapedFqn()] = $table;
+			$table = new Table(
+				fqnName: new Fqn((string) $row->TABLE_NAME, (string) $row->TABLE_SCHEMA),
+				isView: $row->TABLE_TYPE === 'VIEW',
+			);
+			$tables[$table->fqnName->getUnescaped()] = $table;
 		}
 		return $tables;
 	}
@@ -81,17 +81,17 @@ class MySqlPlatform implements IPlatform
 		foreach ($query as $row) {
 			$type = explode('(', (string) $row->Type);
 
-			$column = new Column();
-			$column->name = (string) $row->Field;
-			$column->type = strtoupper($type[0]);
-			$column->size = isset($type[1]) ? (int) $type[1] : null;
-			$column->default = $row->Default !== null ? (string) $row->Default : null;
-			$column->isPrimary = $row->Key === 'PRI';
-			$column->isAutoincrement = $row->Extra === 'auto_increment';
-			$column->isUnsigned = (bool) strstr((string) $row->Type, 'unsigned');
-			$column->isNullable = $row->Null === 'YES';
-			$column->meta = [];
-
+			$column = new Column(
+				name: (string) $row->Field,
+				type: strtoupper($type[0]),
+				size: isset($type[1]) ? (int) $type[1] : null,
+				default: $row->Default !== null ? (string) $row->Default : null,
+				isPrimary: $row->Key === 'PRI',
+				isAutoincrement: $row->Extra === 'auto_increment',
+				isUnsigned: (bool) strstr((string) $row->Type, 'unsigned'),
+				isNullable: $row->Null === 'YES',
+				meta: [],
+			);
 			$columns[$column->name] = $column;
 		}
 		return $columns;
@@ -122,14 +122,12 @@ class MySqlPlatform implements IPlatform
 		/** @var array<string, ForeignKey> $keys */
 		$keys = [];
 		foreach ($result as $row) {
-			$foreignKey = new ForeignKey();
-			$foreignKey->name = (string) $row->CONSTRAINT_NAME;
-			$foreignKey->schema = (string) $row->CONSTRAINT_SCHEMA;
-			$foreignKey->column = (string) $row->COLUMN_NAME;
-			$foreignKey->refTable = (string) $row->REFERENCED_TABLE_NAME;
-			$foreignKey->refTableSchema = (string) $row->REFERENCED_TABLE_SCHEMA;
-			$foreignKey->refColumn = (string) $row->REFERENCED_COLUMN_NAME;
-
+			$foreignKey = new ForeignKey(
+				fqnName: new Fqn((string) $row->CONSTRAINT_NAME, (string) $row->CONSTRAINT_SCHEMA),
+				column: (string) $row->COLUMN_NAME,
+				refTable: new Fqn((string) $row->REFERENCED_TABLE_NAME, (string) $row->REFERENCED_TABLE_SCHEMA),
+				refColumn: (string) $row->REFERENCED_COLUMN_NAME,
+			);
 			$keys[$foreignKey->column] = $foreignKey;
 		}
 		return $keys;

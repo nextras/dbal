@@ -10,6 +10,7 @@ namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Drivers\Mysqli\MysqliDriver;
 use Nextras\Dbal\Drivers\PdoMysql\PdoMysqlDriver;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
 use function array_map;
 use function version_compare;
@@ -26,17 +27,17 @@ class PlatformMysqlTest extends IntegrationTestCase
 		$tables = $this->connection->getPlatform()->getTables();
 
 		Assert::true(isset($tables["$dbName.books"]));
-		Assert::same('books', $tables["$dbName.books"]->name);
+		Assert::same('books', $tables["$dbName.books"]->fqnName->name);
 		Assert::same(false, $tables["$dbName.books"]->isView);
 
 		Assert::true(isset($tables["$dbName.my_books"]));
-		Assert::same('my_books', $tables["$dbName.my_books"]->name);
+		Assert::same('my_books', $tables["$dbName.my_books"]->fqnName->name);
 		Assert::same(true, $tables["$dbName.my_books"]->isView);
 
 		$dbName = $dbName . '2';
 		$tables = $this->connection->getPlatform()->getTables($dbName);
 		Assert::true(isset($tables["$dbName.authors"]));
-		Assert::same('authors', $tables["$dbName.authors"]->name);
+		Assert::same('authors', $tables["$dbName.authors"]->fqnName->name);
 		Assert::same(false, $tables["$dbName.authors"]->isView);
 	}
 
@@ -44,7 +45,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 	public function testColumns()
 	{
 		$columns = $this->connection->getPlatform()->getColumns('books');
-		$columns = array_map(function ($table) {
+		$columns = array_map(function($table) {
 			return (array) $table;
 		}, $columns);
 
@@ -133,7 +134,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 		$dbName2 = $this->connection->getConfig()['database'] . '2';
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', $dbName2);
-		$schemaColumns = array_map(function ($table) {
+		$schemaColumns = array_map(function($table) {
 			return (array) $table;
 		}, $schemaColumns);
 
@@ -192,41 +193,33 @@ class PlatformMysqlTest extends IntegrationTestCase
 
 		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
-		$keys = array_map(function ($key) {
+		$keys = array_map(function($key) {
 			return (array) $key;
 		}, $keys);
 
-		Assert::same([
+		Assert::equal([
 			'author_id' => [
-				'name' => 'books_authors',
-				'schema' => $dbName,
+				'fqnName' => new Fqn('books_authors', $dbName),
 				'column' => 'author_id',
-				'refTable' => 'authors',
-				'refTableSchema' => $dbName . '2',
+				'refTable' => new Fqn('authors', $dbName . '2'),
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
-				'name' => 'books_ean',
-				'schema' => $dbName,
+				'fqnName' => new Fqn('books_ean', $dbName),
 				'column' => 'ean_id',
-				'refTable' => 'eans',
-				'refTableSchema' => $dbName,
+				'refTable' => new Fqn('eans', $dbName),
 				'refColumn' => 'id',
 			],
 			'publisher_id' => [
-				'name' => 'books_publisher',
-				'schema' => $dbName,
+				'fqnName' => new Fqn('books_publisher', $dbName),
 				'column' => 'publisher_id',
-				'refTable' => 'publishers',
-				'refTableSchema' => $dbName,
+				'refTable' => new Fqn('publishers', $dbName),
 				'refColumn' => 'id',
 			],
 			'translator_id' => [
-				'name' => 'books_translator',
-				'schema' => $dbName,
+				'fqnName' => new Fqn('books_translator', $dbName),
 				'column' => 'translator_id',
-				'refTable' => 'authors',
-				'refTableSchema' => $dbName . '2',
+				'refTable' => new Fqn('authors', $dbName . '2'),
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -241,16 +234,14 @@ class PlatformMysqlTest extends IntegrationTestCase
 		");
 
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', $dbName2);
-		$schemaKeys = array_map(function ($key) {
+		$schemaKeys = array_map(function($key) {
 			return (array) $key;
 		}, $schemaKeys);
-		Assert::same([
+		Assert::equal([
 			'book_id' => [
-				'name' => 'book_id',
-				'schema' => $dbName2,
+				'fqnName' => new Fqn('book_id', $dbName2),
 				'column' => 'book_id',
-				'refTable' => 'books',
-				'refTableSchema' => $dbName,
+				'refTable' => new Fqn('books', $dbName),
 				'refColumn' => 'id',
 			],
 		], $schemaKeys);

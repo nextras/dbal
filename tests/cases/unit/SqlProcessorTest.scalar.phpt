@@ -143,16 +143,11 @@ class SqlProcessorScalarTest extends TestCase
 		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('B');
 		$this->platform->shouldReceive('formatIdentifier')->once()->with('c')->andReturn('C');
 		Assert::same('A, B, C', $this->parser->processModifier('table[]', ['a', 'b', 'c']));
-		Assert::same('A.B', $this->parser->processModifier('table', ['a', 'b']));
 
 		Assert::exception(function () {
 			// test break to process non-string values
 			$this->parser->processModifier('table[]', [1]);
 		}, InvalidArgumentException::class, 'Modifier %table expects value to be string|array, integer given.');
-
-		Assert::exception(function () {
-			$this->parser->processModifier('table', ['a', 'b', 'c']);
-		}, InvalidArgumentException::class, 'Modifier %table expects array(table) or array(schema, table), 3 values given.');
 	}
 
 

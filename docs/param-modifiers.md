@@ -39,19 +39,19 @@ $connection->query('WHERE [roles.privileges] ?| ARRAY[%...s[]]', ['backend', 'fr
 
 Other available modifiers:
 
-| Modifier               | Description                                                                                                                                                                  |
-|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `%and`                 | AND condition                                                                                                                                                                |
-| `%or`                  | OR condition                                                                                                                                                                 |
-| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                               |
-| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                |
-| `%set`                 | expands array for SET clause                                                                                                                                                 |
-| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier;                        |
-| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier; |
-| `%ex`                  | expands array as processor arguments                                                                                                                                         |
-| `%raw`                 | inserts string argument as is                                                                                                                                                |
-| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                      |
-| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                          |
+| Modifier               | Description                                                                                                                                                                                                                           |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `%and`                 | AND condition                                                                                                                                                                                                                         |
+| `%or`                  | OR condition                                                                                                                                                                                                                          |
+| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                                                                                        |
+| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                                                                         |
+| `%set`                 | expands array for SET clause                                                                                                                                                                                                          |
+| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier; `%table` supports also processing a `Nextras\Dbal\Platforms\Data\Fqn` instance. |
+| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier;                                                          |
+| `%ex`                  | expands array as processor arguments                                                                                                                                                                                                  |
+| `%raw`                 | inserts string argument as is                                                                                                                                                                                                         |
+| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                                                                               |
+| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                                                                                   |
 
 Let's examine `%and` and `%or` behavior. If array key is numeric and its value is an array, value is expanded with `%ex` modifier. (See below.)
 

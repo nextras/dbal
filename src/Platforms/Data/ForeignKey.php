@@ -11,30 +11,12 @@ class ForeignKey
 	use StrictObjectTrait;
 
 
-	public string $name;
-	public string $schema;
-	public string $column;
-	public string $refTable;
-	public string $refTableSchema;
-	public string $refColumn;
-
-
-	public function getNameFqn(): string
+	public function __construct(
+		public readonly Fqn $fqnName,
+		public readonly string $column,
+		public readonly Fqn $refTable,
+		public readonly string $refColumn,
+	)
 	{
-		if ($this->schema === '') {
-			return $this->name;
-		} else {
-			return "$this->schema.$this->name";
-		}
-	}
-
-
-	public function getRefTableFqn(): string
-	{
-		if ($this->refTableSchema === '') {
-			return $this->refTable;
-		} else {
-			return "$this->refTableSchema.$this->refTable";
-		}
 	}
 }

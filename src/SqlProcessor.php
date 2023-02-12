@@ -7,6 +7,7 @@ use DateInterval;
 use DateTime;
 use DateTimeImmutable;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use SplObjectStorage;
@@ -297,6 +298,14 @@ class SqlProcessor
 							return $this->platform->formatDateInterval($value);
 					}
 
+				} elseif ($value instanceof Fqn) {
+					switch ($type) {
+						case 'table':
+							$schema = $this->identifierToSql($value->schema);
+							$table = $this->identifierToSql($value->name);
+							return "$schema.$table";
+					}
+
 				} elseif (method_exists($value, '__toString')) {
 					switch ($type) {
 						case 'any':
@@ -338,16 +347,6 @@ class SqlProcessor
 						return $this->platform->formatJson($value);
 
 					// normal
-					case 'table':
-						$valueCount = count($value);
-						if ($valueCount === 0 || $valueCount > 2) {
-							throw new InvalidArgumentException("Modifier %table expects array(table) or array(schema, table), $valueCount values given.");
-						}
-						foreach ($value as &$subValue) {
-							$subValue = $this->identifierToSql($subValue);
-						}
-						return implode('.', $value);
-
 					case 'column[]':
 					case '...column[]':
 					case 'table[]':

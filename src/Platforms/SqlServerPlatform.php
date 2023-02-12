@@ -10,6 +10,7 @@ use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
@@ -49,12 +50,11 @@ class SqlServerPlatform implements IPlatform
 
 		$tables = [];
 		foreach ($result as $row) {
-			$table = new Table();
-			$table->name = (string) $row->TABLE_NAME;
-			$table->schema = (string) $row->TABLE_SCHEMA;
-			$table->isView = $row->TABLE_TYPE === 'VIEW';
-
-			$tables[$table->getUnescapedFqn()] = $table;
+			$table = new Table(
+				fqnName: new Fqn((string) $row->TABLE_NAME, (string) $row->TABLE_SCHEMA),
+				isView: $row->TABLE_TYPE === 'VIEW',
+			);
+			$tables[$table->fqnName->getUnescaped()] = $table;
 		}
 		return $tables;
 	}
@@ -105,17 +105,17 @@ class SqlServerPlatform implements IPlatform
 
 		$columns = [];
 		foreach ($result as $row) {
-			$column = new Column();
-			$column->name = (string) $row->name;
-			$column->type = (string) $row->type;
-			$column->size = $row->size !== null ? (int) $row->size : null;
-			$column->default = $row->default !== null ? (string) $row->default : null;
-			$column->isPrimary = (bool) $row->is_primary;
-			$column->isAutoincrement = (bool) $row->is_autoincrement;
-			$column->isUnsigned = false; // not available in SqlServer
-			$column->isNullable = (bool) $row->is_nullable;
-			$column->meta = [];
-
+			$column = new Column(
+				name: (string) $row->name,
+				type: (string) $row->type,
+				size: $row->size !== null ? (int) $row->size : null,
+				default: $row->default !== null ? (string) $row->default : null,
+				isPrimary: (bool) $row->is_primary,
+				isAutoincrement: (bool) $row->is_autoincrement,
+				isUnsigned: false, // not available in SqlServer
+				isNullable: (bool) $row->is_nullable,
+				meta: [],
+			);
 			$columns[$column->name] = $column;
 		}
 
@@ -154,14 +154,12 @@ class SqlServerPlatform implements IPlatform
 
 		$keys = [];
 		foreach ($result as $row) {
-			$foreignKey = new ForeignKey();
-			$foreignKey->name = (string) $row->name;
-			$foreignKey->schema = (string) $row->schema;
-			$foreignKey->column = (string) $row->column;
-			$foreignKey->refTable = (string) $row->ref_table;
-			$foreignKey->refTableSchema = (string) $row->ref_table_schema;
-			$foreignKey->refColumn = (string) $row->ref_column;
-
+			$foreignKey = new ForeignKey(
+				fqnName: new Fqn((string) $row->name, (string) $row->schema),
+				column: (string) $row->column,
+				refTable: new Fqn((string) $row->ref_table, (string) $row->ref_table_schema),
+				refColumn: (string) $row->ref_column,
+			);
 			$keys[$foreignKey->column] = $foreignKey;
 		}
 		return $keys;

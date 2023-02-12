@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
 
 
@@ -20,16 +21,16 @@ class PlatformSqlServerTest extends IntegrationTestCase
 		$tables = $this->connection->getPlatform()->getTables();
 
 		Assert::true(isset($tables["dbo.books"]));
-		Assert::same('books', $tables["dbo.books"]->name);
+		Assert::same('books', $tables["dbo.books"]->fqnName->name);
 		Assert::same(false, $tables["dbo.books"]->isView);
 
 		Assert::true(isset($tables["dbo.my_books"]));
-		Assert::same('my_books', $tables["dbo.my_books"]->name);
+		Assert::same('my_books', $tables["dbo.my_books"]->fqnName->name);
 		Assert::same(true, $tables["dbo.my_books"]->isView);
 
 		$tables = $this->connection->getPlatform()->getTables('second_schema');
 		Assert::true(isset($tables['second_schema.authors']));
-		Assert::same('authors', $tables['second_schema.authors']->name);
+		Assert::same('authors', $tables['second_schema.authors']->fqnName->name);
 		Assert::same(false, $tables['second_schema.authors']->isView);
 	}
 
@@ -167,37 +168,29 @@ class PlatformSqlServerTest extends IntegrationTestCase
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
 
-		Assert::same([
+		Assert::equal([
 			'author_id' => [
-				'name' => 'books_authors',
-				'schema' => 'dbo',
+				'fqnName' => new Fqn('books_authors', 'dbo'),
 				'column' => 'author_id',
-				'refTable' => 'authors',
-				'refTableSchema' => 'second_schema',
+				'refTable' => new Fqn('authors', 'second_schema'),
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
-				'name' => 'books_ean',
-				'schema' => 'dbo',
+				'fqnName' => new Fqn('books_ean', 'dbo'),
 				'column' => 'ean_id',
-				'refTable' => 'eans',
-				'refTableSchema' => 'dbo',
+				'refTable' => new Fqn('eans', 'dbo'),
 				'refColumn' => 'id',
 			],
 			'publisher_id' => [
-				'name' => 'books_publisher',
-				'schema' => 'dbo',
+				'fqnName' => new Fqn('books_publisher', 'dbo'),
 				'column' => 'publisher_id',
-				'refTable' => 'publishers',
-				'refTableSchema' => 'dbo',
+				'refTable' => new Fqn('publishers', 'dbo'),
 				'refColumn' => 'id',
 			],
 			'translator_id' => [
-				'name' => 'books_translator',
-				'schema' => 'dbo',
+				'fqnName' => new Fqn('books_translator', 'dbo'),
 				'column' => 'translator_id',
-				'refTable' => 'authors',
-				'refTableSchema' => 'second_schema',
+				'refTable' => new Fqn('authors', 'second_schema'),
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -213,13 +206,11 @@ class PlatformSqlServerTest extends IntegrationTestCase
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', 'second_schema');
 		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
 
-		Assert::same([
+		Assert::equal([
 			'book_id' => [
-				'name' => 'book_id',
-				'schema' => 'second_schema',
+				'fqnName' => new Fqn('book_id', 'second_schema'),
 				'column' => 'book_id',
-				'refTable' => 'books',
-				'refTableSchema' => 'dbo',
+				'refTable' => new Fqn('books', 'dbo'),
 				'refColumn' => 'id',
 			],
 		], $schemaKeys);
