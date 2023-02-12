@@ -11,17 +11,21 @@ class Column
 	use StrictObjectTrait;
 
 
-	public string $name;
-	public string $type;
-	public ?int $size;
-	public ?string $default;
-	public bool $isPrimary;
-	public bool $isAutoincrement;
-	public bool $isUnsigned;
-	public bool $isNullable;
-	/**
-	 * @var mixed[]
-	 * @phpstan-var array<string, mixed>
-	 */
-	public array $meta = [];
+	public function __construct(
+		public readonly string $name,
+		public readonly string $type,
+		public readonly ?int $size,
+		public readonly ?string $default,
+		public readonly bool $isPrimary,
+		public readonly bool $isAutoincrement,
+		public readonly bool $isUnsigned,
+		public readonly bool $isNullable,
+		/**
+		 * @var mixed[]
+		 * @phpstan-var array<string, mixed>
+		 */
+		public array $meta = [],
+	)
+	{
+	}
 }

@@ -11,12 +11,16 @@ class ForeignKey
 	use StrictObjectTrait;
 
 
-	public string $name;
-	public string $schema;
-	public string $column;
-	public string $refTable;
-	public string $refTableSchema;
-	public string $refColumn;
+	public function __construct(
+		public readonly string $name,
+		public readonly string $schema,
+		public readonly string $column,
+		public readonly string $refTable,
+		public readonly string $refTableSchema,
+		public readonly string $refColumn,
+	)
+	{
+	}
 
 
 	public function getNameFqn(): string

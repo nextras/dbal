@@ -64,11 +64,11 @@ class PostgreSqlPlatform implements IPlatform
 
 		$tables = [];
 		foreach ($result as $row) {
-			$table = new Table();
-			$table->name = (string) $row->name;
-			$table->schema = (string) $row->schema;
-			$table->isView = (bool) $row->is_view;
-
+			$table = new Table(
+				name: (string) $row->name,
+				schema: (string) $row->schema,
+				isView: (bool) $row->is_view,
+			);
 			$tables[$table->getUnescapedFqn()] = $table;
 		}
 		return $tables;
@@ -110,17 +110,17 @@ class PostgreSqlPlatform implements IPlatform
 
 		$columns = [];
 		foreach ($result as $row) {
-			$column = new Column();
-			$column->name = (string) $row->name;
-			$column->type = (string) $row->type;
-			$column->size = $row->size !== null ? (int) $row->size : null;
-			$column->default = $row->default !== null ? (string) $row->default : null;
-			$column->isPrimary = (bool) $row->is_primary;
-			$column->isAutoincrement = (bool) $row->is_autoincrement;
-			$column->isUnsigned = false;
-			$column->isNullable = (bool) $row->is_nullable;
-			$column->meta = isset($row->sequence) ? ['sequence' => $row->sequence] : [];
-
+			$column = new Column(
+				name: (string) $row->name,
+				type: (string) $row->type,
+				size: $row->size !== null ? (int) $row->size : null,
+				default: $row->default !== null ? (string) $row->default : null,
+				isPrimary: (bool) $row->is_primary,
+				isAutoincrement: (bool) $row->is_autoincrement,
+				isUnsigned: false,
+				isNullable: (bool) $row->is_nullable,
+				meta: isset($row->sequence) ? ['sequence' => $row->sequence] : [],
+			);
 			$columns[$column->name] = $column;
 		}
 		return $columns;
@@ -157,14 +157,14 @@ class PostgreSqlPlatform implements IPlatform
 
 		$keys = [];
 		foreach ($result as $row) {
-			$foreignKey = new ForeignKey();
-			$foreignKey->name = (string) $row->name;
-			$foreignKey->schema = (string) $row->schema;
-			$foreignKey->column = (string) $row->column;
-			$foreignKey->refTable = (string) $row->ref_table;
-			$foreignKey->refTableSchema = (string) $row->ref_table_schema;
-			$foreignKey->refColumn = (string) $row->ref_column;
-
+			$foreignKey = new ForeignKey(
+				name: (string) $row->name,
+				schema: (string) $row->schema,
+				column: (string) $row->column,
+				refTable: (string) $row->ref_table,
+				refTableSchema: (string) $row->ref_table_schema,
+				refColumn: (string) $row->ref_column,
+			);
 			$keys[$foreignKey->column] = $foreignKey;
 		}
 		return $keys;

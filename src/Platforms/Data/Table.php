@@ -11,9 +11,13 @@ class Table
 	use StrictObjectTrait;
 
 
-	public string $name;
-	public string $schema;
-	public bool $isView;
+	public function __construct(
+		public readonly string $name,
+		public readonly string $schema,
+		public readonly bool $isView = false,
+	)
+	{
+	}
 
 
 	/**
