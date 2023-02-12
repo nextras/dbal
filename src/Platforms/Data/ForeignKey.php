@@ -12,33 +12,11 @@ class ForeignKey
 
 
 	public function __construct(
-		public readonly string $name,
-		public readonly string $schema,
+		public readonly Fqn $fqnName,
 		public readonly string $column,
-		public readonly string $refTable,
-		public readonly string $refTableSchema,
+		public readonly Fqn $refTable,
 		public readonly string $refColumn,
 	)
 	{
-	}
-
-
-	public function getNameFqn(): string
-	{
-		if ($this->schema === '') {
-			return $this->name;
-		} else {
-			return "$this->schema.$this->name";
-		}
-	}
-
-
-	public function getRefTableFqn(): string
-	{
-		if ($this->refTableSchema === '') {
-			return $this->refTable;
-		} else {
-			return "$this->refTableSchema.$this->refTable";
-		}
 	}
 }

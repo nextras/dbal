@@ -10,6 +10,7 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\DateTimeHelper;
 use Nextras\Dbal\Utils\JsonHelper;
@@ -123,11 +124,9 @@ class MySqlPlatform implements IPlatform
 		$keys = [];
 		foreach ($result as $row) {
 			$foreignKey = new ForeignKey(
-				name: (string) $row->CONSTRAINT_NAME,
-				schema: (string) $row->CONSTRAINT_SCHEMA,
+				fqnName: new Fqn((string) $row->CONSTRAINT_NAME, (string) $row->CONSTRAINT_SCHEMA),
 				column: (string) $row->COLUMN_NAME,
-				refTable: (string) $row->REFERENCED_TABLE_NAME,
-				refTableSchema: (string) $row->REFERENCED_TABLE_SCHEMA,
+				refTable: new Fqn((string) $row->REFERENCED_TABLE_NAME, (string) $row->REFERENCED_TABLE_SCHEMA),
 				refColumn: (string) $row->REFERENCED_COLUMN_NAME,
 			);
 			$keys[$foreignKey->column] = $foreignKey;

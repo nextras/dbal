@@ -10,6 +10,7 @@ use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
@@ -155,11 +156,9 @@ class SqlServerPlatform implements IPlatform
 		$keys = [];
 		foreach ($result as $row) {
 			$foreignKey = new ForeignKey(
-				name: (string) $row->name,
-				schema: (string) $row->schema,
+				fqnName: new Fqn((string) $row->name, (string) $row->schema),
 				column: (string) $row->column,
-				refTable: (string) $row->ref_table,
-				refTableSchema: (string) $row->ref_table_schema,
+				refTable: new Fqn((string) $row->ref_table, (string) $row->ref_table_schema),
 				refColumn: (string) $row->ref_column,
 			);
 			$keys[$foreignKey->column] = $foreignKey;

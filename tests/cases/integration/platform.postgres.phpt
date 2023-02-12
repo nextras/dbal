@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
 
 
@@ -165,37 +166,29 @@ class PlatformPostgresTest extends IntegrationTestCase
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
 
-		Assert::same([
+		Assert::equal([
 			'author_id' => [
-				'name' => 'books_authors',
-				'schema' => 'public',
+				'fqnName' => new Fqn('books_authors', 'public'),
 				'column' => 'author_id',
-				'refTable' => 'authors',
-				'refTableSchema' => 'second_schema',
+				'refTable' => new Fqn('authors', 'second_schema'),
 				'refColumn' => 'id',
 			],
 			'translator_id' => [
-				'name' => 'books_translator',
-				'schema' => 'public',
+				'fqnName' => new Fqn('books_translator', 'public'),
 				'column' => 'translator_id',
-				'refTable' => 'authors',
-				'refTableSchema' => 'second_schema',
+				'refTable' => new Fqn('authors', 'second_schema'),
 				'refColumn' => 'id',
 			],
 			'publisher_id' => [
-				'name' => 'books_publisher',
-				'schema' => 'public',
+				'fqnName' => new Fqn('books_publisher', 'public'),
 				'column' => 'publisher_id',
-				'refTable' => 'publishers',
-				'refTableSchema' => 'public',
+				'refTable' => new Fqn('publishers', 'public'),
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
-				'name' => 'books_ean',
-				'schema' => 'public',
+				'fqnName' => new Fqn('books_ean', 'public'),
 				'column' => 'ean_id',
-				'refTable' => 'eans',
-				'refTableSchema' => 'public',
+				'refTable' => new Fqn('eans', 'public'),
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -211,13 +204,11 @@ class PlatformPostgresTest extends IntegrationTestCase
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', 'second_schema');
 		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
 
-		Assert::same([
+		Assert::equal([
 			'book_id' => [
-				'name' => 'book_id',
-				'schema' => 'second_schema',
+				'fqnName' => new Fqn('book_id', 'second_schema'),
 				'column' => 'book_id',
-				'refTable' => 'books',
-				'refTableSchema' => 'public',
+				'refTable' => new Fqn('books', 'public'),
 				'refColumn' => 'id',
 			],
 		], $schemaKeys);
