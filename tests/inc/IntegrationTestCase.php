@@ -2,9 +2,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Exception\InvalidArgumentException;
-use Nextras\Dbal\Utils\FileImporter;
 use Tester\Environment;
 
 
@@ -20,8 +20,12 @@ class IntegrationTestCase extends TestCase
 	public function initData(Connection $connection)
 	{
 		$this->lockConnection($connection);
-		$platform = $connection->getPlatform()->getName();
-		FileImporter::executeFile($connection, __DIR__ . "/../data/$platform-data.sql");
+		$platform = $connection->getPlatform();
+		$platformName = $platform->getName();
+		$parser = $platform->createMultiQueryParser();
+		foreach ($parser->parseFile(__DIR__ . "/../data/$platformName-data.sql") as $sql) {
+			$connection->query('%raw', $sql);
+		}
 	}
 
 
@@ -35,8 +39,8 @@ class IntegrationTestCase extends TestCase
 	protected function createConnection($params = [])
 	{
 		$options = array_merge([
-			'user' => NULL,
-			'password' => NULL,
+			'user' => null,
+			'password' => null,
 			'searchPath' => ['public'],
 		], Environment::loadData(), $params);
 		return new Connection($options);
@@ -46,7 +50,7 @@ class IntegrationTestCase extends TestCase
 	public function __get($name)
 	{
 		if ($name === 'connection') {
-			if ($this->defaultConnection === NULL) {
+			if ($this->defaultConnection === null) {
 				$this->defaultConnection = $this->createConnection();
 			}
 			return $this->defaultConnection;

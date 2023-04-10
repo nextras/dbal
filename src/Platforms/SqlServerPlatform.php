@@ -14,6 +14,8 @@ use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Utils\JsonHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use Nextras\MultiQueryParser\IMultiQueryParser;
+use Nextras\MultiQueryParser\SqlServerMultiQueryParser;
 
 
 class SqlServerPlatform implements IPlatform
@@ -241,6 +243,15 @@ class SqlServerPlatform implements IPlatform
 			$clause .= ' FETCH NEXT ' . $limit . ' ROWS ONLY';
 		}
 		return $clause;
+	}
+
+
+	public function createMultiQueryParser(): IMultiQueryParser
+	{
+		if (!class_exists(SqlServerMultiQueryParser::class)) {
+			throw new \RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+		}
+		return new SqlServerMultiQueryParser();
 	}
 
 
