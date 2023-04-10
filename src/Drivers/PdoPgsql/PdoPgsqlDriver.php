@@ -158,6 +158,8 @@ class PdoPgsqlDriver extends PdoDriver
 			$params['connectionTz'] = date('P');
 		}
 
+		$this->loggedQuery("SET intervalstyle = 'iso_8601'");
+
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		if (str_contains($this->connectionTz->getName(), ':')) {
 			$this->loggedQuery('SET TIME ZONE INTERVAL ' . $this->convertStringToSql($this->connectionTz->getName()) . ' HOUR TO MINUTE');

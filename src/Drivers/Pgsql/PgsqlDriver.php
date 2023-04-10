@@ -102,6 +102,7 @@ class PgsqlDriver implements IDriver
 
 		$this->resultNormalizationFactory = new PgsqlResultNormalizerFactory();
 
+		$this->loggedQuery("SET intervalstyle = 'iso_8601'");
 		$this->connectionTz = new DateTimeZone($params['connectionTz']);
 		if (str_contains($this->connectionTz->getName(), ':')) {
 			$this->loggedQuery('SET TIME ZONE INTERVAL ' . pg_escape_literal($connection, $this->connectionTz->getName()) . ' HOUR TO MINUTE');

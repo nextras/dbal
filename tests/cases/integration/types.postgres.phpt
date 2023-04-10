@@ -21,7 +21,7 @@ class TypesPostgresTest extends IntegrationTestCase
 		$result = $this->connection->query("
 			SELECT
 			-- driver specific
-			'1 day 01:00:00'::interval,
+			'1 day 1 hour'::interval,
 			'0100'::bit(4),
 			'100'::varbit,
 			'YES'::bool,
@@ -42,7 +42,8 @@ class TypesPostgresTest extends IntegrationTestCase
 		");
 
 		$row = $result->fetch();
-		Assert::equal(DateInterval::createFromDateString('1 day 01:00:00'), $row->interval);
+		Assert::equal(1, $row->interval->d);
+		Assert::equal(1, $row->interval->h);
 		Assert::same(4, $row->bit);
 		Assert::same(4, $row->varbit);
 		Assert::same(true, $row->bool);
