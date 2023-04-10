@@ -88,7 +88,6 @@ class PgsqlResultNormalizerFactory
 		];
 
 		static $floats = [
-			'numeric' => true,
 			'float4' => true,
 			'float8' => true,
 		];

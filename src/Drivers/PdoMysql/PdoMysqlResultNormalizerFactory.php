@@ -82,8 +82,6 @@ class PdoMysqlResultNormalizerFactory
 		];
 
 		static $floats = [
-			'DECIMAL' => true,
-			'NEWDECIMAL' => true,
 			'DOUBLE' => true,
 			'FLOAT' => true,
 		];

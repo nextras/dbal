@@ -31,14 +31,11 @@ class SqlsrvResultNormalizationFactory
 	private const TYPE_DATE = 91;
 	private const TYPE_DATETIME_DATETIME2_SMALLDATETIME = 93;
 	private const TYPE_DATETIMEOFFSET = -155;
-	private const TYPE_NUMERIC = 2;
-	private const TYPE_DECIMAL_MONEY_SMALLMONEY = 3;
 
 	private Closure $intNormalizer;
 	private Closure $boolNormalizer;
 	private Closure $dateTimeNormalizer;
 	private Closure $offsetDateTimeNormalizer;
-	private Closure $moneyNormalizer;
 
 
 	public function __construct()
@@ -65,11 +62,6 @@ class SqlsrvResultNormalizationFactory
 			if ($value === null) return null;
 			return new DateTimeImmutable($value);
 		};
-
-		$this->moneyNormalizer = static function ($value) {
-			if ($value === null) return null;
-			return !str_contains($value, '.') ? (int) $value : (float) $value;
-		};
 	}
 
 
@@ -94,11 +86,6 @@ class SqlsrvResultNormalizationFactory
 			self::TYPE_DATETIME_DATETIME2_SMALLDATETIME => true,
 		];
 
-		static $money = [
-			self::TYPE_NUMERIC => true,
-			self::TYPE_DECIMAL_MONEY_SMALLMONEY => true,
-		];
-
 		$normalizers = [];
 		foreach ($types as $column => $type) {
 			if (isset($ok[$type])) {
@@ -111,8 +98,6 @@ class SqlsrvResultNormalizationFactory
 				$normalizers[$column] = $this->offsetDateTimeNormalizer;
 			} elseif ($type === self::TYPE_BIT) {
 				$normalizers[$column] = $this->boolNormalizer;
-			} elseif (isset($money[$type])) {
-				$normalizers[$column] = $this->moneyNormalizer;
 			}
 		}
 		return $normalizers;

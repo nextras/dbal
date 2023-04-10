@@ -40,15 +40,15 @@ class ConnectionSqlServerTest extends IntegrationTestCase
 
 		for ($i = 1; $i < 4; $i++) {
 			$this->connection->query('INSERT INTO autoi_1 DEFAULT VALUES');
-			Assert::same($i, $this->connection->getLastInsertedId());
+			Assert::same("$i", $this->connection->getLastInsertedId());
 		}
 
 		$this->connection->query('INSERT INTO autoi_2 DEFAULT VALUES');
-		Assert::same(1, $this->connection->getLastInsertedId());
+		Assert::same('1', $this->connection->getLastInsertedId());
 
 		$this->connection->query('CREATE TRIGGER autoi_2_ai ON autoi_2 AFTER INSERT AS INSERT INTO autoi_1 DEFAULT VALUES');
 		$this->connection->query('INSERT INTO autoi_2 DEFAULT VALUES');
-		Assert::same(2, $this->connection->getLastInsertedId());
+		Assert::same('2', $this->connection->getLastInsertedId());
 	}
 }
 

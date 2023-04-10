@@ -74,8 +74,8 @@ class TypesMysqlTest extends IntegrationTestCase
 		Assert::same(1, $row->bigint);
 		Assert::same(2015, $row->year);
 
-		Assert::same(100.0, $row->decimal);
-		Assert::same(100.22, $row->decimal2);
+		Assert::same('100', $row->decimal);
+		Assert::same('100.22', $row->decimal2);
 		Assert::same(12.34, $row->float);
 		Assert::same(12.34, $row->double);
 
