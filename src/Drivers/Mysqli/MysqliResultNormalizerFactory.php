@@ -81,8 +81,6 @@ class MysqliResultNormalizerFactory
 		];
 
 		static $floats = [
-			MYSQLI_TYPE_DECIMAL => true,
-			MYSQLI_TYPE_NEWDECIMAL => true,
 			MYSQLI_TYPE_DOUBLE => true,
 			MYSQLI_TYPE_FLOAT => true,
 		];

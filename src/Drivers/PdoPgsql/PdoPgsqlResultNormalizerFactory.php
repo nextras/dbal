@@ -84,7 +84,6 @@ class PdoPgsqlResultNormalizerFactory
 		];
 
 		static $floats = [
-			'numeric' => true,
 			'float4' => true,
 			'float8' => true,
 		];

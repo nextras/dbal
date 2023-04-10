@@ -24,7 +24,6 @@ class PdoSqlsrvResultNormalizerFactory
 	private Closure $boolNormalizer;
 	private Closure $dateTimeNormalizer;
 	private Closure $offsetDateTimeNormalizer;
-	private Closure $moneyNormalizer;
 
 
 	public function __construct()
@@ -56,11 +55,6 @@ class PdoSqlsrvResultNormalizerFactory
 			if ($value === null) return null;
 			return new DateTimeImmutable($value);
 		};
-
-		$this->moneyNormalizer = static function ($value) {
-			if ($value === null) return null;
-			return !str_contains($value, '.') ? (int) $value : (float) $value;
-		};
 	}
 
 
@@ -85,13 +79,6 @@ class PdoSqlsrvResultNormalizerFactory
 			'datetime2' => true,
 		];
 
-		static $money = [
-			'numeric' => true,
-			'decimal' => true,
-			'money' => true,
-			'smallmoney' => true,
-		];
-
 		$normalizers = [];
 		foreach ($types as $column => $type) {
 			if (str_ends_with((string) $type, ' identity')) { // strip " identity" suffix
@@ -110,8 +97,6 @@ class PdoSqlsrvResultNormalizerFactory
 				$normalizers[$column] = $this->offsetDateTimeNormalizer;
 			} elseif ($type === 'bit') {
 				$normalizers[$column] = $this->boolNormalizer;
-			} elseif (isset($money[$type])) {
-				$normalizers[$column] = $this->moneyNormalizer;
 			}
 		}
 		return $normalizers;

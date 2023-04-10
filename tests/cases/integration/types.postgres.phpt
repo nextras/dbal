@@ -52,7 +52,7 @@ class TypesPostgresTest extends IntegrationTestCase
 		Assert::same(2, $row->int4);
 		Assert::same(3, $row->int2);
 
-		Assert::same(12.04, $row->numeric);
+		Assert::same('12.04', $row->numeric);
 		Assert::same(12.05, $row->float4);
 		Assert::same(12.06, $row->float8);
 

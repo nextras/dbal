@@ -40,7 +40,8 @@
 		"psr-4": { "Nextras\\Dbal\\": "src/" }
 	},
 	"scripts": {
-		"phpstan": "phpstan analyze -c .phpstan.neon --memory-limit=512M"
+		"phpstan": "phpstan analyze -c .phpstan.neon --memory-limit=512M",
+		"tests": "tester -C --colors 1 --setup ./tests/inc/setup.php ./tests/cases"
 	},
 	"extra": {
 		"branch-alias": {

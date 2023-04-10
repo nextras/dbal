@@ -69,12 +69,12 @@ class TypesSqlserverTest extends IntegrationTestCase
 		Assert::same(12.0, $row->float1);
 		Assert::same(12.0, $row->real1);
 
-		Assert::same(12.04, $row->numeric1);
-		Assert::same(12.00, $row->numeric2);
-		Assert::same(12, $row->numeric3);
+		Assert::same('12.04', $row->numeric1);
+		Assert::same('12.00', $row->numeric2);
+		Assert::same('12', $row->numeric3);
 
-		Assert::same(12.00, $row->money1);
-		Assert::same(12.00, $row->smallmoney1);
+		Assert::same('12.0000', $row->money1);
+		Assert::same('12.0000', $row->smallmoney1);
 
 		Assert::same(true, $row->boolean);
 	}
