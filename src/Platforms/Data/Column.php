@@ -24,7 +24,7 @@ class Column
 		 * @var mixed[]
 		 * @phpstan-var array<string, mixed>
 		 */
-		public array $meta = [],
+		public readonly array $meta = [],
 	)
 	{
 	}

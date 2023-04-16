@@ -3,11 +3,17 @@
 namespace Nextras\Dbal\Platforms\Data;
 
 
+use Nextras\Dbal\Utils\StrictObjectTrait;
+
+
 /**
  * Fully qualified name/identifier
  */
 class Fqn
 {
+	use StrictObjectTrait;
+
+
 	public function __construct(
 		public readonly string $name,
 		public readonly string $schema,
