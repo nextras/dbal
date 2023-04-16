@@ -148,6 +148,8 @@ class SqlProcessorFactory implements ISqlProcessorFactory
 }
 ```
 
+Use `sqlProcessorFactory` configuration key to pass a factory instance. See configuration chapters.
+
 ### Modifier Resolver
 
 SqlProcessor allows setting custom modifier resolver for any values passed for both implicit and explicit `%any` modifier. This way you may introduce custom processing for your custom types. For safety reasons it is possible to override only the `%any` modifier. To do so, implement `ISqlProcessorModifierResolver` interface and return the modifier name for the passed value. Finally, register the custom modifier resolver into SqlProcessor. This API is especially powerful in combination with custom modifiers.
@@ -163,7 +165,7 @@ class BrickSqlProcessorModifierResolver implements ISqlProcessorModifierResolver
     public function resolve($value): ?string
     {
         if ($value instanceof \Brick\DayOfWeek) {
-            return 'brickDoW';
+            return 'brickDayOfWeek';
         }
         return null;
     }
@@ -175,7 +177,7 @@ class SqlProcessorFactory implements ISqlProcessorFactory
 	{
 		$processor = new SqlProcessor($driver);
 		$processor->setCustomModifier(
-		    'brickDoW',
+		    'brickDayOfWeek',
 		    function (SqlProcessor $processor, $value) {
 		        assert($value instanceof \Brick\DayOfWeek);
 			    return $processor->processModifier('s', $value->getValue());

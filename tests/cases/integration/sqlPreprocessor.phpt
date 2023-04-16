@@ -8,12 +8,9 @@
 namespace NextrasTests\Dbal;
 
 
-use Nextras\Dbal\Exception\InvalidArgumentException;
-use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ISqlProcessorFactory;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Row;
-use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
 
@@ -56,28 +53,11 @@ class SqlPreprocessorIntegrationTest extends IntegrationTestCase
 
 	public function testCustomModifier()
 	{
-		$sqlProcessorFactory = new class implements ISqlProcessorFactory {
-			public function create(IConnection $connection): SqlProcessor
-			{
-				$sqlProcessor = new SqlProcessor($connection->getPlatform());
-				$sqlProcessor->setCustomModifier(
-					'%test',
-					function (SqlProcessor $sqlProcessor, $value, string $type) {
-						if (!is_array($value)) throw new InvalidArgumentException('%test modifer accepts only array.');
-						return 'ARRAY[' .
-							implode(', ', array_map(function ($subValue) use ($sqlProcessor): string {
-								return $sqlProcessor->processModifier('any', $subValue);
-							}, $value)) .
-							']';
-					}
-				);
-				return $sqlProcessor;
-			}
-		};
-
 		$this->connection->connect();
+		/** @var ISqlProcessorFactory $sqlProcessorFactory */
+		$sqlProcessorFactory = $this->connection->getConfig()['sqlProcessorFactory'];
 		$sqlProcessor = $sqlProcessorFactory->create($this->connection);
-		$result = $sqlProcessor->processModifier('%test', [1, '2', false, null]);
+		$result = $sqlProcessor->processModifier('%pgArray', [1, '2', false, null]);
 		if ($this->connection->getPlatform()->getName() === PostgreSqlPlatform::NAME) {
 			Assert::same("ARRAY[1, '2', FALSE, NULL]", $result);
 		} else {

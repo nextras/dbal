@@ -2,9 +2,13 @@ dbal:
 	driver: mysqli
 	username: bar
 	password: foo
+	sqlProcessorFactory: @NextrasTests\Dbal\SqlProcessorFactory
 
 dbal2:
 	driver: mysqli
 	username: bar2
 	password: foo2
 	autowired: false
+
+services:
+    - NextrasTests\Dbal\SqlProcessorFactory

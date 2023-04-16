@@ -2,6 +2,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Tester\Environment;
 
 
@@ -10,17 +11,10 @@ if (@!include __DIR__ . '/../vendor/autoload.php') {
 	exit(1);
 }
 
-require_once __DIR__ . '/inc/TestCase.php';
-require_once __DIR__ . '/inc/TestLogger.php';
-require_once __DIR__ . '/inc/QueryBuilderTestCase.php';
-require_once __DIR__ . '/inc/IntegrationTestCase.php';
-
-
 define('TEMP_DIR', __DIR__ . '/temp');
 date_default_timezone_set('Europe/Prague');
 
 Environment::setup();
-
 
 if (getenv(Environment::RUNNER)) {
 	# Runner

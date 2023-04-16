@@ -16,6 +16,10 @@ nextras.dbal:
 	username: db-username
 	password: db-password
 	connectionTz: Europe/Prague
+	sqlProcessorFactory: @Custom\SqlProcessorFactory
+
+services:
+	- Custom\SqlProcessorFactory
 ```
 
 If you need multiple connections, install the extension once again with a different name and choose which connection
@@ -37,7 +41,8 @@ nextras.dbal2:
 
 **Configuration keys** are those accepted by `Connection` instance, the actual driver respectively. See [Connection](default) chapter.
 
-The extension takes two additional configurations:
+The extension takes additional configurations:
 
 - `panelQueryExplain` (default `true` if Tracy is available): enables/disables panel for Trace.
 - `maxQueries` (default `100`): number of logged queries in the Tracy panel.
+- `sqlProcessorFactory` a reference to `Nextras\Dbal\ISqlProcessorFactory` service.

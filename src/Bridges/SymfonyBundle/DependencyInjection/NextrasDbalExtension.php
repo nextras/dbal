@@ -7,6 +7,7 @@ use Nextras\Dbal\Bridges\SymfonyBundle\DataCollector\QueryDataCollector;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\IConnection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -53,6 +54,11 @@ class NextrasDbalExtension extends Extension
 		int $maxQueries,
 	): void
 	{
+		$config['sqlProcessorFactory'] = new Reference(
+			"nextras_dbal.$name.sqlProcessorFactory",
+			ContainerInterface::NULL_ON_INVALID_REFERENCE,
+		);
+
 		$connectionDefinition = new Definition(Connection::class);
 		$connectionDefinition->setArgument('$config', $config);
 		$connectionDefinition->setPublic(true);

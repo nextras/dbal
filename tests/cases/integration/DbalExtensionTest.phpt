@@ -91,6 +91,7 @@ class DbalExtensionTest extends IntegrationTestCase
 		$connection = $dic->getByType(Connection::class);
 		Assert::type(Connection::class, $connection);
 		Assert::equal('bar', $connection->getConfig()['username']);
+		Assert::type(SqlProcessorFactory::class, $connection->getConfig()['sqlProcessorFactory']);
 
 		$connection = $dic->getService('dbal2.connection');
 		Assert::type(Connection::class, $connection);

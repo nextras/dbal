@@ -42,6 +42,7 @@ class IntegrationTestCase extends TestCase
 			'user' => null,
 			'password' => null,
 			'searchPath' => ['public'],
+			'sqlProcessorFactory' => new SqlProcessorFactory(),
 		], Environment::loadData(), $params);
 		return new Connection($options);
 	}
