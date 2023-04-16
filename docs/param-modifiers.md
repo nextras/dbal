@@ -138,10 +138,10 @@ class SqlProcessorFactory implements ISqlProcessorFactory
 	{
 		$processor = new SqlProcessor($driver);
 		$processor->setCustomModifier(
-		    'mybool',
-		    function (SqlProcessor $processor, $value) {
-			    return $processor->processModifier('s', $bool ? 'yes' : 'no');
-		    }
+			'mybool',
+			function (SqlProcessor $processor, $value) {
+				return $processor->processModifier('s', $bool ? 'yes' : 'no');
+			}
 		);
 		return $processor;
 	}
