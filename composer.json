@@ -39,6 +39,9 @@
 	"autoload": {
 		"psr-4": { "Nextras\\Dbal\\": "src/" }
 	},
+	"autoload-dev": {
+		"classmap": ["tests/inc/"]
+	},
 	"scripts": {
 		"phpstan": "phpstan analyze -c .phpstan.neon --memory-limit=512M",
 		"tests": "tester -C --colors 1 --setup ./tests/inc/setup.php ./tests/cases"

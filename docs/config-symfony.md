@@ -41,6 +41,8 @@ nextras_dbal:
 
 **Configuration keys** are those accepted by `Connection` instance, the actual driver respectively. See [Connection](default) chapter.
 
-The bundle takes an additional configuration:
+The bundle takes additional configurations:
 
 - `maxQueries` (default `100`): number of logged queries into QueryDataCollector.
+
+The define custom `Nextras\Dbal\ISqlProcessorFactory` instance, define `nextras_dbal.default.sqlProcessorFactory` named service, where the `default` is the name of relevant connection.

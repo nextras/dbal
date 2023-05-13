@@ -13,7 +13,6 @@ use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\MultiLogger;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function array_unshift;
-use function assert;
 use function is_array;
 use function spl_object_hash;
 use function str_replace;
@@ -349,7 +348,9 @@ class Connection implements IConnection
 	{
 		if (isset($this->config['sqlProcessorFactory'])) {
 			$factory = $this->config['sqlProcessorFactory'];
-			assert($factory instanceof ISqlProcessorFactory);
+			if (!$factory instanceof ISqlProcessorFactory) {
+				throw new InvalidArgumentException("Connection's 'sqlProcessorFactory' configuration key does not contain an instance of " . ISqlProcessorFactory::class . '.');
+			}
 			return $factory->create($this);
 		} else {
 			return new SqlProcessor($this->getPlatform());
