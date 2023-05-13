@@ -9,6 +9,7 @@ namespace NextrasTests\Dbal;
 
 
 use Nextras\Dbal\Connection;
+use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
@@ -68,8 +69,8 @@ class TransactionsTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 		$this->connection->query('DELETE FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_');
 
-		Assert::exception(function () {
-			$this->connection->transactional(function (Connection $connection) {
+		Assert::exception(function() {
+			$this->connection->transactional(function(Connection $connection) {
 				$connection->query('INSERT INTO tags %values', [
 					'name' => '_TRANS_TRANSACTIONAL_',
 				]);
@@ -92,7 +93,7 @@ class TransactionsTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 		$this->connection->query('DELETE FROM tags WHERE name = %s', '_TRANS_TRANSACTIONAL_OK_');
 
-		$returnValue = $this->connection->transactional(function (Connection $connection) {
+		$returnValue = $this->connection->transactional(function(Connection $connection) {
 			$connection->query('INSERT INTO tags %values', [
 				'name' => '_TRANS_TRANSACTIONAL_OK_',
 			]);
@@ -152,6 +153,27 @@ class TransactionsTest extends IntegrationTestCase
 		$this->connection->rollbackTransaction();
 
 		Environment::$checkAssertions = false;
+	}
+
+
+	public function testTransactionDeadlock()
+	{
+		$connection1 = $this->createConnection();
+		$this->initData($connection1);
+		$this->lockConnection($connection1);
+		$connection1->beginTransaction();
+		$connection1->query('SELECT * FROM books WHERE id = 1 FOR UPDATE');
+
+		$connection2 = $this->createConnection();
+		Assert::exception(function() use ($connection2) {
+			$connection2->transactional(function() use ($connection2) {
+				$connection2->transactional(function() use ($connection2) {
+					$connection2->query('SELECT * FROM books WHERE id = 1 FOR UPDATE NOWAIT');
+				});
+			});
+		}, DriverException::class);
+
+//		Assert::same(-1, $connection2->getTransactionNestedIndex());
 	}
 }
 
