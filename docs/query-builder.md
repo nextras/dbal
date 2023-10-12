@@ -9,7 +9,7 @@ The API is designed to be convenient and yet safe and helpful. Therefore, every 
 To get query in QueryBuilder executed, pass the builder to `queryByQueryBuilder()` method on connection, you will receive a `Result` instance.
 
 ```php
-$builder = $connection->createQueryBuilder();
+$builder = $this->connection->createQueryBuilder();
 // modify query builder
 $result = $this->connection->queryByQueryBuilder($builder);
 ```
