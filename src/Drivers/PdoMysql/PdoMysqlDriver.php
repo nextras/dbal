@@ -17,6 +17,7 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Result\IResultAdapter;
@@ -100,7 +101,7 @@ class PdoMysqlDriver extends PdoDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): int
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): int
 	{
 		return (int) parent::getLastInsertedId($sequenceName);
 	}

@@ -17,6 +17,7 @@ use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Result;
@@ -178,14 +179,20 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
 		}
 		$this->checkConnection();
 		assert($this->connection !== null);
-		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
+
+		$sequenceName = match (true) {
+			$sequenceName instanceOf Fqn => pg_escape_identifier($this->connection, $sequenceName->schema) . '.' .
+				pg_escape_identifier($this->connection, $sequenceName->name),
+			default => pg_escape_identifier($this->connection, $sequenceName),
+		};
+		$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
 		return $this->loggedQuery($sql)->fetchField();
 	}
 

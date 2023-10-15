@@ -9,6 +9,7 @@ namespace NextrasTests\Dbal;
 
 
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
 
 
@@ -32,11 +33,20 @@ class ConnectionPostgresTest extends IntegrationTestCase
 
 		$this->connection->query('INSERT INTO publishers %values', ['name' => 'FOO']);
 		Assert::same(2, $this->connection->getLastInsertedId('publishers_id_seq'));
-		Assert::same(2, $this->connection->getLastInsertedId('public.publishers_id_seq'));
+		Assert::same(2, $this->connection->getLastInsertedId(new Fqn(name: 'publishers_id_seq', schema: 'public')));
 
-		Assert::exception(function () {
+		Assert::exception(function() {
 			$this->connection->getLastInsertedId();
 		}, InvalidArgumentException::class, 'PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
+	}
+
+
+	public function testSequenceCasing()
+	{
+		$this->lockConnection($this->connection);
+		$this->connection->query('CREATE SEQUENCE %column INCREMENT 5 START 10;', "MySequence");
+		$this->connection->query('SELECT NEXTVAL(\'%column\')', "MySequence");
+		Assert::same(10, $this->connection->getLastInsertedId("MySequence"));
 	}
 }
 

@@ -17,6 +17,7 @@ use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Nextras\Dbal\Result\Result;
@@ -183,7 +184,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		$this->checkConnection();
 		return $this->loggedQuery('SELECT SCOPE_IDENTITY()')->fetchField();

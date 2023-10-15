@@ -9,6 +9,7 @@ use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
@@ -108,7 +109,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);

@@ -7,6 +7,7 @@ use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
@@ -88,7 +89,7 @@ interface IConnection
 	 * Returns last inserted ID.
 	 * @return int|string|null
 	 */
-	public function getLastInsertedId(?string $sequenceName = null);
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null);
 
 
 	/**
