@@ -77,9 +77,8 @@ class MysqliResultAdapter implements IResultAdapter
 
 	public function getRowsCount(): int
 	{
-		/** @phpstan-var int<0, max>|string $rows */
 		$rows = $this->result->num_rows;
-		if (is_string($rows)) { // @phpstan-ignore-line
+		if (is_string($rows)) {
 			throw new InvalidStateException("Query returned more rows that Integer can store.");
 		}
 		return $rows;
