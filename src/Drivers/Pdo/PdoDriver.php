@@ -9,6 +9,7 @@ use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
@@ -108,7 +109,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -207,7 +208,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
@@ -215,7 +216,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
@@ -223,7 +224,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
@@ -245,7 +246,7 @@ abstract class PdoDriver implements IDriver
 	abstract protected function createResultAdapter(PDOStatement $statement): IResultAdapter;
 
 
-	abstract protected function convertIdentifierToSql(string $identifier): string;
+	abstract protected function convertIdentifierToSql(string|Fqn $identifier): string;
 
 
 	abstract protected function createException(

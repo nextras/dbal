@@ -17,6 +17,7 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\IResultAdapter;
@@ -72,7 +73,7 @@ class PdoPgsqlDriver extends PdoDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
@@ -80,7 +81,13 @@ class PdoPgsqlDriver extends PdoDriver
 
 		$this->checkConnection();
 		assert($this->connection !== null);
-		$sql = 'SELECT CURRVAL(' . $this->convertStringToSql($sequenceName) . ')';
+
+		$sequenceName = match (true) {
+			$sequenceName instanceof Fqn => $this->convertIdentifierToSql($sequenceName->schema) . '.' .
+				$this->convertIdentifierToSql($sequenceName->name),
+			default => $this->convertIdentifierToSql($sequenceName),
+		};
+		$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
 		return $this->loggedQuery($sql)->fetchField();
 	}
 
@@ -108,9 +115,14 @@ class PdoPgsqlDriver extends PdoDriver
 	}
 
 
-	protected function convertIdentifierToSql(string $identifier): string
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
-		return '"' . str_replace(['"', '.'], ['""', '"."'], $identifier) . '"';
+		$escaped = match (true) {
+			$identifier instanceof Fqn => str_replace('"', '""', $identifier->schema) . '.'
+				. str_replace('"', '""', $identifier->name),
+			default => str_replace('"', '""', $identifier),
+		};
+		return '"' . $escaped . '"';
 	}
 
 

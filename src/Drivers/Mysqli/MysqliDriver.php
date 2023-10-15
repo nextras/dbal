@@ -17,6 +17,7 @@ use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Result\Result;
@@ -95,7 +96,7 @@ class MysqliDriver implements IDriver
 			throw $this->createException(
 				$this->connection->connect_error ?? $this->connection->error, // @phpstan-ignore-line
 				$this->connection->connect_errno,
-				'HY000'
+				'HY000',
 			);
 		}
 
@@ -147,7 +148,7 @@ class MysqliDriver implements IDriver
 				$this->connection->error,
 				$this->connection->errno,
 				$this->connection->sqlstate,
-				$query
+				$query,
 			);
 		}
 
@@ -159,7 +160,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -249,27 +250,24 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
-		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
-		$this->loggedQuery("SAVEPOINT $identifier");
+		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
-		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
-		$this->loggedQuery("RELEASE SAVEPOINT $identifier");
+		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
-		$identifier = str_replace(['`', '.'], ['``', '`.`'], $name);
-		$this->loggedQuery("ROLLBACK TO SAVEPOINT $identifier");
+		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
 
@@ -296,7 +294,7 @@ class MysqliDriver implements IDriver
 			$params['sslCert'] ?? '',
 			$params['sslCa'] ?? '',
 			$params['sslCapath'] ?? '',
-			$params['sslCipher'] ?? ''
+			$params['sslCipher'] ?? '',
 		);
 	}
 
@@ -342,6 +340,17 @@ class MysqliDriver implements IDriver
 		$this->checkConnection();
 		assert($this->connection !== null);
 		return "'" . $this->connection->escape_string($value) . "'";
+	}
+
+
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
+	{
+		$escaped = match (true) {
+			$identifier instanceof Fqn => str_replace('`', '``', $identifier->schema) . '.'
+				. str_replace('`', '``', $identifier->name),
+			default => str_replace('`', '``', $identifier),
+		};
+		return '`' . $escaped . '`';
 	}
 
 

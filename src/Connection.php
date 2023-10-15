@@ -6,6 +6,7 @@ namespace Nextras\Dbal;
 use Exception;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\Result;
@@ -144,7 +145,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	public function getLastInsertedId(?string $sequenceName = null)
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null)
 	{
 		if (!$this->connected) {
 			$this->connect();

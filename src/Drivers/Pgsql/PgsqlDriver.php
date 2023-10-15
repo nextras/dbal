@@ -17,6 +17,7 @@ use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
 use Nextras\Dbal\Result\Result;
@@ -178,14 +179,16 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getLastInsertedId(?string $sequenceName = null): mixed
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
 		}
 		$this->checkConnection();
 		assert($this->connection !== null);
-		$sql = 'SELECT CURRVAL(' . pg_escape_literal($this->connection, $sequenceName) . ')';
+
+		$sequenceName = $this->convertIdentifierToSql($sequenceName);
+		$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
 		return $this->loggedQuery($sql)->fetchField();
 	}
 
@@ -261,7 +264,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -269,7 +272,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -277,7 +280,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -297,11 +300,15 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	protected function convertIdentifierToSql(string $identifier): string
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
-		$escaped = pg_escape_identifier($this->connection, $identifier);
+		$escaped = match (true) {
+			$identifier instanceof Fqn => pg_escape_identifier($this->connection, $identifier->schema) . '.' .
+				pg_escape_identifier($this->connection, $identifier->name),
+			default => pg_escape_identifier($this->connection, $identifier),
+		};
 		if ($escaped === false) {
 			throw new InvalidStateException();
 		}

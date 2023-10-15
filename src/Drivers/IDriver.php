@@ -8,6 +8,7 @@ use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Result\Result;
 
@@ -64,7 +65,7 @@ interface IDriver
 	 * Returns the last inserted id.
 	 * @internal
 	 */
-	public function getLastInsertedId(?string $sequenceName = null): mixed;
+	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed;
 
 
 	/**
@@ -135,7 +136,7 @@ interface IDriver
 	 * @throws DriverException
 	 * @internal
 	 */
-	public function createSavepoint(string $name): void;
+	public function createSavepoint(string|Fqn $name): void;
 
 
 	/**
@@ -143,7 +144,7 @@ interface IDriver
 	 * @throws DriverException
 	 * @internal
 	 */
-	public function releaseSavepoint(string $name): void;
+	public function releaseSavepoint(string|Fqn $name): void;
 
 
 	/**
@@ -151,7 +152,7 @@ interface IDriver
 	 * @throws DriverException
 	 * @internal
 	 */
-	public function rollbackSavepoint(string $name): void;
+	public function rollbackSavepoint(string|Fqn $name): void;
 
 
 	/**
