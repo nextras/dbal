@@ -44,6 +44,7 @@ class ConnectionPostgresTest extends IntegrationTestCase
 	public function testSequenceCasing()
 	{
 		$this->lockConnection($this->connection);
+		$this->connection->query('DROP SEQUENCE IF EXISTS %column', "MySequence");
 		$this->connection->query('CREATE SEQUENCE %column INCREMENT 5 START 10;', "MySequence");
 		$this->connection->query('SELECT NEXTVAL(\'%column\')', "MySequence");
 		Assert::same(10, $this->connection->getLastInsertedId("MySequence"));

@@ -129,9 +129,13 @@ class PdoMysqlDriver extends PdoDriver
 	}
 
 
-	protected function convertIdentifierToSql(string $identifier): string
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
-		return str_replace(['`', '.'], ['``', '`.`'], $identifier);
+		return match (true) {
+			$identifier instanceof Fqn => str_replace('`', '``', $identifier->schema) . '.'
+				. str_replace('`', '``', $identifier->name),
+			default => str_replace('`', '``', $identifier),
+		};
 	}
 
 

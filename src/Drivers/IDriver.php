@@ -136,7 +136,7 @@ interface IDriver
 	 * @throws DriverException
 	 * @internal
 	 */
-	public function createSavepoint(string $name): void;
+	public function createSavepoint(string|Fqn $name): void;
 
 
 	/**
@@ -144,7 +144,7 @@ interface IDriver
 	 * @throws DriverException
 	 * @internal
 	 */
-	public function releaseSavepoint(string $name): void;
+	public function releaseSavepoint(string|Fqn $name): void;
 
 
 	/**
@@ -152,7 +152,7 @@ interface IDriver
 	 * @throws DriverException
 	 * @internal
 	 */
-	public function rollbackSavepoint(string $name): void;
+	public function rollbackSavepoint(string|Fqn $name): void;
 
 
 	/**

@@ -83,7 +83,7 @@ class PdoPgsqlDriver extends PdoDriver
 		assert($this->connection !== null);
 
 		$sequenceName = match (true) {
-			$sequenceName instanceOf Fqn => $this->convertIdentifierToSql($sequenceName->schema) . '.' .
+			$sequenceName instanceof Fqn => $this->convertIdentifierToSql($sequenceName->schema) . '.' .
 				$this->convertIdentifierToSql($sequenceName->name),
 			default => $this->convertIdentifierToSql($sequenceName),
 		};
@@ -115,9 +115,14 @@ class PdoPgsqlDriver extends PdoDriver
 	}
 
 
-	protected function convertIdentifierToSql(string $identifier): string
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
-		return '"' . str_replace(['"', '.'], ['""', '"."'], $identifier) . '"';
+		$escaped = match (true) {
+			$identifier instanceof Fqn => str_replace('"', '""', $identifier->schema) . '.'
+				. str_replace('"', '""', $identifier->name),
+			default => str_replace('"', '""', $identifier),
+		};
+		return '"' . $escaped . '"';
 	}
 
 

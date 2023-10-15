@@ -118,21 +118,21 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$this->loggedQuery('SAVE TRANSACTION ' . $this->convertIdentifierToSql($name));
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string|Fqn $name): void
 	{
 		// transaction are released automatically
 		// http://stackoverflow.com/questions/3101312/sql-server-2008-no-release-savepoint-for-current-transaction
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$this->loggedQuery('ROLLBACK TRANSACTION ' . $this->convertIdentifierToSql($name));
@@ -146,9 +146,14 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	protected function convertIdentifierToSql(string $identifier): string
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
-		return '[' . str_replace([']', '.'], [']]', '].['], $identifier) . ']';
+		$escaped = match (true) {
+			$identifier instanceof Fqn => str_replace(']', ']]', $identifier->schema) . '.'
+				. str_replace(']', ']]', $identifier->name),
+			default => str_replace(']', ']]', $identifier),
+		};
+		return '[' . $escaped . ']';
 	}
 
 

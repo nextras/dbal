@@ -187,11 +187,7 @@ class PgsqlDriver implements IDriver
 		$this->checkConnection();
 		assert($this->connection !== null);
 
-		$sequenceName = match (true) {
-			$sequenceName instanceOf Fqn => pg_escape_identifier($this->connection, $sequenceName->schema) . '.' .
-				pg_escape_identifier($this->connection, $sequenceName->name),
-			default => pg_escape_identifier($this->connection, $sequenceName),
-		};
+		$sequenceName = $this->convertIdentifierToSql($sequenceName);
 		$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
 		return $this->loggedQuery($sql)->fetchField();
 	}
@@ -268,7 +264,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -276,7 +272,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -284,7 +280,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
@@ -304,11 +300,15 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	protected function convertIdentifierToSql(string $identifier): string
+	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
 		$this->checkConnection();
 		assert($this->connection !== null);
-		$escaped = pg_escape_identifier($this->connection, $identifier);
+		$escaped = match (true) {
+			$identifier instanceof Fqn => pg_escape_identifier($this->connection, $identifier->schema) . '.' .
+				pg_escape_identifier($this->connection, $identifier->name),
+			default => pg_escape_identifier($this->connection, $identifier),
+		};
 		if ($escaped === false) {
 			throw new InvalidStateException();
 		}

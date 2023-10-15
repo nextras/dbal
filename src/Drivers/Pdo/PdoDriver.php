@@ -208,7 +208,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function createSavepoint(string $name): void
+	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
@@ -216,7 +216,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function releaseSavepoint(string $name): void
+	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
@@ -224,7 +224,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function rollbackSavepoint(string $name): void
+	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
 		$identifier = $this->convertIdentifierToSql($name);
@@ -246,7 +246,7 @@ abstract class PdoDriver implements IDriver
 	abstract protected function createResultAdapter(PDOStatement $statement): IResultAdapter;
 
 
-	abstract protected function convertIdentifierToSql(string $identifier): string;
+	abstract protected function convertIdentifierToSql(string|Fqn $identifier): string;
 
 
 	abstract protected function createException(
