@@ -2,6 +2,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Mockery;
 use Mockery\MockInterface;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -9,7 +10,7 @@ use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Tester\Assert;
 
 
-class QueryBuilderTestCase extends TestCase
+abstract class QueryBuilderTestCase extends TestCase
 {
 	/** @var IPlatform|MockInterface */
 	protected $platform;
@@ -22,17 +23,16 @@ class QueryBuilderTestCase extends TestCase
 	}
 
 
-	protected function builder()
+	protected function builder(): QueryBuilder
 	{
 		return new QueryBuilder($this->platform);
 	}
 
 
-	protected function assertBuilder($expected, QueryBuilder $builder)
+	protected function assertBuilder(array $expected, QueryBuilder $builder): void
 	{
 		$args = $builder->getQueryParameters();
 		array_unshift($args, $builder->getQuerySql());
 		Assert::same($expected, $args);
 	}
-
 }
