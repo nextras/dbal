@@ -42,7 +42,7 @@ interface IConnection
 
 	/**
 	 * Reconnects to a database with new configuration. Unchanged configuration is reused.
-	 * @phpstan-param array<string, mixed> $config
+	 * @param array<string, mixed> $config
 	 */
 	public function reconnectWithConfig(array $config): void;
 
@@ -52,7 +52,7 @@ interface IConnection
 
 	/**
 	 * Returns connection configuration.
-	 * @phpstan-return array<string, mixed>
+	 * @return array<string, mixed>
 	 */
 	public function getConfig(): array;
 
@@ -66,17 +66,16 @@ interface IConnection
 	 * ```php
 	 * $connection->query('SELECT * FROM books WHERE id = %i', $id);
 	 * ```
-	 * @phpstan-param literal-string $expression
+	 * @param literal-string $expression
 	 * @param mixed ...$args
-	 * @phpstan-param mixed ...$args
 	 * @throws QueryException
 	 */
 	public function query(string $expression, mixed ...$args): Result;
 
 
 	/**
-	 * @phpstan-param string|array<mixed> $query
-	 * @phpstan-param array<mixed> $args
+	 * @param string|array<mixed> $query
+	 * @param array<mixed> $args
 	 * @throws QueryException
 	 */
 	public function queryArgs(string|array $query, array $args = []): Result;
@@ -109,11 +108,9 @@ interface IConnection
 
 	/**
 	 * Performs operation in a transaction.
-	 * @param callable $callback function(Connection $conn): mixed
-	 * @return mixed value returned by callback
 	 * @template T
-	 * @phpstan-param callable(Connection):T $callback
-	 * @phpstan-return T
+	 * @param callable(Connection):T $callback
+	 * @return T value returned by callback
 	 * @throws \Exception
 	 */
 	public function transactional(callable $callback): mixed;

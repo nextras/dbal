@@ -162,7 +162,7 @@ class PdoMysqlDriver extends PdoDriver
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $params
+	 * @param array<string, mixed> $params
 	 */
 	protected function processInitialSettings(array $params): void
 	{

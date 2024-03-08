@@ -16,11 +16,11 @@ class MysqliResultAdapter implements IResultAdapter
 
 
 	/**
-	 * @phpstan-param mysqli_result<array<mixed>> $result
+	 * @param mysqli_result<array<mixed>> $result
 	 */
 	public function __construct(
 		/**
-		 * @phpstan-var mysqli_result<array<mixed>>
+		 * @var mysqli_result<array<mixed>>
 		 */
 		private readonly mysqli_result $result,
 		private readonly MysqliResultNormalizerFactory $normalizerFactory,

@@ -17,8 +17,7 @@ class MultiLogger implements ILogger
 
 
 	/**
-	 * @var ILogger[]
-	 * @phpstan-var array<string, ILogger>
+	 * @var array<string, ILogger>
 	 */
 	public $loggers = [];
 

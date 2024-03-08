@@ -23,9 +23,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 {
 	private readonly bool $explain;
 
-	/**
-	 * @phpstan-var array<array{string, float, ?int}>
-	 */
+	/** @var array<array{string, float, ?int}> */
 	private array $queries = [];
 
 

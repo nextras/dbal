@@ -22,7 +22,7 @@ class DbalExtension extends CompilerExtension
 
 
 	/**
-	 * @phpstan-param array<mixed> $config
+	 * @param array<mixed> $config
 	 */
 	protected function setupConnection(array $config): void
 	{

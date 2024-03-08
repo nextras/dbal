@@ -10,7 +10,7 @@ use Nextras\Dbal\Utils\Typos;
 class Row extends \stdClass
 {
 	/**
-	 * @phpstan-param array<string, mixed> $data
+	 * @param array<string, mixed> $data
 	 */
 	public function __construct(array $data)
 	{
@@ -21,7 +21,7 @@ class Row extends \stdClass
 
 
 	/**
-	 * @phpstan-return array<string, mixed>
+	 * @return array<string, mixed>
 	 */
 	public function toArray(): array
 	{

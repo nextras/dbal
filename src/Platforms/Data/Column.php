@@ -20,10 +20,7 @@ class Column
 		public readonly bool $isAutoincrement,
 		public readonly bool $isUnsigned,
 		public readonly bool $isNullable,
-		/**
-		 * @var mixed[]
-		 * @phpstan-var array<string, mixed>
-		 */
+		/** @var array<string, mixed> */
 		public readonly array $meta = [],
 	)
 	{

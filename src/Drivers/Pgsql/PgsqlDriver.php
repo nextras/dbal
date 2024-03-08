@@ -357,8 +357,8 @@ class PgsqlDriver implements IDriver
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $params
-	 * @phpstan-return array<string, mixed>
+	 * @param array<string, mixed> $params
+	 * @return array<string, mixed>
 	 */
 	private function processConfig(array $params): array
 	{

@@ -20,8 +20,8 @@ interface IDriver
 
 
 	/**
-	 * Connects the driver to database.
-	 * @phpstan-param array<string, mixed> $params
+	 * Connects the driver to a database.
+	 * @param array<string, mixed> $params
 	 * @internal
 	 */
 	public function connect(array $params, ILogger $logger): void;

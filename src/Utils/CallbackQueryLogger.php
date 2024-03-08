@@ -20,14 +20,13 @@ use Nextras\Dbal\Result\Result;
 class CallbackQueryLogger implements ILogger
 {
 	/**
-	 * @var callable
-	 * @phpstan-var callable(string $sqlQuery, float $timeTaken, ?Result $result): void
+	 * @var callable(string $sqlQuery, float $timeTaken, ?Result $result): void
 	 */
 	private $callback;
 
 
 	/**
-	 * @phpstan-param callable(string $sqlQuery, float $timeTaken, ?Result $result): void $callback
+	 * @param callable(string $sqlQuery, float $timeTaken, ?Result $result): void $callback
 	 */
 	public function __construct(callable $callback)
 	{

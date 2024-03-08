@@ -32,28 +32,28 @@ interface IResultAdapter
 
 	/**
 	 * Returns next unfetched row. Returns a null if there is no unfetched row.
-	 * @phpstan-return array<mixed>|null
+	 * @return array<mixed>|null
 	 */
 	public function fetch(): ?array;
 
 
 	/**
 	 * Returns number of row in Result.
-	 * @phpstan-return int<0, max>
+	 * @return int<0, max>
 	 */
 	public function getRowsCount(): int;
 
 
 	/**
 	 * Returns Result's column types as map of column name and native driver type.
-	 * @phpstan-return array<string, mixed>
+	 * @return array<string, mixed>
 	 */
 	public function getTypes(): array;
 
 
 	/**
 	 * Returns driver specific normalizers.
-	 * @phpstan-return array<string, callable(mixed): mixed>
+	 * @return array<string, callable(mixed): mixed>
 	 */
 	public function getNormalizers(): array;
 }

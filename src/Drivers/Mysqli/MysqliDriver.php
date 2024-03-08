@@ -272,7 +272,7 @@ class MysqliDriver implements IDriver
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $params
+	 * @param array<string, mixed> $params
 	 */
 	protected function setupSsl(array $params): void
 	{
@@ -300,7 +300,7 @@ class MysqliDriver implements IDriver
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $params
+	 * @param array<string, mixed> $params
 	 */
 	protected function processInitialSettings(array $params): void
 	{

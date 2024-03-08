@@ -80,7 +80,7 @@ class SqlsrvResultAdapter implements IResultAdapter
 
 	public function getRowsCount(): int
 	{
-		/** @phpstan-var int<0, max>|false $count */
+		/** @var int<0, max>|false $count */
 		$count = sqlsrv_num_rows($this->statement);
 		return $count === false ? 0 : $count;
 	}

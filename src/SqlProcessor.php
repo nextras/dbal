@@ -19,8 +19,8 @@ class SqlProcessor
 
 
 	/**
-	 * @var array (name => [supports ?, supports [], expected type])
-	 * @phpstan-var array<string, array{bool, bool, string}>
+	 * Modifiers definition in form of array (name => [supports ?, supports [], expected type description]).
+	 * @var array<string, array{bool, bool, string}>
 	 */
 	protected $modifiers = [
 		// expressions
@@ -52,17 +52,15 @@ class SqlProcessor
 	];
 
 	/**
-	 * @var array (modifier => callable)
-	 * @phpstan-var array<string, callable(SqlProcessor, mixed, string): mixed>
+	 * Modifiers storage as array(modifier name => callable)
+	 * @var array<string, callable(SqlProcessor, mixed, string): mixed>
 	 */
 	protected $customModifiers = [];
 
 	/** @var SplObjectStorage<ISqlProcessorModifierResolver,mixed>|ISqlProcessorModifierResolver[] */
 	protected SplObjectStorage $modifierResolvers;
 
-	/**
-	 * @phpstan-var array<string, string>
-	 */
+	/** @var array<string, string> */
 	private ?array $identifiers = null;
 
 
@@ -73,8 +71,7 @@ class SqlProcessor
 
 
 	/**
-	 * @param callable $callback (SqlProcessor, mixed $value, string $modifier): mixed
-	 * @phpstan-param callable(SqlProcessor, mixed, string): mixed $callback
+	 * @param callable(SqlProcessor, mixed $value, string $modifier): mixed $callback
 	 */
 	public function setCustomModifier(string $modifier, callable $callback): void
 	{
@@ -425,9 +422,6 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @phpstan-return never
-	 */
 	protected function throwInvalidValueTypeException(string $type, mixed $value, string $expectedType): never
 	{
 		$actualType = $this->getVariableTypeName($value);
@@ -435,9 +429,6 @@ class SqlProcessor
 	}
 
 
-	/**
-	 * @phpstan-return never
-	 */
 	protected function throwWrongModifierException(string $type, mixed $value, string $hint): never
 	{
 		$valueLabel = is_scalar($value) ? var_export($value, true) : gettype($value);
@@ -446,7 +437,7 @@ class SqlProcessor
 
 
 	/**
-	 * @phpstan-param array<mixed> $value
+	 * @param array<mixed> $value
 	 */
 	protected function processArray(string $type, array $value): string
 	{
@@ -471,7 +462,7 @@ class SqlProcessor
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $value
+	 * @param array<string, mixed> $value
 	 */
 	protected function processSet(array $value): string
 	{
@@ -488,7 +479,7 @@ class SqlProcessor
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $value
+	 * @param array<string, mixed> $value
 	 */
 	protected function processMultiValues(array $value): string
 	{
@@ -518,7 +509,7 @@ class SqlProcessor
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $value
+	 * @param array<string, mixed> $value
 	 */
 	private function processValues(array $value): string
 	{
@@ -538,7 +529,7 @@ class SqlProcessor
 
 
 	/**
-	 * @phpstan-param array<int|string, mixed> $value
+	 * @param array<int|string, mixed> $value
 	 */
 	private function processWhere(string $type, array $value): string
 	{
@@ -580,7 +571,7 @@ class SqlProcessor
 
 
 	/**
-	 * @phpstan-param array<string, mixed> $values
+	 * @param array<string, mixed> $values
 	 */
 	private function processMultiColumnOr(array $values): string
 	{

@@ -20,9 +20,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 
 	private float $totalTime = 0; // @phpstan-ignore-line
 
-	/**
-	 * @phpstan-var array<array{IConnection, string, float, ?int}>
-	 */
+	/** @var array<array{IConnection, string, float, ?int}> */
 	private array $queries = [];
 
 	private readonly IConnection $connection;

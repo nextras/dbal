@@ -26,9 +26,7 @@ class Result implements SeekableIterator, Countable
 
 	private ?Row $iteratorRow = null;
 
-	/**
-	 * @phpstan-var array<string, callable(mixed): mixed>
-	 */
+	/** @var array<string, callable(mixed): mixed> */
 	private array $normalizers;
 
 
@@ -133,7 +131,7 @@ class Result implements SeekableIterator, Countable
 
 
 	/**
-	 * @phpstan-return array<mixed>
+	 * @return array<mixed>
 	 */
 	public function fetchPairs(?string $key = null, ?string $value = null): array
 	{
@@ -164,7 +162,7 @@ class Result implements SeekableIterator, Countable
 
 	/**
 	 * Returns list of column names in result.
-	 * @phpstan-return list<string>
+	 * @return list<string>
 	 */
 	public function getColumns(): array
 	{

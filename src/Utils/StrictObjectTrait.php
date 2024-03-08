@@ -12,8 +12,8 @@ use Nextras\Dbal\Exception\MemberAccessException;
 trait StrictObjectTrait
 {
 	/**
-	 * @phpstan-return never
-	 * @phpstan-param array<mixed> $args
+	 * @param array<mixed> $args
+	 * @return never
 	 * @throws MemberAccessException
 	 */
 	public function __call(string $name, array $args)
@@ -24,8 +24,8 @@ trait StrictObjectTrait
 
 
 	/**
-	 * @phpstan-return never
-	 * @phpstan-param array<mixed> $args
+	 * @param array<mixed> $args
+	 * @return never
 	 * @throws MemberAccessException
 	 */
 	public static function __callStatic(string $name, array $args)
@@ -36,7 +36,7 @@ trait StrictObjectTrait
 
 
 	/**
-	 * @phpstan-return never
+	 * @return never
 	 * @throws MemberAccessException
 	 */
 	public function &__get(string $name)
@@ -47,7 +47,7 @@ trait StrictObjectTrait
 
 
 	/**
-	 * @phpstan-return never
+	 * @return never
 	 * @throws MemberAccessException
 	 */
 	public function __set(string $name, mixed $value)
@@ -58,7 +58,7 @@ trait StrictObjectTrait
 
 
 	/**
-	 * @phpstan-return never
+	 * @return never
 	 * @throws MemberAccessException
 	 */
 	public function __unset(string $name)

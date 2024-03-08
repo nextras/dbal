@@ -36,8 +36,7 @@ class Connection implements IConnection
 
 
 	/**
-	 * @param array $config see drivers for supported options
-	 * @phpstan-param array<string, mixed> $config
+	 * @param array<string, mixed> $config see drivers for supported options
 	 */
 	public function __construct(private array $config)
 	{

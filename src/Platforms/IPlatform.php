@@ -26,25 +26,22 @@ interface IPlatform
 
 	/**
 	 * Returns list of tables names indexed by fully qualified unescaped table name.
-	 * If no schema is provided, uses current schema name (search path).
-	 * @return Table[]
-	 * @phpstan-return array<string, Table>
+	 * If no schema is provided, it uses the current schema name (search path).
+	 * @return array<string, Table>
 	 */
 	public function getTables(?string $schema = null): array;
 
 
 	/**
 	 * Returns list of table columns metadata, indexed by column name.
-	 * @return Column[]
-	 * @phpstan-return array<string, Column>
+	 * @return array<string, Column>
 	 */
 	public function getColumns(string $table, ?string $schema = null): array;
 
 
 	/**
 	 * Returns list of table foreign keys, indexed by column name.
-	 * @return ForeignKey[]
-	 * @phpstan-return array<string, ForeignKey>
+	 * @return array<string, ForeignKey>
 	 */
 	public function getForeignKeys(string $table, ?string $schema = null): array;
 

@@ -10,7 +10,7 @@ use Nextras\Dbal\Utils\SqlHighlighter;
 class BluescreenQueryPanel
 {
 	/**
-	 * @phpstan-return array{tab: string, panel: string}|null
+	 * @return array{tab: string, panel: string}|null
 	 */
 	public static function renderBluescreenPanel(?\Throwable $exception): ?array
 	{
