@@ -178,6 +178,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->from = [$fromExpression, $alias];
+		$this->args['from'] = [];
 		$this->pushArgs('from', $args);
 		return $this;
 	}
