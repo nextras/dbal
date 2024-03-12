@@ -11,6 +11,7 @@ use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\UnknownMysqlTimezone;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -153,6 +154,8 @@ class PdoMysqlDriver extends PdoDriver
 			return new ConnectionException($error, $errorNo, $sqlState);
 		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], true)) {
 			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+		} elseif ($errorNo === 1298) {
+			return new UnknownMysqlTimezone($error, $errorNo, $sqlState, null, $query);
 		} elseif ($query !== null) {
 			return new QueryException($error, $errorNo, $sqlState, null, $query);
 		} else {
