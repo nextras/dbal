@@ -20,7 +20,8 @@ class BluescreenQueryPanel
 
 		return [
 			'tab' => 'SQL',
-			'panel' => '<pre class="sql">' . SqlHighlighter::highlight($query) . "</pre>",
+			'panel' => '<pre class="sql">' . SqlHighlighter::highlight($query) . '</pre>' .
+				"<p>Error code: {$exception->getErrorCode()}<br>SQL STATE: {$exception->getErrorSqlState()}</p>",
 		];
 	}
 }
