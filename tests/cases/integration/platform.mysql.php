@@ -199,27 +199,27 @@ class PlatformMysqlTest extends IntegrationTestCase
 
 		Assert::equal([
 			'author_id' => [
-				'fqnName' => new Fqn('books_authors', $dbName),
+				'fqnName' => new Fqn($dbName, 'books_authors'),
 				'column' => 'author_id',
-				'refTable' => new Fqn('authors', $dbName . '2'),
+				'refTable' => new Fqn($dbName . '2', 'authors'),
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
-				'fqnName' => new Fqn('books_ean', $dbName),
+				'fqnName' => new Fqn($dbName, 'books_ean'),
 				'column' => 'ean_id',
-				'refTable' => new Fqn('eans', $dbName),
+				'refTable' => new Fqn($dbName, 'eans'),
 				'refColumn' => 'id',
 			],
 			'publisher_id' => [
-				'fqnName' => new Fqn('books_publisher', $dbName),
+				'fqnName' => new Fqn($dbName, 'books_publisher'),
 				'column' => 'publisher_id',
-				'refTable' => new Fqn('publishers', $dbName),
+				'refTable' => new Fqn($dbName, 'publishers'),
 				'refColumn' => 'id',
 			],
 			'translator_id' => [
-				'fqnName' => new Fqn('books_translator', $dbName),
+				'fqnName' => new Fqn($dbName, 'books_translator'),
 				'column' => 'translator_id',
-				'refTable' => new Fqn('authors', $dbName . '2'),
+				'refTable' => new Fqn($dbName . '2', 'authors'),
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -239,9 +239,9 @@ class PlatformMysqlTest extends IntegrationTestCase
 		}, $schemaKeys);
 		Assert::equal([
 			'book_id' => [
-				'fqnName' => new Fqn('book_id', $dbName2),
+				'fqnName' => new Fqn($dbName2, 'book_id'),
 				'column' => 'book_id',
-				'refTable' => new Fqn('books', $dbName),
+				'refTable' => new Fqn($dbName, 'books'),
 				'refColumn' => 'id',
 			],
 		], $schemaKeys);

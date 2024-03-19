@@ -68,7 +68,7 @@ class PostgreSqlPlatform implements IPlatform
 		$tables = [];
 		foreach ($result as $row) {
 			$table = new Table(
-				fqnName: new Fqn((string) $row->name, (string) $row->schema),
+				fqnName: new Fqn((string) $row->schema, (string) $row->name),
 				isView: (bool) $row->is_view,
 			);
 			$tables[$table->fqnName->getUnescaped()] = $table;
@@ -160,9 +160,9 @@ class PostgreSqlPlatform implements IPlatform
 		$keys = [];
 		foreach ($result as $row) {
 			$foreignKey = new ForeignKey(
-				fqnName: new Fqn((string) $row->name, (string) $row->schema),
+				fqnName: new Fqn((string) $row->schema, (string) $row->name),
 				column: (string) $row->column,
-				refTable: new Fqn((string) $row->ref_table, (string) $row->ref_table_schema),
+				refTable: new Fqn((string) $row->ref_table_schema, (string) $row->ref_table),
 				refColumn: (string) $row->ref_column,
 			);
 			$keys[$foreignKey->column] = $foreignKey;

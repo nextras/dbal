@@ -62,7 +62,7 @@ class MySqlPlatform implements IPlatform
 		$tables = [];
 		foreach ($result as $row) {
 			$table = new Table(
-				fqnName: new Fqn((string) $row->TABLE_NAME, (string) $row->TABLE_SCHEMA),
+				fqnName: new Fqn((string) $row->TABLE_SCHEMA, (string) $row->TABLE_NAME),
 				isView: $row->TABLE_TYPE === 'VIEW',
 			);
 			$tables[$table->fqnName->getUnescaped()] = $table;
@@ -125,9 +125,9 @@ class MySqlPlatform implements IPlatform
 		$keys = [];
 		foreach ($result as $row) {
 			$foreignKey = new ForeignKey(
-				fqnName: new Fqn((string) $row->CONSTRAINT_NAME, (string) $row->CONSTRAINT_SCHEMA),
+				fqnName: new Fqn((string) $row->CONSTRAINT_SCHEMA, (string) $row->CONSTRAINT_NAME),
 				column: (string) $row->COLUMN_NAME,
-				refTable: new Fqn((string) $row->REFERENCED_TABLE_NAME, (string) $row->REFERENCED_TABLE_SCHEMA),
+				refTable: new Fqn((string) $row->REFERENCED_TABLE_SCHEMA, (string) $row->REFERENCED_TABLE_NAME),
 				refColumn: (string) $row->REFERENCED_COLUMN_NAME,
 			);
 			$keys[$foreignKey->column] = $foreignKey;

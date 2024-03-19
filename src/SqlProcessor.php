@@ -297,6 +297,7 @@ class SqlProcessor
 
 				} elseif ($value instanceof Fqn) {
 					switch ($type) {
+						case 'column':
 						case 'table':
 							$schema = $this->identifierToSql($value->schema);
 							$table = $this->identifierToSql($value->name);
