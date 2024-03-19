@@ -33,7 +33,7 @@ class ConnectionPostgresTest extends IntegrationTestCase
 
 		$this->connection->query('INSERT INTO publishers %values', ['name' => 'FOO']);
 		Assert::same(2, $this->connection->getLastInsertedId('publishers_id_seq'));
-		Assert::same(2, $this->connection->getLastInsertedId(new Fqn(name: 'publishers_id_seq', schema: 'public')));
+		Assert::same(2, $this->connection->getLastInsertedId(new Fqn(schema: 'public', name: 'publishers_id_seq')));
 
 		Assert::exception(function() {
 			$this->connection->getLastInsertedId();

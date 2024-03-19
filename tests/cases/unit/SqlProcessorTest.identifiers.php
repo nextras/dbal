@@ -53,7 +53,7 @@ class SqlProcessorIdentifiersTest extends TestCase
 
 		Assert::same(
 			'`a`.`b`',
-			$this->parser->process(['%table', new Fqn('b', schema: 'a')]),
+			$this->parser->process(['%table', new Fqn(schema: 'a', name: 'b')]),
 		);
 	}
 

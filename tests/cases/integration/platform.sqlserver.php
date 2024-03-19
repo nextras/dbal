@@ -170,27 +170,27 @@ class PlatformSqlServerTest extends IntegrationTestCase
 
 		Assert::equal([
 			'author_id' => [
-				'fqnName' => new Fqn('books_authors', 'dbo'),
+				'fqnName' => new Fqn('dbo', 'books_authors'),
 				'column' => 'author_id',
-				'refTable' => new Fqn('authors', 'second_schema'),
+				'refTable' => new Fqn('second_schema', 'authors'),
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
-				'fqnName' => new Fqn('books_ean', 'dbo'),
+				'fqnName' => new Fqn('dbo', 'books_ean'),
 				'column' => 'ean_id',
-				'refTable' => new Fqn('eans', 'dbo'),
+				'refTable' => new Fqn('dbo', 'eans'),
 				'refColumn' => 'id',
 			],
 			'publisher_id' => [
-				'fqnName' => new Fqn('books_publisher', 'dbo'),
+				'fqnName' => new Fqn('dbo', 'books_publisher'),
 				'column' => 'publisher_id',
-				'refTable' => new Fqn('publishers', 'dbo'),
+				'refTable' => new Fqn('dbo', 'publishers'),
 				'refColumn' => 'id',
 			],
 			'translator_id' => [
-				'fqnName' => new Fqn('books_translator', 'dbo'),
+				'fqnName' => new Fqn('dbo', 'books_translator'),
 				'column' => 'translator_id',
-				'refTable' => new Fqn('authors', 'second_schema'),
+				'refTable' => new Fqn('second_schema', 'authors'),
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -208,9 +208,9 @@ class PlatformSqlServerTest extends IntegrationTestCase
 
 		Assert::equal([
 			'book_id' => [
-				'fqnName' => new Fqn('book_id', 'second_schema'),
+				'fqnName' => new Fqn('second_schema', 'book_id'),
 				'column' => 'book_id',
-				'refTable' => new Fqn('books', 'dbo'),
+				'refTable' => new Fqn('dbo', 'books'),
 				'refColumn' => 'id',
 			],
 		], $schemaKeys);

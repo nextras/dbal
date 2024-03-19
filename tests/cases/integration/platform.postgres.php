@@ -168,27 +168,27 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 		Assert::equal([
 			'author_id' => [
-				'fqnName' => new Fqn('books_authors', 'public'),
+				'fqnName' => new Fqn('public', 'books_authors'),
 				'column' => 'author_id',
-				'refTable' => new Fqn('authors', 'second_schema'),
+				'refTable' => new Fqn('second_schema', 'authors'),
 				'refColumn' => 'id',
 			],
 			'translator_id' => [
-				'fqnName' => new Fqn('books_translator', 'public'),
+				'fqnName' => new Fqn('public', 'books_translator'),
 				'column' => 'translator_id',
-				'refTable' => new Fqn('authors', 'second_schema'),
+				'refTable' => new Fqn('second_schema', 'authors'),
 				'refColumn' => 'id',
 			],
 			'publisher_id' => [
-				'fqnName' => new Fqn('books_publisher', 'public'),
+				'fqnName' => new Fqn('public', 'books_publisher'),
 				'column' => 'publisher_id',
-				'refTable' => new Fqn('publishers', 'public'),
+				'refTable' => new Fqn('public', 'publishers'),
 				'refColumn' => 'id',
 			],
 			'ean_id' => [
-				'fqnName' => new Fqn('books_ean', 'public'),
+				'fqnName' => new Fqn('public', 'books_ean'),
 				'column' => 'ean_id',
-				'refTable' => new Fqn('eans', 'public'),
+				'refTable' => new Fqn('public', 'eans'),
 				'refColumn' => 'id',
 			],
 		], $keys);
@@ -206,9 +206,9 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 		Assert::equal([
 			'book_id' => [
-				'fqnName' => new Fqn('book_id', 'second_schema'),
+				'fqnName' => new Fqn('second_schema', 'book_id'),
 				'column' => 'book_id',
-				'refTable' => new Fqn('books', 'public'),
+				'refTable' => new Fqn('public', 'books'),
 				'refColumn' => 'id',
 			],
 		], $schemaKeys);

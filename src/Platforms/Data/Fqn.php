@@ -15,8 +15,8 @@ class Fqn
 
 
 	public function __construct(
-		public readonly string $name,
 		public readonly string $schema,
+		public readonly string $name,
 	)
 	{
 	}
