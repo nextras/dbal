@@ -6,8 +6,8 @@ namespace NextrasTests\Dbal;
 
 use DateTime;
 use Mockery;
-use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
@@ -230,6 +230,57 @@ class SqlProcessorWhereTest extends TestCase
 			$this->parser->processModifier('multiOr', [
 				['a%i' => 1, 'b' => 2],
 				['a%i' => 'a', 'b' => 2],
+			]);
+		}, InvalidArgumentException::class, 'Modifier %i expects value to be int, string given.');
+	}
+
+
+	public function testMultiColumnOrWithFqn(): void
+	{
+		$this->platform->shouldReceive('formatIdentifier')->with('tbl')->andReturn('tbl');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('a');
+		$this->platform->shouldReceive('formatIdentifier')->once()->with('b')->andReturn('b');
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
+
+		$aFqn = new Fqn('tbl', 'a');
+		$bFqn = new Fqn('tbl', 'b');
+		Assert::same(
+			'(tbl.a, tbl.b) IN ((1, 2), (2, 3), (3, 4))',
+			$this->parser->processModifier('multiOr', [
+				[[$aFqn, 1], [$bFqn, 2]],
+				[[$aFqn, 2], [$bFqn, 3]],
+				[[$aFqn, 3], [$bFqn, 4]],
+			])
+		);
+
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(false);
+
+		Assert::same(
+			'(tbl.a = 1 AND tbl.b = 2) OR (tbl.a = 2 AND tbl.b = 3) OR (tbl.a = 3 AND tbl.b = 4)',
+			$this->parser->processModifier('multiOr', [
+				[[$aFqn, 1], [$bFqn, 2]],
+				[[$aFqn, 2], [$bFqn, 3]],
+				[[$aFqn, 3], [$bFqn, 4]],
+			])
+		);
+
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
+
+		Assert::throws(function () use ($aFqn, $bFqn) {
+			$this->parser->processModifier('multiOr', [
+				[[$aFqn, 1, '%i'], [$bFqn, 2]],
+				[[$aFqn, 'a', '%i'], [$bFqn, 2]],
+				[[$aFqn, 3, '%i'], [$bFqn, 4]],
+			]);
+		}, InvalidArgumentException::class, 'Modifier %i expects value to be int, string given.');
+
+		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(false);
+
+		Assert::throws(function () use ($aFqn, $bFqn) {
+			$this->parser->processModifier('multiOr', [
+				[[$aFqn, 1, '%i'], [$bFqn, 2]],
+				[[$aFqn, 'a', '%i'], [$bFqn, 2]],
+				[[$aFqn, 3, '%i'], [$bFqn, 4]],
 			]);
 		}, InvalidArgumentException::class, 'Modifier %i expects value to be int, string given.');
 	}

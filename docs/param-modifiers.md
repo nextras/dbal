@@ -39,21 +39,21 @@ $connection->query('WHERE [roles.privileges] ?| ARRAY[%...s[]]', ['backend', 'fr
 
 Other available modifiers:
 
-| Modifier               | Description                                                                                                                                                                                                                           |
-|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `%and`                 | AND condition                                                                                                                                                                                                                         |
-| `%or`                  | OR condition                                                                                                                                                                                                                          |
-| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                                                                                        |
-| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                                                                         |
-| `%set`                 | expands array for SET clause                                                                                                                                                                                                          |
-| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier; `%table` supports also processing a `Nextras\Dbal\Platforms\Data\Fqn` instance. |
-| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier;                                                          |
-| `%ex`                  | expands array as processor arguments                                                                                                                                                                                                  |
-| `%raw`                 | inserts string argument as is                                                                                                                                                                                                         |
-| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                                                                               |
-| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                                                                                   |
+| Modifier               | Description                                                                                                                                                                                                                                             |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `%and`                 | AND condition                                                                                                                                                                                                                                           |
+| `%or`                  | OR condition                                                                                                                                                                                                                                            |
+| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                                                                                                          |
+| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                                                                                           |
+| `%set`                 | expands array for SET clause                                                                                                                                                                                                                            |
+| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier; `%table` supports formatting a `Nextras\Dbal\Platforms\Data\Fqn` instance.                        |
+| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier; `%table` supports formatting a `Nextras\Dbal\Platforms\Data\Fqn` instance. |
+| `%ex`                  | expands array as processor arguments                                                                                                                                                                                                                    |
+| `%raw`                 | inserts string argument as is                                                                                                                                                                                                                           |
+| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                                                                                                 |
+| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                                                                                                     |
 
-Let's examine `%and` and `%or` behavior. If array key is numeric and its value is an array, value is expanded with `%ex` modifier. (See below.)
+Let's examine `%and` and `%or` behavior. If an array key is numeric and its value is an array, value is expanded with `%ex` modifier. If the first value it this array is an `Fqn` instance, the resulted SQL is constructed similarly to a key-value array, the modifier is an optional string on the second index. (See below.)
 
 ```php
 $connection->query('%and', [
@@ -75,9 +75,15 @@ $connection->query('%or', [
 	['[age] IN %i[]', [23, 25]],
 ]);
 // `city` = 'Winterfell' OR `age` IN (23, 25)
+
+$connection->query('%or', [
+    [new Fqn(schema: '', name: 'city'), 'Winterfell'],
+    [new Fqn(schema: '', name: 'age'), [23, 25], '%i[]'],
+]);
+// `city` = 'Winterfell' OR `age` IN (23, 25)
 ```
 
-If you want select multiple rows with combined condition for each row, you may use multi-column `IN` expression. However, some databases do not support this feature, therefore Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax. MultiOr modifier supports optional modifier appended to the column name, set it for all entries. Let's see an example:
+If you want to select multiple rows with combined condition for each row, you may use multi-column `IN` expression. However, some databases do not support this feature, therefore, Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax. MultiOr modifier supports optional modifier appended to the column name; it has to be set for all entries. Let's see an example:
 
 ```php
 $connection->query('%multiOr', [
@@ -90,6 +96,24 @@ $connection->query('%multiOr', [
 
 // SQL Server
 // (tag_id = 1 AND book_id = 23) OR (tag_id = 4 AND book_id = 12) OR (tag_id = 9 AND book_id = 83)
+```
+
+Alternatively, if you need to pass the column name as `Fqn` instance, use a data format where the array consists of list columns, then the list of values and optional list of modifiers.
+
+```php
+$aFqn = new Fqn('tbl', 'tag_id');
+$bFqn = new Fqn('tbl', 'book_id');
+$connection->query('%multiOr', [
+    [[$aFqn, 1, '%i'], [$bFqn, 23]],
+    [[$aFqn, 4, '%i'], [$bFqn, 12]],
+    [[$aFqn, 9, '%i'], [$bFqn, 83]],
+]);
+
+// MySQL or PostgreSQL
+// (tbl.tag_id, tbl.book_id) IN ((1, 23), (4, 12), (9, 83))
+
+// SQL Server
+// (tbl.tag_id = 1 AND tbl.book_id = 23) OR (tbl.tag_id = 4 AND tbl.book_id = 12) OR (tbl.tag_id = 9 AND tbl.book_id = 83)
 ```
 
 Examples of inserting and updating:
