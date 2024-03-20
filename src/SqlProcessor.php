@@ -114,7 +114,7 @@ class SqlProcessor
 			if (!is_string($args[$j])) {
 				throw new InvalidArgumentException($j === 0
 					? 'Query fragment must be string.'
-					: "Redundant query parameter or missing modifier in query fragment '$args[$i]'."
+					: "Redundant query parameter or missing modifier in query fragment '$args[$i]'.",
 				);
 			}
 
@@ -530,6 +530,32 @@ class SqlProcessor
 
 
 	/**
+	 * Handles multiple condition formats for AND and OR operators.
+	 *
+	 * Key-based:
+	 * ```
+	 * $connection->query('%or', [
+	 *     'city' => 'Winterfell',
+	 *     'age%i[]' => [23, 25],
+	 * ]);
+	 * ```
+	 *
+	 * Auto-expanding:
+	 * ```
+	 * $connection->query('%or', [
+	 *     'city' => 'Winterfell',
+	 *     ['[age] IN %i[]', [23, 25]],
+	 * ]);
+	 * ```
+	 *
+	 * Fqn instsance-based:
+	 * ```
+	 * $connection->query('%or', [
+	 *     [new Fqn(schema: '', name: 'city'), 'Winterfell'],
+	 *     [new Fqn(schema: '', name: 'age'), [23, 25], '%i[]'],
+	 * ]);
+	 * ```
+	 *
 	 * @param array<int|string, mixed> $value
 	 */
 	private function processWhere(string $type, array $value): string
@@ -546,13 +572,25 @@ class SqlProcessor
 					throw new InvalidArgumentException("Modifier %$type requires items with numeric index to be array, $subValueType given.");
 				}
 
-				$operand = '(' . $this->process($subValue) . ')';
+				if (count($subValue) > 0 && $subValue[0] instanceof Fqn) {
+					$column = $this->processModifier('column', $subValue[0]);
+					$subType = substr($subValue[2] ?? '%any', 1);
+					if ($subValue[1] === null) {
+						$op = ' IS ';
+					} elseif (is_array($subValue[1])) {
+						$op = ' IN ';
+					} else {
+						$op = ' = ';
+					}
+					$operand = $column . $op . $this->processModifier($subType, $subValue[1]);
+				} else {
+					$operand = '(' . $this->process($subValue) . ')';
+				}
 
 			} else {
 				$key = explode('%', $_key, 2);
 				$column = $this->identifierToSql($key[0]);
 				$subType = $key[1] ?? 'any';
-
 				if ($subValue === null) {
 					$op = ' IS ';
 				} elseif (is_array($subValue) && $subType !== 'ex') {
@@ -560,7 +598,6 @@ class SqlProcessor
 				} else {
 					$op = ' = ';
 				}
-
 				$operand = $column . $op . $this->processModifier($subType, $subValue);
 			}
 
@@ -572,34 +609,73 @@ class SqlProcessor
 
 
 	/**
-	 * @param array<string, mixed> $values
+	 * Handles multi-column conditions with multiple paired values.
+	 *
+	 * The implementation considers database support and if not available, delegates to {@see processWhere} and joins
+	 * the resulting SQLs with OR operator.
+	 *
+	 * Key-based:
+	 * ```
+	 * $connection->query('%multiOr', [
+	 *     ['tag_id%i' => 1, 'book_id' => 23],
+	 *     ['tag_id%i' => 4, 'book_id' => 12],
+	 *     ['tag_id%i' => 9, 'book_id' => 83],
+	 * ]);
+	 * ```
+	 *
+	 * Fqn instance-based:
+	 * ```
+	 * $connection->query('%multiOr', [
+	 *     [[new Fqn('tbl', 'tag_id'), 1, '%i'], [new Fqn('tbl', 'book_id'), 23]],
+	 *     [[new Fqn('tbl', 'tag_id'), 4, '%i'], [new Fqn('tbl', 'book_id'), 12]],
+	 *     [[new Fqn('tbl', 'tag_id'), 9, '%i'], [new Fqn('tbl', 'book_id'), 83]],
+	 * ]);
+	 * ```
+	 *
+	 * @param array<string, mixed>|list<list<array{Fqn, mixed, 2?: string}>> $values
 	 */
 	private function processMultiColumnOr(array $values): string
 	{
-		if ($this->platform->isSupported(IPlatform::SUPPORT_MULTI_COLUMN_IN)) {
-			$keys = [];
-			$modifiers = [];
-			foreach (array_keys(reset($values)) as $key) {
-				$exploded = explode('%', (string) $key, 2);
-				$keys[] = $this->identifierToSql($exploded[0]);
-				$modifiers[] = $exploded[1] ?? 'any';
-			}
-			foreach ($values as &$subValue) {
-				$i = 0;
-				foreach ($subValue as &$subSubValue) {
-					$subSubValue = $this->processModifier($modifiers[$i++], $subSubValue);
-				}
-				$subValue = '(' . implode(', ', $subValue) . ')';
-			}
-			return '(' . implode(', ', $keys) . ') IN (' . implode(', ', $values) . ')';
-
-		} else {
+		if (!$this->platform->isSupported(IPlatform::SUPPORT_MULTI_COLUMN_IN)) {
 			$sqls = [];
 			foreach ($values as $value) {
 				$sqls[] = $this->processWhere('and', $value);
 			}
 			return '(' . implode(') OR (', $sqls) . ')';
 		}
+
+		// Detect Fqn instance-based variant
+		$isFqnBased = ($values[0][0][0] ?? null) instanceof Fqn;
+		if ($isFqnBased) {
+			$keys = [];
+			foreach ($values[0] as $triple) {
+				$keys[] = $this->processModifier('column', $triple[0]);
+			}
+			foreach ($values as &$subValue) {
+				foreach ($subValue as &$subSubValue) {
+					$type = substr($subSubValue[2] ?? '%any', 1);
+					$subSubValue = $this->processModifier($type, $subSubValue[1]);
+				}
+				$subValue = '(' . implode(', ', $subValue) . ')';
+			}
+			return '(' . implode(', ', $keys) . ') IN (' . implode(', ', $values) . ')';
+		}
+
+		$keys = [];
+		$modifiers = [];
+		foreach (array_keys(reset($values)) as $key) {
+			$exploded = explode('%', (string) $key, 2);
+			$keys[] = $this->identifierToSql($exploded[0]);
+			$modifiers[] = $exploded[1] ?? 'any';
+		}
+		foreach ($values as &$subValue) {
+			$i = 0;
+			foreach ($subValue as &$subSubValue) {
+				$subSubValue = $this->processModifier($modifiers[$i++], $subSubValue);
+			}
+			$subValue = '(' . implode(', ', $subValue) . ')';
+		}
+		return '(' . implode(', ', $keys) . ') IN (' . implode(', ', $values) . ')';
 	}
 
 
