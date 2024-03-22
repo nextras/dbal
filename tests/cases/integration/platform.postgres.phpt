@@ -109,6 +109,34 @@ class PlatformPostgresTest extends IntegrationTestCase
 			],
 		], $columns);
 
+		$identityColumns = $this->connection->getPlatform()->getColumns('eans');
+		$identityColumns = \array_map(function ($column) { return (array) $column; }, $identityColumns);
+
+		Assert::same([
+			'id' => [
+				'name' => 'id',
+				'type' => 'INT4',
+				'size' => null,
+				'default' => null,
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => ['sequence' => 'eans_id_seq'],
+			],
+			'code' => [
+				'name' => 'code',
+				'type' => 'VARCHAR',
+				'size' => 50,
+				'default' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
+			],
+		], $identityColumns);
+
 		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', 'second_schema');
 		$schemaColumns = \array_map(function ($column) { return (array) $column; }, $schemaColumns);
 
