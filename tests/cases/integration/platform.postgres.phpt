@@ -50,7 +50,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 				'isAutoincrement' => true,
 				'isUnsigned' => false,
 				'isNullable' => false,
-				'meta' => ['sequence' => 'books_id_seq'],
+				'meta' => ['sequence' => 'public.books_id_seq'],
 			],
 			'author_id' => [
 				'name' => 'author_id',
@@ -122,7 +122,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 				'isAutoincrement' => true,
 				'isUnsigned' => false,
 				'isNullable' => false,
-				'meta' => ['sequence' => 'eans_id_seq'],
+				'meta' => ['sequence' => 'public.eans_id_seq'],
 			],
 			'code' => [
 				'name' => 'code',
@@ -245,7 +245,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 	public function testPrimarySequence()
 	{
-		Assert::same('books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
+		Assert::same('public.books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
 	}
 
 
