@@ -22,7 +22,7 @@ CREATE TABLE "tags" (
 );
 
 CREATE TABLE "eans" (
-	"id" SERIAL4 NOT NULL,
+	"id" INT4 NOT NULL GENERATED ALWAYS AS IDENTITY,
 	"code" varchar(50) NOT NULL,
 	PRIMARY KEY("id")
 );

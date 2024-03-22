@@ -88,9 +88,14 @@ class PostgreSqlPlatform implements IPlatform
 				CASE WHEN a.atttypmod = -1 THEN NULL ELSE a.atttypmod -4 END AS size,
 				pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass)::varchar AS default,
 				COALESCE(co.contype = 'p', FALSE) AS is_primary,
-				COALESCE(co.contype = 'p' AND strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1, FALSE) AS is_autoincrement,
+				COALESCE(co.contype = 'p' AND (strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1 OR a.attidentity != ''), FALSE) AS is_autoincrement,
 				NOT (a.attnotnull OR t.typtype = 'd' AND t.typnotnull) AS is_nullable,
-				SUBSTRING(pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass) FROM %s) AS sequence
+			") . (
+				count($tableArgs) > 1
+					? "pg_get_serial_sequence('%table.%table', a.attname) AS sequence"
+					: "pg_get_serial_sequence('%table', a.attname) AS sequence"
+			)
+			. (/** @lang GenericSQL */ "
 			FROM
 				pg_catalog.pg_attribute AS a
 				JOIN pg_catalog.pg_class AS c ON a.attrelid = c.oid
@@ -108,7 +113,7 @@ class PostgreSqlPlatform implements IPlatform
 				AND NOT a.attisdropped
 			ORDER BY
 				a.attnum
-		"), "nextval[(]'\"?([^'\"]+)", ...$tableArgs);
+		"), ...$tableArgs, ...$tableArgs);
 
 		$columns = [];
 		foreach ($result as $row) {

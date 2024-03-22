@@ -50,7 +50,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 				'isAutoincrement' => true,
 				'isUnsigned' => false,
 				'isNullable' => false,
-				'meta' => ['sequence' => 'books_id_seq'],
+				'meta' => ['sequence' => 'public.books_id_seq'],
 			],
 			'author_id' => [
 				'name' => 'author_id',
@@ -108,6 +108,34 @@ class PlatformPostgresTest extends IntegrationTestCase
 				'meta' => [],
 			],
 		], $columns);
+
+		$identityColumns = $this->connection->getPlatform()->getColumns('eans');
+		$identityColumns = \array_map(function ($column) { return (array) $column; }, $identityColumns);
+
+		Assert::same([
+			'id' => [
+				'name' => 'id',
+				'type' => 'INT4',
+				'size' => null,
+				'default' => null,
+				'isPrimary' => true,
+				'isAutoincrement' => true,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => ['sequence' => 'public.eans_id_seq'],
+			],
+			'code' => [
+				'name' => 'code',
+				'type' => 'VARCHAR',
+				'size' => 50,
+				'default' => null,
+				'isPrimary' => false,
+				'isAutoincrement' => false,
+				'isUnsigned' => false,
+				'isNullable' => false,
+				'meta' => [],
+			],
+		], $identityColumns);
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', 'second_schema');
 		$schemaColumns = \array_map(function ($column) { return (array) $column; }, $schemaColumns);
@@ -217,7 +245,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 	public function testPrimarySequence()
 	{
-		Assert::same('books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
+		Assert::same('public.books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
 	}
 
 
