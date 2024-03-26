@@ -45,7 +45,7 @@ class SqlServerPlatform implements IPlatform
 	{
 		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT TABLE_NAME, TABLE_TYPE, TABLE_SCHEMA
- 			FROM information_schema.tables
+ 			FROM [INFORMATION_SCHEMA].[TABLES]
 			WHERE TABLE_SCHEMA = COALESCE(%?s, SCHEMA_NAME())
  			ORDER BY TABLE_NAME
 		", $schema);
