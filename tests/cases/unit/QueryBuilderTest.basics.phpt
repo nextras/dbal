@@ -80,6 +80,20 @@ class QueryBuilderBasicsTest extends QueryBuilderTestCase
 	}
 
 
+	public function testSelectDistinct(): void
+	{
+		$this->assertBuilder(
+			['SELECT DISTINCT id FROM foo'],
+			$this->builder()->from('foo')->addSelect('id')->distinct(true)
+		);
+
+		$this->assertBuilder(
+			['SELECT * FROM foo'],
+			$this->builder()->from('foo')->distinct(true)->distinct(false)
+		);
+	}
+
+
 	public function testResetingAddExpression()
 	{
 		$this->assertBuilder(

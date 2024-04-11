@@ -31,6 +31,9 @@ class QueryBuilder
 	/** @var literal-string[]|null */
 	protected $select;
 
+	/** Denotes a SELECT DISTINCT clause. */
+	protected bool $distinct = false;
+
 	/** @var array{literal-string, literal-string|null}|null */
 	protected $from;
 
@@ -97,7 +100,8 @@ class QueryBuilder
 	protected function getSqlForSelect(): string
 	{
 		return
-			'SELECT ' . ($this->select !== null ? implode(', ', $this->select) : '*')
+			'SELECT ' . ($this->distinct ? 'DISTINCT ' : '')
+			. ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
 			. ($this->where !== null ? ' WHERE ' . ($this->where) : '')
 			. ($this->group !== null ? ' GROUP BY ' . implode(', ', $this->group) : '')
@@ -217,6 +221,7 @@ class QueryBuilder
 
 	public function removeJoins(): self
 	{
+		$this->dirty();
 		$this->join = null;
 		$this->args['join'] = null;
 		return $this;
@@ -266,6 +271,27 @@ class QueryBuilder
 		$this->select[] = $expression;
 		$this->pushArgs('select', $args);
 		return $this;
+	}
+
+
+	/**
+	 * Sets SELECT DISTINCT clause.
+	 * A default state is false.
+	 */
+	public function distinct(bool $distinct): self
+	{
+		$this->dirty();
+		$this->distinct = $distinct;
+		return $this;
+	}
+
+
+	/**
+	 * Returns whether SELECT DISTINCT clause is set.
+	 */
+	public function getDistinct(): bool
+	{
+		return $this->distinct;
 	}
 
 
