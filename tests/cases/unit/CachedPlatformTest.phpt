@@ -6,11 +6,16 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Mockery;
 use Mockery\MockInterface;
 use Nette\Caching\Cache;
-use Nette\Caching\IStorage;
+use Nette\Caching\Storages\FileStorage;
 use Nextras\Dbal\Bridges\NetteCaching\CachedPlatform;
+use Nextras\Dbal\Platforms\Data\Column;
+use Nextras\Dbal\Platforms\Data\ForeignKey;
+use Nextras\Dbal\Platforms\Data\Fqn;
+use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Platforms\IPlatform;
 use Tester\Assert;
 
@@ -20,103 +25,84 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class CachedPlatformTest extends TestCase
 {
-	/** @var CachedPlatform */
-	private $platform;
+	private CachedPlatform $cache;
 
-	/** @var IStorage|MockInterface */
-	private $storageMock;
-
-	/** @var IPlatform|MockInterface */
+	/** @var MockInterface */
 	private $platformMock;
 
 
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
-		$this->storageMock = Mockery::mock(IStorage::class);
 		$this->platformMock = Mockery::mock(IPlatform::class);
-		$this->platform = new CachedPlatform($this->platformMock, new Cache($this->storageMock));
+		$this->cache = new CachedPlatform($this->platformMock, new Cache(new FileStorage(TEMP_DIR)));
 	}
 
 
-	public function testCachedColumn()
+	public function testColumns(): void
 	{
-		$expectedCols = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturn($expectedCols);
+		$column = new Column(
+			name: 'bar',
+			type: 'type',
+			size: 128,
+			default: null,
+			isPrimary: true,
+			isAutoincrement: false,
+			isUnsigned: false,
+			isNullable: true,
+			meta: ['sequence' => 'a.b'],
+		);
 
-		$cols = $this->platform->getColumns('foo');
-		Assert::same($expectedCols, $cols);
+		$this->platformMock->shouldReceive('getColumns')->with('foo', null)->once()->andReturn([clone $column]);
 
-		$this->storageMock->shouldReceive('clean');
-		$this->platform->clearCache();
+		Assert::equal([clone $column], $this->cache->getColumns('foo'));
+		Assert::equal([clone $column], $this->cache->getColumns('foo'));
 	}
 
 
-	public function testQueryColumn()
+	public function testTables(): void
 	{
-		$expectedCols = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
-		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedCols, [])->once();
-		$this->platformMock->shouldReceive('getColumns')->with('foo', null)->once()->andReturn($expectedCols);
+		$table = new Table(
+			fqnName: new Fqn('one', 'two'),
+			isView: false,
+		);
+		$this->platformMock->shouldReceive('getTables')->once()->andReturn([clone $table]);
 
-		$cols = $this->platform->getColumns('foo');
-		Assert::same($expectedCols, $cols);
+		Assert::equal([clone $table], $this->cache->getTables());
+		Assert::equal([clone $table], $this->cache->getTables());
 	}
 
 
-	public function testQueryTables()
+	public function testForeignKeys(): void
 	{
-		$expectedTables = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
-		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedTables, [])->once();
-		$this->platformMock->shouldReceive('getTables')->once()->andReturn($expectedTables);
+		$fk = new ForeignKey(
+			fqnName: new Fqn('one', 'two'),
+			column: 'col',
+			refTable: new Fqn('three', 'four'),
+			refColumn: 'refCol',
+		);
+		$this->platformMock->shouldReceive('getForeignKeys')->with('foo', null)->once()->andReturn([clone $fk]);
 
-		$cols = $this->platform->getTables();
-		Assert::same($expectedTables, $cols);
+		Assert::equal([clone $fk], $this->cache->getForeignKeys('foo'));
+		Assert::equal([clone $fk], $this->cache->getForeignKeys('foo'));
 	}
 
 
-	public function testQueryFk()
+	public function testQueryPrimarySequence(): void
 	{
-		$expectedFk = ['one', 'two'];
-		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
-		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), $expectedFk, [])->once();
-		$this->platformMock->shouldReceive('getForeignKeys')->with('foo', null)->once()->andReturn($expectedFk);
+		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo', null)->once()
+			->andReturn('ps_name');
 
-		$cols = $this->platform->getForeignKeys('foo');
-		Assert::same($expectedFk, $cols);
+		Assert::equal('ps_name', $this->cache->getPrimarySequenceName('foo'));
+		Assert::equal('ps_name', $this->cache->getPrimarySequenceName('foo'));
 	}
 
 
-	public function testQueryPS()
+	public function testName(): void
 	{
-		$expectedPs = 'ps_name';
-		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
-		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), [$expectedPs], [])->once();
-		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo', null)->once()->andReturn($expectedPs);
-
-		$cols = $this->platform->getPrimarySequenceName('foo');
-		Assert::same($expectedPs, $cols);
-
-
-		$this->storageMock->shouldReceive('read')->with(Mockery::type('string'))->once()->andReturnNull();
-		$this->storageMock->shouldReceive('lock')->with(Mockery::type('string'))->once();
-		$this->storageMock->shouldReceive('write')->with(Mockery::type('string'), [null], [])->once();
-		$this->platformMock->shouldReceive('getPrimarySequenceName')->with('foo', null)->once()->andReturn(null);
-
-		$cols = $this->platform->getPrimarySequenceName('foo');
-		Assert::same(null, $cols);
-	}
-
-
-	public function testName()
-	{
-		$this->platformMock->shouldReceive('getName')->once()->andReturn('foo');
-		Assert::same('foo', $this->platform->getName());
+		$this->platformMock->shouldReceive('getName')->twice()->andReturn('foo');
+		Assert::same('foo', $this->cache->getName());
+		Assert::same('foo', $this->cache->getName()); // no cache
 	}
 }
 
