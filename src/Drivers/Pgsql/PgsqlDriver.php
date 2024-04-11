@@ -182,13 +182,18 @@ class PgsqlDriver implements IDriver
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
-			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
+			throw new InvalidArgumentException('PgsqlDriver requires passing a sequence name for getLastInsertedId() method.');
 		}
 		$this->checkConnection();
 		assert($this->connection !== null);
 
-		$sequenceName = $this->convertIdentifierToSql($sequenceName);
-		$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
+		if ($sequenceName instanceof Fqn) {
+			$sequenceName = $this->convertIdentifierToSql($sequenceName);
+			$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
+		} else {
+			$sequenceName = $this->convertStringToSql($sequenceName);
+			$sql = "SELECT CURRVAL($sequenceName)";
+		}
 		return $this->loggedQuery($sql)->fetchField();
 	}
 

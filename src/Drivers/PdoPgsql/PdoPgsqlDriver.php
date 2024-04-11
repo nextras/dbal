@@ -76,18 +76,19 @@ class PdoPgsqlDriver extends PdoDriver
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		if ($sequenceName === null) {
-			throw new InvalidArgumentException('PgsqlDriver requires to pass sequence name for getLastInsertedId() method.');
+			throw new InvalidArgumentException('PgsqlDriver requires passing a sequence name for getLastInsertedId() method.');
 		}
 
 		$this->checkConnection();
 		assert($this->connection !== null);
 
-		$sequenceName = match (true) {
-			$sequenceName instanceof Fqn => $this->convertIdentifierToSql($sequenceName->schema) . '.' .
-				$this->convertIdentifierToSql($sequenceName->name),
-			default => $this->convertIdentifierToSql($sequenceName),
-		};
-		$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
+		if ($sequenceName instanceof Fqn) {
+			$sequenceName = $this->convertIdentifierToSql($sequenceName);
+			$sql = 'SELECT CURRVAL(\'' . $sequenceName . '\')';
+		} else {
+			$sequenceName = $this->convertStringToSql($sequenceName);
+			$sql = "SELECT CURRVAL($sequenceName)";
+		}
 		return $this->loggedQuery($sql)->fetchField();
 	}
 
@@ -117,12 +118,11 @@ class PdoPgsqlDriver extends PdoDriver
 
 	protected function convertIdentifierToSql(string|Fqn $identifier): string
 	{
-		$escaped = match (true) {
-			$identifier instanceof Fqn => str_replace('"', '""', $identifier->schema) . '.'
-				. str_replace('"', '""', $identifier->name),
-			default => str_replace('"', '""', $identifier),
+		return match (true) {
+			$identifier instanceof Fqn => '"' . str_replace('"', '""', $identifier->schema) . '"."'
+				. str_replace('"', '""', $identifier->name) . '"',
+			default => '"' . str_replace('"', '""', $identifier) . '"',
 		};
-		return '"' . $escaped . '"';
 	}
 
 

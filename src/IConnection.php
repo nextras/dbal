@@ -7,6 +7,9 @@ use Nextras\Dbal\Drivers\Exception\ConnectionException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
+use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
+use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
@@ -86,6 +89,18 @@ interface IConnection
 
 	/**
 	 * Returns last inserted ID.
+	 *
+	 * The sequence name's implementation depends on a particular database platform and driver.
+	 *
+	 * This method accepts the very same value obtained through platform reflection, e.g., through
+	 * {@see IPlatform::getLastInsertedId} or alternatively through {@see IPlatform::getColumns()} and
+	 * its {@see Column::$meta} property: `$column->meta['sequence']`.
+	 *
+	 * In case of {@see PgsqlDriver} or {@see PdoPgsqlDriver} the name is a string that may
+	 * container double-quotes for handling cases sensitive names or names with special characters.
+	 * I.e. `public."MySchemaName"` is a valid sequence name argument. Alternatively, you may pass a Fqn instance
+	 * that will properly double-quote the schema and name.
+	 *
 	 * @return int|string|null
 	 */
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null);
