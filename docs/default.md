@@ -15,7 +15,8 @@ The Connection instance is the main access point to the database. Connection's c
 | Key                               | Description                                                                                                                                   |
 |-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | `driver`                          | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, `pdo_sqlsrv`                                                          |
-| `host`                            | database server name                                                                                                                          |
+| `host`                            | database server name     															    |             
+| `port`                            | database server port     															    |
 | `username`                        | username for authentication                                                                                                                   |
 | `password`                        | password for authentication                                                                                                                   |
 | `database`                        | database name                                                                                                                                 |
@@ -31,6 +32,7 @@ The Connection instance is the main access point to the database. Connection's c
 $connection = new Nextras\Dbal\Connection([
 	'driver'   => 'mysqli',
 	'host'     => 'localhost',
+	'port'	   => '3306',
 	'username' => 'root',
 	'password' => '****',
 	'database' => 'test',
