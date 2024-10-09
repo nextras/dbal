@@ -85,7 +85,7 @@ class PgsqlDriver implements IDriver
 		$params = $this->processConfig($params);
 		$connectionString = '';
 		foreach ($knownKeys as $key) {
-			if (isset($params[$key])) {
+			if (isset($params[$key]) && $params[$key] !== '') {
 				$connectionString .= $key . '=' . $params[$key] . ' ';
 			}
 		}
