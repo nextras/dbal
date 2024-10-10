@@ -25,7 +25,7 @@
 		"nette/neon": "~3.0",
 		"nextras/multi-query-parser": "1.0.0",
 		"phpstan/extension-installer": "1.4.3",
-		"phpstan/phpstan": "1.10.66",
+		"phpstan/phpstan": "1.12.6",
 		"phpstan/phpstan-deprecation-rules": "1.1.4",
 		"phpstan/phpstan-strict-rules": "1.5.2",
 		"symfony/config": "~4.4 || ~5.0",
