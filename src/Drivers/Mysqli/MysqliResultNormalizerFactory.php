@@ -6,6 +6,7 @@ namespace Nextras\Dbal\Drivers\Mysqli;
 use Closure;
 use DateInterval;
 use DateTimeZone;
+use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function date_default_timezone_get;
@@ -42,7 +43,10 @@ class MysqliResultNormalizerFactory
 
 		$this->timeNormalizer = static function($value): ?DateInterval {
 			if ($value === null) return null;
-			preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
+			$matched = preg_match('#^(-?)(\d+):(\d+):(\d+)#', $value, $m);
+			if ($matched !== 1) {
+				throw new InvalidArgumentException("Unsupported value format for TIME column: $value. Unable to parse to DateInterval");
+			}
 			$value = new DateInterval("PT{$m[2]}H{$m[3]}M{$m[4]}S");
 			$value->invert = $m[1] === '-' ? 1 : 0;
 			return $value;
