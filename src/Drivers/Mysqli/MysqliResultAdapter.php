@@ -57,7 +57,9 @@ class MysqliResultAdapter implements IResultAdapter
 
 	public function fetch(): ?array
 	{
-		return $this->result->fetch_assoc();
+		$fetched = $this->result->fetch_assoc();
+		if ($fetched === false) throw new InvalidStateException();
+		return $fetched;
 	}
 
 
