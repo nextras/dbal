@@ -47,6 +47,8 @@ class PostgreSqlPlatform implements IPlatform
 	/** @inheritDoc */
 	public function getTables(?string $schema = null): array
 	{
+		// relkind options:
+		// r = ordinary table, i = index, S = sequence, t = TOAST table, v = view, m = materialized view, c = composite type, f = foreign table, p = partitioned table, I = partitioned index
 		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
 				DISTINCT ON (c.relname)
@@ -57,7 +59,7 @@ class PostgreSqlPlatform implements IPlatform
 				pg_catalog.pg_class AS c
 				JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
 			WHERE
-				c.relkind IN ('r', 'v')
+				c.relkind IN ('r', 'v', 'm', 'f', 'p')
 				AND n.nspname = ANY (
 					CASE %?s IS NULL WHEN true THEN pg_catalog.current_schemas(FALSE) ELSE ARRAY[[%?s]] END
 				)
@@ -103,7 +105,7 @@ class PostgreSqlPlatform implements IPlatform
 				LEFT JOIN pg_catalog.pg_attrdef AS ad ON ad.adrelid = c.oid AND ad.adnum = a.attnum
 				LEFT JOIN pg_catalog.pg_constraint AS co ON co.connamespace = c.relnamespace AND contype = 'p' AND co.conrelid = c.oid AND a.attnum = ANY(co.conkey)
 			WHERE
-				c.relkind IN ('r', 'v')
+				c.relkind IN ('r', 'v', 'm', 'f', 'p')
 				") . (
 			count($tableArgs) > 1
 				? "AND c.oid = '%table.%table'::regclass"
