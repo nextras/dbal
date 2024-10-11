@@ -22,3 +22,8 @@ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
 For MySQL **5.7+** download zipped SQL inserts from http://dev.mysql.com/downloads/timezones.html and run them in context of `mysql` database.
 
 For MySQL **up to 5.6** download archive from http://dev.mysql.com/downloads/timezones.html. Unzip the archive and copy the files to your `mysql` database in data dir (eg. `C:\<your mysql dir>\data\mysql`).
+
+
+#### MariaDB
+
+The principles are almost the same, follow the official documentation at https://mariadb.com/kb/en/time-zones/#mysql-time-zone-tables.
