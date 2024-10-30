@@ -163,7 +163,7 @@ class PostgreSqlPlatform implements IPlatform
 				? "AND cl.oid = '%table.%table'::regclass"
 				: "AND cl.oid = '%table'::regclass"
 			) . '
-			ORDER BY atf.attnum
+			ORDER BY at.attnum
 			', ...$tableArgs);
 
 		$keys = [];
