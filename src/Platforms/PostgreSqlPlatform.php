@@ -162,7 +162,9 @@ class PostgreSqlPlatform implements IPlatform
 			count($tableArgs) > 1
 				? "AND cl.oid = '%table.%table'::regclass"
 				: "AND cl.oid = '%table'::regclass"
-			), ...$tableArgs);
+			) . '
+			ORDER BY atf.attnum
+			', ...$tableArgs);
 
 		$keys = [];
 		foreach ($result as $row) {
