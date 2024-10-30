@@ -12,7 +12,7 @@ use Nextras\MultiQueryParser\IMultiQueryParser;
 
 class CachedPlatform implements IPlatform
 {
-	private const CACHE_VERSION = 'v3';
+	private const CACHE_VERSION = 'v4';
 
 
 	public function __construct(
