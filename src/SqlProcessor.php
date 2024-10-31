@@ -560,7 +560,8 @@ class SqlProcessor
 	 */
 	private function processWhere(string $type, array $value): string
 	{
-		if (count($value) === 0) {
+		$totalCount = \count($value);
+		if ($totalCount === 0) {
 			return '1=1';
 		}
 
@@ -572,7 +573,7 @@ class SqlProcessor
 					throw new InvalidArgumentException("Modifier %$type requires items with numeric index to be array, $subValueType given.");
 				}
 
-				if (count($subValue) > 0 && $subValue[0] instanceof Fqn) {
+				if (count($subValue) > 0 && ($subValue[0] ?? null) instanceof Fqn) {
 					$column = $this->processModifier('column', $subValue[0]);
 					$subType = substr($subValue[2] ?? '%any', 1);
 					if ($subValue[1] === null) {
@@ -584,7 +585,11 @@ class SqlProcessor
 					}
 					$operand = $column . $op . $this->processModifier($subType, $subValue[1]);
 				} else {
-					$operand = '(' . $this->process($subValue) . ')';
+					if ($totalCount === 1) {
+						$operand = $this->process($subValue);
+					} else {
+						$operand = '(' . $this->process($subValue) . ')';
+					}
 				}
 
 			} else {

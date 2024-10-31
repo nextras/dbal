@@ -189,6 +189,15 @@ class SqlProcessorWhereTest extends TestCase
 	}
 
 
+	public function testSingleCondsParetheses()
+	{
+		Assert::same(
+			'test = 1',
+			$this->parser->processModifier('and', [['test = 1']]),
+		);
+	}
+
+
 	public function testMultiColumnOr()
 	{
 		$this->platform->shouldReceive('formatIdentifier')->once()->with('a')->andReturn('a');
