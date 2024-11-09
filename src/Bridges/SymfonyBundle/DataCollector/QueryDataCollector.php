@@ -46,7 +46,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 	}
 
 
-	public function collect(Request $request, Response $response, \Throwable $exception = null): void
+	public function collect(Request $request, Response $response, \Throwable|null $exception = null): void
 	{
 		foreach ($this->queries as [$sqlQuery, $timeTaken, $rowsCount]) {
 			$row = [
