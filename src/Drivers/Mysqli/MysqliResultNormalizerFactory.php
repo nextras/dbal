@@ -76,7 +76,7 @@ class MysqliResultNormalizerFactory
 		static $ints = [
 			MYSQLI_TYPE_BIT => true,
 			MYSQLI_TYPE_INT24 => true,
-			MYSQLI_TYPE_INTERVAL => true,
+			MYSQLI_TYPE_ENUM => true,
 			MYSQLI_TYPE_TINY => true,
 			MYSQLI_TYPE_SHORT => true,
 			MYSQLI_TYPE_LONG => true,
