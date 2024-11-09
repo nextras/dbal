@@ -12,7 +12,7 @@ class DriverException extends Exception
 		string $message,
 		private readonly int $errorCode = 0,
 		private readonly string $errorSqlState = '',
-		Exception $previousException = null
+		Exception|null $previousException = null
 	)
 	{
 		parent::__construct($message, 0, $previousException);

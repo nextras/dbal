@@ -12,7 +12,7 @@ class QueryException extends DriverException
 		string $message,
 		int $errorCode = 0,
 		string $errorSqlState = '',
-		Exception $previousException = null,
+		Exception|null $previousException = null,
 		private readonly ?string $sqlQuery = null
 	)
 	{

@@ -12,7 +12,7 @@ class UnknownMysqlTimezoneException extends QueryException
 		string $message,
 		int $errorCode = 0,
 		string $errorSqlState = '',
-		Exception $previousException = null,
+		Exception|null $previousException = null,
 		?string $sqlQuery = null,
 	)
 	{
