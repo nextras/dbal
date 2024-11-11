@@ -57,7 +57,7 @@ class SqlProcessor
 	 */
 	protected $customModifiers = [];
 
-	/** @var SplObjectStorage<ISqlProcessorModifierResolver,mixed>|ISqlProcessorModifierResolver[] */
+	/** @var SplObjectStorage<ISqlProcessorModifierResolver, never> */
 	protected SplObjectStorage $modifierResolvers;
 
 	/** @var array<string, string> */
