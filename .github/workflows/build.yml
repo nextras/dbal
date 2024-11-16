@@ -101,6 +101,7 @@ jobs:
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
+      # Newest and last supported version (https://endoflife.date/postgresql)
       postgres13:
         image: postgres:13
         env:
@@ -114,8 +115,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      postgres16:
-        image: postgres:16
+      postgres17:
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -127,6 +128,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      # Latest only
       mssql:
         image: mcr.microsoft.com/mssql/server:latest
         env:
