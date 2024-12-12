@@ -1,6 +1,6 @@
 ## Nextras Dbal
 
-Dbal is concise and secure API to construct queries and fetch data from storage independently on the database engine.
+Dbal provides concise and secure API to construct queries and fetch data from storage independently on the database engine.
 
 Supported platforms:
 
@@ -32,7 +32,7 @@ The Connection instance is the main access point to the database. Connection's c
 $connection = new Nextras\Dbal\Connection([
 	'driver'   => 'mysqli',
 	'host'     => 'localhost',
-	'port'	   => '3306',
+	'port'	   => 3306,
 	'username' => 'root',
 	'password' => '****',
 	'database' => 'test',
@@ -41,11 +41,11 @@ $connection = new Nextras\Dbal\Connection([
 
 The Connection's implementation is lazy; it connects to database only when needed. You can explicitly connect by calling `connect()` method; you can also `disconnect()` or `reconnect()` the connection. Use `ping()` method to avoid connection timeouts.
 
-In real world application, you are expected to you use a Dependency Injection Container. Dbal comes with integration for [Nette framework](config-nette) and [Symfony framework](config-symfony). Utilizing those extensions helps you to set up the Connection.
+In real-world applications, you are expected to use a Dependency Injection Container. Dbal comes with integration for [Nette framework](config-nette) and [Symfony framework](config-symfony). Utilizing those extensions helps you to set up the Connection.
 
 ### Querying
 
-Use `query()` method to run SQL queries. The query method accepts a single SQL statement. Dbal supports parameter placeholders called modifiers - values are passed separately and its value will replace the placeholder with properly escaped and sanitized value. Read more in [Parameter Modifiers| param-modifiers] chapter.
+Use the `query()` method to run SQL queries. The query method accepts a single SQL statement. Dbal supports parameter placeholders called modifiers - values are passed separately and their value will replace the placeholder with a properly escaped and sanitized value. Read more in the [Parameter Modifiers| param-modifiers] chapter.
 
 ```php
 $connection->query('SELECT * FROM foo WHERE id = %i', 1);
@@ -64,7 +64,7 @@ $connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id', 1);
 
 To retrieve the last inserted id, use `getLastInsertedId()` method, it accepts a sequence name for PostgreSQL. The number of affected rows is available through `getAffectedRows()` method.
 
-Each `query()` returns new `Nextras\Dbal\Result\Result` instance. Result's instance allows iterating over the fetched rows and fetch each of them into a `Nextras\Dbal\Result\Row` instance. The `Row` instance is a simple value object with property access:
+Each `query()` returns a new `Nextras\Dbal\Result\Result` instance. The result's instance allows iterating over the fetched rows and fetches each of them into a `Nextras\Dbal\Result\Row` instance. The `Row` instance is a simple value object with property access:
 
 ```php
 $users = $connection->query('SELECT * FROM [users]');
@@ -73,7 +73,7 @@ foreach ($users as $row) {
 }
 ```
 
-The `Result` object implements `SeekableIterator`, so you can iterate over the result. Also, you can use `fetch()` method to fetch a row, `fetchField()` to fetch the first field form the first row, or `fetchAll()` to return array of rows' objects.
+The `Result` object implements `SeekableIterator`, so you can iterate over the result. Also, you can use `fetch()` method to fetch a row, `fetchField()` to fetch the first field from the first row, or `fetchAll()` to return an array of rows' objects.
 
 ```php
 $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
@@ -81,7 +81,7 @@ $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
 
 ### Transactions & savepoints
 
-The Connection interface provides a convenient API for working with transactions. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually, you need to react to an exception by calling the rollback method. For such use case there is a `transactional()` helper method that makes its callback atomic.
+The Connection interface provides a convenient API for working with transactions. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually, you need to react to an exception by calling the rollback method. For such a use case, there is a `transactional()` helper method that makes its callback atomic.
 
 ```php
 $connection->transactional(function (Connection $connection) {
@@ -97,7 +97,7 @@ $connection->transactional(function (Connection $connection) {
 
 If you call `beginTransaction()` repeatedly (without committing or rollbacking), connection will use savepoints for nested transaction simulation. It is possible to disable such behavior by setting `nestedTransactionsWithSavepoint` configuration option to `false`.
 
-You may create, release and rollback savepoints directly through appropriate methods.
+You may create, release, and roll back savepoints directly through appropriate methods.
 
 ```php
 $connection->createSavepoint('beforeUpdate');
