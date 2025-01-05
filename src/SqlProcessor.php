@@ -120,7 +120,7 @@ class SqlProcessor
 
 			$i = $j;
 			$fragments[] = preg_replace_callback(
-				'#%((?:\.\.\.)?+\??+\w++(?:\[]){0,2}+)|(%%)|(\[\[)|(]])|\[(.+?)]#S', // %modifier | %% | %[ | %] | [identifier]
+				'#%((?:\.\.\.)?+\??+\w++(?:\[]){0,2}+)|(%%)|(\[\[)|(]])|\[(.+?)]#S', // %modifier | %% | [[ | ]] | [identifier]
 				function($matches) use ($args, &$j, $last): string {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
