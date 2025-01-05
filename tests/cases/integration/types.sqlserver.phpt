@@ -42,9 +42,9 @@ class TypesSqlserverTest extends IntegrationTestCase
 			CAST('12' as numeric(5,2)) AS numeric2,
 			CAST('12' as numeric) AS numeric3,
 
-			CAST('12.04' as decimal(5,2)) AS decimal1,
-			CAST('12' as decimal(5,2)) AS decimal2,
-			CAST('12' as decimal) AS decimal3,
+			CAST('34.05' as decimal(5,2)) AS decimal1,
+			CAST('34' as decimal(5,2)) AS decimal2,
+			CAST('34' as decimal) AS decimal3,
 
 			CAST('12' as money) AS money1,
 			CAST('12' as smallmoney) AS smallmoney1,
@@ -69,9 +69,14 @@ class TypesSqlserverTest extends IntegrationTestCase
 		Assert::same(12.0, $row->float1);
 		Assert::same(12.0, $row->real1);
 
+		// numeric/decimal with a fractional part (non-zero scale) stays a string to avoid precision loss
 		Assert::same('12.04', $row->numeric1);
 		Assert::same('12.00', $row->numeric2);
-		Assert::same('12', $row->numeric3);
+		Assert::same('34.05', $row->decimal1);
+		Assert::same('34.00', $row->decimal2);
+		// numeric/decimal with a zero scale (no fractional part) is read as an integer
+		Assert::same(12, $row->numeric3);
+		Assert::same(34, $row->decimal3);
 
 		Assert::same('12.0000', $row->money1);
 		Assert::same('12.0000', $row->smallmoney1);

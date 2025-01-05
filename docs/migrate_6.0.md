@@ -40,6 +40,7 @@ Result-oriented getters are now annotated with `#[\NoDiscard]`, so ignoring thei
 - **MySQL error 1298 now throws `UnknownMysqlTimezoneException`** with an extended message.
 - Both new exception types subclass `QueryException`, so existing `catch (QueryException)` blocks keep working; only code matching the exact class or message text is affected.
 - **`Result::fetchPairs()`** no longer stops early when a row evaluates as falsy (e.g. a `0` or `''` key/value); iteration now ends only on a real end of the result set.
+- **SQL Server (`sqlsrv`, `pdo_sqlsrv`) now returns a zero-scale `numeric`/`decimal` as `int`.** A `numeric`/`decimal` with no fractional part (e.g. `numeric(18, 0)`) is normalized to `int`; columns with a non-zero scale are still returned as `string` to avoid precision loss. As a consequence, `Connection::getLastInsertedId()` on SQL Server now returns an `int` (matching MySQL and PostgreSQL) instead of a numeric `string`, because it is backed by `SELECT SCOPE_IDENTITY()`.
 
 ### For Custom Driver & Platform Authors
 

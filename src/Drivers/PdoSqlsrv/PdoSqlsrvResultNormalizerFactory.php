@@ -59,7 +59,7 @@ class PdoSqlsrvResultNormalizerFactory
 
 
 	/**
-	 * @param array<string, mixed> $types
+	 * @param array<string, array<string, mixed>> $types map of column name to the raw PDO column metadata
 	 * @return array<string, callable (mixed): mixed>
 	 */
 	public function resolve(array $types): array
@@ -80,7 +80,8 @@ class PdoSqlsrvResultNormalizerFactory
 		];
 
 		$normalizers = [];
-		foreach ($types as $column => $type) {
+		foreach ($types as $column => $field) {
+			$type = $field['sqlsrv:decl_type'] ?? null;
 			if (str_ends_with((string) $type, ' identity')) { // strip " identity" suffix
 				$type = substr((string) $type, 0, -9);
 			}
@@ -88,6 +89,11 @@ class PdoSqlsrvResultNormalizerFactory
 			if ($type === 'nvarchar' || $type === 'varchar') {
 				continue; // optimization
 			} elseif (isset($ints[$type])) {
+				$normalizers[$column] = $this->intNormalizer;
+			} elseif (($type === 'numeric' || $type === 'decimal') && $field['precision'] === 0) {
+				// pdo_sqlsrv reports the numeric/decimal scale in the "precision" meta key;
+				// a zero scale has no fractional part, so it is safe to read as an integer;
+				// a non-zero scale is kept as a string to avoid precision loss
 				$normalizers[$column] = $this->intNormalizer;
 			} elseif ($type === 'real') {
 				$normalizers[$column] = $this->floatNormalizer;

@@ -67,6 +67,10 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 	}
 
 
+	/**
+	 * Returns the raw PDO column metadata per column; see PDOStatement::getColumnMeta() for the available keys.
+	 * @return array<string, array<string, mixed>>
+	 */
 	public function getTypes(): array
 	{
 		$types = [];
@@ -77,7 +81,7 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 			if ($field === false) {
 				throw new InvalidStateException("Should not happen.");
 			}
-			$types[$field['name']] = $field['sqlsrv:decl_type'] ?? null; // @phpstan-ignore-line
+			$types[$field['name']] = $field;
 		}
 
 		return $types;
