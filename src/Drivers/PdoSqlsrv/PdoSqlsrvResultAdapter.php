@@ -78,8 +78,8 @@ class PdoSqlsrvResultAdapter implements IResultAdapter
 				throw new InvalidStateException("Should not happen.");
 			}
 			$types[$field['name']] = $field['sqlsrv:decl_type'] ?? null; // @phpstan-ignore-line
-            if($types[$field['name']] === 'numeric' && $field['precision'] === 0) {
-                $types[$field['name']] ='int';
+            if($types[$field['name']] === 'numeric' && $field['precision'] === 0) { // @phpstan-ignore-line
+                $types[$field['name']] ='int'; // @phpstan-ignore-line
             }
 		}
 
