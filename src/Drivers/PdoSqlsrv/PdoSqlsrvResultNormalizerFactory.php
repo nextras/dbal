@@ -69,7 +69,6 @@ class PdoSqlsrvResultNormalizerFactory
 			'int' => true,
 			'smallint' => true,
 			'tinyint' => true,
-			'numeric' => true,
 		];
 
 		static $dateTimes = [
