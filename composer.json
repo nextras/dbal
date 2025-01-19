@@ -27,7 +27,7 @@
 		"phpstan/extension-installer": "1.4.3",
 		"phpstan/phpstan": "2.1.1",
 		"phpstan/phpstan-deprecation-rules": "2.0.1",
-		"phpstan/phpstan-strict-rules": "2.0.1",
+		"phpstan/phpstan-strict-rules": "2.0.2",
 		"symfony/config": "~4.4 || ~5.0",
 		"symfony/dependency-injection": "~4.4 || ~5.0",
 		"symfony/http-kernel": "~4.4 || ~5.0",
