@@ -2,19 +2,20 @@
 
 Dbal allows you to escape and build safe SQL query. It provides these powerful parameter modifiers:
 
-| Modifier                                   | Type           | Description                                                                                                                       |
-|--------------------------------------------|----------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `%s`, `%?s`, `%s[]`, `%...s[]`             | string         | not nullable, nullable, array of                                                                                                  |
-| `%i`, `%?i`, `%i[]`, `%...i[]`             | integer        | not nullable, nullable, array of                                                                                                  |
-| `%f`, `%?f`, `%f[]`, `%...f[]`             | float          | not nullable, nullable, array of                                                                                                  |
-| `%b`, `%?b`, `%b[]`, `%...b[]`             | boolean        | not nullable, nullable, array of                                                                                                  |
-| `%dt`, `%?dt`, `%dt[]`, `%...dt[]`         | datetime       | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data      |
-| `%ldt`, `%?ldt`, `%ldt[]`, `%...ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime);  using wrong modifier may damage your data |
-| `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance                                                                                                             |
-| `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of                                                                                                  |
-| `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of                                                                                                  |
-| `%any             `                        |                | any value                                                                                                                         |
-| `%_like`, `%like_`, `%_like_`              | string         | like left, like right, like both sides                                                                                            |
+| Modifier                                   | Type           | Description                                                                                                                      |
+|--------------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `%s`, `%?s`, `%s[]`, `%...s[]`             | string         | not nullable, nullable, array of                                                                                                 |
+| `%i`, `%?i`, `%i[]`, `%...i[]`             | integer        | not nullable, nullable, array of                                                                                                 |
+| `%f`, `%?f`, `%f[]`, `%...f[]`             | float          | not nullable, nullable, array of                                                                                                 |
+| `%b`, `%?b`, `%b[]`, `%...b[]`             | boolean        | not nullable, nullable, array of                                                                                                 |
+| `%dt`, `%?dt`, `%dt[]`, `%...dt[]`         | datetime       | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data     |
+| `%ldt`, `%?ldt`, `%ldt[]`, `%...ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime); using wrong modifier may damage your data |
+| `%lt`, `%?ld`, `%ld[]`, `%...ld[]`         | local date     | a date; pass DateTimeInterface instance, DBAL will pick just the date nevertheless the time or timezone                          |
+| `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance                                                                                                            |
+| `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of                                                                                                 |
+| `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of                                                                                                 |
+| `%any             `                        |                | any value                                                                                                                        |
+| `%_like`, `%like_`, `%_like_`              | string         | like left, like right, like both sides                                                                                           |
 
 All modifiers require an argument of the specific data type - e.g. `%f` accepts only floats and integers.
 
