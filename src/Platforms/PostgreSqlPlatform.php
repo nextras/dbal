@@ -241,6 +241,12 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
+	public function formatLocalDate(DateTimeInterface $value): string
+	{
+		return "'" . $value->format('Y-m-d') . "'::date";
+	}
+
+
 	public function formatDateInterval(DateInterval $value): string
 	{
 		return $value->format('P%yY%mM%dDT%hH%iM%sS');

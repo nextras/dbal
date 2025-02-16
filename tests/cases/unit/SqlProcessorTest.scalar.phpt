@@ -110,6 +110,17 @@ class SqlProcessorScalarTest extends TestCase
 	}
 
 
+	public function testLocalDate()
+	{
+		$dt = new DateTime('2012-03-05 12:01');
+		$this->platform->shouldReceive('formatLocalDate')->once()->with($dt)->andReturn('LDT');
+		Assert::same('LDT', $this->parser->processModifier('ld', $dt));
+
+		$this->platform->shouldReceive('formatString')->once()->with('2222-22-22')->andReturn('LDT');
+		Assert::same('LDT', $this->parser->processModifier('ld', '2222-22-22'));
+	}
+
+
 	public function testBlob()
 	{
 		$this->platform->shouldReceive('formatBlob')->once()->with('a10b')->andReturn('B');
@@ -495,6 +506,52 @@ class SqlProcessorScalarTest extends TestCase
 			['?ldt[]', [true], 'Modifier %?ldt expects value to be DateTimeInterface, boolean given.'],
 			['?ldt[]', [[]], 'Modifier %?ldt does not allow array value, use modifier %?ldt[] instead.'],
 			['?ldt[]', [new stdClass()], 'Modifier %?ldt expects value to be DateTimeInterface, stdClass given.'],
+
+			['ld', 'true', 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), string given.'],
+			['ld', 1, 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), integer given.'],
+			['ld', 1.0, 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), double given.'],
+			['ld', true, 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), boolean given.'],
+			['ld', [], 'Modifier %ld does not allow array value, use modifier %ld[] instead.'],
+			['ld', new stdClass(), 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), stdClass given.'],
+			['ld', $file, 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), SplFileInfo given.'],
+			['ld', null, 'Modifier %ld does not allow NULL value, use modifier %?ld instead.'],
+
+			['?ld', 'true', 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), string given.'],
+			['?ld', 1, 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), integer given.'],
+			['?ld', 1.0, 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), double given.'],
+			['?ld', true, 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), boolean given.'],
+			['?ld', [], 'Modifier %?ld does not allow array value, use modifier %?ld[] instead.'],
+			['?ld', new stdClass(), 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), stdClass given.'],
+			['?ld', $file, 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), SplFileInfo given.'],
+
+			['ld[]', '123', 'Modifier %ld[] expects value to be array, string given.'],
+			['ld[]', 123, 'Modifier %ld[] expects value to be array, integer given.'],
+			['ld[]', 123.0, 'Modifier %ld[] expects value to be array, double given.'],
+			['ld[]', true, 'Modifier %ld[] expects value to be array, boolean given.'],
+			['ld[]', new stdClass(), 'Modifier %ld[] expects value to be array, stdClass given.'],
+			['ld[]', $file, 'Modifier %ld[] expects value to be array, SplFileInfo given.'],
+			['ld[]', null, 'Modifier %ld[] expects value to be array, NULL given.'],
+			['ld[]', ['true'], 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), string given.'],
+			['ld[]', [1], 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), integer given.'],
+			['ld[]', [1.0], 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), double given.'],
+			['ld[]', [true], 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), boolean given.'],
+			['ld[]', [[]], 'Modifier %ld does not allow array value, use modifier %ld[] instead.'],
+			['ld[]', [new stdClass()], 'Modifier %ld expects value to be DateTimeInterface|string(YYYY-MM-DD), stdClass given.'],
+			['ld[]', [null], 'Modifier %ld does not allow NULL value, use modifier %?ld instead.'],
+
+			['?ld[]', '123', 'Modifier %?ld[] expects value to be array, string given.'],
+			['?ld[]', 123, 'Modifier %?ld[] expects value to be array, integer given.'],
+			['?ld[]', 123.0, 'Modifier %?ld[] expects value to be array, double given.'],
+			['?ld[]', true, 'Modifier %?ld[] expects value to be array, boolean given.'],
+			['?ld[]', new stdClass(), 'Modifier %?ld[] expects value to be array, stdClass given.'],
+			['?ld[]', $file, 'Modifier %?ld[] expects value to be array, SplFileInfo given.'],
+			['?ld[]', null, 'Modifier %?ld[] expects value to be array, NULL given.'],
+			['?ld[]', ['true'], 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), string given.'],
+			['?ld[]', [1], 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), integer given.'],
+			['?ld[]', [1.0], 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), double given.'],
+			['?ld[]', [true], 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), boolean given.'],
+			['?ld[]', [[]], 'Modifier %?ld does not allow array value, use modifier %?ld[] instead.'],
+			['?ld[]', [new stdClass()], 'Modifier %?ld expects value to be DateTimeInterface|string(YYYY-MM-DD), stdClass given.'],
 
 			['di', 'true', 'Modifier %di expects value to be DateInterval, string given.'],
 			['di', 1, 'Modifier %di expects value to be DateInterval, integer given.'],

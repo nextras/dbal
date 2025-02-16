@@ -49,7 +49,7 @@ class DbalExtensionTest extends IntegrationTestCase
 	}
 
 
-	private function buildDic($config, $debug, callable $compilerCb = null)
+	private function buildDic($config, $debug, callable|null $compilerCb = null)
 	{
 		$loader = new ContainerLoader(TEMP_DIR);
 		$key = __FILE__ . ':' . __LINE__ . ':' . $config;
