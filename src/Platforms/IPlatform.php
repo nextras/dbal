@@ -98,6 +98,12 @@ interface IPlatform
 
 
 	/**
+	 * Formats local date from DateTimeInterface instance to SQL string.
+	 */
+	public function formatLocalDate(DateTimeInterface $value): string;
+
+
+	/**
 	 * Formats DateInterval to SQL string.
 	 */
 	public function formatDateInterval(DateInterval $value): string;

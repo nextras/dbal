@@ -32,6 +32,7 @@ class SqlProcessor
 		'dt' => [true, true, 'DateTimeInterface'],
 		'dts' => [true, true, 'DateTimeInterface'], // @deprecated use ldt
 		'ldt' => [true, true, 'DateTimeInterface'],
+		'ld' => [true, true, 'DateTimeInterface|string(YYYY-MM-DD)'],
 		'di' => [true, true, 'DateInterval'],
 		'blob' => [true, true, 'blob string'],
 		'_like' => [true, false, 'string'],
@@ -185,6 +186,13 @@ class SqlProcessor
 						}
 						return $value;
 
+					case 'ld':
+					case '?ld':
+						if (preg_match('#^\d{4}-\d{2}-\d{2}$#', $value) !== 1) {
+							break;
+						}
+						return $this->platform->formatString($value);
+
 					case '_like':
 						return $this->platform->formatStringLike($value, -1);
 					case 'like_':
@@ -285,6 +293,10 @@ class SqlProcessor
 						case 'ldt':
 						case '?ldt':
 							return $this->platform->formatLocalDateTime($value);
+
+						case 'ld':
+						case '?ld':
+							return $this->platform->formatLocalDate($value);
 					}
 
 				} elseif ($value instanceof DateInterval) {

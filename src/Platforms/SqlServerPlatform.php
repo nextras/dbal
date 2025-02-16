@@ -224,6 +224,12 @@ class SqlServerPlatform implements IPlatform
 	}
 
 
+	public function formatLocalDate(DateTimeInterface $value): string
+	{
+		return "CAST('" . $value->format('Y-m-d H:i:s.u') . "' AS DATE)";
+	}
+
+
 	public function formatDateInterval(DateInterval $value): string
 	{
 		throw new NotSupportedException();

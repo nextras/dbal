@@ -107,6 +107,12 @@ class CachedPlatform implements IPlatform
 	}
 
 
+	public function formatLocalDate(DateTimeInterface $value): string
+	{
+		return $this->platform->formatLocalDate($value);
+	}
+
+
 	public function formatDateInterval(DateInterval $value): string
 	{
 		return $this->platform->formatDateInterval($value);
