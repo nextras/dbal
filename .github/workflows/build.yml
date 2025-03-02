@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      # MySQL LTS versions tested (https://endoflife.date/mysql)
+      # MySQL LTS versions + very latest stable tested (https://endoflife.date/mysql)
       mysql80:
         image: mysql:8.0
         ports:
@@ -74,6 +74,11 @@ jobs:
         ports:
           - 3307:3306
         options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+      mysql91:
+        image: mysql:9.1
+        ports:
+          - 3308:3306
+        options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
       # Latest 2 MariaDD LTS versions tested (https://endoflife.date/mariadb)
       mariadb1011:
         image: mariadb:10.11
@@ -81,7 +86,7 @@ jobs:
           MYSQL_DATABASE: nextras_dbal_test
           MYSQL_ROOT_PASSWORD: root
         ports:
-          - 3308:3306
+          - 3406:3306
         options: >-
           --health-cmd "mysqladmin ping -ppass"
           --health-interval 10s
@@ -94,7 +99,7 @@ jobs:
           MYSQL_DATABASE: nextras_dbal_test
           MYSQL_ROOT_PASSWORD: root
         ports:
-          - 3309:3306
+          - 3407:3306
         options: >-
           --health-cmd "healthcheck.sh --su-mysql --connect --innodb_initialized"
           --health-interval 10s
