@@ -4,4 +4,11 @@
     "config:recommended",
     "schedule:earlyMondays"
   ],
+  "packageRules": [
+    {
+      "matchFileNames": [".github/workflows/build.yml"],
+      "matchPackageNames": ["mysql", "mariadb", "postgres"],
+      "dependencyDashboardApproval": true
+    }
+  ]
 }
