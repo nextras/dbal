@@ -65,12 +65,12 @@ jobs:
     services:
       # MySQL LTS versions + very latest stable tested (https://endoflife.date/mysql)
       mysql80:
-        image: mysql:8.0
+        image: mysql:9.2
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
       mysql84:
-        image: mysql:8.4
+        image: mysql:9.2
         ports:
           - 3307:3306
         options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
