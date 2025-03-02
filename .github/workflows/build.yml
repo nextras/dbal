@@ -103,7 +103,7 @@ jobs:
           --health-retries 10
       # Newest and last supported version (https://endoflife.date/postgresql)
       postgres13:
-        image: postgres:13
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
