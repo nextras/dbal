@@ -187,6 +187,12 @@ class MySqlPlatform implements IPlatform
 	}
 
 
+	public function formatLocalDate(DateTimeInterface $value): string
+	{
+		return "'" . $value->format('Y-m-d') . "'";
+	}
+
+
 	public function formatDateInterval(DateInterval $value): string
 	{
 		$totalHours = ((int) $value->format('%a')) * 24 + $value->h;
