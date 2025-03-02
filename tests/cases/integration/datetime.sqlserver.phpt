@@ -40,7 +40,7 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 		Assert::same('2015-01-01 12:00:00.000', $row->a);
 
 		// different timezone than db
-		date_default_timezone_set('Europe/Kiev');
+		date_default_timezone_set('Europe/Helsinki');
 
 		$result = $connection->query('SELECT * FROM dates_write');
 		$result->setValueNormalization(false);
@@ -74,7 +74,7 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 
 		$connection->query('DELETE FROM dates');
 		$connection->query('INSERT INTO dates VALUES (%dt)',
-			new DateTime('2015-01-01 13:00:00 Europe/Kiev') // 11:00 UTC
+			new DateTime('2015-01-01 13:00:00 Europe/Helsinki') // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates');
@@ -88,7 +88,7 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 
 		$connection->query('DELETE FROM dates');
 		$connection->query('INSERT INTO dates VALUES (%dt)',
-			new DateTime('2015-01-01 14:00:00 Europe/Kiev') // 12:00 UTC
+			new DateTime('2015-01-01 14:00:00 Europe/Helsinki') // 12:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates');
