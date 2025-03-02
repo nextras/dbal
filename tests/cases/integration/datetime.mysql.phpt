@@ -47,9 +47,9 @@ class DateTimeMysqlTest extends IntegrationTestCase
 
 		$connection->query('DELETE FROM dates_write');
 		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
-			new DateTime('2015-01-01 12:00:00'),             // local
-			new DateTime('2015-01-01 12:00:00 Europe/Kiev'), // 10:00 UTC,
-			new DateTime('2015-01-01 12:13:14')              // local
+			new DateTime('2015-01-01 12:00:00'),                 // local
+			new DateTime('2015-01-01 12:00:00 Europe/Helsinki'), // 10:00 UTC,
+			new DateTime('2015-01-01 12:13:14')                  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -65,7 +65,7 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testWriteStorageDiffTZ()
 	{
 		$connection = $this->createConnection([
-			'connectionTz' => 'Europe/Kiev',
+			'connectionTz' => 'Europe/Helsinki',
 		]);
 		$this->lockConnection($connection);
 
@@ -94,9 +94,9 @@ class DateTimeMysqlTest extends IntegrationTestCase
 
 		$connection->query('DELETE FROM dates_write2');
 		$connection->query('INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
-			new \DateTimeImmutable('2015-01-01 12:00:00'),             // local
-			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Kiev'), // 10:00 UTC
-			new \DateTimeImmutable('2015-01-01 12:13:14')              // local
+			new \DateTimeImmutable('2015-01-01 12:00:00'),                 // local
+			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Helsinki'), // 10:00 UTC
+			new \DateTimeImmutable('2015-01-01 12:13:14')                  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -144,7 +144,7 @@ class DateTimeMysqlTest extends IntegrationTestCase
 	public function testReadStorageDiffTZ()
 	{
 		$connection = $this->createConnection([
-			'connectionTz' => 'Europe/Kiev',
+			'connectionTz' => 'Europe/Helsinki',
 		]);
 		$this->lockConnection($connection);
 

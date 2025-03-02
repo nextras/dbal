@@ -18,6 +18,7 @@ class PlatformSqlServerTest extends IntegrationTestCase
 {
 	public function testTables()
 	{
+		$this->lockConnection($this->connection);
 		$tables = $this->connection->getPlatform()->getTables();
 
 		Assert::true(isset($tables["dbo.books"]));
@@ -37,6 +38,7 @@ class PlatformSqlServerTest extends IntegrationTestCase
 
 	public function testColumns()
 	{
+		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
 		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
 

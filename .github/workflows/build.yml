@@ -12,7 +12,7 @@ on:
       - v*.*
 
 env:
-  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv-5.10.0-beta1, pdo_sqlsrv-5.10.0-beta1
+  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv, pdo_sqlsrv
   php-extensions-key: v1
   php-tools: "composer:v2, pecl"
 
@@ -63,26 +63,20 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql57:
-        image: mysql:5.7
-        env:
-          MYSQL_DATABASE: nextras_dbal_test
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "mysqladmin ping -ppass"
-          --health-interval 10s
-          --health-start-period 10s
-          --health-timeout 5s
-          --health-retries 10
+      # MySQL LTS versions tested (https://endoflife.date/mysql)
       mysql80:
         image: mysql:8.0
         ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+      mysql84:
+        image: mysql:8.4
+        ports:
           - 3307:3306
         options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
-      mariadb105:
-        image: mariadb:10.5
+      # Latest 2 MariaDD LTS versions tested (https://endoflife.date/mariadb)
+      mariadb1011:
+        image: mariadb:10.11
         env:
           MYSQL_DATABASE: nextras_dbal_test
           MYSQL_ROOT_PASSWORD: root
@@ -94,6 +88,20 @@ jobs:
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
+      mariadb1104:
+        image: mariadb:11.4
+        env:
+          MYSQL_DATABASE: nextras_dbal_test
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3309:3306
+        options: >-
+          --health-cmd "healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
+      # Newest and last supported version (https://endoflife.date/postgresql)
       postgres13:
         image: postgres:13
         env:
@@ -107,8 +115,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      postgres16:
-        image: postgres:16
+      postgres17:
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -120,6 +128,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      # Latest only
       mssql:
         image: mcr.microsoft.com/mssql/server:latest
         env:
@@ -140,13 +149,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Microsoft ODBC
-        run: |
-          echo "\n[ODBC]\nPooling=No" > /etc/odbcinst.ini
-          sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
-          sudo cat /etc/odbcinst.ini
+        run: sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
 
       - name: Create MS SQL Database
         run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE nextras_dbal_test'
+
+      - name: Set up Timezones in MariaDB
+        run: docker exec $(docker ps -q --filter "ancestor=mariadb:11.4") bash -c "apt-get update && apt-get install -y tzdata && mariadb-tzinfo-to-sql /usr/share/zoneinfo 2>/dev/null | mariadb -u root -proot mysql"
 
       - name: Setup PHP cache environment
         id: php-extensions-cache
@@ -170,6 +179,7 @@ jobs:
           extensions: ${{ env.php-extensions }}
           tools: ${{ env.php-tools }}
           coverage: pcov
+          ini-values: "pdo_odbc.connection_pooling=off"
 
       - name: Get composer cache directory
         id: composercache
