@@ -18,6 +18,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 {
 	public function testTables()
 	{
+		$this->lockConnection($this->connection);
 		$tables = $this->connection->getPlatform()->getTables();
 
 		Assert::true(isset($tables["public.books"]));
@@ -37,6 +38,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 	public function testColumns()
 	{
+		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
 		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
 
@@ -191,6 +193,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 	public function testForeignKeys()
 	{
+		$this->lockConnection($this->connection);
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
 		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
 

@@ -23,6 +23,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 {
 	public function testTables()
 	{
+		$this->lockConnection($this->connection);
 		$dbName = $this->connection->getConfig()['database'];
 		$tables = $this->connection->getPlatform()->getTables();
 
@@ -44,6 +45,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 
 	public function testColumns()
 	{
+		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
 		$columns = array_map(function($table) {
 			return (array) $table;
