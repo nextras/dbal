@@ -8,7 +8,6 @@
 namespace NextrasTests\Dbal;
 
 
-use Nextras\Dbal\Drivers\Exception\QueryException;
 use Tester\Assert;
 
 
@@ -19,13 +18,10 @@ class ConnectionSqlServerTest extends IntegrationTestCase
 {
 	public function testReconnect()
 	{
-		$this->connection->query('create table #temp (val int)');
-		$this->connection->query('insert into #temp values (1)');
-		Assert::same(1, $this->connection->query('SELECT * FROM #temp')->fetchField());
+		$sessionIdBefore = $this->connection->query('SELECT [connection_id] FROM [sys].[dm_exec_connections] where session_id = @@SPID')->fetchField();
 		$this->connection->reconnect();
-		Assert::exception(function () {
-			$this->connection->query('SELECT * FROM #temp');
-		}, QueryException::class);
+		$sessionIdAfter = $this->connection->query('SELECT [connection_id] FROM [sys].[dm_exec_connections] where session_id = @@SPID')->fetchField();
+		Assert::notEqual($sessionIdBefore, $sessionIdAfter);
 	}
 
 
