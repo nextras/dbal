@@ -12,7 +12,7 @@ on:
       - v*.*
 
 env:
-  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv-5.10.0-beta1, pdo_sqlsrv-5.10.0-beta1
+  php-extensions: mbstring, intl, mysqli, pgsql, sqlsrv, pdo_sqlsrv
   php-extensions-key: v1
   php-tools: "composer:v2, pecl"
 
@@ -88,7 +88,7 @@ jobs:
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
-      mariadb114:
+      mariadb1104:
         image: mariadb:11.4
         env:
           MYSQL_DATABASE: nextras_dbal_test
