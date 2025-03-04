@@ -10,7 +10,7 @@ Dbal allows you to escape and build safe SQL query. It provides these powerful p
 | `%b`, `%?b`, `%b[]`, `%...b[]`             | boolean        | not nullable, nullable, array of                                                                                                 |
 | `%dt`, `%?dt`, `%dt[]`, `%...dt[]`         | datetime       | not nullable, nullable, array of<br>read more about [datetime handling](datetime); using wrong modifier may damage your data     |
 | `%ldt`, `%?ldt`, `%ldt[]`, `%...ldt[]`     | local datetime | datetime without timezone conversion<br>read more about [datetime handling](datetime); using wrong modifier may damage your data |
-| `%lt`, `%?ld`, `%ld[]`, `%...ld[]`         | local date     | a date; pass DateTimeInterface instance, DBAL will pick just the date nevertheless the time or timezone                          |
+| `%ld`, `%?ld`, `%ld[]`, `%...ld[]`         | local date     | a date; pass DateTimeInterface instance, DBAL will pick just the date nevertheless the time or timezone                          |
 | `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance                                                                                                            |
 | `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of                                                                                                 |
 | `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of                                                                                                 |
