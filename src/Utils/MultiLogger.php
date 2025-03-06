@@ -11,7 +11,7 @@ use Nextras\Dbal\Result\Result;
 /**
  * @internal
  */
-class MultiLogger implements ILogger
+final class MultiLogger implements ILogger
 {
 	use StrictObjectTrait;
 
