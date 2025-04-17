@@ -143,15 +143,15 @@ class Result implements SeekableIterator, Countable
 		$this->seek(0);
 
 		if ($key === null) {
-			while ($row = $this->fetch()) {
+			while (($row = $this->fetch()) !== null) {
 				$return[] = $row->{$value};
 			}
 		} elseif ($value === null) {
-			while ($row = $this->fetch()) {
+			while (($row = $this->fetch()) !== null) {
 				$return[($row->{$key} instanceof DateTimeImmutable) ? (string) $row->{$key} : $row->{$key}] = $row;
 			}
 		} else {
-			while ($row = $this->fetch()) {
+			while (($row = $this->fetch()) !== null) {
 				$return[($row->{$key} instanceof DateTimeImmutable) ? (string) $row->{$key} : $row->{$key}] = $row->{$value};
 			}
 		}
