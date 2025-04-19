@@ -59,7 +59,7 @@ use function date_default_timezone_get;
  */
 class PdoMysqlDriver extends PdoDriver
 {
-	private ?PdoMysqlResultNormalizerFactory $resultNormalizerFactory = null;
+	protected ?PdoMysqlResultNormalizerFactory $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
