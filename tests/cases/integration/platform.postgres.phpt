@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class PlatformPostgresTest extends IntegrationTestCase
 {
-	public function testTables()
+	public function testTables(): void
 	{
 		$this->lockConnection($this->connection);
 		$tables = $this->connection->getPlatform()->getTables();
@@ -36,7 +36,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 	}
 
 
-	public function testColumns()
+	public function testColumns(): void
 	{
 		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
@@ -191,7 +191,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 	}
 
 
-	public function testForeignKeys()
+	public function testForeignKeys(): void
 	{
 		$this->lockConnection($this->connection);
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
@@ -246,13 +246,25 @@ class PlatformPostgresTest extends IntegrationTestCase
 	}
 
 
-	public function testPrimarySequence()
+	public function testPrimarySequence(): void
 	{
 		Assert::same('public.books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
+
+		$this->connection->query("DROP SEQUENCE IF EXISTS second_schema.temp_sequence_for_test");
+		$this->connection->query("CREATE SEQUENCE second_schema.temp_sequence_for_test");
+		$this->connection->query("DROP TABLE IF EXISTS temp_table_with_sequence");
+		$this->connection->query("
+			CREATE TEMPORARY TABLE temp_table_with_sequence(
+				[id] integer DEFAULT nextval('second_schema.temp_sequence_for_test') NOT NULL,
+				CONSTRAINT [temp_table_with_sequence_id] PRIMARY KEY ([id])
+			)
+		");
+		$sequenceName = $this->connection->getPlatform()->getPrimarySequenceName('temp_table_with_sequence');
+		Assert::same('second_schema.temp_sequence_for_test', $sequenceName);
 	}
 
 
-	public function testName()
+	public function testName(): void
 	{
 		Assert::same('pgsql', $this->connection->getPlatform()->getName());
 	}
