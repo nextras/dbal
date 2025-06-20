@@ -268,6 +268,7 @@ class SqlProcessor
 					case '?b':
 					case '?dt':
 					case '?dts':
+					case '?ld':
 					case '?ldt':
 					case '?di':
 					case '?blob':
