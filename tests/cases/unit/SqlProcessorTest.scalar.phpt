@@ -200,6 +200,7 @@ class SqlProcessorScalarTest extends TestCase
 		Assert::same('NULL', $this->parser->processModifier('?f', null));
 		Assert::same('NULL', $this->parser->processModifier('?b', null));
 		Assert::same('NULL', $this->parser->processModifier('?dt', null));
+		Assert::same('NULL', $this->parser->processModifier('?ld', null));
 		Assert::same('NULL', $this->parser->processModifier('?ldt', null));
 		Assert::same('NULL', $this->parser->processModifier('?di', null));
 		Assert::same('NULL', $this->parser->processModifier('?json', null));
