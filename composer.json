@@ -16,13 +16,12 @@
 		"ext-json": "*"
 	},
 	"require-dev": {
-		"mockery/mockery": "~1.5",
+		"mockery/mockery": "~1.6.12",
 		"nette/tester": "~2.4",
-		"nette/caching": "~3.0",
-		"nette/di": "~3.0",
-		"nette/utils": "~3.0 || ~4.0",
-		"nette/finder": "~2.5 || ~3.0",
-		"nette/neon": "~3.0",
+		"nette/caching": "~3.1",
+		"nette/di": "~3.1",
+		"nette/utils": "~3.1 || ~4.0",
+		"nette/neon": "~3.1",
 		"nextras/multi-query-parser": "~1.0",
 		"phpstan/extension-installer": "1.4.3",
 		"phpstan/phpstan": "2.1.31",
