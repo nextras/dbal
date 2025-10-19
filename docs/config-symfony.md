@@ -2,6 +2,8 @@
 
 Nextras Dbal comes with Symfony Bundle that allows easy setup into your Symfony application.
 
+The minimal supported version of Symfony is 5.4.
+
 Start with enabling Dbal's bundle:
 
 ```php

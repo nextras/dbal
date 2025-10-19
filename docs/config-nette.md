@@ -2,6 +2,8 @@
 
 Nextras Dbal comes with Nextras DI Extension that allows easy setup into your Nette application.
 
+The minimal supported version of Nette/DI is 3.1.
+
 Simply define the extension and provide a default configuration:
 
 ```neon
