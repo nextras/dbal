@@ -45,6 +45,14 @@ CREATE INDEX "book_title" ON "books" ("title");
 
 CREATE VIEW "my_books" AS SELECT * FROM "books" WHERE "author_id" = 1;
 
+CREATE TABLE "users" (
+	"first_name" varchar NOT NULL,
+	"last_name" varchar NOT NULL,
+	"full_name" text GENERATED ALWAYS AS (
+		(btrim("last_name") || ' ' || btrim("first_name"))
+	) STORED NOT NULL
+);
+
 CREATE TABLE "books_x_tags" (
 	"book_id" int NOT NULL,
 	"tag_id" int NOT NULL,
