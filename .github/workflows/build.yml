@@ -71,52 +71,47 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      # MySQL LTS versions + very latest stable tested (https://endoflife.date/mysql)
-      mysql80:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+      # MySQL The last LTS version + the latest stable (https://endoflife.date/mysql)
       mysql84:
         image: mysql:8.4
         ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+      mysql94:
+        image: mysql:9.4
+        ports:
           - 3307:3306
         options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
-      mysql92:
-        image: mysql:9.2
-        ports:
-          - 3308:3306
-        options: --health-cmd="mysqladmin ping -ppass" --health-interval=10s --health-timeout=5s --health-retries=5 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nextras_dbal_test --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
-      # Latest 2 MariaDD LTS versions tested (https://endoflife.date/mariadb)
-      mariadb1011:
-        image: mariadb:10.11
+      # MariaDD The last LTS version + the latest stable (https://endoflife.date/mariadb)
+      mariadb1108:
+        image: mariadb:11.8
         env:
-          MYSQL_DATABASE: nextras_dbal_test
-          MYSQL_ROOT_PASSWORD: root
+          MARIADB_DATABASE: nextras_dbal_test
+          MARIADB_ROOT_PASSWORD: root
         ports:
           - 3406:3306
         options: >-
-          --health-cmd "mysqladmin ping -ppass"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
           --health-interval 10s
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
-      mariadb1104:
-        image: mariadb:11.4
+      mariadb1200:
+        image: mariadb:12.0
         env:
-          MYSQL_DATABASE: nextras_dbal_test
-          MYSQL_ROOT_PASSWORD: root
+          MARIADB_DATABASE: nextras_dbal_test
+          MARIADB_ROOT_PASSWORD: root
         ports:
           - 3407:3306
         options: >-
-          --health-cmd "healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
           --health-interval 10s
           --health-start-period 10s
           --health-timeout 5s
           --health-retries 10
       # Newest and last supported version (https://endoflife.date/postgresql)
-      postgres13:
-        image: postgres:13
+      postgres14:
+        image: postgres:14
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -128,8 +123,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      postgres17:
-        image: postgres:17
+      postgres18:
+        image: postgres:18
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -168,7 +163,7 @@ jobs:
         run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE nextras_dbal_test'
 
       - name: Set up Timezones in MariaDB
-        run: docker exec $(docker ps -q --filter "ancestor=mariadb:11.4") bash -c "apt-get update && apt-get install -y tzdata && mariadb-tzinfo-to-sql /usr/share/zoneinfo 2>/dev/null | mariadb -u root -proot mysql"
+        run: for container in $(docker ps -q --filter "ancestor=mariadb"); do docker exec "$container" bash -c "apt-get update && apt-get install -y tzdata && mariadb-tzinfo-to-sql /usr/share/zoneinfo 2>/dev/null | mariadb -u root -proot mysql"; done
 
       - name: Setup PHP cache environment
         id: php-extensions-cache
