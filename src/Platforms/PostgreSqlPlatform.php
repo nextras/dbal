@@ -88,7 +88,7 @@ class PostgreSqlPlatform implements IPlatform
 				a.attname::varchar AS name,
 				UPPER(t.typname) AS type,
 				CASE WHEN a.atttypmod = -1 THEN NULL ELSE a.atttypmod -4 END AS size,
-				pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass)::varchar AS default,
+				pg_catalog.pg_get_expr(ad.adbin, ad.adrelid)::varchar AS default,
 				COALESCE(co.contype = 'p', FALSE) AS is_primary,
 				COALESCE(co.contype = 'p' AND (strpos(pg_get_expr(ad.adbin, ad.adrelid), 'nextval') = 1 OR a.attidentity != ''), FALSE) AS is_autoincrement,
 				NOT (a.attnotnull OR t.typtype = 'd' AND t.typnotnull) AS is_nullable,
@@ -99,7 +99,7 @@ class PostgreSqlPlatform implements IPlatform
 					: "pg_get_serial_sequence('%table', a.attname),"
 			)
 			. (/** @lang GenericSQL */ "
-					SUBSTRING(pg_catalog.pg_get_expr(ad.adbin, 'pg_catalog.pg_attrdef'::regclass) FROM %s)
+					SUBSTRING(pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) FROM %s)
 				) AS sequence
 			FROM
 				pg_catalog.pg_attribute AS a
