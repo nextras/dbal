@@ -86,12 +86,12 @@ jobs:
       mariadb1108:
         image: mariadb:11.8
         env:
-          MYSQL_DATABASE: nextras_dbal_test
-          MYSQL_ROOT_PASSWORD: root
+          MARIADB_DATABASE: nextras_dbal_test
+          MARIADB_ROOT_PASSWORD: root
         ports:
           - 3406:3306
         options: >-
-          --health-cmd "mysqladmin ping -ppass"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
           --health-interval 10s
           --health-start-period 10s
           --health-timeout 5s
@@ -99,12 +99,12 @@ jobs:
       mariadb1200:
         image: mariadb:12.0
         env:
-          MYSQL_DATABASE: nextras_dbal_test
-          MYSQL_ROOT_PASSWORD: root
+          MARIADB_DATABASE: nextras_dbal_test
+          MARIADB_ROOT_PASSWORD: root
         ports:
           - 3407:3306
         options: >-
-          --health-cmd "healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
           --health-interval 10s
           --health-start-period 10s
           --health-timeout 5s
@@ -163,7 +163,7 @@ jobs:
         run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE nextras_dbal_test'
 
       - name: Set up Timezones in MariaDB
-        run: docker exec $(docker ps -q --filter "ancestor=mariadb:11.4") bash -c "apt-get update && apt-get install -y tzdata && mariadb-tzinfo-to-sql /usr/share/zoneinfo 2>/dev/null | mariadb -u root -proot mysql"
+        run: for container in $(docker ps -q --filter "ancestor=mariadb"); do docker exec "$container" bash -c "apt-get update && apt-get install -y tzdata && mariadb-tzinfo-to-sql /usr/share/zoneinfo 2>/dev/null | mariadb -u root -proot mysql"; done
 
       - name: Setup PHP cache environment
         id: php-extensions-cache
