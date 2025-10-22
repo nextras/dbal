@@ -77,6 +77,8 @@ class PgsqlDriver implements IDriver
 			'connect_timeout',
 			'options',
 			'sslmode',
+			'sslrootcert',
+			'sslcert',
 			'service',
 		];
 
