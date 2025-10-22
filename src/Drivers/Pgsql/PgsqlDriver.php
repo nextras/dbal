@@ -79,6 +79,9 @@ class PgsqlDriver implements IDriver
 			'sslmode',
 			'sslrootcert',
 			'sslcert',
+			'sslkey',
+			'sslpassword',
+			'sslcertmode',
 			'service',
 		];
 
