@@ -90,7 +90,7 @@ class SqlProcessor
 	 */
 	public function addModifierResolver(ISqlProcessorModifierResolver $resolver): void
 	{
-		$this->modifierResolvers->attach($resolver);
+		$this->modifierResolvers->offsetSet(object: $resolver);
 	}
 
 
@@ -99,7 +99,7 @@ class SqlProcessor
 	 */
 	public function removeModifierResolver(ISqlProcessorModifierResolver $resolver): void
 	{
-		$this->modifierResolvers->detach($resolver);
+		$this->modifierResolvers->offsetUnset(object: $resolver);
 	}
 
 
@@ -699,7 +699,11 @@ class SqlProcessor
 
 	protected function getVariableTypeName(mixed $value): float|string
 	{
-		return is_object($value) ? $value::class : (is_float($value) && !is_finite($value) ? $value : gettype($value));
+		return is_object($value)
+			? $value::class
+			: (is_float($value) && !is_finite($value)
+				? (is_nan($value) ? "NAN" : $value)
+				: gettype($value));
 	}
 
 
