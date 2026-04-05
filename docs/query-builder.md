@@ -91,18 +91,35 @@ $builder->limitBy(20, 10); // sets offset to 1O
 
 #### INNER, LEFT and RIGHT JOIN
 
-Choose from `joinInner()`, `joinLeft()`, and `joinRight()` methods. Each of them has the same signature. Arguments:
+Use `joinOnce()` for deduplicated joins, or `addInnerJoin()`, `addLeftJoin()`, and `addRightJoin()` when you want to append another join clause explicitly.
+
+The `add*Join()` methods all have the same signature. Arguments:
 - to expression - target expression, do not forget to escape the target table name, you may define also an alias,
 - on expression - ON clause expression,
 - arguments for expressions.
 
 ```php
 $builder->from('[authors]', 'a');
-$builder->joinLeft('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %s', $title);
+$builder->addLeftJoin('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %s', $title);
 
 // will produce
 // FROM [authors] AS [a]
 // LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
+```
+
+Use `joinOnce()` if you want the same logical join to be added at most once:
+
+```php
+$builder->from('[authors]', 'a');
+$builder->joinOnce('LEFT', '[books] AS [b]', '[a.id] = [b.authorId]', []);
+```
+
+`joinOnce()` deduplicates by the join type and the two SQL expressions. The placeholder arguments are not part of the deduplication hash. This mainly matters for joins built with modifiers such as `%table` or `%column`, where different parameter values can still produce the same SQL expression shape. In that case, pass a different `hashSuffix`:
+
+```php
+$builder->from('[authors]', 'a');
+$builder->joinOnce('LEFT', '%table', '%table.id = tbl.book_id', ['book_tag'], 'book-tag');
+$builder->joinOnce('LEFT', '%table', '%table.id = tbl.book_id', ['author_tag'], 'author-tag');
 ```
 
 #### INDEX HINTS (MySQL)
