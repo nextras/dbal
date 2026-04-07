@@ -141,7 +141,7 @@ class PdoPgsqlDriver extends PdoDriver
 		} elseif ($sqlState === '23502') {
 			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
-		} elseif ($sqlState === '23503') {
+		} elseif ($sqlState === '23001' || $sqlState === '23503') {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif ($sqlState === '23505') {
