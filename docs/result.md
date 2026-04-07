@@ -59,3 +59,15 @@ $result->unbuffered(); // disable the emulated buffering
 ```
 
 If the unbuffered Result was already partially consumed, enabling buffering does nothing and Result will potentially throw an exception when rewinded or seeked. If the buffered Result was already partially consumed, disabling buffering does nothing and Result will still use the buffer.
+
+### Value Normalization
+
+Dbal automatically normalizes selected column values to PHP types based on driver metadata. You can disable or re-enable that behavior per result:
+
+```php
+$result = $connection->query('SELECT * FROM events');
+$result->setValueNormalization(false);
+$result->setValueNormalization(true);
+```
+
+See the [Result Normalization](result-normalization) chapter for the exact behavior of each driver.

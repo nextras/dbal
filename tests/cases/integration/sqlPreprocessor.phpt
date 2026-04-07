@@ -10,6 +10,7 @@ namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\ISqlProcessorFactory;
 use Nextras\Dbal\Platforms\PostgreSqlPlatform;
+use Nextras\Dbal\Platforms\SqlitePlatform;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
 
@@ -24,8 +25,17 @@ class SqlPreprocessorIntegrationTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 		$this->connection->query('DELETE FROM table_with_defaults');
 		$this->connection->query('INSERT INTO table_with_defaults %values', []);
-		$this->connection->query('INSERT INTO table_with_defaults %values[]', [[]]);
-		$this->connection->query('INSERT INTO table_with_defaults %values[]', [[], []]);
+
+		if ($this->connection->getPlatform()->getName() === SqlitePlatform::NAME) {
+			// SQLite supports only single-row "DEFAULT VALUES" inserts.
+			$this->connection->query('INSERT INTO table_with_defaults %values', []);
+			$this->connection->query('INSERT INTO table_with_defaults %values', []);
+			$this->connection->query('INSERT INTO table_with_defaults %values', []);
+		} else {
+			$this->connection->query('INSERT INTO table_with_defaults %values[]', [[]]);
+			$this->connection->query('INSERT INTO table_with_defaults %values[]', [[], []]);
+		}
+
 		$count = $this->connection->query('SELECT COUNT(*) FROM table_with_defaults')->fetchField();
 		Assert::equal(4, $count);
 	}

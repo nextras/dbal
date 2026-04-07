@@ -3,6 +3,7 @@
 - [Config with Symfony](config-symfony)
 - [Modifiers](param-modifiers)
 - [Result](result)
+- [Result Normalization](result-normalization)
 - [Query Builder](query-builder)
 - [DateTime](datetime)
 

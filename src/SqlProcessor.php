@@ -528,7 +528,9 @@ class SqlProcessor
 	private function processValues(array $value): string
 	{
 		if (count($value) === 0) {
-			return 'VALUES (DEFAULT)';
+			return $this->platform->isSupported(IPlatform::SUPPORT_INSERT_DEFAULT_KEYWORD)
+				? 'VALUES (DEFAULT)'
+				: 'DEFAULT VALUES';
 		}
 
 		$keys = $values = [];

@@ -11,12 +11,13 @@ Generally, we recognize two types of date-time types:
 
 The following table presents a matrix of available DB date-time types:
 
-|             | Local DateTime<br>no timezone handling  | DateTime<br>timezone conversion | DateTime<br>timezone stored | 
-|-------------|-----------------------------------------|---------------------------------|-----------------------------|
-| MySQL       | `datetime`                              | `timestamp`                     | -                           |
-| Postgres    | `timestamp`                             | `timestamptz`                   | -                           |
-| SQL Server  | `datetime`, `datetime2`                 | -                               | `datetimeoffset`            |
-
+|            | Local DateTime<br>no timezone handling | DateTime<br>timezone conversion | DateTime<br>timezone stored | 
+|------------|----------------------------------------|---------------------------------|-----------------------------|
+| MySQL      | `datetime`                             | `timestamp`                     | -                           |
+| Postgres   | `timestamp`                            | `timestamptz`                   | -                           |
+| SQL Server | `datetime`, `datetime2`                | -                               | `datetimeoffset`            |
+| Sqlite     | -                                      | -                               | -                           |
+- 
 - **no timezone handling**: database stores the time-stamp and does not do any modification to it; this is the easiest solution, but brings a disadvantage: database cannot exactly diff two time-stamps, i.e. it may produce wrong results because day-light saving shift is needed but db does not know which zone to use for the calculation;
 - **timezone conversion**: database stores the time-stamp unified in UTC and reads it in connection's timezone;
 - **timezone stored**: database does not do any conversion, it just stores the timezoned timestamp and returns it back;
@@ -25,10 +26,10 @@ Dbal offers a **connection time zone** configuration option (`connectionTz`) tha
 
 Dbal comes with two query modifiers:
 
-| Type           | Modifier | Description                                                                                                                                |
-|----------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| Type           | Modifier | Description                                                                                                                    |
+|----------------|----------|--------------------------------------------------------------------------------------------------------------------------------|
 | local datetime | `%ldt`   | passes DateTime(Interface) object as it is, without any timezone conversion and identification; formerly known as datetime simple (`%dts`) |
-| datetime       | `%dt`    | converts DateTime(Interface) object to connection timezone;                                                                                |
+| datetime       | `%dt`    | converts DateTime(Interface) object to  connection timezone;                                                                                |
 
 ---------------
 
@@ -90,3 +91,36 @@ This will make Dbal fully functional, although some SQL queries and expressions 
 |----------------|------------------|--------------------------------------------------------------------------------------------------------------------------|
 | local datetime | `datetime`       | value is converted into application timezone                                                                             |
 | datetime       | `datetimeoffset` | value is read with timezone offset and no further modification is done - i.e. no application timezone conversion happens |
+
+--------------------------
+
+### Sqlite
+
+Sqlite does not have dedicated date/time storage types. Dbal therefore relies on the declared column type and uses a convention for exact timestamps.
+
+Use `datetime(your_column, 'unixepoch', 'localtime')` to convert stored timestamp to your local time-zone. Read more in the [official documentation](https://sqlite.org/lang_datefunc.html#modifiers).
+
+##### Writing
+
+| Type           | Modifier | Comment                                                                                         |
+|----------------|----------|-------------------------------------------------------------------------------------------------|
+| local datetime | `%ldt`   | the timezone offset is removed and value is formatted as ISO string without the timezone offset |
+| datetime       | `%dt`    | value is converted to connection timezone and stored as unix timestamp in milliseconds          |
+
+##### Reading
+
+| Type           | Declared Column Type                                                         | Comment                                                           |
+|----------------|------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| local datetime | `date`, `datetime`, `time`                                                   | built-in aliases supported by the SQLite driver                   |
+| local datetime | `localdate`, `localdatetime`, `localtime`                                    | short aliases if you want to distinguish intent explicitly        |
+| local datetime | `dbal_local_date`, `dbal_local_datetime`, `dbal_local_time`                  | recommended explicit Dbal convention for Sqlite schemas           |
+| datetime       | `timestamp`, `unixtimestamp`, `dbal_timestamp`                               | interpreted as unix timestamp in milliseconds and converted to app timezone |
+
+##### Detection Notes
+
+- Sqlite detection is based on the declared column type returned by PDO metadata.
+- `dbal_timestamp` is the recommended type name for exact timestamps stored as unix milliseconds.
+- `dbal_local_date`, `dbal_local_datetime`, and `dbal_local_time` are the recommended type names for local values stored as strings.
+- `dbal_bool` is supported as an explicit boolean declared type.
+- Other supported scalar type aliases are standard SQL-style names such as `int`, `integer`, `tinyint`, `smallint`, `bigint`, `real`, `float`, `numeric`, and `decimal`.
+- If you use unrecognized custom type names, Dbal will not auto-normalize them.
