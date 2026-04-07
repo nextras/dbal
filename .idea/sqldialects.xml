@@ -7,5 +7,7 @@
     <file url="file://$PROJECT_DIR$/tests/data/mysql-init.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/tests/data/pgsql-data.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/tests/data/pgsql-init.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/tests/data/sqlite-data.sql" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/tests/data/sqlite-init.sql" dialect="SQLite" />
   </component>
 </project>

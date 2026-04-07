@@ -44,6 +44,11 @@ class IntegrationTestCase extends TestCase
 			'searchPath' => ['public'],
 			'sqlProcessorFactory' => new SqlProcessorFactory(),
 		], Environment::loadData(), $params);
+
+		if (isset($options['filename']) && $options['filename'] !== ':memory:') {
+			$options['filename'] = __DIR__ . '/../temp/' . $options['filename'];
+		}
+
 		return new Connection($options);
 	}
 

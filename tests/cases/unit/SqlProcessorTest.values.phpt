@@ -79,8 +79,12 @@ class SqlProcessorValuesTest extends TestCase
 
 	public function testInsertWithDefaults()
 	{
+		$this->platform->shouldReceive('isSupported')
+			->with(IPlatform::SUPPORT_INSERT_DEFAULT_KEYWORD)
+			->once()
+			->andReturn(false);
 		Assert::same(
-			"INSERT INTO test VALUES (DEFAULT)",
+			"INSERT INTO test DEFAULT VALUES",
 			$this->convert('INSERT INTO test %values', [])
 		);
 

@@ -10,6 +10,7 @@ namespace NextrasTests\Dbal;
 
 use Nextras\Dbal\Drivers\PdoMysql\PdoMysqlDriver;
 use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
+use Nextras\Dbal\Drivers\PdoSqlite\PdoSqliteDriver;
 use Nextras\Dbal\Drivers\Sqlsrv\SqlsrvDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
@@ -50,6 +51,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 		if (
 			$this->connection->getDriver() instanceof SqlsrvDriver
 			|| $this->connection->getDriver() instanceof PdoPgsqlDriver
+			|| $this->connection->getDriver() instanceof PdoSqliteDriver
 			|| $this->connection->getDriver() instanceof PdoMysqlDriver && version_compare(PHP_VERSION, '8.1.0-RC1') >= 0
 		) {
 			Assert::same(2, $follower->tag_id);

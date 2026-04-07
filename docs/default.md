@@ -6,23 +6,24 @@ Supported platforms:
 
 - **MySQL** via `mysqli` or `pdo_mysql` extension,
 - **Postgres** via `pgsql` or `pdo_pgsql` extension,
-- **MS SQL Server** via `sqlsrv` or `pdo_sqlsrv` extension.
+- **MS SQL Server** via `sqlsrv` or `pdo_sqlsrv` extension,
+- **Sqlite** via `pdo_sqlite` extension.
 
 ### Connection
 
 The Connection instance is the main access point to the database. Connection's constructor accepts a configuration array. The possible keys depend on the specific driver; some configuration keys are shared for all drivers. To actual list of supported keys are enumerated in PhpDoc comment in driver's source code.
 
-| Key                               | Description                                                                                                                                   |
-|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `driver`                          | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, `pdo_sqlsrv`                                                          |
-| `host`                            | database server name     															    |             
-| `port`                            | database server port     															    |
-| `username`                        | username for authentication                                                                                                                   |
-| `password`                        | password for authentication                                                                                                                   |
-| `database`                        | database name                                                                                                                                 |
-| `charset`                         | charset encoding of the connection                                                                                                            |
-| `nestedTransactionsWithSavepoint` | boolean which indicates whether use save-points for nested transactions; `true` by default                                                    |
-| `sqlProcessorFactory`             | factory implementing ISqlProcessorFactory interface; use for adding custom modifiers; `null` by default;                                      |
+| Key                               | Description                                                                                                           |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `driver`                          | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, `pdo_sqlsrv`, or `pdo_sqlite`                 |
+| `host`                            | database server name                                                                                                  |
+| `port`                            | database server port                                                                                                  |
+| `username`                        | username for authentication                                                                                           |
+| `password`                        | password for authentication                                                                                           |
+| `database`                        | database name                                                                                                         |
+| `charset`                         | charset encoding of the connection                                                                                    |
+| `nestedTransactionsWithSavepoint` | boolean which indicates whether use save-points for nested transactions; `true` by default                                                  |
+| `sqlProcessorFactory`             | factory implementing ISqlProcessorFactory interface; use  for adding custom modifiers; `null` by default;                                      |
 | `connectionTz`                    | timezone for the connection; pass a timezone name, `auto` or `auto-offset` keyword, see [DateTime TimeZones](datetime) chapter for more info; |
 | `searchPath`                      | *PgSQL only*; sets the connection `search_path`;                                                                                              |
 | `sqlMode`                         | *MySQL only*; sets the `sql_mode`, `TRADITIONAL` by default;                                                                                  |

@@ -242,6 +242,7 @@ class MySqlPlatform implements IPlatform
 		static $supported = [
 			self::SUPPORT_MULTI_COLUMN_IN => true,
 			self::SUPPORT_QUERY_EXPLAIN => true,
+			self::SUPPORT_INSERT_DEFAULT_KEYWORD => true,
 		];
 		return isset($supported[$feature]);
 	}

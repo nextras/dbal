@@ -264,6 +264,7 @@ class SqlServerPlatform implements IPlatform
 	public function isSupported(int $feature): bool
 	{
 		static $supported = [
+			self::SUPPORT_INSERT_DEFAULT_KEYWORD => true,
 		];
 		return isset($supported[$feature]);
 	}
