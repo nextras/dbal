@@ -18,6 +18,8 @@ class ExceptionsPostgresTest extends IntegrationTestCase
 
 	public function testForeignKeyRestrictException()
 	{
+		$this->lockConnection($this->connection);
+
 		$this->connection->query('DROP TABLE IF EXISTS dbal_restrict_children');
 		$this->connection->query('DROP TABLE IF EXISTS dbal_restrict_parents');
 		$this->connection->query('CREATE TABLE dbal_restrict_parents (id INT PRIMARY KEY)');

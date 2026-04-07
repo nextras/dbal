@@ -287,6 +287,8 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 	public function testPrimarySequence(): void
 	{
+		$this->lockConnection($this->connection);
+
 		Assert::same('public.books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
 
 		$this->connection->query("DROP SEQUENCE IF EXISTS second_schema.temp_sequence_for_test");
