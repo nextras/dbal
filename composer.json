@@ -22,7 +22,7 @@
 		"nette/di": "~3.1",
 		"nette/utils": "~3.1 || ~4.0",
 		"nette/neon": "~3.1",
-		"nextras/multi-query-parser": "~1.0",
+		"nextras/multi-query-parser": "~2.0",
 		"phpstan/extension-installer": "1.4.3",
 		"phpstan/phpstan": "2.1.46",
 		"phpstan/phpstan-deprecation-rules": "2.0.4",
