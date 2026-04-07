@@ -1,13 +1,13 @@
 ## DateTime
 
-Database engines provide different types for storing date-times. Also, the type naming is often misleading. This documentation chapter covers the basics and Dbal's solution to the datetime & timezone handling.
+Database engines provide different types for storing date-times, and the type names are often misleading. This chapter covers the basics and Dbal's approach to datetime and timezone handling.
 
-Generally, we recognize two types of date-time types:
+In practice, it helps to distinguish two kinds of values:
 
-- **Local DateTime** - it is a date time which has not an exact position on the *time-line*; simply, we do not know in which time zone the event happened, therefore we consider the information as a local; example: date time when the school year begins, since the country may be across more the timezones, this type of information may be stored as a local date time, i.e., striping the "exactness" may be an advantage here;
-- **DateTime** - is an exact timestamp on the *time-line*; example: timestamp of the meeting start in a calendar; this type is also referred as an `Instant` type.
-   - **UTC DateTime** - having this type represented in UTC means we don't know an exact context where it happened; it could be in the day or in the night;
-   - **Zoned DateTime** - is an exact timestamp on the *time-line* plus an additional context of specific time-zone; either we use reader's timezone or timezone of the location where the timestamp "happened"; example: presenting an online streaming event start - since it is pretty usual that this event will be watched from multiple places, we need add reader's timezone context to the *stored* UTC DateTime.
+- **Local DateTime**: a date and time without an exact position on the timeline. We do not know which timezone the event belongs to, so the value is treated as local. Example: the start of a school year.
+- **DateTime**: an exact timestamp on the timeline. Example: the start time of a meeting in a calendar. This type is also referred to as an `Instant`.
+  - **UTC DateTime**: an exact timestamp represented in UTC.
+  - **Zoned DateTime**: an exact timestamp plus timezone context, for example when displaying an event in the viewer's local timezone.
 
 The following table presents a matrix of available DB date-time types:
 
@@ -18,18 +18,18 @@ The following table presents a matrix of available DB date-time types:
 | SQL Server | `datetime`, `datetime2`                | -                               | `datetimeoffset`            |
 | Sqlite     | -                                      | -                               | -                           |
 - 
-- **no timezone handling**: database stores the time-stamp and does not do any modification to it; this is the easiest solution, but brings a disadvantage: database cannot exactly diff two time-stamps, i.e. it may produce wrong results because day-light saving shift is needed but db does not know which zone to use for the calculation;
-- **timezone conversion**: database stores the time-stamp unified in UTC and reads it in connection's timezone;
-- **timezone stored**: database does not do any conversion, it just stores the timezoned timestamp and returns it back;
+- **no timezone handling**: the database stores the timestamp as-is and does not modify it; this is the simplest approach, but the database cannot reason about timezone transitions such as daylight saving time.
+- **timezone conversion**: the database stores the timestamp in UTC and reads it in the connection timezone.
+- **timezone stored**: the database stores the timezone-aware timestamp directly and returns it without conversion.
 
-Dbal offers a **connection time zone** configuration option (`connectionTz`) that defines the timezone for database connection communication; it equals to PHP's current default timezone by default. This option is configured by a timezone name, e.g. `Europe/Prague` string.
+Dbal offers a connection timezone configuration option, `connectionTz`, which defines the timezone used for communication with the database. By default, it uses PHP's current default timezone. Configure it with a timezone name such as `Europe/Prague`.
 
 Dbal comes with two query modifiers:
 
 | Type           | Modifier | Description                                                                                                                    |
 |----------------|----------|--------------------------------------------------------------------------------------------------------------------------------|
-| local datetime | `%ldt`   | passes DateTime(Interface) object as it is, without any timezone conversion and identification; formerly known as datetime simple (`%dts`) |
-| datetime       | `%dt`    | converts DateTime(Interface) object to  connection timezone;                                                                                |
+| local datetime | `%ldt`   | passes a `DateTimeInterface` value as a local datetime without timezone conversion; formerly known as datetime simple (`%dts`) |
+| datetime       | `%dt`    | converts a `DateTimeInterface` value to  the connection timezone                                                               |
 
 ---------------
 
@@ -51,9 +51,9 @@ Dbal comes with two query modifiers:
 
 ##### Connection Time Zone
 
-By default, MySQL server does not support named timezones, see [the setup chapter](timezones-mysql-support) how to configure them. Still, there is a possibility to pass only a timezone offset configuraion, e.g. `+03:00`, but this is not ideal. Use rather magic `auto-offset` value that will be dynamically converted to the current PHP's timezone offset.
+By default, MySQL does not support named timezones. See the [setup chapter](timezones-mysql-support) for configuration details. You can still pass only a timezone offset such as `+03:00`, but that is not ideal. Prefer the special `auto-offset` value, which is dynamically converted to the current PHP timezone offset.
 
-This will make Dbal fully functional, although some SQL queries and expressions may not return correctly calculated results, e.g. functions calculating two-date operations directly in the database - `TIMEDIFF`, `ADDDATE`.
+This makes Dbal functional, but some SQL queries and expressions may still produce incorrect results, especially functions that calculate with dates directly in the database, such as `TIMEDIFF` or `ADDDATE`.
 
 ---------------
 
@@ -109,12 +109,12 @@ Use `datetime(your_column, 'unixepoch', 'localtime')` to convert stored timestam
 
 ##### Reading
 
-| Type           | Declared Column Type                                                         | Comment                                                           |
-|----------------|------------------------------------------------------------------------------|-------------------------------------------------------------------|
-| local datetime | `date`, `datetime`, `time`                                                   | built-in aliases supported by the SQLite driver                   |
-| local datetime | `localdate`, `localdatetime`, `localtime`                                    | short aliases if you want to distinguish intent explicitly        |
-| local datetime | `dbal_local_date`, `dbal_local_datetime`, `dbal_local_time`                  | recommended explicit Dbal convention for Sqlite schemas           |
-| datetime       | `timestamp`, `unixtimestamp`, `dbal_timestamp`                               | interpreted as unix timestamp in milliseconds and converted to app timezone |
+| Type           | Declared Column Type                                        | Comment                                                                     |
+|----------------|-------------------------------------------------------------|-----------------------------------------------------------------------------|
+| local datetime | `date`, `datetime`, `time`                                  | built-in aliases supported by the SQLite driver                             |
+| local datetime | `localdate`, `localdatetime`, `localtime`                   | short aliases if you want to distinguish intent explicitly                  |
+| local datetime | `dbal_local_date`, `dbal_local_datetime`, `dbal_local_time` | recommended explicit Dbal convention for Sqlite schemas                     |
+| datetime       | `timestamp`, `unixtimestamp`, `dbal_timestamp`              | interpreted as unix timestamp in milliseconds and converted to app timezone |
 
 ##### Detection Notes
 

@@ -7,7 +7,7 @@ Nextras Dbal
 [![Code coverage](https://img.shields.io/coveralls/nextras/dbal.svg?style=flat)](https://coveralls.io/r/nextras/dbal)
 [![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/nextras/dbal)](https://packagist.org/packages/nextras/dbal)
 
-A powerful abstraction layer for a database. **Fast & Safe**.
+A powerful database abstraction layer. **Fast & Safe**.
 
 Supported platforms:
 - **MySQL** via `mysqli` or `pdo_mysql` extension,

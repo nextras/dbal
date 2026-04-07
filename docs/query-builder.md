@@ -1,12 +1,12 @@
 ## Query Builder
 
-Query builder is a tool for constructing SQL query. It allows you to define SQL query with fluent API.
+Query builder is a tool for constructing SQL queries. It lets you define a query with a fluent API.
 
 #### API
 
-The API is designed to be convenient and yet safe and helpful. Therefore, every method accepts specific arguments and if any of them is suffixed "expression", the method also allow to pass a modifier it this argument. The last argument(s) of every method is then these values for the used modifiers in the expressions.
+The API is designed to be convenient, safe, and explicit. If an argument is described as an expression, you may use modifiers in that expression and pass their values as the remaining method arguments.
 
-To get query in QueryBuilder executed, pass the builder to `queryByQueryBuilder()` method on connection, you will receive a `Result` instance.
+To execute a `QueryBuilder`, pass it to `queryByQueryBuilder()` on the connection. The method returns a `Result` instance.
 
 ```php
 $builder = $this->connection->createQueryBuilder();
@@ -16,16 +16,16 @@ $result = $this->connection->queryByQueryBuilder($builder);
 
 #### FROM clause
 
-Let's create a Query builder instance. Set a source table name by `from()` method. You can pass an alias. The first argument is considered as a SQL expression, you should escape its table name manually with `[]` brackets, or use a modifier. The second argument is an optional table alias, other arguments are arguments for used modifiers.
+Create a `QueryBuilder` instance and set a source table with `from()`. You can pass an alias. The first argument is treated as an SQL expression, so escape identifiers manually with `[]` or use a modifier such as `%table`. The second argument is an optional table alias; the remaining arguments are values for modifiers used in the expression.
 
 ```php
-// table users, aliased a
-$builder->from('users', 'a');
+// table users, aliased as a
+$builder->from('[users]', 'a');
 
 // escaping table name
 $builder->from('[orders]', 'o');
 
-// or pass it as argument
+// or pass the table name as an argument
 $builder->from('%table', 'o', $tableName);
 
 // table as result of stored function/procedure
@@ -34,19 +34,19 @@ $builder->from('my_orders(%i, %i)', 'orders', $userId, $groupId);
 
 #### WHERE, HAVING and GROUP BY clauses
 
-You can add conditions using `andWhere()` or `orWhere()` methods. `*Where` methods accept query expression, all other function arguments are optional and are considered as arguments for modifiers passed in the expression.
+You can add conditions with `andWhere()` or `orWhere()`. These methods accept an expression as the first argument; all remaining arguments are values for modifiers used in that expression.
 
 ```php
-$builder->andWhere('order_id = %i', $oderId);
-        ->orWhere('user_id IN %i[] AND group_id = %i', $userIds, $groupId);
+$builder->andWhere('[order_id] = %i', $orderId)
+	->orWhere('[user_id] IN %i[] AND [group_id] = %i', $userIds, $groupId);
 
 // will produce
-// WHERE (order_id = %i) OR (user_id IN %i[] AND group_id = %i)
+// WHERE ([order_id] = 123) OR ([user_id] IN (10, 20) AND [group_id] = 5)
 ```
 
-Methods `andHaving()` and `orHaving()` have the same signature and logic as where methods.
+`andHaving()` and `orHaving()` have the same signature and behavior as the `where` methods.
 
-Group by expressions are not connected with logic operators, therefore the method is called `addGroupBy()`. The group-by method has signature as others, accepts an expression and optional arguments.
+`GROUP BY` expressions are not connected with logical operators, so the method is called `addGroupBy()`. It accepts an expression and optional modifier arguments just like the other clause methods.
 
 Let's see an example: depending on `$cond` we build query which will retrieve daily number of issues created/resolved in the last week and filter only days with more than 10 issues.
 
@@ -55,29 +55,29 @@ $column = $cond ? 'created_at' : 'resolved_at';
 
 $builder = $connection->createQueryBuilder();
 $builder->select('DATE(%column), COUNT(*)', $column);
-$builder->from('issues');
+$builder->from('[issues]');
 $builder->andWhere('%column > NOW() - INTERVAL 1 WEEK', $column);
 $builder->addGroupBy('DATE(%column)', $column);
 $builder->andHaving('COUNT(*) > 10');
 ```
 
-Query builder has alternative methods named `where()`, `groupBy()` and `having()` which remove previously defined conditions and add new one:
+Query builder also has `where()`, `groupBy()`, and `having()` variants, which replace any previously defined clause contents:
 
 ```php
 $builder = $connection->createQueryBuilder();
-$builder->from('issues');
-$builder->where('created_at > NOW()');
-$builder->where('created_at < NOW()'); // replace previous conditions
+$builder->from('[issues]');
+$builder->where('[created_at] > NOW()');
+$builder->where('[created_at] < NOW()'); // replaces the previous condition
 
 // will produce
-// SELECT * FROM issues WHERE created_at < NOW();
+// SELECT * FROM [issues] WHERE [created_at] < NOW();
 ```
 
-You can also use these methods to empty the clause.
+You can also use these methods to clear the clause.
 
 #### SELECT, ORDER BY and LIMIT clause
 
-Builder define methods for select, order by and limit clauses. Use appropriate methods: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. Select and order by methods accept modifier arguments as aforementioned methods.
+The builder provides methods for `SELECT`, `ORDER BY`, and `LIMIT` clauses: `addSelect()`, `select()`, `addOrderBy()`, `orderBy()`, and `limitBy()`. `select()` and `orderBy()` accept modifier arguments in the same way as the clause methods above.
 
 ```php
 $builder->addSelect('id, %column, [another_escaped_column]', $myColumn);
@@ -86,7 +86,7 @@ $builder->addSelect('COALESCE(column)');
 $builder->addOrderBy('FIELD(type, %s, %s, %s)', "type1", "type2", "type3");
 
 $builder->limitBy(20); // selects the first 20 results
-$builder->limitBy(20, 10); // sets offset to 1O
+$builder->limitBy(20, 10); // sets offset to 10
 ```
 
 #### INNER, LEFT and RIGHT JOIN
@@ -104,7 +104,7 @@ $builder->addLeftJoin('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %
 
 // will produce
 // FROM [authors] AS [a]
-// LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
+// LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = 'Example title')
 ```
 
 Use `joinOnce()` if you want the same logical join to be added at most once:
@@ -131,7 +131,7 @@ $builder->joinOnce('LEFT', '%table', '%table.authorId = [a.id]', ['author_tags',
 
 #### INDEX HINTS (MySQL)
 
-Use `indexHints()` method to tell the query planner how to efficiently execute your query.
+Use `indexHints()` to pass MySQL index hints to the query planner.
 
 ```php
 $builder->from('[authors]', 'a');

@@ -13,7 +13,7 @@ return [
 ];
 ```
 
-Create a configuration named `nextras_dbal` and set up the `Connection`:
+Create a configuration named `nextras_dbal` and set up the default connection:
 
 ```yaml
 nextras_dbal:
@@ -25,26 +25,30 @@ nextras_dbal:
   password: db-password
 ```
 
-If you need multiple connections, include connection configuration into `connections` key and define the default connection with `default_connection` key:
+This shorthand is normalized internally to a `connections.default` entry.
+
+If you need multiple connections, configure them under the `connections` key and select the default one with `default_connection`:
 
 ```yaml
 nextras_dbal:
   default_connection: project1
   connections:
-    -
-      name: project1
+    project1:
       driver: mysqli
+      host: 127.0.0.1
       database: your-project1
-    -
-      name: project2
+    project2:
       driver: mysqli
+      host: 127.0.0.1
       database: your-project2
 ```
 
-**Configuration keys** are those accepted by `Connection` instance, the actual driver respectively. See [Connection](default) chapter.
+Configuration keys for each connection are the same as those accepted by `Connection` and the selected driver. See the [Connection](default) chapter.
 
 The bundle takes additional configurations:
 
-- `maxQueries` (default `100`): number of logged queries into QueryDataCollector.
+- `max_queries` (default `100`): number of queries kept in the Symfony profiler.
+- `profiler` (per connection, default `kernel.debug`): enables or disables the profiler collector for that connection.
+- `profilerExplain` (per connection, default `true`): enables or disables `EXPLAIN` output in the profiler collector.
 
-The define custom `Nextras\Dbal\ISqlProcessorFactory` instance, define `nextras_dbal.default.sqlProcessorFactory` named service, where the `default` is the name of relevant connection.
+To define a custom `Nextras\Dbal\ISqlProcessorFactory` for a connection, register a service named `nextras_dbal.<connection-name>.sqlProcessorFactory`. For the default connection, that service name is `nextras_dbal.default.sqlProcessorFactory`.

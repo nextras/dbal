@@ -1,6 +1,6 @@
 ## Nextras Dbal
 
-Dbal provides concise and secure API to construct queries and fetch data from storage independently on the database engine.
+Dbal provides a concise and secure API for constructing queries and fetching data independently of the database engine.
 
 Supported platforms:
 
@@ -11,23 +11,23 @@ Supported platforms:
 
 ### Connection
 
-The Connection instance is the main access point to the database. Connection's constructor accepts a configuration array. The possible keys depend on the specific driver; some configuration keys are shared for all drivers. To actual list of supported keys are enumerated in PhpDoc comment in driver's source code.
+The `Connection` instance is the main access point to the database. Its constructor accepts a configuration array. The supported keys depend on the selected driver, although some keys are shared across all drivers. The authoritative list is documented in the driver source code and related bridge configuration.
 
-| Key                               | Description                                                                                                           |
-|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `driver`                          | driver name, use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, `pdo_sqlsrv`, or `pdo_sqlite`                 |
-| `host`                            | database server name                                                                                                  |
-| `port`                            | database server port                                                                                                  |
-| `username`                        | username for authentication                                                                                           |
-| `password`                        | password for authentication                                                                                           |
-| `database`                        | database name                                                                                                         |
-| `charset`                         | charset encoding of the connection                                                                                    |
-| `nestedTransactionsWithSavepoint` | boolean which indicates whether use save-points for nested transactions; `true` by default                                                  |
-| `sqlProcessorFactory`             | factory implementing ISqlProcessorFactory interface; use  for adding custom modifiers; `null` by default;                                      |
-| `connectionTz`                    | timezone for the connection; pass a timezone name, `auto` or `auto-offset` keyword, see [DateTime TimeZones](datetime) chapter for more info; |
-| `searchPath`                      | *PgSQL only*; sets the connection `search_path`;                                                                                              |
-| `sqlMode`                         | *MySQL only*; sets the `sql_mode`, `TRADITIONAL` by default;                                                                                  |
-| `ssl*`                            | *MySQL only*; use `sslKey`, `sslCert`, `sslCa`, `sslCapath` and `sslCipher` to set SSL options for connection;                                |
+| Key                               | Description                                                                                                                                    |
+|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `driver`                          | driver name; use `mysqli`, `pgsql`, `sqlsrv`, `pdo_mysql`, `pdo_pgsql`, or `pdo_sqlsrv`                                      , or `pdo_sqlite` |
+| `host`                            | database server name                                                                                                                           |
+| `port`                            | database server port                                                                                                                           |
+| `username`                        | username for authentication                                                                                                                    |
+| `password`                        | password for authentication                                                                                                                    |
+| `database`                        | database name                                                                                                                                  |
+| `charset`                         | charset encoding of the connection                                                                                                             |
+| `nestedTransactionsWithSavepoint` | whether to use savepoints for nested transactions; `true` by default                                                                           |
+| `sqlProcessorFactory`             | factory implementing `ISqlProcessorFactory`; use  it for adding custom modifiers; `null` by default                                            |
+| `connectionTz`                    | connection timezone; pass a timezone name, `auto`, or `auto-offset`; see the [DateTime](datetime) chapter for details                          |
+| `searchPath`                      | *PostgreSQL only*; sets the connection `search_path`                                                                                           |
+| `sqlMode`                         | *MySQL only*; sets the `sql_mode`; `TRADITIONAL` by default                                                                                    |
+| `ssl*`                            | *MySQL only*; use `sslKey`, `sslCert`, `sslCa`, `sslCapath`, and `sslCipher` to configure SSL                                                  |
 
 ```php
 $connection = new Nextras\Dbal\Connection([
@@ -40,13 +40,13 @@ $connection = new Nextras\Dbal\Connection([
 ]);
 ```
 
-The Connection's implementation is lazy; it connects to database only when needed. You can explicitly connect by calling `connect()` method; you can also `disconnect()` or `reconnect()` the connection. Use `ping()` method to avoid connection timeouts.
+`Connection` is lazy; it connects to the database only when needed. You can explicitly connect by calling `connect()`, and you can also `disconnect()` or `reconnect()` the connection. `ping()` lets you check whether the connection is still alive.
 
-In real-world applications, you are expected to use a Dependency Injection Container. Dbal comes with integration for [Nette framework](config-nette) and [Symfony framework](config-symfony). Utilizing those extensions helps you to set up the Connection.
+In real-world applications, you will usually use a dependency injection container. Dbal includes integrations for the [Nette framework](config-nette) and the [Symfony framework](config-symfony), which simplify connection setup.
 
 ### Querying
 
-Use the `query()` method to run SQL queries. The query method accepts a single SQL statement. Dbal supports parameter placeholders called modifiers - values are passed separately and their value will replace the placeholder with a properly escaped and sanitized value. Read more in the [Parameter Modifiers| param-modifiers] chapter.
+Use `query()` to run SQL queries. The method accepts a single SQL statement. Dbal supports parameter placeholders called modifiers: values are passed separately and safely substituted into the statement. See the [Modifiers](param-modifiers) chapter for details.
 
 ```php
 $connection->query('SELECT * FROM foo WHERE id = %i', 1);
@@ -56,7 +56,7 @@ $connection->query('SELECT * FROM foo WHERE title = %s', 'foo" OR 1=1');
 // SELECT * FROM foo WHERE title = "foo\" OR 1=1"
 ```
 
-Our SQL processor supports `[]` (square brackets) for easily escaping of column/table names. However, if you want to pass an input retrieved from a user as a column name, use the save `%column` modifier.
+The SQL processor supports `[]` for escaping column and table names inline. If you need to pass a column name dynamically, use the safe `%column` modifier instead.
 
 ```php
 $connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id', 1);
@@ -65,7 +65,7 @@ $connection->query('SELECT * FROM [foo] WHERE %column = %i', 'id', 1);
 
 To retrieve the last inserted id, use `getLastInsertedId()` method, it accepts a sequence name for PostgreSQL. The number of affected rows is available through `getAffectedRows()` method.
 
-Each `query()` returns a new `Nextras\Dbal\Result\Result` instance. The result's instance allows iterating over the fetched rows and fetches each of them into a `Nextras\Dbal\Result\Row` instance. The `Row` instance is a simple value object with property access:
+Each `query()` call returns a new `Nextras\Dbal\Result\Result` instance. Iterating over it yields `Nextras\Dbal\Result\Row` objects. `Row` is a simple value object with property access:
 
 ```php
 $users = $connection->query('SELECT * FROM [users]');
@@ -74,7 +74,7 @@ foreach ($users as $row) {
 }
 ```
 
-The `Result` object implements `SeekableIterator`, so you can iterate over the result. Also, you can use `fetch()` method to fetch a row, `fetchField()` to fetch the first field from the first row, or `fetchAll()` to return an array of rows' objects.
+`Result` implements `SeekableIterator`, so you can iterate over it directly. You can also use `fetch()` to fetch the next row, `fetchField()` to fetch the first field from the next row, or `fetchAll()` to materialize all remaining rows into an array.
 
 ```php
 $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
@@ -82,7 +82,7 @@ $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
 
 ### Transactions & savepoints
 
-The Connection interface provides a convenient API for working with transactions. You can easily `beginTransaction()`, `commitTransaction()` and `rollbackTransaction()`. Usually, you need to react to an exception by calling the rollback method. For such a use case, there is a `transactional()` helper method that makes its callback atomic.
+The `Connection` interface provides a convenient API for working with transactions. You can call `beginTransaction()`, `commitTransaction()`, and `rollbackTransaction()` directly. For the common case of rolling back on exceptions, use `transactional()`, which executes the callback atomically.
 
 ```php
 $connection->transactional(function (Connection $connection) {
@@ -96,9 +96,9 @@ $connection->transactional(function (Connection $connection) {
 });
 ```
 
-If you call `beginTransaction()` repeatedly (without committing or rollbacking), connection will use savepoints for nested transaction simulation. It is possible to disable such behavior by setting `nestedTransactionsWithSavepoint` configuration option to `false`.
+If you call `beginTransaction()` repeatedly without committing or rolling back, the connection uses savepoints to simulate nested transactions. You can disable this behavior by setting `nestedTransactionsWithSavepoint` to `false`.
 
-You may create, release, and roll back savepoints directly through appropriate methods.
+You can also create, release, and roll back savepoints directly:
 
 ```php
 $connection->createSavepoint('beforeUpdate');
