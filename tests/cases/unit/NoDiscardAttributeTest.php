@@ -27,7 +27,6 @@ class NoDiscardAttributeTest extends TestCase
 		$this->assertMethodHasNoDiscard(IConnection::class, 'getPlatform');
 		$this->assertMethodHasNoDiscard(IConnection::class, 'createQueryBuilder');
 		$this->assertMethodHasNoDiscard(IConnection::class, 'getTransactionNestedIndex');
-		$this->assertMethodHasNoDiscard(IConnection::class, 'ping');
 	}
 
 
@@ -40,7 +39,6 @@ class NoDiscardAttributeTest extends TestCase
 		$this->assertMethodHasNoDiscard(Connection::class, 'getPlatform');
 		$this->assertMethodHasNoDiscard(Connection::class, 'createQueryBuilder');
 		$this->assertMethodHasNoDiscard(Connection::class, 'getTransactionNestedIndex');
-		$this->assertMethodHasNoDiscard(Connection::class, 'ping');
 	}
 
 
@@ -69,7 +67,6 @@ class NoDiscardAttributeTest extends TestCase
 	public function testResultMethodsHaveNoDiscard(): void
 	{
 		$this->assertMethodHasNoDiscard(Result::class, 'getAdapter');
-		$this->assertMethodHasNoDiscard(Result::class, 'fetch');
 		$this->assertMethodHasNoDiscard(Result::class, 'fetchField');
 		$this->assertMethodHasNoDiscard(Result::class, 'fetchAll');
 		$this->assertMethodHasNoDiscard(Result::class, 'fetchPairs');
@@ -88,7 +85,7 @@ class NoDiscardAttributeTest extends TestCase
 	private function assertMethodHasNoDiscard(string $className, string $methodName): void
 	{
 		$method = new ReflectionMethod($className, $methodName);
-		Assert::same(['NoDiscard'], array_map(
+		Assert::same([\NoDiscard::class], array_map(
 			static fn($attribute): string => $attribute->getName(),
 			$method->getAttributes(),
 		));

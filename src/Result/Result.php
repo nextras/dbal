@@ -66,7 +66,6 @@ class Result implements SeekableIterator, Countable
 	}
 
 
-	#[\NoDiscard]
 	public function fetch(): ?Row
 	{
 		$data = $this->adapter->fetch();

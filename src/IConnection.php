@@ -196,7 +196,6 @@ interface IConnection
 	 *         $connection->reconnect();
 	 *     }
 	 */
-	#[\NoDiscard]
 	public function ping(): bool;
 
 

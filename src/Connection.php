@@ -298,7 +298,6 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
-	#[\NoDiscard]
 	public function ping(): bool
 	{
 		if (!$this->connected) {
