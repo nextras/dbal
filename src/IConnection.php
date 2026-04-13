@@ -50,6 +50,7 @@ interface IConnection
 	public function reconnectWithConfig(array $config): void;
 
 
+	#[\NoDiscard]
 	public function getDriver(): IDriver;
 
 
@@ -57,6 +58,7 @@ interface IConnection
 	 * Returns connection configuration.
 	 * @return array<string, mixed>
 	 */
+	#[\NoDiscard]
 	public function getConfig(): array;
 
 
@@ -103,18 +105,22 @@ interface IConnection
 	 *
 	 * @return int|string|null
 	 */
+	#[\NoDiscard]
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null);
 
 
 	/**
 	 * Returns number of affected rows.
 	 */
+	#[\NoDiscard]
 	public function getAffectedRows(): int;
 
 
+	#[\NoDiscard]
 	public function getPlatform(): IPlatform;
 
 
+	#[\NoDiscard]
 	public function createQueryBuilder(): QueryBuilder;
 
 
@@ -158,6 +164,7 @@ interface IConnection
 	 * 1 = basic transaction
 	 * >1 = nested transaction through save-points
 	 */
+	#[\NoDiscard]
 	public function getTransactionNestedIndex(): int;
 
 
@@ -189,6 +196,7 @@ interface IConnection
 	 *         $connection->reconnect();
 	 *     }
 	 */
+	#[\NoDiscard]
 	public function ping(): bool;
 
 
