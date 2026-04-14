@@ -38,7 +38,7 @@ class ConnectionPostgresTest extends IntegrationTestCase
 		Assert::same(2, $this->connection->getLastInsertedId(new Fqn(schema: 'public', name: 'publishers_id_seq')));
 
 		Assert::exception(function() {
-			$this->connection->getLastInsertedId();
+			$_ = $this->connection->getLastInsertedId();
 		}, InvalidArgumentException::class, 'PgsqlDriver requires passing a sequence name for getLastInsertedId() method.');
 	}
 

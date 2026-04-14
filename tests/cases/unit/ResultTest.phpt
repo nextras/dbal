@@ -60,7 +60,7 @@ class ResultTest extends TestCase
 		Assert::same('First', $result->fetchField());
 		Assert::same('Two', $result->fetchField(1));
 		Assert::throws(function () use ($result) {
-			$result->fetchField(2);
+			$_ = $result->fetchField(2);
 		}, InvalidArgumentException::class);
 
 		$adapter = Mockery::mock(IResultAdapter::class);
@@ -156,7 +156,7 @@ class ResultTest extends TestCase
 			$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 			$result = new Result($adapter);
 			$result->setValueNormalization(false);
-			$result->fetchPairs();
+			$_ = $result->fetchPairs();
 		}, InvalidArgumentException::class, 'Result::fetchPairs() requires defined key or value.');
 	}
 
