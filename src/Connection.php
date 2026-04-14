@@ -93,6 +93,7 @@ class Connection implements IConnection
 	}
 
 
+	#[\NoDiscard]
 	public function getDriver(): IDriver
 	{
 		return $this->driver;
@@ -100,6 +101,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
+	#[\NoDiscard]
 	public function getConfig(): array
 	{
 		return $this->config;
@@ -144,6 +146,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
+	#[\NoDiscard]
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null)
 	{
 		if (!$this->connected) {
@@ -154,6 +157,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
+	#[\NoDiscard]
 	public function getAffectedRows(): int
 	{
 		if (!$this->connected) {
@@ -164,6 +168,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
+	#[\NoDiscard]
 	public function getPlatform(): IPlatform
 	{
 		if ($this->platform === null) {
@@ -175,6 +180,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
+	#[\NoDiscard]
 	public function createQueryBuilder(): QueryBuilder
 	{
 		return new QueryBuilder($this->getPlatform());
@@ -254,6 +260,7 @@ class Connection implements IConnection
 
 
 	/** @inheritdoc */
+	#[\NoDiscard]
 	public function getTransactionNestedIndex(): int
 	{
 		return $this->nestedTransactionIndex;

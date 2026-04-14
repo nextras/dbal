@@ -36,7 +36,7 @@ class ResultBufferingIntegrationTest extends IntegrationTestCase
 		$unbuffered = $this->connection->query('SELECT * FROM books ORDER BY id')->buffered()->unbuffered();
 		Assert::same([1, 2, 3, 4], $unbuffered->fetchPairs(null, 'id'));
 		Assert::throws(function () use ($unbuffered): void {
-			$unbuffered->fetchPairs(null, 'id');
+			$_ = $unbuffered->fetchPairs(null, 'id');
 		}, NotSupportedException::class);
 
 		$lateChanged = $this->connection->query('SELECT * FROM books ORDER BY id')->buffered();

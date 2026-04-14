@@ -22,6 +22,7 @@ class Fqn
 	}
 
 
+	#[\NoDiscard]
 	public function getUnescaped(): string
 	{
 		if ($this->schema === '') {

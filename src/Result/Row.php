@@ -23,6 +23,7 @@ class Row extends \stdClass
 	/**
 	 * @return array<string, mixed>
 	 */
+	#[\NoDiscard]
 	public function toArray(): array
 	{
 		return (array) $this;
@@ -36,6 +37,7 @@ class Row extends \stdClass
 	}
 
 
+	#[\NoDiscard]
 	public function getNthField(int $offset): mixed
 	{
 		$slice = array_slice((array) $this, $offset, 1);

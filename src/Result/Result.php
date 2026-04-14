@@ -59,6 +59,7 @@ class Result implements SeekableIterator, Countable
 	}
 
 
+	#[\NoDiscard]
 	public function getAdapter(): IResultAdapter
 	{
 		return $this->adapter;
@@ -111,6 +112,7 @@ class Result implements SeekableIterator, Countable
 	/**
 	 * @return mixed|null
 	 */
+	#[\NoDiscard]
 	public function fetchField(int $column = 0)
 	{
 		if (($row = $this->fetch()) !== null) { // = intentionally
@@ -124,6 +126,7 @@ class Result implements SeekableIterator, Countable
 	/**
 	 * @return Row[]
 	 */
+	#[\NoDiscard]
 	public function fetchAll(): array
 	{
 		return iterator_to_array($this);
@@ -133,6 +136,7 @@ class Result implements SeekableIterator, Countable
 	/**
 	 * @return array<mixed>
 	 */
+	#[\NoDiscard]
 	public function fetchPairs(?string $key = null, ?string $value = null): array
 	{
 		if ($key === null && $value === null) {
@@ -164,6 +168,7 @@ class Result implements SeekableIterator, Countable
 	 * Returns list of column names in result.
 	 * @return list<string>
 	 */
+	#[\NoDiscard]
 	public function getColumns(): array
 	{
 		return array_map(
