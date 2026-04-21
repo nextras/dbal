@@ -7,6 +7,8 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use function array_merge;
+use function md5;
 
 
 class QueryBuilder
@@ -21,12 +23,14 @@ class QueryBuilder
 		'select' => null,
 		'from' => null,
 		'indexHints' => null,
-		'join' => null,
 		'where' => null,
 		'group' => null,
 		'having' => null,
 		'order' => null,
 	];
+
+	/** @var array<string|int, array<mixed>> */
+	protected array $joinArgs = [];
 
 	/** @var literal-string[]|null */
 	protected $select;
@@ -40,7 +44,7 @@ class QueryBuilder
 	/** @var literal-string|null */
 	protected $indexHints;
 
-	/** @var array<array{type: string, table: literal-string, on: string}>|null */
+	/** @var array<string|int, array{type: string, table: literal-string, on: string}>|null */
 	protected $join;
 
 	/** @var literal-string|null */
@@ -84,15 +88,20 @@ class QueryBuilder
 	 */
 	public function getQueryParameters(): array
 	{
+		$joinArgs = [];
+		foreach ($this->joinArgs as $args) {
+			$joinArgs = array_merge($joinArgs, $args);
+		}
+
 		return array_merge(
 			(array) $this->args['select'],
 			(array) $this->args['from'],
 			(array) $this->args['indexHints'],
-			(array) $this->args['join'],
+			$joinArgs,
 			(array) $this->args['where'],
 			(array) $this->args['group'],
 			(array) $this->args['having'],
-			(array) $this->args['order']
+			(array) $this->args['order'],
 		);
 	}
 
@@ -135,6 +144,14 @@ class QueryBuilder
 	 */
 	public function getClause(string $part): array
 	{
+		if ($part === 'join') {
+			$joinArgs = [];
+			foreach ($this->joinArgs as $args) {
+				$joinArgs = array_merge($joinArgs, $args);
+			}
+			return [$this->join, $joinArgs];
+		}
+
 		if (!isset($this->args[$part]) && !array_key_exists($part, $this->args)) {
 			throw new InvalidArgumentException("Unknown '$part' clause type.");
 		}
@@ -187,35 +204,47 @@ class QueryBuilder
 
 
 	/**
+	 * Adds (another) INNER JOIN clause.
+	 *
+	 * To prevent JOIN clause duplication, see {@see joinOnce()} method.
+	 *
 	 * @param literal-string $toExpression
 	 * @param literal-string $onExpression
 	 * @param array<int, mixed> $args
 	 */
-	public function joinInner(string $toExpression, string $onExpression, ...$args): self
+	public function addInnerJoin(string $toExpression, string $onExpression, ...$args): self
 	{
-		return $this->join('INNER', $toExpression, $onExpression, $args);
+		return $this->addJoin('INNER', $toExpression, $onExpression, $args);
 	}
 
 
 	/**
+	 * Adds (another) LEFT JOIN clause.
+	 *
+	 * To prevent JOIN clause duplication, see {@see joinOnce()} method.
+	 *
 	 * @param literal-string $toExpression
 	 * @param literal-string $onExpression
 	 * @param array<int, mixed> $args
 	 */
-	public function joinLeft(string $toExpression, string $onExpression, ...$args): self
+	public function addLeftJoin(string $toExpression, string $onExpression, ...$args): self
 	{
-		return $this->join('LEFT', $toExpression, $onExpression, $args);
+		return $this->addJoin('LEFT', $toExpression, $onExpression, $args);
 	}
 
 
 	/**
+	 * Adds (another) RIGHT JOIN clause.
+	 *
+	 * To prevent JOIN clause duplication, see {@see joinOnce()} method.
+	 *
 	 * @param literal-string $toExpression
 	 * @param literal-string $onExpression
 	 * @param array<int, mixed> $args
 	 */
-	public function joinRight(string $toExpression, string $onExpression, ...$args): self
+	public function addRightJoin(string $toExpression, string $onExpression, ...$args): self
 	{
-		return $this->join('RIGHT', $toExpression, $onExpression, $args);
+		return $this->addJoin('RIGHT', $toExpression, $onExpression, $args);
 	}
 
 
@@ -223,7 +252,7 @@ class QueryBuilder
 	{
 		$this->dirty();
 		$this->join = null;
-		$this->args['join'] = null;
+		$this->joinArgs = [];
 		return $this;
 	}
 
@@ -233,7 +262,7 @@ class QueryBuilder
 	 * @param literal-string $onExpression
 	 * @param array<mixed> $args
 	 */
-	protected function join(string $type, string $toExpression, string $onExpression, array $args): self
+	protected function addJoin(string $type, string $toExpression, string $onExpression, array $args): self
 	{
 		$this->dirty();
 		$this->join[] = [
@@ -241,7 +270,51 @@ class QueryBuilder
 			'table' => $toExpression,
 			'on' => $onExpression,
 		];
-		$this->pushArgs('join', $args);
+		$this->joinArgs[] = $args;
+		return $this;
+	}
+
+
+	/**
+	 * Adds {@see $joinType} JOIN with deduplication; reuses an already added join clause.
+	 *
+	 * This method tries to reuse a previously added join by using {@see $joinType}, {@see $toExpression},
+	 * {@see $onExpression}, and {@see $hashSuffix} to construct the unique join identifier.
+	 *
+	 * The join {@see $args} are intentionally not part of the hash. As a result, two calls that differ only in the
+	 * arguments are considered the same join unless they use a different {@see $hashSuffix}.
+	 *
+	 * This mainly matters when the expressions are dynamically constructed using modifiers. In that case, different
+	 * parameter values may still produce the same SQL expression shape. To distinguish those joins, use
+	 * {@see $hashSuffix}, which becomes part of the hash yet does not affect safe SQL construction.
+	 *
+	 * ```php
+	 * // use hashSuffix to distinguish joins that share the same SQL expression shape
+	 * $builder->joinOnce('LEFT', '%table', '%table.id = %table.another_id', [$table, $anotherTable], hashSuffix: $table . $anotherTable);
+	 * ```
+	 *
+	 * @param literal-string $joinType the SQL type of join: LEFT, INNER, OUTER, RIGHT, etc.
+	 * @param literal-string $toExpression
+	 * @param literal-string $onExpression
+	 * @param array<mixed> $args
+	 * @param string $hashSuffix additional part of the JOIN hash used to distinguish otherwise identical joins
+	 */
+	public function joinOnce(
+		string $joinType,
+		string $toExpression,
+		string $onExpression,
+		array $args,
+		string $hashSuffix = '',
+	): self
+	{
+		$this->dirty();
+		$hash = md5($joinType . ';' . $toExpression . ';' . $onExpression . ';' . $hashSuffix);
+		$this->join[$hash] = [
+			'type' => $joinType,
+			'table' => $toExpression,
+			'on' => $onExpression,
+		];
+		$this->joinArgs[$hash] = $args;
 		return $this;
 	}
 
