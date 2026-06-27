@@ -40,7 +40,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 	}
 
 
-	public function getName()
+	public function getName(): string
 	{
 		return $this->data['name'];
 	}
