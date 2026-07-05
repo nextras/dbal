@@ -22,7 +22,6 @@ use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Result\IResultAdapter;
-use PDO;
 use PDOStatement;
 use function array_key_exists;
 use function date;
@@ -73,12 +72,13 @@ class PdoMysqlDriver extends PdoDriver
 		$charset = $params['charset'] ?? 'utf8mb4';
 		$options = (array) ($params['options'] ?? []);
 
-		if (isset($params['sslKey'])) $options[PDO::MYSQL_ATTR_SSL_KEY] = $params['sslKey'];
-		if (isset($params['sslCert'])) $options[PDO::MYSQL_ATTR_SSL_CERT] = $params['sslCert'];
-		if (isset($params['sslCa'])) $options[PDO::MYSQL_ATTR_SSL_CA] = $params['sslCa'];
-		if (isset($params['sslCapath'])) $options[PDO::MYSQL_ATTR_SSL_CAPATH] = $params['sslCapath'];
-		if (isset($params['sslCipher'])) $options[PDO::MYSQL_ATTR_SSL_CIPHER] = $params['sslCipher'];
-		if (isset($params['sslVerify'])) $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $params['sslVerify'];
+		$pdoMysqlClass = version_compare(PHP_VERSION, '8.5.0', '>=') ? \Pdo\Mysql::class : \PDO::class;
+		if (isset($params['sslKey'])) $options[$pdoMysqlClass::ATTR_SSL_KEY] = $params['sslKey'];
+		if (isset($params['sslCert'])) $options[$pdoMysqlClass::ATTR_SSL_CERT] = $params['sslCert'];
+		if (isset($params['sslCa'])) $options[$pdoMysqlClass::ATTR_SSL_CA] = $params['sslCa'];
+		if (isset($params['sslCapath'])) $options[$pdoMysqlClass::ATTR_SSL_CAPATH] = $params['sslCapath'];
+		if (isset($params['sslCipher'])) $options[$pdoMysqlClass::ATTR_SSL_CIPHER] = $params['sslCipher'];
+		if (isset($params['sslVerify'])) $options[$pdoMysqlClass::ATTR_SSL_VERIFY_SERVER_CERT] = $params['sslVerify'];
 
 		if ($host !== null) {
 			$target = "host=$host;";
