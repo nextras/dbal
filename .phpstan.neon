@@ -15,6 +15,7 @@ parameters:
 			- throwErrors
 
 	reportUnmatchedIgnoredErrors: false
+	treatPhpDocTypesAsCertain: false
 
 	ignoreErrors:
 		-
