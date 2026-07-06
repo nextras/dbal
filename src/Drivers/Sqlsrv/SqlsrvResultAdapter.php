@@ -86,13 +86,18 @@ class SqlsrvResultAdapter implements IResultAdapter
 	}
 
 
+	/**
+	 * Returns the raw sqlsrv field metadata per column; see the linked docs for the available keys.
+	 * @return array<string, array<string, mixed>>
+	 * @see https://docs.microsoft.com/en-us/sql/connect/php/sqlsrv-field-metadata
+	 */
 	public function getTypes(): array
 	{
 		$types = [];
 		$fields = sqlsrv_field_metadata($this->statement);
 		$fields = $fields === false ? [] : $fields;
 		foreach ($fields as $field) {
-			$types[(string) $field['Name']] = $field['Type'];
+			$types[(string) $field['Name']] = $field;
 		}
 		return $types;
 	}

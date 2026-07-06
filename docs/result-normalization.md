@@ -63,11 +63,13 @@ Drivers: `sqlsrv`, `pdo_sqlsrv`.
 
 Notes:
 - `datetimeoffset` keeps the stored offset semantics.
-- Decimal and money-like values are left as strings.
+- `numeric`/`decimal` with a zero scale (no fractional part, e.g. `numeric(18, 0)`) is normalized to `int`; with a non-zero scale it is left as a string to avoid precision loss.
+- Money-like values are left as strings.
 
 | Column Type in DB                                        | PHP Type                               |
 |----------------------------------------------------------|----------------------------------------|
 | integer types                                            | `int`                                  |
+| `numeric`/`decimal` with a zero scale                    | `int`                                  |
 | `real`                                                   | `float`                                |
 | `bit`                                                    | `bool`                                 |
 | `date`, `time`, `datetime`, `datetime2`, `smalldatetime` | `Nextras\Dbal\Utils\DateTimeImmutable` |

@@ -22,6 +22,8 @@ class SqlsrvResultNormalizationFactory
 	private const TYPE_WVARCHAR = -9;
 	private const TYPE_VARCHAR = 12;
 	private const TYPE_BIGINT = -5;
+	private const TYPE_NUMERIC = 2;
+	private const TYPE_DECIMAL = 3;
 	private const TYPE_INT = 4;
 	private const TYPE_TYNIINT = -6;
 	private const TYPE_SMALLIINT = 5;
@@ -66,7 +68,7 @@ class SqlsrvResultNormalizationFactory
 
 
 	/**
-	 * @param array<string, mixed> $types
+	 * @param array<string, array<string, mixed>> $types map of column name to the raw sqlsrv field metadata
 	 * @return array<string, callable (mixed): mixed>
 	 */
 	public function resolve(array $types): array
@@ -87,10 +89,15 @@ class SqlsrvResultNormalizationFactory
 		];
 
 		$normalizers = [];
-		foreach ($types as $column => $type) {
+		foreach ($types as $column => $field) {
+			$type = $field['Type'];
 			if (isset($ok[$type])) {
 				continue; // optimization
 			} elseif ($type === self::TYPE_BIGINT) {
+				$normalizers[$column] = $this->intNormalizer;
+			} elseif (($type === self::TYPE_NUMERIC || $type === self::TYPE_DECIMAL) && $field['Scale'] === 0) {
+				// numeric/decimal with a zero scale has no fractional part, so it is safe to read as an integer;
+				// a non-zero scale is kept as a string to avoid precision loss
 				$normalizers[$column] = $this->intNormalizer;
 			} elseif (isset($dateTimes[$type])) {
 				$normalizers[$column] = $this->dateTimeNormalizer;
