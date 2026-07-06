@@ -11,5 +11,7 @@
 
 Tutorials:
 - [MySQL Timezone Support](timezones-mysql-support)
+- [Migration to 6.0](migrate_6.0)
+- [Migration to 5.0](migrate_5.0)
 
 </div>
