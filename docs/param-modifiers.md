@@ -1,6 +1,6 @@
 ## Modifiers
 
-Dbal allows you to escape and build safe SQL query. It provides these powerful parameter modifiers:
+Dbal lets you safely build SQL queries. It provides these parameter modifiers:
 
 | Modifier                                   | Type           | Description                                                                                                                      |
 |--------------------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------|
@@ -14,10 +14,10 @@ Dbal allows you to escape and build safe SQL query. It provides these powerful p
 | `%di`, `%?di`, `%di[]`, `%...di[]`         | date interval  | DateInterval instance                                                                                                            |
 | `%blob`, `%?blob`, `%blob[]`               | binary string  | not nullable, nullable, array of                                                                                                 |
 | `%json`, `%?json`, `%json[]`, `%...json[]` | any            | not nullable, nullable, array of                                                                                                 |
-| `%any             `                        |                | any value                                                                                                                        |
+| `%any`                                     | any            | any value                                                                                                                        |
 | `%_like`, `%like_`, `%_like_`              | string         | like left, like right, like both sides                                                                                           |
 
-All modifiers require an argument of the specific data type - e.g. `%f` accepts only floats and integers.
+All modifiers require an argument of the specific data type. For example, `%f` accepts only floats and integers.
 
 ```php
 $connection->query('id = %i AND name IN (%?s, %?s)', 1, NULL, 'foo');
@@ -28,7 +28,7 @@ $connection->query('name LIKE %_like_', $query);
 // name LIKE '%escaped query expression%'
 ```
 
-Array modifiers are able to process array of the required type. The basic `[]` suffix syntax denotes such array. This way Dbal also adds wrapping parenthesis. You may want to omit them for more complex SQL. To do so, use a "spread" variant of array operator -- add three dots after the `%` character.
+Array modifiers accept arrays of the required type. The basic `[]` suffix denotes such an array and Dbal also adds wrapping parentheses. If you need to omit them for more complex SQL, use the spread variant by adding three dots after the `%` character.
 
 ```php
 $connection->query('WHERE id IN %i[]', [1, 3, 4]);
@@ -40,21 +40,21 @@ $connection->query('WHERE [roles.privileges] ?| ARRAY[%...s[]]', ['backend', 'fr
 
 Other available modifiers:
 
-| Modifier               | Description                                                                                                                                                                                                                                             |
-|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `%and`                 | AND condition                                                                                                                                                                                                                                           |
-| `%or`                  | OR condition                                                                                                                                                                                                                                            |
-| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                                                                                                          |
-| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                                                                                           |
-| `%set`                 | expands array for SET clause                                                                                                                                                                                                                            |
-| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier; `%table` supports formatting a `Nextras\Dbal\Platforms\Data\Fqn` instance.                        |
-| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier; `%table` supports formatting a `Nextras\Dbal\Platforms\Data\Fqn` instance. |
-| `%ex`                  | expands array as processor arguments                                                                                                                                                                                                                    |
-| `%raw`                 | inserts string argument as is                                                                                                                                                                                                                           |
-| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                                                                                                 |
-| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                                                                                                     |
+| Modifier               | Description                                                                                                                                                                                                                                              |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `%and`                 | AND condition                                                                                                                                                                                                                                            |
+| `%or`                  | OR condition                                                                                                                                                                                                                                             |
+| `%multiOr`             | OR condition with multiple conditions in pairs                                                                                                                                                                                                           |
+| `%values`, `%values[]` | expands array for INSERT clause, multi insert                                                                                                                                                                                                            |
+| `%set`                 | expands array for SET clause                                                                                                                                                                                                                             |
+| `%table`, `%table[]`   | escapes string as table name, may contain a database or schema name separated by a dot; surrounding parentheses are not added to `%table[]` modifier; `%table` supports formatting a `Nextras\Dbal\Platforms\Data\Fqn` instance.                         |
+| `%column`, `%column[]` | escapes string as column name, may contain a database name, schema name or asterisk (`*`) separated by a dot; surrounding parentheses are not added to `%column[]` modifier; `%column` supports formatting a `Nextras\Dbal\Platforms\Data\Fqn` instance. |
+| `%ex`                  | expands array as processor arguments                                                                                                                                                                                                                     |
+| `%raw`                 | inserts string argument as is                                                                                                                                                                                                                            |
+| `%%`                   | escapes to single `%` (useful in `date_format()`, etc.)                                                                                                                                                                                                  |
+| `[[`, `]]`             | escapes to single `[` or `]` (useful when working with array, etc.)                                                                                                                                                                                      |
 
-Let's examine `%and` and `%or` behavior. If an array key is numeric and its value is an array, value is expanded with `%ex` modifier. If the first value it this array is an `Fqn` instance, the resulted SQL is constructed similarly to a key-value array, the modifier is an optional string on the second index. (See below.)
+Let's examine `%and` and `%or` behavior. If an array key is numeric and its value is an array, the value is expanded with the `%ex` modifier. If the first value in this array is an `Fqn` instance, the resulting SQL is constructed similarly to a key-value array; the modifier is an optional string on the second index. See the examples below.
 
 ```php
 $connection->query('%and', [
@@ -84,7 +84,7 @@ $connection->query('%or', [
 // `city` = 'Winterfell' OR `age` IN (23, 25)
 ```
 
-If you want to select multiple rows with combined condition for each row, you may use multi-column `IN` expression. However, some databases do not support this feature, therefore, Dbal provides universal `%multiOr` modifier that will handle this for you and will use alternative expanded verbose syntax. MultiOr modifier supports optional modifier appended to the column name; it has to be set for all entries. Let's see an example:
+If you want to select multiple rows with a combined condition for each row, you may use a multi-column `IN` expression. Some databases do not support this feature, so Dbal provides the universal `%multiOr` modifier, which falls back to an expanded `OR` expression when needed. The `%multiOr` modifier supports an optional modifier appended to the column name; if you use it, it has to be set for all entries.
 
 ```php
 $connection->query('%multiOr', [
@@ -150,22 +150,22 @@ $connection->query('id = %i', 1);
 
 ### Custom Modifiers
 
-You may add support for own modifier. To do that, create new factory class for SqlProcessor and use `setCustomModifier()` method:
+You may add support for your own modifier. To do that, create a custom `ISqlProcessorFactory` and register the modifier with `setCustomModifier()`:
 
 ```php
-use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ISqlProcessorFactory;
 use Nextras\Dbal\SqlProcessor;
 
 class SqlProcessorFactory implements ISqlProcessorFactory
 {
-	public function create(IDriver $driver, array $config): SqlProcessor
+	public function create(IConnection $connection): SqlProcessor
 	{
-		$processor = new SqlProcessor($driver);
+		$processor = new SqlProcessor($connection->getPlatform());
 		$processor->setCustomModifier(
 			'mybool',
-			function (SqlProcessor $processor, $value) {
-				return $processor->processModifier('s', $bool ? 'yes' : 'no');
+			function (SqlProcessor $processor, mixed $value): string {
+				return $processor->processModifier('s', $value ? 'yes' : 'no');
 			}
 		);
 		return $processor;
@@ -177,10 +177,10 @@ Use `sqlProcessorFactory` configuration key to pass a factory instance. See conf
 
 ### Modifier Resolver
 
-SqlProcessor allows setting custom modifier resolver for any values passed for both implicit and explicit `%any` modifier. This way you may introduce custom processing for your custom types. For safety reasons it is possible to override only the `%any` modifier. To do so, implement `ISqlProcessorModifierResolver` interface and return the modifier name for the passed value. Finally, register the custom modifier resolver into SqlProcessor. This API is especially powerful in combination with custom modifiers.
+`SqlProcessor` also allows setting a custom modifier resolver for values passed through implicit or explicit `%any`. This lets you introduce custom processing for your own types. For safety reasons, only `%any` can be overridden this way. Implement `ISqlProcessorModifierResolver`, return the modifier name for the passed value, and register the resolver in `SqlProcessor`.
 
 ```php
-use Nextras\Dbal\Drivers\IDriver;
+use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ISqlProcessorModifierResolver;
 use Nextras\Dbal\ISqlProcessorFactory;
 use Nextras\Dbal\SqlProcessor;
@@ -198,12 +198,12 @@ class BrickSqlProcessorModifierResolver implements ISqlProcessorModifierResolver
 
 class SqlProcessorFactory implements ISqlProcessorFactory
 {
-	public function create(IDriver $driver, array $config): SqlProcessor
+	public function create(IConnection $connection): SqlProcessor
 	{
-		$processor = new SqlProcessor($driver);
+		$processor = new SqlProcessor($connection->getPlatform());
 		$processor->setCustomModifier(
 		    'brickDayOfWeek',
-		    function (SqlProcessor $processor, $value) {
+		    function (SqlProcessor $processor, mixed $value): string {
 		        assert($value instanceof \Brick\DayOfWeek);
 			    return $processor->processModifier('s', $value->getValue());
 		    }

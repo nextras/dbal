@@ -4,7 +4,7 @@ Nextras Dbal comes with Nextras DI Extension that allows easy setup into your Ne
 
 The minimal supported version of Nette/DI is 3.1.
 
-Simply define the extension and provide a default configuration:
+Define the extension and provide its configuration:
 
 ```neon
 extensions:
@@ -24,8 +24,7 @@ services:
 	- Custom\SqlProcessorFactory
 ```
 
-If you need multiple connections, install the extension once again with a different name and choose which connection
-will be autowired (the default is to autowire, so disable it for the additional extension).
+If you need multiple connections, register the extension more than once with different names and choose which connection should be autowired. Autowiring is enabled by default, so disable it for additional connections.
 
 ```neon
 extensions:
@@ -41,10 +40,10 @@ nextras.dbal2:
 	autowired: false
 ```
 
-**Configuration keys** are those accepted by `Connection` instance, the actual driver respectively. See [Connection](default) chapter.
+Configuration keys are the same as those accepted by `Connection` and the selected driver. See the [Connection](default) chapter.
 
 The extension takes additional configurations:
 
-- `panelQueryExplain` (default `true` if Tracy is available): enables/disables panel for Trace.
+- `panelQueryExplain` (default `true` if Tracy is available): enables or disables query `EXPLAIN` output in the Tracy panel.
 - `maxQueries` (default `100`): number of logged queries in the Tracy panel.
-- `sqlProcessorFactory` a reference to `Nextras\Dbal\ISqlProcessorFactory` service.
+- `sqlProcessorFactory`: a reference to a `Nextras\Dbal\ISqlProcessorFactory` service.

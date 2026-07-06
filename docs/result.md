@@ -1,6 +1,6 @@
 ## Result
 
-`Connection::query()` method returns a `Nextras\Dbal\Result\Result` instance. You can call fetching methods to get the fetched data.
+`Connection::query()` returns a `Nextras\Dbal\Result\Result` instance. You can iterate over it or use fetching methods to retrieve data.
 
 - `Result::fetchAll()` returns an array of `Nextras\Dbal\Result\Row` instances.
 - `Result::fetch()` returns the next unfetched `Row` instance.
@@ -9,7 +9,7 @@
 
 ```php
 $result = $connection->query('SELECT ...');
-foreach ($result as $row) { // equals to $result->fetchAll() as $row
+foreach ($result as $row) {
 }
 
 
@@ -35,9 +35,11 @@ $assoc = $result->fetchPairs('name', null);
 // ]
 ```
 
+`foreach` iterates over the result directly. Unlike `fetchAll()`, it does not eagerly materialize all rows into an array first.
+
 ### Row
 
-Row instances hold the data of specific fetched result-row. You can access data by property access with a column name. Use `getNthField()` method to retrieve a column by its numeric index.
+`Row` instances hold data for a single fetched row. You can access columns via property access. Use `getNthField()` to retrieve a column by its numeric index.
 
 ```php
 $row = $connection->query('SELECT name, age FROM ...')->fetch();
@@ -51,14 +53,14 @@ echo $row->getNthField(0); // prints name
 
 ### Buffering
 
-Some database drivers do not support rewinding or seeking the result. I.e. you cannot iterate over the result multiple times. Similarly, you cannot use `seek()` method to skip some rows. Dbal's emulated buffering comes to solve this for you. The relevant drivers automatically enable emulated buffering. You can disable or enable it for particular `Result` instances.
+Some database drivers do not support rewinding or seeking the result. That means you cannot iterate over the result multiple times, and `seek()` may not be available. Dbal provides emulated buffering for those cases. You can enable or disable buffering for a particular `Result` instance.
 
 ```php
 $result = $connection->query('...')->buffered(); // enable emulated buffering
-$result->unbuffered(); // disable the emulated buffering
+$result->unbuffered(); // disable emulated buffering again
 ```
 
-If the unbuffered Result was already partially consumed, enabling buffering does nothing and Result will potentially throw an exception when rewinded or seeked. If the buffered Result was already partially consumed, disabling buffering does nothing and Result will still use the buffer.
+If an unbuffered `Result` was already partially consumed, enabling buffering does nothing and the result may still throw an exception when rewound or seeked. If a buffered `Result` was already partially consumed, disabling buffering does nothing and the existing buffer remains in use.
 
 ### Value Normalization
 
