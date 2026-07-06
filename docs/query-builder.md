@@ -91,18 +91,42 @@ $builder->limitBy(20, 10); // sets offset to 1O
 
 #### INNER, LEFT and RIGHT JOIN
 
-Choose from `joinInner()`, `joinLeft()`, and `joinRight()` methods. Each of them has the same signature. Arguments:
+Use `joinOnce()` for deduplicated joins, or `addInnerJoin()`, `addLeftJoin()`, and `addRightJoin()` when you want to append another join clause explicitly.
+
+The `add*Join()` methods all have the same signature. Arguments:
 - to expression - target expression, do not forget to escape the target table name, you may define also an alias,
 - on expression - ON clause expression,
 - arguments for expressions.
 
 ```php
 $builder->from('[authors]', 'a');
-$builder->joinLeft('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %s', $title);
+$builder->addLeftJoin('[books] AS [b]', '[a.id] = [b.authorId] AND [b.title] = %s', $title);
 
 // will produce
 // FROM [authors] AS [a]
 // LEFT JOIN [books] AS [b] ON ([a.id] = [b.authorId] AND [b.title] = %s)
+```
+
+Use `joinOnce()` if you want the same logical join to be added at most once:
+
+```php
+$builder->from('[authors]', 'a');
+$builder->joinOnce('LEFT', '[books] AS [b]', '[a.id] = [b.authorId]', []);
+```
+
+`joinOnce()` deduplicates joins by the join type, the to-expression, the on-expression and the `$hashSuffix`. The expression arguments are intentionally not part of the hash, so two calls that differ only in their arguments are treated as the same join. This matters when expressions are built with modifiers such as `%table` or `%column`: different parameter values may still share the same SQL expression shape. Pass a distinct `$hashSuffix` to keep such joins apart:
+
+```php
+$builder->from('[authors]', 'a');
+
+// each %table placeholder (in the to- and on-expression) consumes one argument,
+// hence the table name is passed twice per join
+$builder->joinOnce('LEFT', '%table', '%table.authorId = [a.id]', ['book_tags', 'book_tags'], 'book_tags');
+$builder->joinOnce('LEFT', '%table', '%table.authorId = [a.id]', ['author_tags', 'author_tags'], 'author_tags');
+
+// will produce two distinct joins:
+// LEFT JOIN [book_tags] ON ([book_tags].authorId = [a.id])
+// LEFT JOIN [author_tags] ON ([author_tags].authorId = [a.id])
 ```
 
 #### INDEX HINTS (MySQL)
