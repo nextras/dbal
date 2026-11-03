@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use DateTime;
 use Mockery;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -12,7 +13,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use stdClass;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -153,7 +153,7 @@ class SqlProcessorWhereTest extends TestCase
 				'd%?s' => null,
 				'e%s[]' => ['1', 'a'],
 				'f%any' => [1, 'a'],
-			])
+			]),
 		);
 	}
 
@@ -170,7 +170,7 @@ class SqlProcessorWhereTest extends TestCase
 				'a' => 2,
 				['%and', ['a%?i' => null, 'b%?i' => 1]],
 				'b' => 3,
-			])
+			]),
 		);
 	}
 
@@ -179,12 +179,12 @@ class SqlProcessorWhereTest extends TestCase
 	{
 		Assert::same(
 			'1=1',
-			$this->parser->processModifier('and', [])
+			$this->parser->processModifier('and', []),
 		);
 
 		Assert::same(
 			'1=1',
-			$this->parser->processModifier('or', [])
+			$this->parser->processModifier('or', []),
 		);
 	}
 
@@ -210,7 +210,7 @@ class SqlProcessorWhereTest extends TestCase
 				['a' => 1, 'b' => 2],
 				['a' => 2, 'b' => 3],
 				['a' => 3, 'b' => 4],
-			])
+			]),
 		);
 
 		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(false);
@@ -221,7 +221,7 @@ class SqlProcessorWhereTest extends TestCase
 				['a' => 1, 'b' => 2],
 				['a' => 2, 'b' => 3],
 				['a' => 3, 'b' => 4],
-			])
+			]),
 		);
 
 		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
@@ -259,7 +259,7 @@ class SqlProcessorWhereTest extends TestCase
 				[[$aFqn, 1], [$bFqn, 2]],
 				[[$aFqn, 2], [$bFqn, 3]],
 				[[$aFqn, 3], [$bFqn, 4]],
-			])
+			]),
 		);
 
 		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(false);
@@ -270,7 +270,7 @@ class SqlProcessorWhereTest extends TestCase
 				[[$aFqn, 1], [$bFqn, 2]],
 				[[$aFqn, 2], [$bFqn, 3]],
 				[[$aFqn, 3], [$bFqn, 4]],
-			])
+			]),
 		);
 
 		$this->platform->shouldReceive('isSupported')->once()->with(IPlatform::SUPPORT_MULTI_COLUMN_IN)->andReturn(true);
@@ -303,10 +303,11 @@ class SqlProcessorWhereTest extends TestCase
 		$this->platform->shouldReceive('formatIdentifier')->andReturn('`col`');
 		$this->platform->shouldIgnoreMissing();
 		Assert::throws(
-			function() use ($type, $value) {
+			function () use ($type, $value) {
 				$this->parser->processModifier($type, $value);
 			},
-			InvalidArgumentException::class, $message
+			InvalidArgumentException::class,
+			$message,
 		);
 	}
 

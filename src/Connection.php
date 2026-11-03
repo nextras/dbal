@@ -25,9 +25,8 @@ class Connection implements IConnection
 {
 	use StrictObjectTrait;
 
-
 	private IDriver $driver;
-	private ?IPlatform $platform = null;
+	private IPlatform|null $platform = null;
 	private SqlProcessor $sqlPreprocessor;
 	private bool $connected;
 	private int $nestedTransactionIndex = 0;
@@ -35,10 +34,10 @@ class Connection implements IConnection
 	private MultiLogger $logger;
 
 
-	/**
-	 * @param array<string, mixed> $config see drivers for supported options
-	 */
-	public function __construct(private array $config)
+	public function __construct(
+		/** @var array<string, mixed> see drivers for supported options */
+		private array $config,
+	)
 	{
 		$this->driver = $this->createDriver();
 		$this->sqlPreprocessor = $this->createSqlProcessor();
@@ -47,7 +46,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function connect(): void
 	{
 		if ($this->connected) {
@@ -62,7 +60,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function disconnect(): void
 	{
 		if (!$this->connected) {
@@ -74,7 +71,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function reconnect(): void
 	{
 		$this->disconnect();
@@ -82,7 +78,7 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
+	/** @inheritDoc */
 	public function reconnectWithConfig(array $config): void
 	{
 		$this->disconnect();
@@ -100,7 +96,7 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
+	/** @inheritDoc */
 	#[\NoDiscard]
 	public function getConfig(): array
 	{
@@ -108,8 +104,7 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
-	public function query(string $expression, ...$args): Result
+	public function query(string $expression, mixed ...$args): Result
 	{
 		if (!$this->connected) {
 			$this->connect();
@@ -120,7 +115,7 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
+	/** @inheritDoc */
 	public function queryArgs($query, array $args = []): Result
 	{
 		if (!$this->connected) {
@@ -145,7 +140,7 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
+	/** @inheritDoc */
 	#[\NoDiscard]
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null)
 	{
@@ -156,7 +151,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	#[\NoDiscard]
 	public function getAffectedRows(): int
 	{
@@ -167,7 +161,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	#[\NoDiscard]
 	public function getPlatform(): IPlatform
 	{
@@ -179,7 +172,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	#[\NoDiscard]
 	public function createQueryBuilder(): QueryBuilder
 	{
@@ -193,7 +185,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function transactional(callable $callback): mixed
 	{
 		$this->beginTransaction();
@@ -208,7 +199,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function beginTransaction(): void
 	{
 		if (!$this->connected) {
@@ -225,7 +215,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function commitTransaction(): void
 	{
 		if (!$this->connected) {
@@ -242,7 +231,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function rollbackTransaction(): void
 	{
 		if (!$this->connected) {
@@ -259,7 +247,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	#[\NoDiscard]
 	public function getTransactionNestedIndex(): int
 	{
@@ -267,7 +254,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function createSavepoint(string $name): void
 	{
 		if (!$this->connected) {
@@ -277,7 +263,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function releaseSavepoint(string $name): void
 	{
 		if (!$this->connected) {
@@ -287,7 +272,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function rollbackSavepoint(string $name): void
 	{
 		if (!$this->connected) {
@@ -297,7 +281,6 @@ class Connection implements IConnection
 	}
 
 
-	/** @inheritdoc */
 	public function ping(): bool
 	{
 		if (!$this->connected) {

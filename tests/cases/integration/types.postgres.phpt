@@ -7,9 +7,8 @@
 
 namespace NextrasTests\Dbal;
 
-use DateInterval;
-use Tester\Assert;
 
+use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -64,14 +63,14 @@ class TypesPostgresTest extends IntegrationTestCase
 
 	public function testWrite()
 	{
-		$this->connection->query("
+		$this->connection->query('
 			CREATE TEMPORARY TABLE [types_write] (
 				[blob] bytea,
 				[json] json,
 				[jsonb] jsonb,
 				[bool] boolean
 			);
-		");
+		');
 
 		$file = file_get_contents(__DIR__ . '/nextras.png');
 		$this->connection->query('INSERT INTO [types_write] %values', [

@@ -3,17 +3,14 @@
 namespace Nextras\Dbal\Drivers\Exception;
 
 
-use Exception;
-
-
 class UnknownMysqlTimezoneException extends QueryException
 {
 	public function __construct(
 		string $message,
 		int $errorCode = 0,
 		string $errorSqlState = '',
-		Exception|null $previousException = null,
-		?string $sqlQuery = null,
+		\Throwable|null $previousException = null,
+		string|null $sqlQuery = null,
 	)
 	{
 		parent::__construct(

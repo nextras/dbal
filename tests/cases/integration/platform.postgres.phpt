@@ -7,9 +7,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -21,13 +21,13 @@ class PlatformPostgresTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 		$tables = $this->connection->getPlatform()->getTables();
 
-		Assert::true(isset($tables["public.books"]));
-		Assert::same('books', $tables["public.books"]->fqnName->name);
-		Assert::same(false, $tables["public.books"]->isView);
+		Assert::true(isset($tables['public.books']));
+		Assert::same('books', $tables['public.books']->fqnName->name);
+		Assert::same(false, $tables['public.books']->isView);
 
-		Assert::true(isset($tables["public.my_books"]));
-		Assert::same('my_books', $tables["public.my_books"]->fqnName->name);
-		Assert::same(true, $tables["public.my_books"]->isView);
+		Assert::true(isset($tables['public.my_books']));
+		Assert::same('my_books', $tables['public.my_books']->fqnName->name);
+		Assert::same(true, $tables['public.my_books']->isView);
 
 		$tables = $this->connection->getPlatform()->getTables('second_schema');
 		Assert::true(isset($tables['second_schema.authors']));
@@ -40,7 +40,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 	{
 		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
-		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
+		$columns = \array_map(fn($column) => (array) $column, $columns);
 
 		Assert::same([
 			'id' => [
@@ -112,7 +112,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 		], $columns);
 
 		$columns = $this->connection->getPlatform()->getColumns('users');
-		$columns = \array_map(function ($column) { return (array) $column; }, $columns);
+		$columns = \array_map(fn($column) => (array) $column, $columns);
 
 		Assert::same([
 			'first_name' => [
@@ -151,7 +151,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 		], $columns);
 
 		$identityColumns = $this->connection->getPlatform()->getColumns('eans');
-		$identityColumns = \array_map(function ($column) { return (array) $column; }, $identityColumns);
+		$identityColumns = \array_map(fn($column) => (array) $column, $identityColumns);
 
 		Assert::same([
 			'id' => [
@@ -179,7 +179,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 		], $identityColumns);
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', 'second_schema');
-		$schemaColumns = \array_map(function ($column) { return (array) $column; }, $schemaColumns);
+		$schemaColumns = \array_map(fn($column) => (array) $column, $schemaColumns);
 
 		Assert::same([
 			'id' => [
@@ -234,7 +234,7 @@ class PlatformPostgresTest extends IntegrationTestCase
 	{
 		$this->lockConnection($this->connection);
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
-		$keys = \array_map(function ($key) { return (array) $key; }, $keys);
+		$keys = \array_map(fn($key) => (array) $key, $keys);
 
 		Assert::equal([
 			'author_id' => [
@@ -263,16 +263,16 @@ class PlatformPostgresTest extends IntegrationTestCase
 			],
 		], $keys);
 
-		$this->connection->query("DROP TABLE IF EXISTS second_schema.book_fk");
-		$this->connection->query("
+		$this->connection->query('DROP TABLE IF EXISTS second_schema.book_fk');
+		$this->connection->query('
 			CREATE TABLE second_schema.book_fk (
 				book_id int NOT NULL,
 				CONSTRAINT book_id FOREIGN KEY (book_id) REFERENCES public.books (id) ON DELETE CASCADE ON UPDATE CASCADE
 			);
-		");
+		');
 
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', 'second_schema');
-		$schemaKeys = \array_map(function ($key) { return (array) $key; }, $schemaKeys);
+		$schemaKeys = \array_map(fn($key) => (array) $key, $schemaKeys);
 
 		Assert::equal([
 			'book_id' => [
@@ -291,9 +291,9 @@ class PlatformPostgresTest extends IntegrationTestCase
 
 		Assert::same('public.books_id_seq', $this->connection->getPlatform()->getPrimarySequenceName('books'));
 
-		$this->connection->query("DROP SEQUENCE IF EXISTS second_schema.temp_sequence_for_test");
-		$this->connection->query("CREATE SEQUENCE second_schema.temp_sequence_for_test");
-		$this->connection->query("DROP TABLE IF EXISTS temp_table_with_sequence");
+		$this->connection->query('DROP SEQUENCE IF EXISTS second_schema.temp_sequence_for_test');
+		$this->connection->query('CREATE SEQUENCE second_schema.temp_sequence_for_test');
+		$this->connection->query('DROP TABLE IF EXISTS temp_table_with_sequence');
 		$this->connection->query("
 			CREATE TEMPORARY TABLE temp_table_with_sequence(
 				[id] integer DEFAULT nextval('second_schema.temp_sequence_for_test') NOT NULL,

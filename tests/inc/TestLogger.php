@@ -2,6 +2,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\Result\Result;
@@ -28,7 +29,7 @@ class TestLogger implements ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
+	public function onQuery(string $sqlQuery, float $timeTaken, Result|null $result): void
 	{
 		if ($this->logQueries) {
 			$this->logged[] = [$sqlQuery, $timeTaken, $result];
@@ -36,7 +37,7 @@ class TestLogger implements ILogger
 	}
 
 
-	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	public function onQueryException(string $sqlQuery, float $timeTaken, DriverException|null $exception): void
 	{
 	}
 }

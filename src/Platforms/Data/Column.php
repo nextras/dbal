@@ -10,12 +10,11 @@ class Column
 {
 	use StrictObjectTrait;
 
-
 	public function __construct(
 		public readonly string $name,
 		public readonly string $type,
-		public readonly ?int $size,
-		public readonly ?string $default,
+		public readonly int|null $size,
+		public readonly string|null $default,
 		public readonly bool $isPrimary,
 		public readonly bool $isAutoincrement,
 		public readonly bool $isUnsigned,

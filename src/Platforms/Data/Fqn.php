@@ -13,7 +13,6 @@ class Fqn
 {
 	use StrictObjectTrait;
 
-
 	public function __construct(
 		public readonly string $schema,
 		public readonly string $name,

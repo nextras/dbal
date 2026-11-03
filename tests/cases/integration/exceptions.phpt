@@ -17,13 +17,11 @@ use Nextras\Dbal\Drivers\PdoSqlite\PdoSqliteDriver;
 use Tester\Assert;
 use Tester\Environment;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
 class ExceptionsTest extends IntegrationTestCase
 {
-
 	public function testConnection()
 	{
 		if ($this->connection->getDriver() instanceof PdoSqliteDriver) {
@@ -71,10 +69,10 @@ class ExceptionsTest extends IntegrationTestCase
 
 	public function testQueryException()
 	{
-		/** @var QueryException $e */
 		$e = Assert::exception(function () {
 			$this->connection->query('SELECT FROM FROM foo');
 		}, QueryException::class);
+		assert($e instanceof QueryException);
 
 		Assert::same('SELECT FROM FROM foo', $e->getSqlQuery());
 	}

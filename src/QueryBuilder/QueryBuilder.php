@@ -15,7 +15,6 @@ class QueryBuilder
 {
 	use StrictObjectTrait;
 
-
 	protected IPlatform $platform;
 
 	/** @var array<string, array<mixed>|null> */
@@ -108,8 +107,7 @@ class QueryBuilder
 
 	protected function getSqlForSelect(): string
 	{
-		return
-			'SELECT ' . ($this->distinct ? 'DISTINCT ' : '')
+		return 'SELECT ' . ($this->distinct ? 'DISTINCT ' : '')
 			. ($this->select !== null ? implode(', ', $this->select) : '*')
 			. ' FROM ' . $this->getFromClauses()
 			. ($this->where !== null ? ' WHERE ' . ($this->where) : '')
@@ -165,7 +163,7 @@ class QueryBuilder
 	 * @param literal-string|null $alias
 	 * @param array<int, mixed> $args
 	 */
-	public function from(string $fromExpression, ?string $alias = null, ...$args): self
+	public function from(string $fromExpression, string|null $alias = null, ...$args): self
 	{
 		$this->dirty();
 		$this->from = [$fromExpression, $alias];
@@ -181,7 +179,7 @@ class QueryBuilder
 	 * @param array<int, mixed> $args
 	 * @return static
 	 */
-	public function indexHints(?string $indexHintsExpression, ...$args): self
+	public function indexHints(string|null $indexHintsExpression, ...$args): self
 	{
 		$this->dirty();
 		$this->indexHints = $indexHintsExpression;
@@ -193,7 +191,7 @@ class QueryBuilder
 	/**
 	 * @return literal-string|null
 	 */
-	public function getFromAlias(): ?string
+	public function getFromAlias(): string|null
 	{
 		if ($this->from === null) {
 			throw new InvalidStateException('From clause has not been set.');
@@ -324,7 +322,7 @@ class QueryBuilder
 	 * @param literal-string|null $expression
 	 * @param array<int, mixed> $args
 	 */
-	public function select(?string $expression = null, ...$args): self
+	public function select(string|null $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->select = $expression === null ? null : [$expression];
@@ -373,7 +371,7 @@ class QueryBuilder
 	 * @param literal-string|null $expression
 	 * @param array<int, mixed> $args
 	 */
-	public function where(?string $expression = null, ...$args): self
+	public function where(string|null $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->where = $expression;
@@ -415,7 +413,7 @@ class QueryBuilder
 	 * @param literal-string|null $expression
 	 * @param array<int, mixed> $args
 	 */
-	public function groupBy(?string $expression = null, ...$args): self
+	public function groupBy(string|null $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->group = $expression === null ? null : [$expression];
@@ -443,7 +441,7 @@ class QueryBuilder
 	 * @param literal-string|null $expression
 	 * @param array<int, mixed> $args
 	 */
-	public function having(?string $expression = null, ...$args): self
+	public function having(string|null $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->having = $expression;
@@ -485,7 +483,7 @@ class QueryBuilder
 	 * @param literal-string|null $expression
 	 * @param array<int, mixed> $args
 	 */
-	public function orderBy(?string $expression = null, ...$args): self
+	public function orderBy(string|null $expression = null, ...$args): self
 	{
 		$this->dirty();
 		$this->order = $expression === null ? null : [$expression];
@@ -511,7 +509,7 @@ class QueryBuilder
 	/**
 	 * Sets LIMIT and OFFSET clause.
 	 */
-	public function limitBy(?int $limit, ?int $offset = null): self
+	public function limitBy(int|null $limit, int|null $offset = null): self
 	{
 		$this->dirty();
 		$this->limit = $limit !== null || $offset !== null ? [$limit, $offset] : null;
@@ -532,7 +530,7 @@ class QueryBuilder
 	 * Returns limit and offset clause arguments.
 	 * @return array{?int, ?int}|null
 	 */
-	public function getLimitOffsetClause(): ?array
+	public function getLimitOffsetClause(): array|null
 	{
 		return $this->limit;
 	}

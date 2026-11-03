@@ -7,9 +7,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use DateInterval;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -18,7 +18,7 @@ class TypesMysqlTest extends IntegrationTestCase
 {
 	public function testRead()
 	{
-		$this->connection->query("
+		$this->connection->query('
 			CREATE TEMPORARY TABLE [types_read] (
 				[bit] bit(4),
 
@@ -39,7 +39,7 @@ class TypesMysqlTest extends IntegrationTestCase
 
 				[string] varchar(200)
 			) ENGINE=InnoDB;
-		");
+		');
 		$this->connection->query("
 			INSERT INTO [types_read] VALUES (
 				b'0100',
@@ -87,13 +87,13 @@ class TypesMysqlTest extends IntegrationTestCase
 
 	public function testWrite()
 	{
-		$this->connection->query("
+		$this->connection->query('
 			CREATE TEMPORARY TABLE [types_write] (
 				[blob] blob,
 				[json] text,
 				[bool] tinyint
 			) ENGINE=InnoDB;
-		");
+		');
 
 		$file = file_get_contents(__DIR__ . '/nextras.png');
 		$this->connection->query('INSERT INTO [types_write] %values', [

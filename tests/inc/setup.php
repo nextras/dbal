@@ -1,23 +1,20 @@
-<?php
-
+<?php declare(strict_types = 1);
 
 use Nextras\Dbal\Connection;
 
-
-if (@!include __DIR__ . '/../../vendor/autoload.php') {
-	echo "Install Nette Tester using `composer update`\n";
-	exit(1);
-}
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 
-$setupMode = TRUE;
+$setupMode = true;
 
 echo "[setup] Purging temp.\n";
-@mkdir(__DIR__ . '/../temp');
+if (!is_dir(__DIR__ . '/../temp')) {
+	mkdir(__DIR__ . '/../temp');
+}
 Tester\Helpers::purge(__DIR__ . '/../temp');
 
 
-$config = parse_ini_file(__DIR__ . '/../databases.ini', TRUE);
+$config = parse_ini_file(__DIR__ . '/../databases.ini', true);
 $processed = [];
 
 foreach ($config as $name => $configDatabase) {

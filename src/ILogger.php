@@ -14,18 +14,15 @@ interface ILogger
 	 */
 	public function onConnect(): void;
 
-
 	/**
 	 * Called when connection gets disconnected from database.
 	 */
 	public function onDisconnect(): void;
 
-
 	/**
 	 * When SQL query is executed on connection.
 	 */
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void;
-
+	public function onQuery(string $sqlQuery, float $timeTaken, Result|null $result): void;
 
 	/**
 	 * When SQL query execution fails on connection.
@@ -33,6 +30,6 @@ interface ILogger
 	public function onQueryException(
 		string $sqlQuery,
 		float $timeTaken,
-		?DriverException $exception
+		DriverException|null $exception,
 	): void;
 }

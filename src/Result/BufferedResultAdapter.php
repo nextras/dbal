@@ -14,7 +14,7 @@ use OutOfBoundsException;
 class BufferedResultAdapter implements IResultAdapter
 {
 	/** @var ArrayIterator<array-key, mixed>|null */
-	protected ?ArrayIterator $data = null;
+	protected ArrayIterator|null $data = null;
 
 
 	public function __construct(
@@ -57,7 +57,7 @@ class BufferedResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		$data = $this->getData();
 		$fetched = $data->valid() ? $data->current() : null;

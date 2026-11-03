@@ -22,6 +22,7 @@ use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\MySqlPlatform;
 use Nextras\Dbal\Result\IResultAdapter;
+use Pdo\Mysql;
 use PDOStatement;
 use function array_key_exists;
 use function date;
@@ -58,7 +59,7 @@ use function date_default_timezone_get;
  */
 class PdoMysqlDriver extends PdoDriver
 {
-	protected ?PdoMysqlResultNormalizerFactory $resultNormalizerFactory = null;
+	protected PdoMysqlResultNormalizerFactory|null $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
@@ -72,7 +73,7 @@ class PdoMysqlDriver extends PdoDriver
 		$charset = $params['charset'] ?? 'utf8mb4';
 		$options = (array) ($params['options'] ?? []);
 
-		$pdoMysqlClass = version_compare(PHP_VERSION, '8.5.0', '>=') ? \Pdo\Mysql::class : \PDO::class;
+		$pdoMysqlClass = PHP_VERSION_ID >= 80500 && class_exists(Mysql::class) ? Mysql::class : \PDO::class;
 		if (isset($params['sslKey'])) $options[$pdoMysqlClass::ATTR_SSL_KEY] = $params['sslKey'];
 		if (isset($params['sslCert'])) $options[$pdoMysqlClass::ATTR_SSL_CERT] = $params['sslCert'];
 		if (isset($params['sslCa'])) $options[$pdoMysqlClass::ATTR_SSL_CA] = $params['sslCa'];
@@ -144,7 +145,7 @@ class PdoMysqlDriver extends PdoDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
 		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);

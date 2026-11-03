@@ -15,7 +15,6 @@ use Tester\Assert;
 use function array_map;
 use function version_compare;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -35,7 +34,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 		Assert::same('my_books', $tables["$dbName.my_books"]->fqnName->name);
 		Assert::same(true, $tables["$dbName.my_books"]->isView);
 
-		$dbName = $dbName . '2';
+		$dbName .= '2';
 		$tables = $this->connection->getPlatform()->getTables($dbName);
 		Assert::true(isset($tables["$dbName.authors"]));
 		Assert::same('authors', $tables["$dbName.authors"]->fqnName->name);
@@ -47,9 +46,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 	{
 		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
-		$columns = array_map(function($table) {
-			return (array) $table;
-		}, $columns);
+		$columns = array_map(fn($table) => (array) $table, $columns);
 
 		$driver = $this->connection->getDriver();
 		if ($driver instanceof MysqliDriver) {
@@ -136,9 +133,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 		$dbName2 = $this->connection->getConfig()['database'] . '2';
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns('authors', $dbName2);
-		$schemaColumns = array_map(function($table) {
-			return (array) $table;
-		}, $schemaColumns);
+		$schemaColumns = array_map(fn($table) => (array) $table, $schemaColumns);
 
 		Assert::same([
 			'id' => [
@@ -195,9 +190,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 
 		$dbName = $this->connection->getConfig()['database'];
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
-		$keys = array_map(function($key) {
-			return (array) $key;
-		}, $keys);
+		$keys = array_map(fn($key) => (array) $key, $keys);
 
 		Assert::equal([
 			'author_id' => [
@@ -236,9 +229,7 @@ class PlatformMysqlTest extends IntegrationTestCase
 		");
 
 		$schemaKeys = $this->connection->getPlatform()->getForeignKeys('book_fk', $dbName2);
-		$schemaKeys = array_map(function($key) {
-			return (array) $key;
-		}, $schemaKeys);
+		$schemaKeys = array_map(fn($key) => (array) $key, $schemaKeys);
 		Assert::equal([
 			'book_id' => [
 				'fqnName' => new Fqn($dbName2, 'book_id'),

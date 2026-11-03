@@ -6,13 +6,12 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\ISqlProcessorFactory;
 use Nextras\Dbal\SqlProcessor;
-use Tester\Assert;
 use Tester\Environment;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 

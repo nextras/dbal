@@ -18,7 +18,6 @@ class PdoSqlsrvResultNormalizerFactory
 {
 	use StrictObjectTrait;
 
-
 	private Closure $intNormalizer;
 	private Closure $floatNormalizer;
 	private Closure $boolNormalizer;
@@ -30,28 +29,28 @@ class PdoSqlsrvResultNormalizerFactory
 	{
 		$applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 
-		$this->intNormalizer = static function ($value): ?int {
+		$this->intNormalizer = static function ($value): int|null {
 			if ($value === null) return null;
 			return (int) $value;
 		};
 
-		$this->floatNormalizer = static function ($value): ?float {
+		$this->floatNormalizer = static function ($value): float|null {
 			if ($value === null) return null;
 			return (float) $value;
 		};
 
-		$this->boolNormalizer = static function ($value): ?bool {
+		$this->boolNormalizer = static function ($value): bool|null {
 			if ($value === null) return null;
 			return (bool) $value;
 		};
 
-		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): ?DateTimeImmutable {
+		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): DateTimeImmutable|null {
 			if ($value === null) return null;
 			$dateTime = new DateTimeImmutable($value);
 			return $dateTime->setTimezone($applicationTimeZone);
 		};
 
-		$this->offsetDateTimeNormalizer = static function ($value): ?DateTimeImmutable {
+		$this->offsetDateTimeNormalizer = static function ($value): DateTimeImmutable|null {
 			if ($value === null) return null;
 			return new DateTimeImmutable($value);
 		};

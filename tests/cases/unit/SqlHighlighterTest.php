@@ -9,7 +9,6 @@ use Nextras\Dbal\Utils\SqlHighlighter;
 use Tester\Assert;
 use Tester\TestCase;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -19,12 +18,12 @@ class SqlHighlighterTest extends TestCase
 	{
 		Assert::same(
 			'<strong style="color:#2D44AD">SELECT</strong> * <strong style="color:#2D44AD">FROM</strong> table',
-			SqlHighlighter::highlight('SELECT * FROM table')
+			SqlHighlighter::highlight('SELECT * FROM table'),
 		);
 
 		Assert::same(
 			'<strong style="color:#2D44AD">SELECT</strong> <strong>NULL</strong>',
-			SqlHighlighter::highlight("SELECT NULL")
+			SqlHighlighter::highlight('SELECT NULL'),
 		);
 	}
 }

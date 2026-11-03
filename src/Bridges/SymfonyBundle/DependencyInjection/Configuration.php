@@ -11,7 +11,9 @@ use function is_array;
 
 class Configuration implements ConfigurationInterface
 {
-	public function __construct(private readonly bool $debug)
+	public function __construct(
+		private readonly bool $debug,
+	)
 	{
 	}
 
@@ -25,9 +27,9 @@ class Configuration implements ConfigurationInterface
 			->beforeNormalization()
 				->ifTrue(static fn($v): bool => is_array($v) && !array_key_exists('connections', $v))
 				->then(static fn($v): array => [
-						'connections' => ['default' => $v],
-						'default_connection' => 'default',
-					])
+					'connections' => ['default' => $v],
+					'default_connection' => 'default',
+				])
 			->end()
 			->children()
 				->integerNode('max_queries')

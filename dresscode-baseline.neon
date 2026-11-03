@@ -1,0 +1,225 @@
+version: 2
+files:
+	src/Bridges/NetteCaching/CachedPlatform.php:
+		-
+			decision: naming.constant
+			message: The constant `CACHE_VERSION` must be written in PascalCase.
+			fingerprint: '74bf999377152edd'
+
+	src/Connection.php:
+		-
+			decision: mistakes.exceptionWhereThrowableBelongs
+			message: 'The type `Exception` must be `Throwable`, which also covers errors.'
+			fingerprint: '26f19a6c91c64f87'
+
+	src/Drivers/IDriver.php:
+		-
+			decision: naming.constant
+			message: The constant `TIMEZONE_AUTO_PHP_NAME` must be written in PascalCase.
+			fingerprint: bdd3a905a1ddbe59
+
+		-
+			decision: naming.constant
+			message: The constant `TIMEZONE_AUTO_PHP_OFFSET` must be written in PascalCase.
+			fingerprint: '341b48e155b13689'
+
+	src/Drivers/Mysqli/MysqliDriver.php:
+		-
+			decision: mistakes.errorSuppression
+			message: The `@` operator must not be used.
+			fingerprint: '4b3bf0917c6708b1'
+
+		-
+			decision: mistakes.errorSuppression
+			message: The `@` operator must not be used.
+			fingerprint: '822f2fa7869fb03c'
+
+	src/Drivers/Sqlsrv/SqlsrvResultNormalizationFactory.php:
+		-
+			decision: naming.constant
+			message: The constant `TYPE_WVARCHAR` must be written in PascalCase.
+			fingerprint: '100c44f0e134584b'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_VARCHAR` must be written in PascalCase.
+			fingerprint: '72539e96da6810ba'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_BIGINT` must be written in PascalCase.
+			fingerprint: '425a65f0260908fe'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_NUMERIC` must be written in PascalCase.
+			fingerprint: '69648ef0ed6a6cec'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_DECIMAL` must be written in PascalCase.
+			fingerprint: '5f28760384149632'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_INT` must be written in PascalCase.
+			fingerprint: '061affc61d5368d0'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_TYNIINT` must be written in PascalCase.
+			fingerprint: '9b221c22776bc11f'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_SMALLIINT` must be written in PascalCase.
+			fingerprint: '0d4348334a3179ec'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_REAL` must be written in PascalCase.
+			fingerprint: b9b0f148bb9583d8
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_BIT` must be written in PascalCase.
+			fingerprint: '77a75b071f6f60bf'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_TIME` must be written in PascalCase.
+			fingerprint: f135c2c9f04290f5
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_DATE` must be written in PascalCase.
+			fingerprint: dbcd4e6840d3b21d
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_DATETIME_DATETIME2_SMALLDATETIME` must be written in PascalCase.
+			fingerprint: '100d97cc47afe402'
+
+		-
+			decision: naming.constant
+			message: The constant `TYPE_DATETIMEOFFSET` must be written in PascalCase.
+			fingerprint: '7ed9d552b40d4474'
+
+	src/IConnection.php:
+		-
+			decision: naming.constant
+			message: The constant `TRANSACTION_READ_UNCOMMITTED` must be written in PascalCase.
+			fingerprint: '65214d39cb2f97b4'
+
+		-
+			decision: naming.constant
+			message: The constant `TRANSACTION_READ_COMMITTED` must be written in PascalCase.
+			fingerprint: '72fd33a5b537de48'
+
+		-
+			decision: naming.constant
+			message: The constant `TRANSACTION_REPEATABLE_READ` must be written in PascalCase.
+			fingerprint: '25ae003ac846ba10'
+
+		-
+			decision: naming.constant
+			message: The constant `TRANSACTION_SERIALIZABLE` must be written in PascalCase.
+			fingerprint: a6916c36d6359a4d
+
+	src/Platforms/IPlatform.php:
+		-
+			decision: naming.constant
+			message: The constant `SUPPORT_MULTI_COLUMN_IN` must be written in PascalCase.
+			fingerprint: '7fe8538c929b0786'
+
+		-
+			decision: naming.constant
+			message: The constant `SUPPORT_QUERY_EXPLAIN` must be written in PascalCase.
+			fingerprint: e44613094c5b9441
+
+		-
+			decision: naming.constant
+			message: The constant `SUPPORT_WHITESPACE_EXPLAIN` must be written in PascalCase.
+			fingerprint: '2af913744ba381a2'
+
+		-
+			decision: naming.constant
+			message: The constant `SUPPORT_INSERT_DEFAULT_KEYWORD` must be written in PascalCase.
+			fingerprint: '542e3645654d19d8'
+
+	src/Platforms/MySqlPlatform.php:
+		-
+			decision: naming.constant
+			message: The constant `NAME` must be written in PascalCase.
+			fingerprint: '541232585daa1600'
+
+	src/Platforms/PostgreSqlPlatform.php:
+		-
+			decision: naming.constant
+			message: The constant `NAME` must be written in PascalCase.
+			fingerprint: cc5d059f5d1031e6
+
+		-
+			decision: file.longLines
+			message: 'The line is 189 characters long, more than 140.'
+			fingerprint: bd991a4883145cd2
+
+	src/Platforms/SqlServerPlatform.php:
+		-
+			decision: naming.constant
+			message: The constant `NAME` must be written in PascalCase.
+			fingerprint: bdd84828062b193f
+
+	src/Platforms/SqlitePlatform.php:
+		-
+			decision: naming.constant
+			message: The constant `NAME` must be written in PascalCase.
+			fingerprint: '1f88db97249da5ed'
+
+	src/SqlProcessor.php:
+		-
+			decision: naming.variable
+			message: The variable `_key` must be written in camelCase.
+			fingerprint: '6e3a57ba56be9c3b'
+
+		-
+			decision: naming.variable
+			message: The variable `_key` must be written in camelCase.
+			fingerprint: '9b9b606b6d2ef408'
+
+		-
+			decision: naming.variable
+			message: The variable `_key` must be written in camelCase.
+			fingerprint: b9292a5ee4285497
+
+		-
+			decision: naming.variable
+			message: The variable `_key` must be written in camelCase.
+			fingerprint: fdf40bbf258fbc0d
+
+	src/Utils/StrictObjectTrait.php:
+		-
+			decision: naming.traitAffix
+			message: Useless suffix `Trait` in the name of the trait `StrictObjectTrait`.
+			fingerprint: d1568f64aefafb74
+
+	tests/cases/unit/SqlProcessorTest.backed_enum.phpt:
+		-
+			decision: naming.enumCase
+			message: The enum case `LEFT` must be written in PascalCase.
+			fingerprint: cd0c0879792533f4
+
+		-
+			decision: naming.enumCase
+			message: The enum case `RIGHT` must be written in PascalCase.
+			fingerprint: '5d37f633fbea62d3'
+
+		-
+			decision: naming.enumCase
+			message: The enum case `ZERO` must be written in PascalCase.
+			fingerprint: '9d24710b21160c44'
+
+		-
+			decision: naming.enumCase
+			message: The enum case `ONE` must be written in PascalCase.
+			fingerprint: f396f251bc6c08e9

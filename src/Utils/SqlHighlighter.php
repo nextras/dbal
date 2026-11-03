@@ -7,7 +7,6 @@ use Nextras\Dbal\Exception\InvalidStateException;
 use function assert;
 use function htmlspecialchars;
 use function preg_replace_callback;
-use function strlen;
 use function trim;
 
 
@@ -17,7 +16,6 @@ use function trim;
 class SqlHighlighter
 {
 	use StrictObjectTrait;
-
 
 	public static function highlight(string $sql): string
 	{
@@ -29,15 +27,15 @@ class SqlHighlighter
 		$sql = preg_replace_callback(
 			"#(?<=[\\s,(])($keywords1)(?=[\\s,)])|(?<=[\\s,(=])($keywords2)(?=[\\s,)=])#is",
 			function ($matches): string {
-				if (strlen($matches[1]) > 0) { // most important keywords
+				if ($matches[1] !== '') { // most important keywords
 					return '<strong style="color:#2D44AD">' . $matches[1] . '</strong>';
-				} elseif (strlen($matches[2]) > 0) { // other keywords
+				} elseif ($matches[2] !== '') { // other keywords
 					return '<strong>' . $matches[2] . '</strong>';
 				} else {
 					throw new InvalidStateException();
 				}
 			},
-			$sql
+			$sql,
 		);
 		assert($sql !== null);
 		return trim($sql);

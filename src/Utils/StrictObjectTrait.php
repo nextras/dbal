@@ -18,7 +18,7 @@ trait StrictObjectTrait
 	 */
 	public function __call(string $name, array $args)
 	{
-		$class = $this::class;
+		$class = static::class;
 		throw new MemberAccessException("Call to undefined method $class::$name().");
 	}
 

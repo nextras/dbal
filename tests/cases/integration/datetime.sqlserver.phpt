@@ -7,10 +7,10 @@
 
 namespace NextrasTests\Dbal;
 
+
 use DateTime;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -29,8 +29,9 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write VALUES (%ldt)',
-			new DateTime('2015-01-01 12:00:00') // local
+		$connection->query(
+			'INSERT INTO dates_write VALUES (%ldt)',
+			new DateTime('2015-01-01 12:00:00'), // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -62,8 +63,9 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates VALUES (%dt)',
-			new DateTime('2015-01-01 12:00:00') // 11:00 UTC
+		$connection->query(
+			'INSERT INTO dates VALUES (%dt)',
+			new DateTime('2015-01-01 12:00:00'), // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates');
@@ -73,8 +75,9 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 
 
 		$connection->query('DELETE FROM dates');
-		$connection->query('INSERT INTO dates VALUES (%dt)',
-			new DateTime('2015-01-01 13:00:00 Europe/Helsinki') // 11:00 UTC
+		$connection->query(
+			'INSERT INTO dates VALUES (%dt)',
+			new DateTime('2015-01-01 13:00:00 Europe/Helsinki'), // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates');
@@ -87,8 +90,9 @@ class DateTimeSqlServerTest extends IntegrationTestCase
 		date_default_timezone_set('Europe/London');
 
 		$connection->query('DELETE FROM dates');
-		$connection->query('INSERT INTO dates VALUES (%dt)',
-			new DateTime('2015-01-01 14:00:00 Europe/Helsinki') // 12:00 UTC
+		$connection->query(
+			'INSERT INTO dates VALUES (%dt)',
+			new DateTime('2015-01-01 14:00:00 Europe/Helsinki'), // 12:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates');

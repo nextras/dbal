@@ -23,25 +23,21 @@ interface IConnection
 	public const TRANSACTION_REPEATABLE_READ = 3;
 	public const TRANSACTION_SERIALIZABLE = 4;
 
-
 	/**
 	 * Connects to a database.
 	 * @throws ConnectionException
 	 */
 	public function connect(): void;
 
-
 	/**
 	 * Disconnects from a database.
 	 */
 	public function disconnect(): void;
 
-
 	/**
 	 * Reconnects to a database.
 	 */
 	public function reconnect(): void;
-
 
 	/**
 	 * Reconnects to a database with new configuration. Unchanged configuration is reused.
@@ -49,10 +45,8 @@ interface IConnection
 	 */
 	public function reconnectWithConfig(array $config): void;
 
-
 	#[\NoDiscard]
 	public function getDriver(): IDriver;
-
 
 	/**
 	 * Returns connection configuration.
@@ -60,7 +54,6 @@ interface IConnection
 	 */
 	#[\NoDiscard]
 	public function getConfig(): array;
-
 
 	/**
 	 * Executes an query.
@@ -72,11 +65,9 @@ interface IConnection
 	 * $connection->query('SELECT * FROM books WHERE id = %i', $id);
 	 * ```
 	 * @param literal-string $expression
-	 * @param mixed ...$args
 	 * @throws QueryException
 	 */
 	public function query(string $expression, mixed ...$args): Result;
-
 
 	/**
 	 * @param string|array<mixed> $query
@@ -85,9 +76,7 @@ interface IConnection
 	 */
 	public function queryArgs(string|array $query, array $args = []): Result;
 
-
 	public function queryByQueryBuilder(QueryBuilder $queryBuilder): Result;
-
 
 	/**
 	 * Returns last inserted ID.
@@ -108,24 +97,19 @@ interface IConnection
 	#[\NoDiscard]
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null);
 
-
 	/**
 	 * Returns number of affected rows.
 	 */
 	#[\NoDiscard]
 	public function getAffectedRows(): int;
 
-
 	#[\NoDiscard]
 	public function getPlatform(): IPlatform;
-
 
 	#[\NoDiscard]
 	public function createQueryBuilder(): QueryBuilder;
 
-
 	public function setTransactionIsolationLevel(int $level): void;
-
 
 	/**
 	 * Performs operation in a transaction.
@@ -136,13 +120,11 @@ interface IConnection
 	 */
 	public function transactional(callable $callback): mixed;
 
-
 	/**
 	 * Begins a transaction.
 	 * @throws DriverException
 	 */
 	public function beginTransaction(): void;
-
 
 	/**
 	 * Commits the current transaction.
@@ -150,13 +132,11 @@ interface IConnection
 	 */
 	public function commitTransaction(): void;
 
-
 	/**
 	 * Cancels the current transaction.
 	 * @throws DriverException
 	 */
 	public function rollbackTransaction(): void;
-
 
 	/**
 	 * Returns current connection's transaction nested index.
@@ -167,13 +147,11 @@ interface IConnection
 	#[\NoDiscard]
 	public function getTransactionNestedIndex(): int;
 
-
 	/**
 	 * Creates a savepoint.
 	 * @throws DriverException
 	 */
 	public function createSavepoint(string $name): void;
-
 
 	/**
 	 * Releases the savepoint.
@@ -181,13 +159,11 @@ interface IConnection
 	 */
 	public function releaseSavepoint(string $name): void;
 
-
 	/**
 	 * Rollbacks the savepoint.
 	 * @throws DriverException
 	 */
 	public function rollbackSavepoint(string $name): void;
-
 
 	/**
 	 * Pings a database connection and returns true if the connection is alive.
@@ -198,12 +174,10 @@ interface IConnection
 	 */
 	public function ping(): bool;
 
-
 	/**
 	 * Adds logger for observing connection queries & changes.
 	 */
 	public function addLogger(ILogger $logger): void;
-
 
 	/**
 	 * Removes logger.

@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 use Nextras\Dbal\Connection;

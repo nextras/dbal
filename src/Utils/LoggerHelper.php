@@ -16,7 +16,6 @@ class LoggerHelper
 {
 	use StrictObjectTrait;
 
-
 	/**
 	 * @throws DriverException
 	 */
@@ -27,14 +26,14 @@ class LoggerHelper
 			$logger->onQuery(
 				$sqlQuery,
 				$driver->getQueryElapsedTime(),
-				$result
+				$result,
 			);
 			return $result;
 		} catch (DriverException $exception) {
 			$logger->onQueryException(
 				$sqlQuery,
 				$driver->getQueryElapsedTime(),
-				$exception
+				$exception,
 			);
 			throw $exception;
 		}

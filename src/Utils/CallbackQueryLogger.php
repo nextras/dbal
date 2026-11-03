@@ -19,9 +19,7 @@ use Nextras\Dbal\Result\Result;
  */
 class CallbackQueryLogger implements ILogger
 {
-	/**
-	 * @var callable(string $sqlQuery, float $timeTaken, ?Result $result): void
-	 */
+	/** @var callable(string $sqlQuery, float $timeTaken, ?Result $result): void */
 	private $callback;
 
 
@@ -44,7 +42,7 @@ class CallbackQueryLogger implements ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
+	public function onQuery(string $sqlQuery, float $timeTaken, Result|null $result): void
 	{
 		$callback = $this->callback;
 		$callback($sqlQuery, $timeTaken, $result);
@@ -54,7 +52,7 @@ class CallbackQueryLogger implements ILogger
 	public function onQueryException(
 		string $sqlQuery,
 		float $timeTaken,
-		?DriverException $exception
+		DriverException|null $exception,
 	): void
 	{
 	}

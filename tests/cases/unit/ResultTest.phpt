@@ -13,7 +13,6 @@ use Nextras\Dbal\Result\Row;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -31,7 +30,7 @@ class ResultTest extends TestCase
 
 		$names = [];
 		$result = new Result($adapter);
-		$result->setValueNormalization(false);
+		$result->setValueNormalization();
 		foreach ($result as $row) {
 			$names[] = $row->name;
 		}
@@ -56,7 +55,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('fetch')->times(3)->andReturn(['name' => 'First', 'surname' => 'Two']);
 
 		$result = new Result($adapter);
-		$result->setValueNormalization(false);
+		$result->setValueNormalization();
 		Assert::same('First', $result->fetchField());
 		Assert::same('Two', $result->fetchField(1));
 		Assert::throws(function () use ($result) {
@@ -68,7 +67,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 		$result = new Result($adapter);
-		$result->setValueNormalization(false);
+		$result->setValueNormalization();
 		Assert::null($result->fetchField());
 	}
 
@@ -87,7 +86,7 @@ class ResultTest extends TestCase
 		$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 		$result = new Result($adapter);
-		$result->setValueNormalization(false);
+		$result->setValueNormalization();
 
 		Assert::equal([
 			new Row(['name' => 'First', 'surname' => 'Two']),
@@ -122,7 +121,7 @@ class ResultTest extends TestCase
 			$adapter->shouldReceive('fetch')->once()->andReturn(null);
 
 			$result = new Result($adapter);
-			$result->setValueNormalization(false);
+			$result->setValueNormalization();
 			return $result;
 		};
 
@@ -134,7 +133,7 @@ class ResultTest extends TestCase
 		Assert::equal([
 			10 => new Row($one),
 			12 => new Row($two),
-		], $createResult()->fetchPairs('n', null));
+		], $createResult()->fetchPairs('n'));
 
 		Assert::same([
 			10 => 'jon snow',
@@ -144,7 +143,7 @@ class ResultTest extends TestCase
 		Assert::equal([
 			'2014-01-01T00:00:00+01:00' => new Row($one),
 			'2014-01-03T00:00:00+01:00' => new Row($two),
-		], $createResult()->fetchPairs('born', null));
+		], $createResult()->fetchPairs('born'));
 
 		Assert::same([
 			'2014-01-01T00:00:00+01:00' => 'jon snow',
@@ -155,7 +154,7 @@ class ResultTest extends TestCase
 			$adapter = Mockery::mock(IResultAdapter::class);
 			$adapter->shouldReceive('getNormalizers')->once()->andReturn([]);
 			$result = new Result($adapter);
-			$result->setValueNormalization(false);
+			$result->setValueNormalization();
 			$_ = $result->fetchPairs();
 		}, InvalidArgumentException::class, 'Result::fetchPairs() requires defined key or value.');
 	}

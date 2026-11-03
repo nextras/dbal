@@ -11,7 +11,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -45,7 +44,7 @@ class SqlProcessorValuesTest extends TestCase
 				'id%i' => 1,
 				'title%s' => "'foo'",
 				'foo' => 2,
-			])
+			]),
 		);
 	}
 
@@ -72,7 +71,7 @@ class SqlProcessorValuesTest extends TestCase
 					'title%s' => "'foo2'",
 					'foo' => 3,
 				],
-			])
+			]),
 		);
 	}
 
@@ -84,31 +83,31 @@ class SqlProcessorValuesTest extends TestCase
 			->once()
 			->andReturn(false);
 		Assert::same(
-			"INSERT INTO test DEFAULT VALUES",
-			$this->convert('INSERT INTO test %values', [])
+			'INSERT INTO test DEFAULT VALUES',
+			$this->convert('INSERT INTO test %values', []),
 		);
 
 		Assert::same(
-			"INSERT INTO test VALUES (DEFAULT)",
-			$this->convert('INSERT INTO test %values[]', [[]])
+			'INSERT INTO test VALUES (DEFAULT)',
+			$this->convert('INSERT INTO test %values[]', [[]]),
 		);
 
 		Assert::same(
-			"INSERT INTO test VALUES (DEFAULT)",
-			$this->convert('INSERT INTO test %values[]', [1 => []])
+			'INSERT INTO test VALUES (DEFAULT)',
+			$this->convert('INSERT INTO test %values[]', [1 => []]),
 		);
 
 		Assert::same(
-			"INSERT INTO test VALUES (DEFAULT), (DEFAULT)",
-			$this->convert('INSERT INTO test %values[]', [[], null])
+			'INSERT INTO test VALUES (DEFAULT), (DEFAULT)',
+			$this->convert('INSERT INTO test %values[]', [[], null]),
 		);
 
 		$this->platform->shouldReceive('formatIdentifier')->once()->with('id')->andReturn('id');
 		$this->platform->shouldReceive('formatIdentifier')->once()->with('author')->andReturn('author');
 
 		Assert::same(
-			"INSERT INTO test (id, author) VALUES (1, 2), (DEFAULT, DEFAULT), (DEFAULT, DEFAULT)",
-			$this->convert('INSERT INTO test %values[]', [['id' => 1, 'author' => 2], null, null])
+			'INSERT INTO test (id, author) VALUES (1, 2), (DEFAULT, DEFAULT), (DEFAULT, DEFAULT)',
+			$this->convert('INSERT INTO test %values[]', [['id' => 1, 'author' => 2], null, null]),
 		);
 
 		Assert::throws(function () {

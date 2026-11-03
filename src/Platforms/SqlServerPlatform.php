@@ -22,13 +22,14 @@ class SqlServerPlatform implements IPlatform
 {
 	use StrictObjectTrait;
 
-
 	final public const NAME = 'mssql';
 
 	private readonly IDriver $driver;
 
 
-	public function __construct(private readonly IConnection $connection)
+	public function __construct(
+		private readonly IConnection $connection,
+	)
 	{
 		$this->driver = $connection->getDriver();
 	}
@@ -41,14 +42,14 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(?string $schema = null): array
+	public function getTables(string|null $schema = null): array
 	{
-		$result = $this->connection->query(/** @lang GenericSQL */ "
+		$result = $this->connection->query(/** @lang GenericSQL */ '
 			SELECT TABLE_NAME, TABLE_TYPE, TABLE_SCHEMA
  			FROM [INFORMATION_SCHEMA].[TABLES]
 			WHERE TABLE_SCHEMA = COALESCE(%?s, SCHEMA_NAME())
  			ORDER BY TABLE_NAME
-		", $schema);
+		', $schema);
 
 		$tables = [];
 		foreach ($result as $row) {
@@ -63,7 +64,7 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table, ?string $schema = null): array
+	public function getColumns(string $table, string|null $schema = null): array
 	{
 		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
@@ -126,7 +127,7 @@ class SqlServerPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table, ?string $schema = null): array
+	public function getForeignKeys(string $table, string|null $schema = null): array
 	{
 		$result = $this->connection->query(/** @lang GenericSQL */ "
 			SELECT
@@ -168,7 +169,7 @@ class SqlServerPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
+	public function getPrimarySequenceName(string $table, string|null $schema = null): string|null
 	{
 		return null;
 	}
@@ -242,7 +243,7 @@ class SqlServerPlatform implements IPlatform
 	}
 
 
-	public function formatLimitOffset(?int $limit, ?int $offset): string
+	public function formatLimitOffset(int|null $limit, int|null $offset): string
 	{
 		$clause = 'OFFSET ' . ($offset ?? 0) . ' ROWS';
 		if ($limit !== null) {
@@ -255,7 +256,7 @@ class SqlServerPlatform implements IPlatform
 	public function createMultiQueryParser(): IMultiQueryParser
 	{
 		if (!class_exists(SqlServerMultiQueryParser::class)) {
-			throw new \RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+			throw new \RuntimeException('Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().');
 		}
 		return new SqlServerMultiQueryParser();
 	}

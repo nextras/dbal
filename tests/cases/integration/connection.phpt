@@ -7,9 +7,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 

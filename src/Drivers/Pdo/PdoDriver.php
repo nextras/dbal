@@ -26,10 +26,9 @@ abstract class PdoDriver implements IDriver
 {
 	use StrictObjectTrait;
 
-
-	protected ?PDO $connection = null;
-	protected ?DateTimeZone $connectionTz = null;
-	protected ?ILogger $logger = null;
+	protected PDO|null $connection = null;
+	protected DateTimeZone|null $connectionTz = null;
+	protected ILogger|null $logger = null;
 	protected float $timeTaken = 0.0;
 	protected int $affectedRows = 0;
 
@@ -75,7 +74,7 @@ abstract class PdoDriver implements IDriver
 	}
 
 
-	public function getResourceHandle(): ?PDO
+	public function getResourceHandle(): PDO|null
 	{
 		return $this->connection;
 	}
@@ -181,6 +180,7 @@ abstract class PdoDriver implements IDriver
 			$time = microtime(true);
 
 			$this->connection->commit();
+
 		} catch (PDOException $e) {
 			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
 		}
@@ -253,7 +253,7 @@ abstract class PdoDriver implements IDriver
 		string $error,
 		int $errorNo,
 		string $sqlState,
-		?string $query = null,
+		string|null $query = null,
 	): Exception;
 
 
@@ -267,7 +267,7 @@ abstract class PdoDriver implements IDriver
 	protected function checkConnection(): void
 	{
 		if ($this->connection === null) {
-			throw new InvalidStateException("Driver is not connected to database.");
+			throw new InvalidStateException('Driver is not connected to database.');
 		}
 	}
 }

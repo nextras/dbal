@@ -12,7 +12,6 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -37,7 +36,7 @@ class ConnectionPostgresTest extends IntegrationTestCase
 		Assert::same(2, $this->connection->getLastInsertedId('"public"."publishers_id_seq"'));
 		Assert::same(2, $this->connection->getLastInsertedId(new Fqn(schema: 'public', name: 'publishers_id_seq')));
 
-		Assert::exception(function() {
+		Assert::exception(function () {
 			$_ = $this->connection->getLastInsertedId();
 		}, InvalidArgumentException::class, 'PgsqlDriver requires passing a sequence name for getLastInsertedId() method.');
 	}
@@ -46,9 +45,9 @@ class ConnectionPostgresTest extends IntegrationTestCase
 	public function testSequenceCasing()
 	{
 		$this->lockConnection($this->connection);
-		$this->connection->query('DROP SEQUENCE IF EXISTS %column', "MySequence");
-		$this->connection->query('CREATE SEQUENCE %column INCREMENT 5 START 10;', "MySequence");
-		$this->connection->query('SELECT NEXTVAL(\'%column\')', "MySequence");
+		$this->connection->query('DROP SEQUENCE IF EXISTS %column', 'MySequence');
+		$this->connection->query('CREATE SEQUENCE %column INCREMENT 5 START 10;', 'MySequence');
+		$this->connection->query('SELECT NEXTVAL(\'%column\')', 'MySequence');
 		Assert::same(10, $this->connection->getLastInsertedId('"MySequence"'));
 	}
 }

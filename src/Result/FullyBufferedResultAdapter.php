@@ -12,7 +12,7 @@ use ArrayIterator;
 class FullyBufferedResultAdapter extends BufferedResultAdapter
 {
 	/** @var array<string, array{int, mixed}>|null */
-	protected $types = null;
+	protected $types;
 
 
 	public function getTypes(): array

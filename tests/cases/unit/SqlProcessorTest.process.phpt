@@ -11,7 +11,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -53,20 +52,18 @@ class SqlProcessorProcessTest extends TestCase
 				'B',
 				'C',
 				'D',
-			])
+			]),
 		);
 	}
 
 
 	public function testMultipleFragments()
 	{
-		$this->parser->shouldReceive('processModifier')->times(3)->andReturnUsing(function ($type, $value) {
-			return $type . $value;
-		});
+		$this->parser->shouldReceive('processModifier')->times(3)->andReturnUsing(fn($type, $value) => $type . $value);
 
 		Assert::same(
 			'A i1 i2 B C i3 D E',
-			$this->parser->process(['A %i %i B', 1, 2, 'C %i D', 3, 'E'])
+			$this->parser->process(['A %i %i B', 1, 2, 'C %i D', 3, 'E']),
 		);
 	}
 
@@ -75,7 +72,7 @@ class SqlProcessorProcessTest extends TestCase
 	{
 		Assert::same(
 			'SELECT DATE_FORMAT(publishedDate, "%Y") AS year FROM foo',
-			$this->parser->process(['SELECT DATE_FORMAT(publishedDate, "%%Y") AS year FROM foo'])
+			$this->parser->process(['SELECT DATE_FORMAT(publishedDate, "%%Y") AS year FROM foo']),
 		);
 	}
 

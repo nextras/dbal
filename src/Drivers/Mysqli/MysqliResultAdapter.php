@@ -14,10 +14,6 @@ class MysqliResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
 
-
-	/**
-	 * @param mysqli_result<array<mixed>> $result
-	 */
 	public function __construct(
 		/**
 		 * @var mysqli_result<array<mixed>>
@@ -55,7 +51,7 @@ class MysqliResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		$fetched = $this->result->fetch_assoc();
 		if ($fetched === false) throw new InvalidStateException();
@@ -81,7 +77,7 @@ class MysqliResultAdapter implements IResultAdapter
 	{
 		$rows = $this->result->num_rows;
 		if (is_string($rows)) {
-			throw new InvalidStateException("Query returned more rows that Integer can store.");
+			throw new InvalidStateException('Query returned more rows that Integer can store.');
 		}
 		return $rows;
 	}

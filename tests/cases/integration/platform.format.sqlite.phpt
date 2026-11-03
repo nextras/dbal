@@ -12,7 +12,6 @@ use DateTime;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -44,22 +43,22 @@ class PlatformFormatSqliteTest extends IntegrationTestCase
 		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", "A'B")->fetchField());
 		Assert::truthy($c->query("SELECT 'AA''BB' LIKE %_like_", "A'B")->fetchField());
 
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", "A\\B")->fetchField());
-		Assert::truthy($c->query("SELECT 'AA\\BB' LIKE %_like_", "A\\B")->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", 'A\\B')->fetchField());
+		Assert::truthy($c->query("SELECT 'AA\\BB' LIKE %_like_", 'A\\B')->fetchField());
 
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", "A%B")->fetchField());
-		Assert::truthy($c->query("SELECT %raw     LIKE %_like_", "'AA%BB'", "A%B")->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", 'A%B')->fetchField());
+		Assert::truthy($c->query('SELECT %raw     LIKE %_like_', "'AA%BB'", 'A%B')->fetchField());
 
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", "A_B")->fetchField());
-		Assert::truthy($c->query("SELECT 'AA_BB'  LIKE %_like_", "A_B")->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like_", 'A_B')->fetchField());
+		Assert::truthy($c->query("SELECT 'AA_BB'  LIKE %_like_", 'A_B')->fetchField());
 
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like", "AAAxBB")->fetchField());
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like", "AxB")->fetchField());
-		Assert::truthy($c->query("SELECT 'AAxBB'  LIKE %_like", "AxBB")->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like", 'AAAxBB')->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %_like", 'AxB')->fetchField());
+		Assert::truthy($c->query("SELECT 'AAxBB'  LIKE %_like", 'AxBB')->fetchField());
 
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxBBB")->fetchField());
-		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %like_", "AxB")->fetchField());
-		Assert::truthy($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxB")->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %like_", 'AAxBBB')->fetchField());
+		Assert::falsey($c->query("SELECT 'AAxBB'  LIKE %like_", 'AxB')->fetchField());
+		Assert::truthy($c->query("SELECT 'AAxBB'  LIKE %like_", 'AAxB')->fetchField());
 	}
 }
 

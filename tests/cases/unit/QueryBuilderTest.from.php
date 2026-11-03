@@ -4,6 +4,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -15,7 +16,7 @@ class QueryBuilderFromTest extends QueryBuilderTestCase
 			['SELECT * FROM foo'],
 			$this->builder()
 				->from('%table', 'alias', 'tableName')
-				->from('foo')
+				->from('foo'),
 		);
 	}
 }

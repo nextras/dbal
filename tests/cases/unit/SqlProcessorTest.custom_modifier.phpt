@@ -10,7 +10,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -29,17 +28,15 @@ class SqlProcessorCustomModifierTest extends TestCase
 
 	public function testArray()
 	{
-		$this->parser->setCustomModifier('yesBool', function (SqlProcessor $sqlProcessor, $val) {
-			return $val ? "'yes'" : "'no'";
-		});
+		$this->parser->setCustomModifier('yesBool', fn(SqlProcessor $sqlProcessor, $val) => $val ? "'yes'" : "'no'");
 
 		Assert::same(
 			"SELECT FROM test WHERE published = 'yes'",
-			$this->convert('SELECT FROM test WHERE published = %yesBool', true)
+			$this->convert('SELECT FROM test WHERE published = %yesBool', true),
 		);
 		Assert::same(
 			"SELECT FROM test WHERE published = 'no'",
-			$this->convert('SELECT FROM test WHERE published = %yesBool', false)
+			$this->convert('SELECT FROM test WHERE published = %yesBool', false),
 		);
 	}
 
@@ -50,21 +47,21 @@ class SqlProcessorCustomModifierTest extends TestCase
 			$this->parser->setCustomModifier(
 				's',
 				function () {
-				}
+				},
 			);
 		}, InvalidArgumentException::class);
 		Assert::exception(function () {
 			$this->parser->setCustomModifier(
 				's?',
 				function () {
-				}
+				},
 			);
 		}, InvalidArgumentException::class);
 		Assert::exception(function () {
 			$this->parser->setCustomModifier(
 				's[]',
 				function () {
-				}
+				},
 			);
 		}, InvalidArgumentException::class);
 	}

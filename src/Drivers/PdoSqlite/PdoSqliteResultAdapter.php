@@ -17,7 +17,6 @@ class PdoSqliteResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
 
-
 	/** @var PDOStatement<mixed> */
 	private $statement;
 
@@ -56,11 +55,11 @@ class PdoSqliteResultAdapter implements IResultAdapter
 			return;
 		}
 
-		throw new NotSupportedException("PDO does not support rewinding or seeking. Use Result::buffered() before first consume of the result.");
+		throw new NotSupportedException('PDO does not support rewinding or seeking. Use Result::buffered() before first consume of the result.');
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		$this->beforeFirstFetch = false;
 		$fetched = $this->statement->fetch(PDO::FETCH_ASSOC);

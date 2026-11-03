@@ -10,7 +10,6 @@ namespace NextrasTests\Dbal;
 
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -24,8 +23,8 @@ class ConnectionSqliteTest extends IntegrationTestCase
 			1,
 			$this->connection->query(
 				"SELECT COUNT(*) FROM sqlite_temp_master WHERE type = 'table' AND name = %s",
-				$tableName
-			)->fetchField()
+				$tableName,
+			)->fetchField(),
 		);
 
 		$this->connection->reconnect();
@@ -34,8 +33,8 @@ class ConnectionSqliteTest extends IntegrationTestCase
 			0,
 			$this->connection->query(
 				"SELECT COUNT(*) FROM sqlite_temp_master WHERE type = 'table' AND name = %s",
-				$tableName
-			)->fetchField()
+				$tableName,
+			)->fetchField(),
 		);
 	}
 

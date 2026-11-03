@@ -17,14 +17,11 @@ class SqlsrvResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
 
+	private int|null $index = null;
 
-	private ?int $index = null;
 
-
-	/**
-	 * @param resource $statement
-	 */
 	public function __construct(
+		/** @var resource */
 		private $statement,
 		private readonly SqlsrvResultNormalizationFactory $normalizationFactory,
 	)
@@ -52,14 +49,18 @@ class SqlsrvResultAdapter implements IResultAdapter
 
 	public function seek(int $index): void
 	{
-		if ($index !== 0 && sqlsrv_num_rows($this->statement) !== 0 && sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index) !== true) {
+		if (
+			$index !== 0
+			&& sqlsrv_num_rows($this->statement) !== 0
+			&& sqlsrv_fetch($this->statement, SQLSRV_SCROLL_ABSOLUTE, $index) !== true
+		) {
 			throw new InvalidArgumentException("Unable to seek in row set to {$index} index.");
 		}
 		$this->index = $index;
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		if ($this->index !== null) {
 			$index = $this->index;

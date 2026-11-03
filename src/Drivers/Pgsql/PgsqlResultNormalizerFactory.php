@@ -22,7 +22,6 @@ class PgsqlResultNormalizerFactory
 {
 	use StrictObjectTrait;
 
-
 	private Closure $intNormalizer;
 	private Closure $floatNormalizer;
 	private Closure $boolNormalizer;
@@ -36,29 +35,29 @@ class PgsqlResultNormalizerFactory
 	{
 		$applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 
-		$this->intNormalizer = static function ($value): ?int {
+		$this->intNormalizer = static function ($value): int|null {
 			if ($value === null) return null;
 			return (int) $value;
 		};
 
-		$this->floatNormalizer = static function ($value): ?float {
+		$this->floatNormalizer = static function ($value): float|null {
 			if ($value === null) return null;
 			return (float) $value;
 		};
 
-		$this->boolNormalizer = static function ($value): ?bool {
+		$this->boolNormalizer = static function ($value): bool|null {
 			static $trues = ['true', 't', 'yes', 'y', 'on', '1'];
 			if ($value === null) return null;
 			return in_array(strtolower($value), $trues, true);
 		};
 
-		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): ?DateTimeImmutable {
+		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): DateTimeImmutable|null {
 			if ($value === null) return null;
 			$dateTime = new DateTimeImmutable($value);
 			return $dateTime->setTimezone($applicationTimeZone);
 		};
 
-		$this->intervalNormalizer = static function ($value): ?DateInterval {
+		$this->intervalNormalizer = static function ($value): DateInterval|null {
 			if ($value === null) return null;
 			return new DateInterval($value);
 		};
@@ -68,7 +67,7 @@ class PgsqlResultNormalizerFactory
 			return bindec($value);
 		};
 
-		$this->byteaNormalizer = static function ($value): ?string {
+		$this->byteaNormalizer = static function ($value): string|null {
 			if ($value === null) return null;
 			return pg_unescape_bytea($value);
 		};

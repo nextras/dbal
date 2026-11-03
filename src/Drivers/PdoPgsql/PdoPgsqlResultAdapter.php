@@ -16,14 +16,11 @@ class PdoPgsqlResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
 
-
 	private bool $beforeFirstFetch = true;
 
 
-	/**
-	 * @param PDOStatement<mixed> $statement
-	 */
 	public function __construct(
+		/** @var PDOStatement<mixed> */
 		private readonly PDOStatement $statement,
 		private readonly PdoPgsqlResultNormalizerFactory $normalizerFactory,
 	)
@@ -49,11 +46,11 @@ class PdoPgsqlResultAdapter implements IResultAdapter
 			return;
 		}
 
-		throw new NotSupportedException("PDO does not support rewinding or seeking. Use Result::buffered() before first consume of the result.");
+		throw new NotSupportedException('PDO does not support rewinding or seeking. Use Result::buffered() before first consume of the result.');
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		if ($this->beforeFirstFetch && $this->statement->columnCount() === 0) {
 			$this->beforeFirstFetch = false;
@@ -80,7 +77,7 @@ class PdoPgsqlResultAdapter implements IResultAdapter
 		for ($i = 0; $i < $count; $i++) {
 			$field = $this->statement->getColumnMeta($i);
 			if ($field === false) {
-				throw new InvalidStateException("Should not happen.");
+				throw new InvalidStateException('Should not happen.');
 			}
 			$types[$field['name']] = $field['native_type'] ?? null;
 		}

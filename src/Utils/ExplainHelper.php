@@ -8,7 +8,7 @@ namespace Nextras\Dbal\Utils;
  */
 class ExplainHelper
 {
-	public static function getExplainQuery(string $sql): ?string
+	public static function getExplainQuery(string $sql): string|null
 	{
 		$doExplain = preg_match('#^\s*+\(?\s*+(?:SELECT|INSERT|UPDATE|DELETE|WITH)\s#i', $sql) === 1;
 		if (!$doExplain) return null;

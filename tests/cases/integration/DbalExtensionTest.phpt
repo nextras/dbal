@@ -6,6 +6,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nette\DI\Compiler;
 use Nette\DI\Container;
 use Nette\DI\ContainerLoader;
@@ -15,7 +16,6 @@ use Nextras\Dbal\Connection;
 use Tester\Assert;
 use Tracy\Bridges\Nette\TracyExtension;
 use Tracy\Debugger;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -29,11 +29,11 @@ class DbalExtensionTest extends IntegrationTestCase
 	{
 		$dic = $this->buildDic($config, $debug);
 
-		Assert::type('Nette\DI\Container', $dic);
+		Assert::type(Container::class, $dic);
 		Assert::count(1, $dic->findByType(Connection::class));
 
-		/** @var Connection $connection */
 		$connection = $dic->getByType(Connection::class);
+		assert($connection instanceof Connection);
 
 		$conf = $connection->getConfig();
 		Assert::same('mysqli', $conf['driver']);
@@ -43,7 +43,7 @@ class DbalExtensionTest extends IntegrationTestCase
 		if ($expectTracyPanel) {
 			Assert::type(
 				ConnectionPanel::class,
-				Debugger::getBar()->getPanel('Nextras\Dbal\Bridges\NetteTracy\ConnectionPanel')
+				Debugger::getBar()->getPanel(ConnectionPanel::class),
 			);
 		}
 	}
@@ -65,8 +65,8 @@ class DbalExtensionTest extends IntegrationTestCase
 			$compiler->loadConfig(__DIR__ . "/DbalExtensionTest.$config.neon");
 		}, $key);
 
-		/** @var Container $dic */
-		$dic = new $className;
+		$dic = new $className();
+		assert($dic instanceof Container);
 		return $dic;
 	}
 

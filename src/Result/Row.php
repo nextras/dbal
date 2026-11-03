@@ -33,7 +33,7 @@ class Row extends \stdClass
 	public function __get(string $name): mixed
 	{
 		$closest = Typos::getClosest($name, array_keys($this->toArray()));
-		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest !== null ? ", did you mean '$closest'?" : "."));
+		throw new InvalidArgumentException("Column '$name' does not exist" . ($closest !== null ? ", did you mean '$closest'?" : '.'));
 	}
 
 
@@ -41,7 +41,7 @@ class Row extends \stdClass
 	public function getNthField(int $offset): mixed
 	{
 		$slice = array_slice((array) $this, $offset, 1);
-		if (count($slice) === 0) {
+		if ($slice === []) {
 			throw new InvalidArgumentException("Column '$offset' does not exist.");
 		}
 		return current($slice);

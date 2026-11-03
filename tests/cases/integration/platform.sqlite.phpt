@@ -12,7 +12,6 @@ use Nextras\Dbal\Platforms\Data\Fqn;
 use Tester\Assert;
 use function array_map;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -23,13 +22,13 @@ class PlatformSqliteTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 		$tables = $this->connection->getPlatform()->getTables();
 
-		Assert::true(isset($tables["books"]));
-		Assert::same('books', $tables["books"]->fqnName->name);
-		Assert::same(false, $tables["books"]->isView);
+		Assert::true(isset($tables['books']));
+		Assert::same('books', $tables['books']->fqnName->name);
+		Assert::same(false, $tables['books']->isView);
 
-		Assert::true(isset($tables["my_books"]));
-		Assert::same('my_books', $tables["my_books"]->fqnName->name);
-		Assert::same(true, $tables["my_books"]->isView);
+		Assert::true(isset($tables['my_books']));
+		Assert::same('my_books', $tables['my_books']->fqnName->name);
+		Assert::same(true, $tables['my_books']->isView);
 	}
 
 
@@ -37,9 +36,7 @@ class PlatformSqliteTest extends IntegrationTestCase
 	{
 		$this->lockConnection($this->connection);
 		$columns = $this->connection->getPlatform()->getColumns('books');
-		$columns = array_map(function ($column) {
-			return (array) $column;
-		}, $columns);
+		$columns = array_map(fn($column) => (array) $column, $columns);
 
 		Assert::same([
 			'id' => [
@@ -111,9 +108,7 @@ class PlatformSqliteTest extends IntegrationTestCase
 		], $columns);
 
 		$schemaColumns = $this->connection->getPlatform()->getColumns('authors');
-		$schemaColumns = array_map(function ($column) {
-			return (array) $column;
-		}, $schemaColumns);
+		$schemaColumns = array_map(fn($column) => (array) $column, $schemaColumns);
 
 		Assert::same([
 			'id' => [
@@ -169,9 +164,7 @@ class PlatformSqliteTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 
 		$keys = $this->connection->getPlatform()->getForeignKeys('books');
-		$keys = array_map(function ($key) {
-			return (array) $key;
-		}, $keys);
+		$keys = array_map(fn($key) => (array) $key, $keys);
 
 		Assert::equal([
 			'ean_id' => [
