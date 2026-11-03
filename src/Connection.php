@@ -15,7 +15,7 @@ use Nextras\Dbal\Utils\MultiLogger;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function array_unshift;
 use function is_array;
-use function spl_object_hash;
+use function spl_object_id;
 use function str_replace;
 use function ucfirst;
 use function ucwords;
@@ -309,13 +309,13 @@ class Connection implements IConnection
 
 	public function addLogger(ILogger $logger): void
 	{
-		$this->logger->loggers[spl_object_hash($logger)] = $logger;
+		$this->logger->loggers[spl_object_id($logger)] = $logger;
 	}
 
 
 	public function removeLogger(ILogger $logger): void
 	{
-		unset($this->logger->loggers[spl_object_hash($logger)]);
+		unset($this->logger->loggers[spl_object_id($logger)]);
 	}
 
 

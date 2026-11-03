@@ -17,7 +17,7 @@ final class MultiLogger implements ILogger
 
 
 	/**
-	 * @var array<string, ILogger>
+	 * @var array<int, ILogger>
 	 */
 	public $loggers = [];
 
