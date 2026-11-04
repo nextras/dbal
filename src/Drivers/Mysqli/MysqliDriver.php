@@ -60,12 +60,11 @@ class MysqliDriver implements IDriver
 {
 	use StrictObjectTrait;
 
-
-	private ?\mysqli $connection = null;
-	private ?\DateTimeZone $connectionTz = null;
-	private ?ILogger $logger = null;
+	private \mysqli|null $connection = null;
+	private \DateTimeZone|null $connectionTz = null;
+	private ILogger|null $logger = null;
 	private float $timeTaken = 0.0;
-	private ?MysqliResultNormalizerFactory $resultNormalizerFactory = null;
+	private MysqliResultNormalizerFactory|null $resultNormalizerFactory = null;
 
 
 	public function __destruct()
@@ -120,7 +119,7 @@ class MysqliDriver implements IDriver
 	}
 
 
-	public function getResourceHandle(): ?mysqli
+	public function getResourceHandle(): mysqli|null
 	{
 		return $this->connection;
 	}
@@ -363,7 +362,7 @@ class MysqliDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
 		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
@@ -394,7 +393,7 @@ class MysqliDriver implements IDriver
 	protected function checkConnection(): void
 	{
 		if ($this->connection === null) {
-			throw new InvalidStateException("Driver is not connected to database.");
+			throw new InvalidStateException('Driver is not connected to database.');
 		}
 	}
 }

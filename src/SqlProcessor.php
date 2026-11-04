@@ -17,7 +17,6 @@ class SqlProcessor
 {
 	use StrictObjectTrait;
 
-
 	/**
 	 * Modifiers definition in form of array (name => [supports ?, supports [], expected type description]).
 	 * @var array<string, array{bool, bool, string}>
@@ -62,10 +61,12 @@ class SqlProcessor
 	protected SplObjectStorage $modifierResolvers;
 
 	/** @var array<string, string> */
-	private ?array $identifiers = null;
+	private array|null $identifiers = null;
 
 
-	public function __construct(private readonly IPlatform $platform)
+	public function __construct(
+		private readonly IPlatform $platform,
+	)
 	{
 		$this->modifierResolvers = new SplObjectStorage();
 	}
@@ -113,16 +114,17 @@ class SqlProcessor
 
 		for ($i = 0, $j = 0; $j <= $last; $j++) {
 			if (!is_string($args[$j])) {
-				throw new InvalidArgumentException($j === 0
-					? 'Query fragment must be string.'
-					: "Redundant query parameter or missing modifier in query fragment '$args[$i]'.",
+				throw new InvalidArgumentException(
+					$j === 0
+						? 'Query fragment must be string.'
+						: "Redundant query parameter or missing modifier in query fragment '$args[$i]'.",
 				);
 			}
 
 			$i = $j;
 			$fragments[] = preg_replace_callback(
 				'#%((?:\.\.\.)?+\??+\w++(?:\[]){0,2}+)|(%%)|(\[\[)|(]])|\[(.+?)]#S', // %modifier | %% | [[ | ]] | [identifier]
-				function($matches) use ($args, &$j, $last): string {
+				function ($matches) use ($args, &$j, $last): string {
 					if ($matches[1] !== '') {
 						if ($j === $last) {
 							throw new InvalidArgumentException("Missing query parameter for modifier $matches[0].");
@@ -200,12 +202,12 @@ class SqlProcessor
 					case '_like_':
 						return $this->platform->formatStringLike($value, 0);
 
-					/** @noinspection PhpMissingBreakStatementInspection */
+						/** @noinspection PhpMissingBreakStatementInspection */
 					case 'column':
 						if ($value === '*') {
 							return '*';
 						}
-					// intentional pass-through
+						// break omitted
 					case 'table':
 						return $this->identifierToSql($value);
 
@@ -217,6 +219,7 @@ class SqlProcessor
 				}
 
 				break;
+
 			case 'integer':
 				switch ($type) {
 					case 'any':
@@ -230,6 +233,7 @@ class SqlProcessor
 				}
 
 				break;
+
 			case 'double':
 				if (is_finite($value)) { // database can not handle INF and NAN
 					switch ($type) {
@@ -246,6 +250,7 @@ class SqlProcessor
 				}
 
 				break;
+
 			case 'boolean':
 				switch ($type) {
 					case 'any':
@@ -259,6 +264,7 @@ class SqlProcessor
 				}
 
 				break;
+
 			case 'NULL':
 				switch ($type) {
 					case 'any':
@@ -277,6 +283,7 @@ class SqlProcessor
 				}
 
 				break;
+
 			case 'object':
 				if ($type === 'json' || $type === '?json') {
 					return $this->platform->formatJson($value);
@@ -334,11 +341,12 @@ class SqlProcessor
 				}
 
 				break;
+
 			case 'array':
 				switch ($type) {
 					// micro-optimizations
 					case 'any':
-						return $this->processArray("any[]", $value);
+						return $this->processArray('any[]', $value);
 
 					case 'i[]':
 						foreach ($value as $v) {
@@ -357,7 +365,7 @@ class SqlProcessor
 					case '?json':
 						return $this->platform->formatJson($value);
 
-					// normal
+						// normal
 					case 'column[]':
 					case '...column[]':
 					case 'table[]':
@@ -426,7 +434,7 @@ class SqlProcessor
 	}
 
 
-	protected function detectType(mixed $value): ?string
+	protected function detectType(mixed $value): string|null
 	{
 		foreach ($this->modifierResolvers as $modifierResolver) {
 			$resolved = $modifierResolver->resolve($value);
@@ -497,7 +505,7 @@ class SqlProcessor
 	 */
 	protected function processMultiValues(array $value): string
 	{
-		if (count($value) === 0) {
+		if ($value === []) {
 			throw new InvalidArgumentException('Modifier %values[] must contain at least one array element.');
 		}
 
@@ -506,7 +514,7 @@ class SqlProcessor
 			$keys[] = $this->identifierToSql(explode('%', (string) $key, 2)[0]);
 		}
 		foreach ($value as $subValue) {
-			if (!is_array($subValue) || count($subValue) === 0) {
+			if (!is_array($subValue) || $subValue === []) {
 				$values[] = '(' . str_repeat('DEFAULT, ', max(count($keys) - 1, 0)) . 'DEFAULT)';
 			} else {
 				$subValues = [];
@@ -518,7 +526,7 @@ class SqlProcessor
 			}
 		}
 
-		return (count($keys) > 0 ? '(' . implode(', ', $keys) . ') ' : '') . 'VALUES ' . implode(', ', $values);
+		return ($keys !== [] ? '(' . implode(', ', $keys) . ') ' : '') . 'VALUES ' . implode(', ', $values);
 	}
 
 
@@ -527,7 +535,7 @@ class SqlProcessor
 	 */
 	private function processValues(array $value): string
 	{
-		if (count($value) === 0) {
+		if ($value === []) {
 			return $this->platform->isSupported(IPlatform::SUPPORT_INSERT_DEFAULT_KEYWORD)
 				? 'VALUES (DEFAULT)'
 				: 'DEFAULT VALUES';
@@ -588,7 +596,7 @@ class SqlProcessor
 					throw new InvalidArgumentException("Modifier %$type requires items with numeric index to be array, $subValueType given.");
 				}
 
-				if (count($subValue) > 0 && ($subValue[0] ?? null) instanceof Fqn) {
+				if ($subValue !== [] && ($subValue[0] ?? null) instanceof Fqn) {
 					$column = $this->processModifier('column', $subValue[0]);
 					$subType = substr($subValue[2] ?? '%any', 1);
 					if ($subValue[1] === null) {
@@ -704,15 +712,15 @@ class SqlProcessor
 		return is_object($value)
 			? $value::class
 			: (is_float($value) && !is_finite($value)
-				? (is_nan($value) ? "NAN" : $value)
+				? (is_nan($value) ? 'NAN' : $value)
 				: gettype($value));
 	}
 
 
 	protected function identifierToSql(string $key): string
 	{
-		return $this->identifiers[$key] ??
-			($this->identifiers[$key] = // = intentionally
+		return $this->identifiers[$key]
+			?? ($this->identifiers[$key] = // = intentionally
 				str_ends_with($key, '.*')
 					? $this->platform->formatIdentifier(substr($key, 0, -2)) . '.*'
 					: $this->platform->formatIdentifier($key)

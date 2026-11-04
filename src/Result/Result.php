@@ -21,16 +21,17 @@ class Result implements SeekableIterator, Countable
 {
 	use StrictObjectTrait;
 
-
 	private int $iteratorIndex = -1;
 
-	private ?Row $iteratorRow = null;
+	private Row|null $iteratorRow = null;
 
 	/** @var array<string, callable(mixed): mixed> */
 	private array $normalizers;
 
 
-	public function __construct(private IResultAdapter $adapter)
+	public function __construct(
+		private IResultAdapter $adapter,
+	)
 	{
 		$this->normalizers = $adapter->getNormalizers();
 	}
@@ -66,7 +67,7 @@ class Result implements SeekableIterator, Countable
 	}
 
 
-	public function fetch(): ?Row
+	public function fetch(): Row|null
 	{
 		$data = $this->adapter->fetch();
 		if ($data === null) {
@@ -137,7 +138,7 @@ class Result implements SeekableIterator, Countable
 	 * @return array<mixed>
 	 */
 	#[\NoDiscard]
-	public function fetchPairs(?string $key = null, ?string $value = null): array
+	public function fetchPairs(string|null $key = null, string|null $value = null): array
 	{
 		if ($key === null && $value === null) {
 			throw new InvalidArgumentException('Result::fetchPairs() requires defined key or value.');
@@ -172,7 +173,7 @@ class Result implements SeekableIterator, Countable
 	public function getColumns(): array
 	{
 		return array_map(
-			function($name): string {
+			function ($name): string {
 				return (string) $name; // @phpstan-ignore-line
 			},
 			array_keys($this->adapter->getTypes()),

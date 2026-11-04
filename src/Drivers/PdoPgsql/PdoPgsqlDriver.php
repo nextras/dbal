@@ -46,7 +46,7 @@ use function implode;
  */
 class PdoPgsqlDriver extends PdoDriver
 {
-	private ?PdoPgsqlResultNormalizerFactory $resultNormalizerFactory = null;
+	private PdoPgsqlResultNormalizerFactory|null $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
@@ -130,7 +130,7 @@ class PdoPgsqlDriver extends PdoDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 		if ($sqlState === '0A000' && str_contains($error, 'truncate')) {

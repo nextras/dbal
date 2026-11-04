@@ -7,6 +7,7 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Tester\Assert;
 
@@ -15,7 +16,6 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 class ExceptionsPostgresTest extends IntegrationTestCase
 {
-
 	public function testForeignKeyRestrictException()
 	{
 		$this->lockConnection($this->connection);

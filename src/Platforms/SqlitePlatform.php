@@ -22,13 +22,11 @@ use function explode;
 use function intdiv;
 use function str_replace;
 use function strtr;
-use function strval;
 
 
 class SqlitePlatform implements IPlatform
 {
 	use StrictObjectTrait;
-
 
 	public const NAME = 'sqlite';
 
@@ -52,7 +50,7 @@ class SqlitePlatform implements IPlatform
 	}
 
 
-	public function getTables(?string $schema = null): array
+	public function getTables(string|null $schema = null): array
 	{
 		$result = $this->connection->query(/** @lang SQLite */ "
 			SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
@@ -72,7 +70,7 @@ class SqlitePlatform implements IPlatform
 	}
 
 
-	public function getColumns(string $table, ?string $schema = null): array
+	public function getColumns(string $table, string|null $schema = null): array
 	{
 		$raw = $this->connection->query(/** @lang SQLite */ "
 			SELECT sql FROM sqlite_master WHERE type = 'table' AND name = %s
@@ -80,9 +78,9 @@ class SqlitePlatform implements IPlatform
 			SELECT sql FROM sqlite_temp_master WHERE type = 'table' AND name = %s
 		", $table, $table)->fetchField();
 
-		$result = $this->connection->query(/** @lang SQLite */ "
+		$result = $this->connection->query(/** @lang SQLite */ '
 			PRAGMA table_info(%table)
-		", $table);
+		', $table);
 
 		$columns = [];
 		foreach ($result as $row) {
@@ -99,7 +97,6 @@ class SqlitePlatform implements IPlatform
 				isAutoincrement: preg_match($pattern, (string) $raw) === 1,
 				isUnsigned: false,
 				isNullable: $row->notnull === 0,
-				meta: [],
 			);
 			$columns[$column->name] = $column;
 		}
@@ -107,11 +104,11 @@ class SqlitePlatform implements IPlatform
 	}
 
 
-	public function getForeignKeys(string $table, ?string $schema = null): array
+	public function getForeignKeys(string $table, string|null $schema = null): array
 	{
-		$result = $this->connection->query(/** @lang SQLite */ "
+		$result = $this->connection->query(/** @lang SQLite */ '
 			PRAGMA foreign_key_list(%table)
-		", $table);
+		', $table);
 
 		$foreignKeys = [];
 		foreach ($result as $row) {
@@ -127,7 +124,7 @@ class SqlitePlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
+	public function getPrimarySequenceName(string $table, string|null $schema = null): string|null
 	{
 		return null;
 	}
@@ -173,7 +170,7 @@ class SqlitePlatform implements IPlatform
 	public function formatDateTime(DateTimeInterface $value): string
 	{
 		$value = DateTimeHelper::convertToTimezone($value, $this->driver->getConnectionTimeZone());
-		return strval(((int) $value->format('U')) * 1000 + intdiv((int) $value->format('u'), 1000));
+		return (string) (((int) $value->format('U')) * 1000 + intdiv((int) $value->format('u'), 1000));
 	}
 
 
@@ -201,7 +198,7 @@ class SqlitePlatform implements IPlatform
 	}
 
 
-	public function formatLimitOffset(?int $limit, ?int $offset): string
+	public function formatLimitOffset(int|null $limit, int|null $offset): string
 	{
 		if ($limit === null && $offset === null) {
 			return '';
@@ -218,7 +215,7 @@ class SqlitePlatform implements IPlatform
 	public function createMultiQueryParser(): IMultiQueryParser
 	{
 		if (!class_exists(SqliteMultiQueryParser::class)) {
-			throw new \RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+			throw new \RuntimeException('Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().');
 		}
 		return new SqliteMultiQueryParser();
 	}

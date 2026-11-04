@@ -29,13 +29,14 @@ class MySqlPlatform implements IPlatform
 {
 	use StrictObjectTrait;
 
-
 	final public const NAME = 'mysql';
 
 	private readonly IDriver $driver;
 
 
-	public function __construct(private readonly IConnection $connection)
+	public function __construct(
+		private readonly IConnection $connection,
+	)
 	{
 		$this->driver = $connection->getDriver();
 	}
@@ -48,7 +49,7 @@ class MySqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(?string $schema = null): array
+	public function getTables(string|null $schema = null): array
 	{
 		$result = $this->connection->query(/** @lang GenericSQL */ '
 			SELECT
@@ -72,7 +73,7 @@ class MySqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table, ?string $schema = null): array
+	public function getColumns(string $table, string|null $schema = null): array
 	{
 		if ($schema !== null) {
 			$query = $this->connection->query('SHOW FULL COLUMNS FROM %table.%table', $schema, $table);
@@ -92,7 +93,6 @@ class MySqlPlatform implements IPlatform
 				isAutoincrement: $row->Extra === 'auto_increment',
 				isUnsigned: (bool) strstr((string) $row->Type, 'unsigned'),
 				isNullable: $row->Null === 'YES',
-				meta: [],
 			);
 			$columns[$column->name] = $column;
 		}
@@ -101,7 +101,7 @@ class MySqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table, ?string $schema = null): array
+	public function getForeignKeys(string $table, string|null $schema = null): array
 	{
 		$result = $this->connection->query(/** @lang GenericSQL */ '
 			SELECT
@@ -136,7 +136,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
+	public function getPrimarySequenceName(string $table, string|null $schema = null): string|null
 	{
 		return null;
 	}
@@ -210,7 +210,7 @@ class MySqlPlatform implements IPlatform
 	}
 
 
-	public function formatLimitOffset(?int $limit, ?int $offset): string
+	public function formatLimitOffset(int|null $limit, int|null $offset): string
 	{
 		$clause = '';
 
@@ -231,7 +231,7 @@ class MySqlPlatform implements IPlatform
 	public function createMultiQueryParser(): IMultiQueryParser
 	{
 		if (!class_exists(MySqlMultiQueryParser::class)) {
-			throw new \RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+			throw new \RuntimeException('Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().');
 		}
 		return new MySqlMultiQueryParser();
 	}

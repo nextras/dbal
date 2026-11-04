@@ -16,13 +16,12 @@ use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\NotSupportedException;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
-use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\Data\Fqn;
+use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\Platforms\SqlitePlatform;
 use Nextras\Dbal\Result\IResultAdapter;
 use PDOStatement;
 use function str_replace;
-use function strtr;
 
 
 /**
@@ -94,7 +93,7 @@ class PdoSqliteDriver extends PdoDriver
 	}
 
 
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
 		if (stripos($error, 'FOREIGN KEY constraint failed') !== false) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, '', null, $query);
@@ -111,11 +110,11 @@ class PdoSqliteDriver extends PdoDriver
 		) {
 			return new NotNullConstraintViolationException($error, $errorNo, '', null, $query);
 		} elseif (stripos($error, 'unable to open database') !== false) {
-			return new ConnectionException($error, $errorNo, '');
+			return new ConnectionException($error, $errorNo);
 		} elseif ($query !== null) {
 			return new QueryException($error, $errorNo, '', null, $query);
 		} else {
-			return new DriverException($error, $errorNo, '');
+			return new DriverException($error, $errorNo);
 		}
 	}
 }

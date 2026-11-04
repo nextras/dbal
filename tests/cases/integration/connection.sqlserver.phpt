@@ -10,7 +10,6 @@ namespace NextrasTests\Dbal;
 
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -18,9 +17,11 @@ class ConnectionSqlServerTest extends IntegrationTestCase
 {
 	public function testReconnect()
 	{
-		$sessionIdBefore = $this->connection->query('SELECT [connection_id] FROM [sys].[dm_exec_connections] where session_id = @@SPID')->fetchField();
+		$sessionIdBefore = $this->connection->query('SELECT [connection_id] FROM [sys].[dm_exec_connections] where session_id = @@SPID')
+			->fetchField();
 		$this->connection->reconnect();
-		$sessionIdAfter = $this->connection->query('SELECT [connection_id] FROM [sys].[dm_exec_connections] where session_id = @@SPID')->fetchField();
+		$sessionIdAfter = $this->connection->query('SELECT [connection_id] FROM [sys].[dm_exec_connections] where session_id = @@SPID')
+			->fetchField();
 		Assert::notEqual($sessionIdBefore, $sessionIdAfter);
 	}
 

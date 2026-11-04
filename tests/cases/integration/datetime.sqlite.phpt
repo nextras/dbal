@@ -13,7 +13,6 @@ use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 use function strtotime;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -31,9 +30,10 @@ class DateTimeSqliteTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt)',
+		$connection->query(
+			'INSERT INTO dates_write VALUES (%ldt, %dt)',
 			new DateTime('2015-01-01 12:00:00'), // local
-			new DateTime('2015-01-01 12:00:00')  // 11:00 UTC
+			new DateTime('2015-01-01 12:00:00'),  // 11:00 UTC
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -44,9 +44,10 @@ class DateTimeSqliteTest extends IntegrationTestCase
 		Assert::same(strtotime('2015-01-01T11:00:00Z') * 1000, $row->b * 1);
 
 		$connection->query('DELETE FROM dates_write');
-		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt)',
+		$connection->query(
+			'INSERT INTO dates_write VALUES (%ldt, %dt)',
 			new DateTime('2015-01-01 12:00:00'),             // local
-			new DateTime('2015-01-01 12:00:00 Europe/Kiev')  // 10:00 UTC,
+			new DateTime('2015-01-01 12:00:00 Europe/Kiev'),  // 10:00 UTC,
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -72,10 +73,11 @@ class DateTimeSqliteTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_read VALUES (%s, %s, %s)',
+		$connection->query(
+			'INSERT INTO dates_read VALUES (%s, %s, %s)',
 			'2015-01-01 12:00:00', // local
 			'2015-01-01 12:00:00', // connection tz
-			'2015-01-01'
+			'2015-01-01',
 		);
 
 		$result = $connection->query('SELECT * FROM dates_read');

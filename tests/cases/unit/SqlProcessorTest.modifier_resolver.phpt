@@ -10,7 +10,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -27,19 +26,19 @@ class SqlProcessorModifierResolverTest extends TestCase
 			}
 		});
 		$parser->addModifierResolver(new class implements ISqlProcessorModifierResolver {
-			public function resolve($value): ?string
+			public function resolve($value): string|null
 			{
 				if (is_bool($value)) return 'nextrasBoolean'; else return null;
 			}
 		});
 
 		Assert::same(
-			"SELECT FROM test WHERE published = 11",
-			$parser->process(['SELECT FROM test WHERE published = %any', true])
+			'SELECT FROM test WHERE published = 11',
+			$parser->process(['SELECT FROM test WHERE published = %any', true]),
 		);
 		Assert::same(
-			"SELECT FROM test WHERE published = -11",
-			$parser->process(['SELECT FROM test WHERE published = %any', false])
+			'SELECT FROM test WHERE published = -11',
+			$parser->process(['SELECT FROM test WHERE published = %any', false]),
 		);
 	}
 
@@ -58,19 +57,19 @@ class SqlProcessorModifierResolverTest extends TestCase
 			}
 		});
 		$parser->addModifierResolver(new class implements ISqlProcessorModifierResolver {
-			public function resolve($value): ?string
+			public function resolve($value): string|null
 			{
 				if (is_bool($value)) return 'nextrasBoolean'; else return null;
 			}
 		});
 
 		Assert::same(
-			"SELECT FROM test WHERE published = 22",
-			$parser->process(['SELECT FROM test WHERE %and', ['published' => true]])
+			'SELECT FROM test WHERE published = 22',
+			$parser->process(['SELECT FROM test WHERE %and', ['published' => true]]),
 		);
 		Assert::same(
-			"SELECT FROM test WHERE published = -22",
-			$parser->process(['SELECT FROM test WHERE %and', ['published' => false]])
+			'SELECT FROM test WHERE published = -22',
+			$parser->process(['SELECT FROM test WHERE %and', ['published' => false]]),
 		);
 	}
 }

@@ -18,7 +18,6 @@ class SqlsrvResultNormalizationFactory
 {
 	use StrictObjectTrait;
 
-
 	private const TYPE_WVARCHAR = -9;
 	private const TYPE_VARCHAR = 12;
 	private const TYPE_BIGINT = -5;
@@ -44,23 +43,23 @@ class SqlsrvResultNormalizationFactory
 	{
 		$applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 
-		$this->intNormalizer = static function ($value): ?int {
+		$this->intNormalizer = static function ($value): int|null {
 			if ($value === null) return null;
 			return (int) $value;
 		};
 
-		$this->boolNormalizer = static function ($value): ?bool {
+		$this->boolNormalizer = static function ($value): bool|null {
 			if ($value === null) return null;
 			return (bool) $value;
 		};
 
-		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): ?DateTimeImmutable {
+		$this->dateTimeNormalizer = static function ($value) use ($applicationTimeZone): DateTimeImmutable|null {
 			if ($value === null) return null;
 			$dateTime = new DateTimeImmutable($value);
 			return $dateTime->setTimezone($applicationTimeZone);
 		};
 
-		$this->offsetDateTimeNormalizer = static function ($value): ?DateTimeImmutable {
+		$this->offsetDateTimeNormalizer = static function ($value): DateTimeImmutable|null {
 			if ($value === null) return null;
 			return new DateTimeImmutable($value);
 		};

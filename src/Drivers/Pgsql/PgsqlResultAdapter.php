@@ -20,7 +20,6 @@ class PgsqlResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
 
-
 	public function __construct(
 		private readonly Result $result,
 		private readonly PgsqlResultNormalizerFactory $normalizerFactory,
@@ -55,7 +54,7 @@ class PgsqlResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		$row = pg_fetch_array($this->result, null, PGSQL_ASSOC);
 		return $row !== false ? $row : null;

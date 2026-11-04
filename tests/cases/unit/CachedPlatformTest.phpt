@@ -19,7 +19,6 @@ use Nextras\Dbal\Platforms\Data\Table;
 use Nextras\Dbal\Platforms\IPlatform;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 

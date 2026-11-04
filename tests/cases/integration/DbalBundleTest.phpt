@@ -6,15 +6,16 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Bridges\SymfonyBundle\DependencyInjection\NextrasDbalExtension;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ISqlProcessorFactory;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -51,8 +52,8 @@ class DbalBundleTest extends IntegrationTestCase
 		file_put_contents($dicFile, $dumper->dump(['class' => $dicClass]));
 		require_once $dicFile;
 
-		/** @var \Symfony\Component\DependencyInjection\Container $container */
-		$container = new $dicClass;
+		$container = new $dicClass();
+		assert($container instanceof Container);
 
 		$connection = $container->get('nextras_dbal.default.connection');
 		Assert::type(Connection::class, $connection);
@@ -60,7 +61,7 @@ class DbalBundleTest extends IntegrationTestCase
 		$connection = $container->get(IConnection::class);
 		Assert::type(Connection::class, $connection);
 
-		Assert::type(ISqlProcessorFactory::class, $connection->getConfig()["sqlProcessorFactory"]);
+		Assert::type(ISqlProcessorFactory::class, $connection->getConfig()['sqlProcessorFactory']);
 	}
 }
 

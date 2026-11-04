@@ -65,7 +65,6 @@ class QueryDataCollector extends DataCollector implements ILogger
 					}
 				}
 			} catch (\Throwable) {
-				$row['explain'] = null;
 				$row['rowsCount'] = null; // rows count is also irrelevant
 			}
 
@@ -130,7 +129,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
+	public function onQuery(string $sqlQuery, float $timeTaken, Result|null $result): void
 	{
 		$this->data['count']++;
 		if ($this->data['count'] > $this->maxQueries) {
@@ -146,7 +145,7 @@ class QueryDataCollector extends DataCollector implements ILogger
 	}
 
 
-	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	public function onQueryException(string $sqlQuery, float $timeTaken, DriverException|null $exception): void
 	{
 	}
 }

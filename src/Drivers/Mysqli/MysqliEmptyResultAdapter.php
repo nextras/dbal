@@ -12,7 +12,6 @@ class MysqliEmptyResultAdapter implements IResultAdapter
 {
 	use StrictObjectTrait;
 
-
 	public function toBuffered(): IResultAdapter
 	{
 		return $this;
@@ -31,7 +30,7 @@ class MysqliEmptyResultAdapter implements IResultAdapter
 	}
 
 
-	public function fetch(): ?array
+	public function fetch(): array|null
 	{
 		return null;
 	}

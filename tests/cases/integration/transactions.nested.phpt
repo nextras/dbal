@@ -7,8 +7,8 @@
 
 namespace NextrasTests\Dbal;
 
-use Tester\Assert;
 
+use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -22,7 +22,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_NTRANS_ROLLBACK_'
+			'name' => '_NTRANS_ROLLBACK_',
 		]);
 		Assert::same(1, $this->connection->getAffectedRows());
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_NTRANS_ROLLBACK_')->fetchField());
@@ -30,7 +30,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_NTRANS_ROLLBACK_'
+			'name' => '_NTRANS_ROLLBACK_',
 		]);
 		Assert::same(2, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_NTRANS_ROLLBACK_')->fetchField());
 
@@ -51,7 +51,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_NTRANS_COMMIT_'
+			'name' => '_NTRANS_COMMIT_',
 		]);
 		Assert::same(1, $this->connection->getAffectedRows());
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_NTRANS_COMMIT_')->fetchField());
@@ -59,7 +59,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_NTRANS_COMMIT_'
+			'name' => '_NTRANS_COMMIT_',
 		]);
 		Assert::same(2, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_NTRANS_COMMIT_')->fetchField());
 
@@ -80,7 +80,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_NTRANS_COMMIT2_'
+			'name' => '_NTRANS_COMMIT2_',
 		]);
 		Assert::same(1, $this->connection->getAffectedRows());
 		Assert::same(1, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_NTRANS_COMMIT2_')->fetchField());
@@ -88,7 +88,7 @@ class TransactionsNestedTest extends IntegrationTestCase
 
 		$this->connection->beginTransaction();
 		$this->connection->query('INSERT INTO tags %values', [
-			'name' => '_NTRANS_COMMIT2_'
+			'name' => '_NTRANS_COMMIT2_',
 		]);
 		Assert::same(2, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', '_NTRANS_COMMIT2_')->fetchField());
 

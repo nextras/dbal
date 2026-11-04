@@ -9,7 +9,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -39,7 +38,7 @@ class SqlProcessorSetTest extends TestCase
 				'id%i' => 1,
 				'title%s' => "'foo'",
 				'foo' => 2,
-			])
+			]),
 		);
 	}
 

@@ -10,7 +10,6 @@ class Table
 {
 	use StrictObjectTrait;
 
-
 	public function __construct(
 		public readonly Fqn $fqnName,
 		public readonly bool $isView,

@@ -29,7 +29,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	public static function install(IConnection $connection, bool $doExplain = true, int $maxQueries = 100): void
 	{
 		$doExplain = $doExplain && $connection->getPlatform()->isSupported(IPlatform::SUPPORT_QUERY_EXPLAIN);
-		Debugger::getBar()->addPanel(new ConnectionPanel($connection, $doExplain, $maxQueries));
+		Debugger::getBar()->addPanel(new self($connection, $doExplain, $maxQueries));
 	}
 
 
@@ -54,7 +54,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
+	public function onQuery(string $sqlQuery, float $timeTaken, Result|null $result): void
 	{
 		$this->count++;
 		if ($this->count > $this->maxQueries) {
@@ -71,7 +71,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	}
 
 
-	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	public function onQueryException(string $sqlQuery, float $timeTaken, DriverException|null $exception): void
 	{
 	}
 
@@ -91,7 +91,7 @@ class ConnectionPanel implements IBarPanel, ILogger
 	{
 		$count = $this->count;
 		$queries = $this->queries;
-		$queries = array_map(function($row): array {
+		$queries = array_map(function ($row): array {
 			try {
 				$row[4] = null;
 				if ($this->doExplain) {

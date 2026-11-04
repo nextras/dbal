@@ -1,0 +1,18 @@
+use:
+	- nextras/coding-standard-plugin
+	- nextras/preset
+
+paths:
+	- src
+	- tests
+
+fileExtensions:
+	- php
+	- phpt
+
+# Preserve existing API names, exception handling, driver error suppression, and long lines.
+baseline: dresscode-baseline.neon
+
+typeAnalysis: phpstan
+
+nameResolution: certain

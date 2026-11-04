@@ -10,7 +10,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -31,12 +30,12 @@ class SqlProcessorRawTest extends TestCase
 	{
 		Assert::same(
 			'',
-			$this->parser->processModifier('raw', '')
+			$this->parser->processModifier('raw', ''),
 		);
 
 		Assert::same(
 			'SELECT [column] %modifier /* comment */',
-			$this->parser->processModifier('raw', 'SELECT [column] %modifier /* comment */')
+			$this->parser->processModifier('raw', 'SELECT [column] %modifier /* comment */'),
 		);
 	}
 

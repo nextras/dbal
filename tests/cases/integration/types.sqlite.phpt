@@ -7,10 +7,10 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 use function strtotime;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -19,7 +19,7 @@ class TypesSqliteTest extends IntegrationTestCase
 {
 	public function testRead()
 	{
-		$this->connection->query("
+		$this->connection->query('
 			CREATE TEMP TABLE types_read (
 				local_date dbal_local_date,
 				local_datetime dbal_local_datetime,
@@ -39,7 +39,7 @@ class TypesSqliteTest extends IntegrationTestCase
 				decimal3 decimal,
 				boolean dbal_bool
 			);
-		");
+		');
 		$this->connection->query('INSERT INTO types_read %values', [
 			'local_date' => '2017-02-22',
 			'local_datetime' => '2017-02-22 16:40:00',

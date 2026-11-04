@@ -26,13 +26,14 @@ class PostgreSqlPlatform implements IPlatform
 {
 	use StrictObjectTrait;
 
-
 	final public const NAME = 'pgsql';
 
 	private readonly IDriver $driver;
 
 
-	public function __construct(private readonly IConnection $connection)
+	public function __construct(
+		private readonly IConnection $connection,
+	)
 	{
 		$this->driver = $connection->getDriver();
 	}
@@ -45,7 +46,7 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getTables(?string $schema = null): array
+	public function getTables(string|null $schema = null): array
 	{
 		// relkind options:
 		// r = ordinary table, i = index, S = sequence, t = TOAST table, v = view, m = materialized view, c = composite type, f = foreign table, p = partitioned table, I = partitioned index
@@ -80,7 +81,7 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getColumns(string $table, ?string $schema = null): array
+	public function getColumns(string $table, string|null $schema = null): array
 	{
 		$tableArgs = $schema !== null ? [$schema, $table] : [$table];
 		$result = $this->connection->query((/** @lang GenericSQL */ "
@@ -94,10 +95,10 @@ class PostgreSqlPlatform implements IPlatform
 				NOT (a.attnotnull OR t.typtype = 'd' AND t.typnotnull) AS is_nullable,
 				COALESCE(
 			") . (
-				count($tableArgs) > 1
-					? "pg_get_serial_sequence('%table.%table', a.attname),"
-					: "pg_get_serial_sequence('%table', a.attname),"
-			)
+			count($tableArgs) > 1
+				? "pg_get_serial_sequence('%table.%table', a.attname),"
+				: "pg_get_serial_sequence('%table', a.attname),"
+		)
 			. (/** @lang GenericSQL */ "
 					SUBSTRING(pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) FROM %s)
 				) AS sequence
@@ -110,15 +111,15 @@ class PostgreSqlPlatform implements IPlatform
 			WHERE
 				c.relkind IN ('r', 'v', 'm', 'f', 'p')
 				") . (
-			count($tableArgs) > 1
-				? "AND c.oid = '%table.%table'::regclass"
-				: "AND c.oid = '%table'::regclass"
-			) . (/** @lang GenericSQL */ "
+				count($tableArgs) > 1
+					? "AND c.oid = '%table.%table'::regclass"
+					: "AND c.oid = '%table'::regclass"
+			) . (/** @lang GenericSQL */ '
 				AND a.attnum > 0
 				AND NOT a.attisdropped
 			ORDER BY
 				a.attnum
-		"), ...$tableArgs, ...["nextval[(]'\"?([^'\"]+)"], ...$tableArgs);
+		'), ...$tableArgs, ...["nextval[(]'\"?([^'\"]+)"], ...$tableArgs);
 
 		$columns = [];
 		foreach ($result as $row) {
@@ -140,7 +141,7 @@ class PostgreSqlPlatform implements IPlatform
 
 
 	/** @inheritDoc */
-	public function getForeignKeys(string $table, ?string $schema = null): array
+	public function getForeignKeys(string $table, string|null $schema = null): array
 	{
 		$tableArgs = $schema !== null ? [$schema, $table] : [$table];
 		$result = $this->connection->query((/** @lang PostgreSQL */ "
@@ -165,7 +166,7 @@ class PostgreSqlPlatform implements IPlatform
 			count($tableArgs) > 1
 				? "AND cl.oid = '%table.%table'::regclass"
 				: "AND cl.oid = '%table'::regclass"
-			) . '
+		) . '
 			ORDER BY at.attnum
 			', ...$tableArgs);
 
@@ -183,7 +184,7 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
+	public function getPrimarySequenceName(string $table, string|null $schema = null): string|null
 	{
 		foreach ($this->getColumns($table, $schema) as $column) {
 			if ($column->isPrimary) {
@@ -262,7 +263,7 @@ class PostgreSqlPlatform implements IPlatform
 	}
 
 
-	public function formatLimitOffset(?int $limit, ?int $offset): string
+	public function formatLimitOffset(int|null $limit, int|null $offset): string
 	{
 		$clause = '';
 		if ($limit !== null) {
@@ -278,7 +279,7 @@ class PostgreSqlPlatform implements IPlatform
 	public function createMultiQueryParser(): IMultiQueryParser
 	{
 		if (!class_exists(PostgreSqlMultiQueryParser::class)) {
-			throw new \RuntimeException("Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().");
+			throw new \RuntimeException('Missing nextras/multi-query-parser dependency. Install it first to use IPlatform::createMultiQueryParser().');
 		}
 		return new PostgreSqlMultiQueryParser();
 	}

@@ -15,10 +15,7 @@ final class MultiLogger implements ILogger
 {
 	use StrictObjectTrait;
 
-
-	/**
-	 * @var array<int, ILogger>
-	 */
+	/** @var array<int, ILogger> */
 	public $loggers = [];
 
 
@@ -38,7 +35,7 @@ final class MultiLogger implements ILogger
 	}
 
 
-	public function onQuery(string $sqlQuery, float $timeTaken, ?Result $result): void
+	public function onQuery(string $sqlQuery, float $timeTaken, Result|null $result): void
 	{
 		foreach ($this->loggers as $logger) {
 			$logger->onQuery($sqlQuery, $timeTaken, $result);
@@ -46,7 +43,7 @@ final class MultiLogger implements ILogger
 	}
 
 
-	public function onQueryException(string $sqlQuery, float $timeTaken, ?DriverException $exception): void
+	public function onQueryException(string $sqlQuery, float $timeTaken, DriverException|null $exception): void
 	{
 		foreach ($this->loggers as $logger) {
 			$logger->onQueryException($sqlQuery, $timeTaken, $exception);

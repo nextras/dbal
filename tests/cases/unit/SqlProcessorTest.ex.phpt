@@ -12,7 +12,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -37,28 +36,28 @@ class SqlProcessorExpandTest extends TestCase
 	{
 		Assert::same(
 			'',
-			$this->parser->processModifier('ex', [])
+			$this->parser->processModifier('ex', []),
 		);
 
 		Assert::same(
 			'(1 + 2) * 3',
-			$this->parser->processModifier('ex', ['(%i + %i)', 1, 2, '* %i', 3])
+			$this->parser->processModifier('ex', ['(%i + %i)', 1, 2, '* %i', 3]),
 		);
 
 		Assert::same(
 			'(1 + 2) * 3',
-			$this->parser->processModifier('ex', ['%ex', ['%ex', ['%ex', ['(%i + %i)', 1, 2, '* %i', 3]]]])
+			$this->parser->processModifier('ex', ['%ex', ['%ex', ['%ex', ['(%i + %i)', 1, 2, '* %i', 3]]]]),
 		);
 
 		Assert::same(
 			'IS NULL',
-			$this->parser->processModifier('ex', ['IS NULL'])
+			$this->parser->processModifier('ex', ['IS NULL']),
 		);
 
 		$this->platform->shouldReceive('formatIdentifier')->once()->with('A')->andReturn('B');
 		Assert::same(
 			'= B + 123',
-			$this->parser->processModifier('ex', ['= [A] + 123'])
+			$this->parser->processModifier('ex', ['= [A] + 123']),
 		);
 	}
 

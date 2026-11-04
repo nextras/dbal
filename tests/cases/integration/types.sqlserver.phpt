@@ -7,9 +7,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -90,21 +90,23 @@ class TypesSqlserverTest extends IntegrationTestCase
 		$this->lockConnection($this->connection);
 
 		$this->connection->query('DROP TABLE IF EXISTS [types_write]');
-		$this->connection->query("
+		$this->connection->query('
 			CREATE TABLE [types_write] (
 				[blob] varbinary(1000),
 				[json] varchar(500),
 				[bool] bit
 			);
-		");
+		');
 
 		$file = file_get_contents(__DIR__ . '/nextras.png');
-		$this->connection->query('INSERT INTO [types_write] %values',
+		$this->connection->query(
+			'INSERT INTO [types_write] %values',
 			[
 				'blob%blob' => $file,
 				'json%json' => [1, '2', true, null],
 				'bool%b' => true,
-			]);
+			],
+		);
 		$row = $this->connection->query('SELECT * FROM [types_write]')->fetch();
 		Assert::same($file, $row->blob);
 		Assert::same('[1,"2",true,null]', $row->json);

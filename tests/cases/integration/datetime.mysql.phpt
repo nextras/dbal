@@ -7,10 +7,10 @@
 
 namespace NextrasTests\Dbal;
 
+
 use DateTime;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -31,10 +31,11 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
+		$connection->query(
+			'INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
 			new DateTime('2015-01-01 12:00:00'), // local
 			new DateTime('2015-01-01 12:00:00'), // 11:00 UTC
-			new DateTime('2015-01-01 00:00:00')  // local
+			new DateTime('2015-01-01 00:00:00'),  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -46,10 +47,11 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		Assert::same('2015-01-01', $row->c);
 
 		$connection->query('DELETE FROM dates_write');
-		$connection->query('INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
+		$connection->query(
+			'INSERT INTO dates_write VALUES (%ldt, %dt, %ldt)',
 			new DateTime('2015-01-01 12:00:00'),                 // local
 			new DateTime('2015-01-01 12:00:00 Europe/Helsinki'), // 10:00 UTC,
-			new DateTime('2015-01-01 12:13:14')                  // local
+			new DateTime('2015-01-01 12:13:14'),                  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
@@ -78,10 +80,11 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
+		$connection->query(
+			'INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
 			new \DateTimeImmutable('2015-01-01 12:00:00'), // local
 			new \DateTimeImmutable('2015-01-01 12:00:00'), // 11:00 UTC
-			new \DateTimeImmutable('2015-01-01 00:00:00')  // local
+			new \DateTimeImmutable('2015-01-01 00:00:00'),  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -93,10 +96,11 @@ class DateTimeMysqlTest extends IntegrationTestCase
 		Assert::same('2015-01-01', $row->c);
 
 		$connection->query('DELETE FROM dates_write2');
-		$connection->query('INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
+		$connection->query(
+			'INSERT INTO dates_write2 VALUES (%ldt, %dt, %ldt)',
 			new \DateTimeImmutable('2015-01-01 12:00:00'),                 // local
 			new \DateTimeImmutable('2015-01-01 12:00:00 Europe/Helsinki'), // 10:00 UTC
-			new \DateTimeImmutable('2015-01-01 12:13:14')                  // local
+			new \DateTimeImmutable('2015-01-01 12:13:14'),                  // local
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write2');
@@ -123,10 +127,11 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_read VALUES (%s, %s, %s)',
+		$connection->query(
+			'INSERT INTO dates_read VALUES (%s, %s, %s)',
 			'2015-01-01 12:00:00', // local
 			'2015-01-01 12:00:00', // 11:00 UTC
-			'2015-01-01'
+			'2015-01-01',
 		);
 
 		$result = $connection->query('SELECT * FROM dates_read');
@@ -157,10 +162,11 @@ class DateTimeMysqlTest extends IntegrationTestCase
 			);
 		');
 
-		$connection->query('INSERT INTO dates_read2 VALUES (%s, %s, %s)',
+		$connection->query(
+			'INSERT INTO dates_read2 VALUES (%s, %s, %s)',
 			'2015-01-01 12:00:00', // local
 			'2015-01-01 12:00:00', // 10:00 UTC
-			'2015-01-01'
+			'2015-01-01',
 		);
 
 		$result = $connection->query('SELECT * FROM dates_read2');

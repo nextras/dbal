@@ -29,7 +29,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getTables(?string $schema = null): array
+	public function getTables(string|null $schema = null): array
 	{
 		return $this->cache->load(
 			self::CACHE_VERSION . '.tables.' . $schema,
@@ -38,7 +38,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getColumns(string $table, ?string $schema = null): array
+	public function getColumns(string $table, string|null $schema = null): array
 	{
 		return $this->cache->load(
 			self::CACHE_VERSION . '.columns.' . $table . $schema,
@@ -47,7 +47,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getForeignKeys(string $table, ?string $schema = null): array
+	public function getForeignKeys(string $table, string|null $schema = null): array
 	{
 		return $this->cache->load(
 			self::CACHE_VERSION . '.foreign_keys.' . $table . $schema,
@@ -56,7 +56,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function getPrimarySequenceName(string $table, ?string $schema = null): ?string
+	public function getPrimarySequenceName(string $table, string|null $schema = null): string|null
 	{
 		return $this->cache->load(
 			self::CACHE_VERSION . '.sequence.' . $table . $schema,
@@ -125,7 +125,7 @@ class CachedPlatform implements IPlatform
 	}
 
 
-	public function formatLimitOffset(?int $limit, ?int $offset): string
+	public function formatLimitOffset(int|null $limit, int|null $offset): string
 	{
 		return $this->platform->formatLimitOffset($limit, $offset);
 	}

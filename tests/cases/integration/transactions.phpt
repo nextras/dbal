@@ -15,7 +15,6 @@ use Nextras\Dbal\Platforms\SqlServerPlatform;
 use Tester\Assert;
 use Tester\Environment;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -117,7 +116,7 @@ class TransactionsTest extends IntegrationTestCase
 			$this->connection->getPlatform() instanceof SqlServerPlatform
 			|| $this->connection->getDriver() instanceof PdoDriver
 		) {
-			Environment::skip("Platform or driver does not support wrongly called transaction operations.");
+			Environment::skip('Platform or driver does not support wrongly called transaction operations.');
 		}
 
 		$this->connection->connect();
@@ -138,7 +137,7 @@ class TransactionsTest extends IntegrationTestCase
 			$this->connection->getPlatform() instanceof SqlServerPlatform
 			|| $this->connection->getDriver() instanceof PdoDriver
 		) {
-			Environment::skip("Platform or driver does not support wrongly called transaction operations.");
+			Environment::skip('Platform or driver does not support wrongly called transaction operations.');
 		}
 
 		$this->connection->connect();

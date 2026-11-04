@@ -47,7 +47,7 @@ use function in_array;
  */
 class PdoSqlsrvDriver extends PdoDriver
 {
-	private ?PdoSqlsrvResultNormalizerFactory $resultNormalizerFactory = null;
+	private PdoSqlsrvResultNormalizerFactory|null $resultNormalizerFactory = null;
 
 
 	public function connect(array $params, ILogger $logger): void
@@ -157,7 +157,7 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
 		if (
 			in_array($sqlState, [

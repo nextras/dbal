@@ -16,7 +16,6 @@ use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Utils\DateTimeImmutable;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -35,7 +34,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 
 		$result = $this->connection->query('SELECT * FROM tag_followers ORDER BY tag_id, author_id');
 
-		$result->setValueNormalization(false); // test reenabling
+		$result->setValueNormalization(); // test reenabling
 		$result->setValueNormalization(true);
 
 		$follower = $result->fetch();
@@ -45,14 +44,14 @@ class ResultIntegrationTest extends IntegrationTestCase
 		Assert::type(DateTimeImmutable::class, $follower->created_at);
 		Assert::same('2014-01-01 00:10:00', $follower->created_at->format('Y-m-d H:i:s'));
 
-		$result->setValueNormalization(false);
+		$result->setValueNormalization();
 		$follower = $result->fetch();
 
 		if (
 			$this->connection->getDriver() instanceof SqlsrvDriver
 			|| $this->connection->getDriver() instanceof PdoPgsqlDriver
 			|| $this->connection->getDriver() instanceof PdoSqliteDriver
-			|| $this->connection->getDriver() instanceof PdoMysqlDriver && version_compare(PHP_VERSION, '8.1.0-RC1') >= 0
+			|| ($this->connection->getDriver() instanceof PdoMysqlDriver && version_compare(PHP_VERSION, '8.1.0-RC1') >= 0)
 		) {
 			Assert::same(2, $follower->tag_id);
 			Assert::same(2, $follower->author_id);
@@ -89,7 +88,7 @@ class ResultIntegrationTest extends IntegrationTestCase
 	public function testResultType()
 	{
 		$this->lockConnection($this->connection);
-		Assert::null($this->connection->query('INSERT INTO tags %values', ['name' => "Test"])->fetch());
+		Assert::null($this->connection->query('INSERT INTO tags %values', ['name' => 'Test'])->fetch());
 	}
 
 

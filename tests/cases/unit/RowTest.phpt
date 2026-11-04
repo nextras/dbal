@@ -4,10 +4,10 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 

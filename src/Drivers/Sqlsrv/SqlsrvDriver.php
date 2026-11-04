@@ -58,13 +58,12 @@ class SqlsrvDriver implements IDriver
 {
 	use StrictObjectTrait;
 
-
 	/** @var resource|null */
 	private $connection;
-	private ?ILogger $logger = null;
+	private ILogger|null $logger = null;
 	private int $affectedRows = 0;
 	private float $timeTaken = 0.0;
-	private ?SqlsrvResultNormalizationFactory $resultNormalizationFactory = null;
+	private SqlsrvResultNormalizationFactory|null $resultNormalizationFactory = null;
 
 
 	public function __destruct()
@@ -331,7 +330,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	private function throwErrors(?string $query = null): void
+	private function throwErrors(string|null $query = null): void
 	{
 		$errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
 		$errors = $errors === null ? [] : array_unique($errors, SORT_REGULAR);
@@ -349,7 +348,7 @@ class SqlsrvDriver implements IDriver
 	}
 
 
-	protected function createException(string $error, int $errorNo, string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
 		if (in_array($sqlState, ['HYT00', '08001', '28000'], true) || $errorNo === 4060) {
 			return new ConnectionException($error, $errorNo, $sqlState);
@@ -382,7 +381,7 @@ class SqlsrvDriver implements IDriver
 	protected function checkConnection(): void
 	{
 		if ($this->connection === null) {
-			throw new InvalidStateException("Driver is not connected to database.");
+			throw new InvalidStateException('Driver is not connected to database.');
 		}
 	}
 }

@@ -4,11 +4,10 @@
 
 namespace NextrasTests\Dbal;
 
-use Nextras\Dbal\Drivers\IDriver;
+
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -30,22 +29,22 @@ class SqlProcessorArrayTest extends TestCase
 	{
 		Assert::same(
 			'SELECT FROM test WHERE id IN (1, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN %i[]', [1, 2, 3])
+			$this->convert('SELECT FROM test WHERE id IN %i[]', [1, 2, 3]),
 		);
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN (1, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN %i[]', ['foo' => 1, 12 => 2, 0 => 3])
+			$this->convert('SELECT FROM test WHERE id IN %i[]', ['foo' => 1, 12 => 2, 0 => 3]),
 		);
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN ()',
-			$this->convert('SELECT FROM test WHERE id IN %i[]', [])
+			$this->convert('SELECT FROM test WHERE id IN %i[]', []),
 		);
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN (NULL, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN %?i[]', [null, 2, 3])
+			$this->convert('SELECT FROM test WHERE id IN %?i[]', [null, 2, 3]),
 		);
 	}
 
@@ -54,22 +53,22 @@ class SqlProcessorArrayTest extends TestCase
 	{
 		Assert::same(
 			'SELECT FROM test WHERE id IN (1, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN (%...i[])', [1, 2, 3])
+			$this->convert('SELECT FROM test WHERE id IN (%...i[])', [1, 2, 3]),
 		);
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN (1, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN (%...i[])', ['foo' => 1, 12 => 2, 0 => 3])
+			$this->convert('SELECT FROM test WHERE id IN (%...i[])', ['foo' => 1, 12 => 2, 0 => 3]),
 		);
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN ()',
-			$this->convert('SELECT FROM test WHERE id IN (%...i[])', [])
+			$this->convert('SELECT FROM test WHERE id IN (%...i[])', []),
 		);
 
 		Assert::same(
 			'SELECT FROM test WHERE id IN (NULL, 2, 3)',
-			$this->convert('SELECT FROM test WHERE id IN (%...?i[])', [null, 2, 3])
+			$this->convert('SELECT FROM test WHERE id IN (%...?i[])', [null, 2, 3]),
 		);
 	}
 
@@ -77,12 +76,12 @@ class SqlProcessorArrayTest extends TestCase
 	public function testWhereTuplets()
 	{
 		Assert::same(
-			"SELECT 1 FROM foo WHERE (a, b) IN ((1, 2), (3, 4), (5, 6))",
+			'SELECT 1 FROM foo WHERE (a, b) IN ((1, 2), (3, 4), (5, 6))',
 			$this->convert('SELECT 1 FROM foo WHERE (a, b) IN %i[][]', [
 				[1, 2],
 				[3, 4],
 				[5, 6],
-			])
+			]),
 		);
 	}
 

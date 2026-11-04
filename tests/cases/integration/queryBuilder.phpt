@@ -7,9 +7,9 @@
 
 namespace NextrasTests\Dbal;
 
+
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Tester\Assert;
-
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -27,7 +27,7 @@ class QueryBuilderIntegrationTest extends IntegrationTestCase
 
 		Assert::same([1, 2], $this->execute($queryBuilder));
 
-		$queryBuilder->limitBy(null, null);
+		$queryBuilder->limitBy(null);
 		Assert::same([1, 2, 3, 4], $this->execute($queryBuilder));
 
 		$queryBuilder->limitBy(null, 2);

@@ -10,7 +10,6 @@ class ForeignKey
 {
 	use StrictObjectTrait;
 
-
 	public function __construct(
 		public readonly Fqn $fqnName,
 		public readonly string $column,

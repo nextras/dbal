@@ -9,5 +9,5 @@ interface ISqlProcessorModifierResolver
 	 * Resolves the passed value to a modifier name (without a `%` prefix character).
 	 * If not resolved, return a null to let other resolvers continue.
 	 */
-	public function resolve(mixed $value): ?string;
+	public function resolve(mixed $value): string|null;
 }

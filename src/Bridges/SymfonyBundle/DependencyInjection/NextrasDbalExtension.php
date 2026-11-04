@@ -59,9 +59,9 @@ class NextrasDbalExtension extends Extension
 			ContainerInterface::NULL_ON_INVALID_REFERENCE,
 		);
 
-        if (isset($config['driver']) && is_string($config['driver']) && str_starts_with($config['driver'], '@')) {
-            $config['driver'] = new Reference(ltrim($config['driver'], '@'));
-        }
+		if (isset($config['driver']) && is_string($config['driver']) && str_starts_with($config['driver'], '@')) {
+			$config['driver'] = new Reference(ltrim($config['driver'], '@'));
+		}
 
 		$connectionDefinition = new Definition(Connection::class);
 		$connectionDefinition->setArgument('$config', $config);

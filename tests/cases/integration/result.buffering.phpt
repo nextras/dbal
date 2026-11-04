@@ -13,7 +13,6 @@ use Nextras\Dbal\Exception\NotSupportedException;
 use Tester\Assert;
 use Tester\Environment;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 

@@ -11,7 +11,6 @@ namespace NextrasTests\Dbal;
 use DateTime;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -30,11 +29,11 @@ class PlatformFormatPostgresTest extends IntegrationTestCase
 
 	public function testBoolean()
 	{
-		$this->connection->query("
+		$this->connection->query('
 			CREATE TEMPORARY TABLE [driver_types] (
 				[is_bool] boolean
 			);
-		");
+		');
 
 		$result = $this->connection->query('SELECT * FROM [driver_types] WHERE [is_bool] = %b', true);
 		Assert::same(0, iterator_count($result));
@@ -59,22 +58,22 @@ class PlatformFormatPostgresTest extends IntegrationTestCase
 		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A'B")->fetchField());
 		Assert::true($c->query("SELECT 'AA''BB' LIKE %_like_", "A'B")->fetchField());
 
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A\\B")->fetchField());
-		Assert::true($c->query("SELECT 'AA\\BB' LIKE %_like_", "A\\B")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", 'A\\B')->fetchField());
+		Assert::true($c->query("SELECT 'AA\\BB' LIKE %_like_", 'A\\B')->fetchField());
 
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A%B")->fetchField());
-		Assert::true($c->query("SELECT %raw     LIKE %_like_", "'AA%BB'", "A%B")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", 'A%B')->fetchField());
+		Assert::true($c->query('SELECT %raw     LIKE %_like_', "'AA%BB'", 'A%B')->fetchField());
 
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", "A_B")->fetchField());
-		Assert::true($c->query("SELECT 'AA_BB'  LIKE %_like_", "A_B")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like_", 'A_B')->fetchField());
+		Assert::true($c->query("SELECT 'AA_BB'  LIKE %_like_", 'A_B')->fetchField());
 
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", "AAAxBB")->fetchField());
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", "AxB")->fetchField());
-		Assert::true($c->query("SELECT 'AAxBB'  LIKE %_like", "AxBB")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", 'AAAxBB')->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %_like", 'AxB')->fetchField());
+		Assert::true($c->query("SELECT 'AAxBB'  LIKE %_like", 'AxBB')->fetchField());
 
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxBBB")->fetchField());
-		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", "AxB")->fetchField());
-		Assert::true($c->query("SELECT 'AAxBB'  LIKE %like_", "AAxB")->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", 'AAxBBB')->fetchField());
+		Assert::false($c->query("SELECT 'AAxBB'  LIKE %like_", 'AxB')->fetchField());
+		Assert::true($c->query("SELECT 'AAxBB'  LIKE %like_", 'AAxB')->fetchField());
 	}
 }
 

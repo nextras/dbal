@@ -50,13 +50,12 @@ class PgsqlDriver implements IDriver
 {
 	use StrictObjectTrait;
 
-
-	private ?Connection $connection = null;
-	private ?\DateTimeZone $connectionTz = null;
-	private ?ILogger $logger = null;
+	private Connection|null $connection = null;
+	private \DateTimeZone|null $connectionTz = null;
+	private ILogger|null $logger = null;
 	private int $affectedRows = 0;
 	private float $timeTaken = 0.0;
-	private ?PgsqlResultNormalizerFactory $resultNormalizationFactory = null;
+	private PgsqlResultNormalizerFactory|null $resultNormalizationFactory = null;
 
 
 	public function __destruct()
@@ -95,7 +94,7 @@ class PgsqlDriver implements IDriver
 			}
 		}
 
-		set_error_handler(function(int $code, string $message): never {
+		set_error_handler(function (int $code, string $message): never {
 			restore_error_handler();
 			throw $this->createException($message, $code, null);
 		}, E_ALL);
@@ -141,7 +140,7 @@ class PgsqlDriver implements IDriver
 	}
 
 
-	public function getResourceHandle(): ?Connection
+	public function getResourceHandle(): Connection|null
 	{
 		return $this->connection;
 	}
@@ -315,8 +314,8 @@ class PgsqlDriver implements IDriver
 		$this->checkConnection();
 		assert($this->connection !== null);
 		$escaped = match (true) {
-			$identifier instanceof Fqn => pg_escape_identifier($this->connection, $identifier->schema) . '.' .
-				pg_escape_identifier($this->connection, $identifier->name),
+			$identifier instanceof Fqn => pg_escape_identifier($this->connection, $identifier->schema) . '.'
+				. pg_escape_identifier($this->connection, $identifier->name),
 			default => pg_escape_identifier($this->connection, $identifier),
 		};
 		if ($escaped === false) {
@@ -330,7 +329,7 @@ class PgsqlDriver implements IDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, ?string $sqlState, ?string $query = null): Exception
+	protected function createException(string $error, int $errorNo, string|null $sqlState, string|null $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 		if ($sqlState === '0A000' && str_contains($error, 'truncate')) {
@@ -348,7 +347,7 @@ class PgsqlDriver implements IDriver
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 
 		} elseif ($sqlState === null && stripos($error, 'pg_connect()') !== false) {
-			return new ConnectionException($error, $errorNo, '');
+			return new ConnectionException($error, $errorNo);
 
 		} elseif ($query !== null) {
 			return new QueryException($error, $errorNo, $sqlState ?? '', null, $query);
@@ -390,7 +389,7 @@ class PgsqlDriver implements IDriver
 	protected function checkConnection(): void
 	{
 		if ($this->connection === null) {
-			throw new InvalidStateException("Driver is not connected to database.");
+			throw new InvalidStateException('Driver is not connected to database.');
 		}
 	}
 }

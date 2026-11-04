@@ -9,9 +9,7 @@ use Nextras\Dbal\Utils\DateTimeImmutable;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function ctype_digit;
 use function date_default_timezone_get;
-use function floor;
 use function is_int;
-use function is_numeric;
 use function sprintf;
 
 
@@ -21,7 +19,6 @@ use function sprintf;
 class PdoSqliteResultNormalizerFactory
 {
 	use StrictObjectTrait;
-
 
 	/** @var Closure(mixed): mixed */
 	private $intNormalizer;
@@ -43,22 +40,22 @@ class PdoSqliteResultNormalizerFactory
 	{
 		$applicationTimeZone = new DateTimeZone(date_default_timezone_get());
 
-		$this->intNormalizer = static function ($value): ?int {
+		$this->intNormalizer = static function ($value): int|null {
 			if ($value === null) return null;
 			return (int) $value;
 		};
 
-		$this->floatNormalizer = static function ($value): ?float {
+		$this->floatNormalizer = static function ($value): float|null {
 			if ($value === null) return null;
 			return (float) $value;
 		};
 
-		$this->boolNormalizer = static function ($value): ?bool {
+		$this->boolNormalizer = static function ($value): bool|null {
 			if ($value === null) return null;
 			return (bool) $value;
 		};
 
-		$this->dateTimeNormalizer = static function ($value) use ($driver, $applicationTimeZone): ?DateTimeImmutable {
+		$this->dateTimeNormalizer = static function ($value) use ($driver, $applicationTimeZone): DateTimeImmutable|null {
 			if ($value === null) return null;
 
 			if (is_int($value) || (is_string($value) && ctype_digit($value))) {
@@ -78,7 +75,7 @@ class PdoSqliteResultNormalizerFactory
 			return $dateTime->setTimezone($applicationTimeZone);
 		};
 
-		$this->localDateTimeNormalizer = static function ($value) use ($applicationTimeZone): ?DateTimeImmutable {
+		$this->localDateTimeNormalizer = static function ($value) use ($applicationTimeZone): DateTimeImmutable|null {
 			if ($value === null) return null;
 			$dateTime = new DateTimeImmutable((string) $value);
 			return $dateTime->setTimezone($applicationTimeZone);

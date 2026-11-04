@@ -14,7 +14,6 @@ use Nextras\Dbal\Platforms\SqlitePlatform;
 use Nextras\Dbal\Result\Row;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -55,17 +54,15 @@ class SqlPreprocessorIntegrationTest extends IntegrationTestCase
 			WHERE %multiOr
 		', $query)->fetchAll();
 
-		Assert::same($query, array_map(function (Row $row) {
-			return $row->toArray();
-		}, $rows));
+		Assert::same($query, array_map(fn(Row $row) => $row->toArray(), $rows));
 	}
 
 
 	public function testCustomModifier()
 	{
 		$this->connection->connect();
-		/** @var ISqlProcessorFactory $sqlProcessorFactory */
 		$sqlProcessorFactory = $this->connection->getConfig()['sqlProcessorFactory'];
+		assert($sqlProcessorFactory instanceof ISqlProcessorFactory);
 		$sqlProcessor = $sqlProcessorFactory->create($this->connection);
 		$result = $sqlProcessor->processModifier('%pgArray', [1, '2', false, null]);
 		if ($this->connection->getPlatform()->getName() === PostgreSqlPlatform::NAME) {

@@ -11,7 +11,6 @@ use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\SqlProcessor;
 use Tester\Assert;
 
-
 require_once __DIR__ . '/../../bootstrap.php';
 
 
@@ -70,7 +69,7 @@ class SqlProcessorIdentifiersTest extends TestCase
 
 		Assert::same(
 			'SELECT `a`.*, `b`.`c`.*',
-			$this->parser->process(["SELECT [a.*], [b.c.*]"]),
+			$this->parser->process(['SELECT [a.*], [b.c.*]']),
 		);
 	}
 }
