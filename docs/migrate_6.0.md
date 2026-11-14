@@ -36,6 +36,9 @@ Result-oriented getters are now annotated with `#[\NoDiscard]`, so ignoring thei
 
 ### Other behavioral changes
 
+- **`Connection::transactional()` rolls back on any `Throwable`**, including `Error` and `TypeError`. It rejects callbacks that leave the transaction nesting level changed, rolls back all levels opened within its scope on failure, and rejects nested use when `nestedTransactionsWithSavepoint` is disabled. Callbacks must not commit or roll back the transaction owned by `transactional()`.
+- **Failed rollback in `transactional()` throws `Nextras\Dbal\Exception\TransactionRollbackException`**. Its `getPrevious()` returns the original operation or commit failure; `getRollbackException()` returns the rollback failure. DBAL attempts to disconnect the connection. If disconnection also fails, `getDisconnectException()` returns that failure and the connection must be discarded.
+
 - **Postgres SQLSTATE `23001` is now classified as `ForeignKeyConstraintViolationException`** (Postgres 18 reports restrict violations with this code).
 - **MySQL error 1298 now throws `UnknownMysqlTimezoneException`** with an extended message.
 - Both new exception types subclass `QueryException`, so existing `catch (QueryException)` blocks keep working; only code matching the exact class or message text is affected.

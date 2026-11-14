@@ -3,9 +3,10 @@
 namespace Nextras\Dbal;
 
 
-use Exception;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
+use Nextras\Dbal\Exception\InvalidStateException;
+use Nextras\Dbal\Exception\TransactionRollbackException;
 use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
@@ -13,6 +14,7 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\MultiLogger;
 use Nextras\Dbal\Utils\StrictObjectTrait;
+use Throwable;
 use function array_unshift;
 use function is_array;
 use function spl_object_id;
@@ -67,6 +69,7 @@ class Connection implements IConnection
 		}
 		$this->driver->disconnect();
 		$this->connected = false;
+		$this->nestedTransactionIndex = 0;
 		$this->logger->onDisconnect();
 	}
 
@@ -187,13 +190,36 @@ class Connection implements IConnection
 
 	public function transactional(callable $callback): mixed
 	{
+		if (!$this->connected) {
+			$this->connect();
+		}
+		$initialIndex = $this->nestedTransactionIndex;
+		if ($initialIndex > 0 && !$this->nestedTransactionsWithSavepoint) {
+			throw new InvalidStateException('Cannot nest transactional() when nested transactions with savepoints are disabled.');
+		}
+
 		$this->beginTransaction();
 		try {
 			$returnValue = $callback($this);
+			if ($this->nestedTransactionIndex !== $initialIndex + 1) {
+				throw new InvalidStateException('Transaction nesting level changed inside transactional() callback.');
+			}
 			$this->commitTransaction();
 			return $returnValue;
-		} catch (Exception $e) {
-			$this->rollbackTransaction();
+		} catch (Throwable $e) {
+			try {
+				while ($this->nestedTransactionIndex > $initialIndex) {
+					$this->rollbackTransaction();
+				}
+			} catch (Throwable $rollbackException) {
+				$disconnectException = null;
+				try {
+					$this->disconnect();
+				} catch (Throwable $disconnectException) {
+					// Preserve both cleanup failures alongside the original transaction failure.
+				}
+				throw new TransactionRollbackException($e, $rollbackException, $disconnectException);
+			}
 			throw $e;
 		}
 	}
@@ -206,11 +232,16 @@ class Connection implements IConnection
 		}
 
 		if ($this->nestedTransactionIndex === 0) {
-			$this->nestedTransactionIndex++;
 			$this->driver->beginTransaction();
+			$this->nestedTransactionIndex++;
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->nestedTransactionIndex++;
-			$this->driver->createSavepoint($this->getSavepointName());
+			try {
+				$this->driver->createSavepoint($this->getSavepointName());
+			} catch (Throwable $e) {
+				$this->nestedTransactionIndex--;
+				throw $e;
+			}
 		}
 	}
 
