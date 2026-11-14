@@ -6,10 +6,12 @@ namespace Nextras\Dbal\Drivers\PdoPgsql;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DeadlockException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\SerializationFailureException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
@@ -130,31 +132,41 @@ class PdoPgsqlDriver extends PdoDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
+	protected function createException(
+		string $error,
+		int $errorNo,
+		string $sqlState,
+		string|null $query = null,
+		\Throwable|null $previousException = null,
+	): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-		if ($sqlState === '0A000' && str_contains($error, 'truncate')) {
+		if ($sqlState === '40P01') {
+			return new DeadlockException($error, $errorNo, $sqlState, $previousException, $query);
+		} elseif ($sqlState === '40001') {
+			return new SerializationFailureException($error, $errorNo, $sqlState, $previousException, $query);
+		} elseif ($sqlState === '0A000' && str_contains($error, 'truncate')) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif ($sqlState === '23502') {
-			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif ($sqlState === '23001' || $sqlState === '23503') {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif ($sqlState === '23505') {
-			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif ($sqlState === '08006') {
-			return new ConnectionException($error, $errorNo, $sqlState);
+			return new ConnectionException($error, $errorNo, $sqlState, $previousException);
 
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, $sqlState, null, $query);
+			return new QueryException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} else {
-			return new DriverException($error, $errorNo, $sqlState);
+			return new DriverException($error, $errorNo, $sqlState, $previousException);
 		}
 	}
 
