@@ -150,6 +150,76 @@ class ConnectionTransactionsTest extends TestCase
 	}
 
 
+	public function testNestedTransactionalCallsCommit(): void
+	{
+		$connection = $this->createConnection($driver);
+		$driver->shouldReceive('beginTransaction')->once()->ordered();
+		$driver->shouldReceive('createSavepoint')->with('NEXTRAS_SAVEPOINT_2')->once()->ordered();
+		$driver->shouldReceive('releaseSavepoint')->with('NEXTRAS_SAVEPOINT_2')->once()->ordered();
+		$driver->shouldReceive('commitTransaction')->once()->ordered();
+
+		$result = $connection->transactional(static function (Connection $connection): int {
+			Assert::same(1, $connection->getTransactionNestedIndex());
+			$innerResult = $connection->transactional(static function (Connection $connection): int {
+				Assert::same(2, $connection->getTransactionNestedIndex());
+				return 42;
+			});
+			Assert::same(42, $innerResult);
+			Assert::same(1, $connection->getTransactionNestedIndex());
+			return $innerResult;
+		});
+		Assert::same(42, $result);
+		Assert::same(0, $connection->getTransactionNestedIndex());
+	}
+
+
+	public function testCaughtInnerTransactionalFailureAllowsOuterCommit(): void
+	{
+		$connection = $this->createConnection($driver);
+		$driver->shouldReceive('beginTransaction')->once()->ordered();
+		$driver->shouldReceive('createSavepoint')->with('NEXTRAS_SAVEPOINT_2')->once()->ordered();
+		$driver->shouldReceive('rollbackSavepoint')->with('NEXTRAS_SAVEPOINT_2')->once()->ordered();
+		$driver->shouldReceive('commitTransaction')->once()->ordered();
+		$failure = new TypeError('Inner callback failed');
+
+		$result = $connection->transactional(static function (Connection $connection) use ($failure): int {
+			$thrown = Assert::exception(function () use ($connection, $failure): void {
+				$connection->transactional(static function (Connection $connection) use ($failure): void {
+					Assert::same(2, $connection->getTransactionNestedIndex());
+					throw $failure;
+				});
+			}, TypeError::class);
+			Assert::same($failure, $thrown);
+			Assert::same(1, $connection->getTransactionNestedIndex());
+			return 42;
+		});
+		Assert::same(42, $result);
+		Assert::same(0, $connection->getTransactionNestedIndex());
+	}
+
+
+	public function testPropagatedInnerTransactionalFailureRollsBackBothCalls(): void
+	{
+		$connection = $this->createConnection($driver);
+		$driver->shouldReceive('beginTransaction')->once()->ordered();
+		$driver->shouldReceive('createSavepoint')->with('NEXTRAS_SAVEPOINT_2')->once()->ordered();
+		$driver->shouldReceive('rollbackSavepoint')->with('NEXTRAS_SAVEPOINT_2')->once()->ordered();
+		$driver->shouldReceive('rollbackTransaction')->once()->ordered();
+		$failure = new TypeError('Inner callback failed');
+
+		$thrown = Assert::exception(function () use ($connection, $failure): void {
+			$connection->transactional(static function (Connection $connection) use ($failure): void {
+				$connection->transactional(static function (Connection $connection) use ($failure): void {
+					Assert::same(2, $connection->getTransactionNestedIndex());
+					throw $failure;
+				});
+			});
+		}, TypeError::class);
+		Assert::same($failure, $thrown);
+		Assert::same(0, $connection->getTransactionNestedIndex());
+	}
+
+
 	public function testCallbackRollbackDoesNotRollbackCaller(): void
 	{
 		$connection = $this->createConnection($driver);

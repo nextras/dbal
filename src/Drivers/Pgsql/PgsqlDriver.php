@@ -6,10 +6,12 @@ namespace Nextras\Dbal\Drivers\Pgsql;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DeadlockException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\SerializationFailureException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
@@ -332,7 +334,11 @@ class PgsqlDriver implements IDriver
 	protected function createException(string $error, int $errorNo, string|null $sqlState, string|null $query = null): Exception
 	{
 		// see codes at http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-		if ($sqlState === '0A000' && str_contains($error, 'truncate')) {
+		if ($sqlState === '40P01') {
+			return new DeadlockException($error, $errorNo, $sqlState, null, $query);
+		} elseif ($sqlState === '40001') {
+			return new SerializationFailureException($error, $errorNo, $sqlState, null, $query);
+		} elseif ($sqlState === '0A000' && str_contains($error, 'truncate')) {
 			// Foreign key constraint violations during a TRUNCATE operation
 			// are considered "feature not supported" in PostgreSQL.
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);

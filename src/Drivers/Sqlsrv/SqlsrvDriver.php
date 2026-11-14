@@ -7,10 +7,12 @@ use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DeadlockException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\SerializationFailureException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
@@ -350,7 +352,11 @@ class SqlsrvDriver implements IDriver
 
 	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
-		if (in_array($sqlState, ['HYT00', '08001', '28000'], true) || $errorNo === 4060) {
+		if ($errorNo === 1205) {
+			return new DeadlockException($error, $errorNo, $sqlState, null, $query);
+		} elseif ($errorNo === 3960) {
+			return new SerializationFailureException($error, $errorNo, $sqlState, null, $query);
+		} elseif (in_array($sqlState, ['HYT00', '08001', '28000'], true) || $errorNo === 4060) {
 			return new ConnectionException($error, $errorNo, $sqlState);
 
 		} elseif (in_array($errorNo, [547], true)) {
