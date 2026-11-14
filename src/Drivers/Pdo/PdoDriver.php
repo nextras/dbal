@@ -3,9 +3,9 @@
 namespace Nextras\Dbal\Drivers\Pdo;
 
 
+use Closure;
 use DateTimeZone;
 use Exception;
-use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\ILogger;
@@ -154,57 +154,19 @@ abstract class PdoDriver implements IDriver
 
 	public function beginTransaction(): void
 	{
-		$this->checkConnection();
-		assert($this->connection !== null);
-		assert($this->logger !== null);
-
-		try {
-			$time = microtime(true);
-			$this->connection->beginTransaction();
-		} catch (PDOException $e) {
-			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
-		}
-
-		$timeTaken = microtime(true) - $time;
-		$this->logger->onQuery('BEGIN TRANSACTION', $timeTaken, null);
+		$this->executeTransactionCommand('BEGIN TRANSACTION', static fn(PDO $connection): bool => $connection->beginTransaction());
 	}
 
 
 	public function commitTransaction(): void
 	{
-		$this->checkConnection();
-		assert($this->connection !== null);
-		assert($this->logger !== null);
-
-		try {
-			$time = microtime(true);
-
-			$this->connection->commit();
-
-		} catch (PDOException $e) {
-			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
-		}
-
-		$timeTaken = microtime(true) - $time;
-		$this->logger->onQuery('COMMIT TRANSACTION', $timeTaken, null);
+		$this->executeTransactionCommand('COMMIT TRANSACTION', static fn(PDO $connection): bool => $connection->commit());
 	}
 
 
 	public function rollbackTransaction(): void
 	{
-		$this->checkConnection();
-		assert($this->connection !== null);
-		assert($this->logger !== null);
-
-		try {
-			$time = microtime(true);
-			$this->connection->rollBack();
-		} catch (PDOException $e) {
-			throw new DriverException($e->getMessage(), 0, $e->getCode(), $e);
-		}
-
-		$timeTaken = microtime(true) - $time;
-		$this->logger->onQuery('ROLLBACK TRANSACTION', $timeTaken, null);
+		$this->executeTransactionCommand('ROLLBACK TRANSACTION', static fn(PDO $connection): bool => $connection->rollBack());
 	}
 
 
@@ -254,7 +216,41 @@ abstract class PdoDriver implements IDriver
 		int $errorNo,
 		string $sqlState,
 		string|null $query = null,
+		\Throwable|null $previousException = null,
 	): Exception;
+
+
+	/**
+	 * @param Closure(PDO): bool $callback
+	 */
+	private function executeTransactionCommand(string $sql, Closure $callback): void
+	{
+		$this->checkConnection();
+		$connection = $this->connection;
+		$logger = $this->logger;
+		assert($connection !== null);
+		assert($logger !== null);
+
+		$time = microtime(true);
+		try {
+			$success = $callback($connection);
+		} catch (PDOException $e) {
+			throw $this->createException(
+				$e->getMessage(),
+				(int) ($e->errorInfo[1] ?? 0),
+				$e->errorInfo[0] ?? (string) $e->getCode(),
+				previousException: $e,
+			);
+		} finally {
+			$this->timeTaken = microtime(true) - $time;
+		}
+
+		if (!$success) {
+			[$sqlState, $errorCode, $errorMsg] = $connection->errorInfo();
+			throw $this->createException($errorMsg ?? "$sql failed.", $errorCode ?? 0, $sqlState ?? '');
+		}
+		$logger->onQuery($sql, $this->timeTaken, null);
+	}
 
 
 	protected function loggedQuery(string $sql): Result

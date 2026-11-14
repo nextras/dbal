@@ -9,6 +9,7 @@ use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Drivers\PdoPgsql\PdoPgsqlDriver;
 use Nextras\Dbal\Drivers\Pgsql\PgsqlDriver;
+use Nextras\Dbal\Exception\TransactionRollbackException;
 use Nextras\Dbal\Platforms\Data\Column;
 use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
@@ -112,11 +113,15 @@ interface IConnection
 	public function setTransactionIsolationLevel(int $level): void;
 
 	/**
-	 * Performs operation in a transaction.
+	 * Performs operation in a transaction and rolls back on any Throwable.
+	 * The callback must leave transaction boundaries to this method. Unclosed nested transactions are rolled back.
+	 * Nesting requires nestedTransactionsWithSavepoint to be enabled.
+	 * If rollback fails, the connection is disconnected and a {@see TransactionRollbackException} preserves both failures.
+	 * If disconnect also fails, the connection must be discarded.
 	 * @template T
 	 * @param callable(Connection):T $callback
 	 * @return T value returned by callback
-	 * @throws \Exception
+	 * @throws \Throwable
 	 */
 	public function transactional(callable $callback): mixed;
 

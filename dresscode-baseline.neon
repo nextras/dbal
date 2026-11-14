@@ -6,12 +6,6 @@ files:
 			message: The constant `CACHE_VERSION` must be written in PascalCase.
 			fingerprint: '74bf999377152edd'
 
-	src/Connection.php:
-		-
-			decision: mistakes.exceptionWhereThrowableBelongs
-			message: 'The type `Exception` must be `Throwable`, which also covers errors.'
-			fingerprint: '26f19a6c91c64f87'
-
 	src/Drivers/IDriver.php:
 		-
 			decision: naming.constant

@@ -7,8 +7,10 @@ use DateTimeZone;
 use Exception;
 use mysqli;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DeadlockException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\LockWaitTimeoutException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
@@ -364,7 +366,11 @@ class MysqliDriver implements IDriver
 	 */
 	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
 	{
-		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
+		if ($errorNo === 1213) {
+			return new DeadlockException($error, $errorNo, $sqlState, null, $query);
+		} elseif ($errorNo === 1205) {
+			return new LockWaitTimeoutException($error, $errorNo, $sqlState, null, $query);
+		} elseif (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
 			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
 		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], true)) {
 			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
