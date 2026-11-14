@@ -5,10 +5,12 @@ namespace Nextras\Dbal\Drivers\PdoSqlsrv;
 
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DeadlockException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
+use Nextras\Dbal\Drivers\Exception\SerializationFailureException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\Pdo\PdoDriver;
 use Nextras\Dbal\Exception\NotSupportedException;
@@ -157,9 +159,19 @@ class PdoSqlsrvDriver extends PdoDriver
 	}
 
 
-	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
+	protected function createException(
+		string $error,
+		int $errorNo,
+		string $sqlState,
+		string|null $query = null,
+		\Throwable|null $previousException = null,
+	): Exception
 	{
-		if (
+		if ($errorNo === 1205) {
+			return new DeadlockException($error, $errorNo, $sqlState, $previousException, $query);
+		} elseif ($errorNo === 3960) {
+			return new SerializationFailureException($error, $errorNo, $sqlState, $previousException, $query);
+		} elseif (
 			in_array($sqlState, [
 				'HYT00',
 				'08001',
@@ -167,22 +179,22 @@ class PdoSqlsrvDriver extends PdoDriver
 			], true)
 			|| stripos($error, 'Cannot open database') !== false
 		) {
-			return new ConnectionException($error, $errorNo, $sqlState);
+			return new ConnectionException($error, $errorNo, $sqlState, $previousException);
 
 		} elseif (in_array($errorNo, [547], true)) {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif (in_array($errorNo, [2601, 2627], true)) {
-			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif (in_array($errorNo, [515], true)) {
-			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, $sqlState, null, $query);
+			return new QueryException($error, $errorNo, $sqlState, $previousException, $query);
 
 		} else {
-			return new DriverException($error, $errorNo, $sqlState);
+			return new DriverException($error, $errorNo, $sqlState, $previousException);
 		}
 	}
 }

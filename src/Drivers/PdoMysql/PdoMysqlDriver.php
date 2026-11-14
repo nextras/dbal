@@ -6,8 +6,10 @@ namespace Nextras\Dbal\Drivers\PdoMysql;
 use DateTimeZone;
 use Exception;
 use Nextras\Dbal\Drivers\Exception\ConnectionException;
+use Nextras\Dbal\Drivers\Exception\DeadlockException;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\ForeignKeyConstraintViolationException;
+use Nextras\Dbal\Drivers\Exception\LockWaitTimeoutException;
 use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
@@ -145,22 +147,32 @@ class PdoMysqlDriver extends PdoDriver
 	 * This method is based on Doctrine\DBAL project.
 	 * @link www.doctrine-project.org
 	 */
-	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
+	protected function createException(
+		string $error,
+		int $errorNo,
+		string $sqlState,
+		string|null $query = null,
+		\Throwable|null $previousException = null,
+	): Exception
 	{
-		if (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+		if ($errorNo === 1213) {
+			return new DeadlockException($error, $errorNo, $sqlState, $previousException, $query);
+		} elseif ($errorNo === 1205) {
+			return new LockWaitTimeoutException($error, $errorNo, $sqlState, $previousException, $query);
+		} elseif (in_array($errorNo, [1216, 1217, 1451, 1452, 1701], true)) {
+			return new ForeignKeyConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 		} elseif (in_array($errorNo, [1062, 1557, 1569, 1586], true)) {
-			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 		} elseif (in_array($errorNo, [1044, 1045, 1046, 1049, 1095, 1142, 1143, 1227, 1370, 2002, 2005, 2054], true)) {
-			return new ConnectionException($error, $errorNo, $sqlState);
+			return new ConnectionException($error, $errorNo, $sqlState, $previousException);
 		} elseif (in_array($errorNo, [1048, 1121, 1138, 1171, 1252, 1263, 1566], true)) {
-			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, null, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, $sqlState, $previousException, $query);
 		} elseif ($errorNo === 1298) {
-			return new UnknownMysqlTimezoneException($error, $errorNo, $sqlState, null, $query);
+			return new UnknownMysqlTimezoneException($error, $errorNo, $sqlState, $previousException, $query);
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, $sqlState, null, $query);
+			return new QueryException($error, $errorNo, $sqlState, $previousException, $query);
 		} else {
-			return new DriverException($error, $errorNo, $sqlState);
+			return new DriverException($error, $errorNo, $sqlState, $previousException);
 		}
 	}
 

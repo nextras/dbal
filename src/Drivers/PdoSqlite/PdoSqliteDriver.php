@@ -93,28 +93,34 @@ class PdoSqliteDriver extends PdoDriver
 	}
 
 
-	protected function createException(string $error, int $errorNo, string $sqlState, string|null $query = null): Exception
+	protected function createException(
+		string $error,
+		int $errorNo,
+		string $sqlState,
+		string|null $query = null,
+		\Throwable|null $previousException = null,
+	): Exception
 	{
 		if (stripos($error, 'FOREIGN KEY constraint failed') !== false) {
-			return new ForeignKeyConstraintViolationException($error, $errorNo, '', null, $query);
+			return new ForeignKeyConstraintViolationException($error, $errorNo, '', $previousException, $query);
 		} elseif (
 			strpos($error, 'must be unique') !== false
 			|| strpos($error, 'is not unique') !== false
 			|| strpos($error, 'are not unique') !== false
 			|| strpos($error, 'UNIQUE constraint failed') !== false
 		) {
-			return new UniqueConstraintViolationException($error, $errorNo, '', null, $query);
+			return new UniqueConstraintViolationException($error, $errorNo, '', $previousException, $query);
 		} elseif (
 			strpos($error, 'may not be NULL') !== false
 			|| strpos($error, 'NOT NULL constraint failed') !== false
 		) {
-			return new NotNullConstraintViolationException($error, $errorNo, '', null, $query);
+			return new NotNullConstraintViolationException($error, $errorNo, '', $previousException, $query);
 		} elseif (stripos($error, 'unable to open database') !== false) {
-			return new ConnectionException($error, $errorNo);
+			return new ConnectionException($error, $errorNo, '', $previousException);
 		} elseif ($query !== null) {
-			return new QueryException($error, $errorNo, '', null, $query);
+			return new QueryException($error, $errorNo, '', $previousException, $query);
 		} else {
-			return new DriverException($error, $errorNo);
+			return new DriverException($error, $errorNo, '', $previousException);
 		}
 	}
 }
