@@ -47,7 +47,7 @@ class DateTimeSqliteTest extends IntegrationTestCase
 		$connection->query(
 			'INSERT INTO dates_write VALUES (%ldt, %dt)',
 			new DateTime('2015-01-01 12:00:00'),             // local
-			new DateTime('2015-01-01 12:00:00 Europe/Kiev'),  // 10:00 UTC,
+			new DateTime('2015-01-01 12:00:00 Europe/Helsinki'),  // 10:00 UTC,
 		);
 
 		$result = $connection->query('SELECT * FROM dates_write');
