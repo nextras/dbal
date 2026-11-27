@@ -15,6 +15,7 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\UnknownMysqlTimezoneException;
+use Nextras\Dbal\Drivers\IAsyncQueryDriver;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidStateException;
 use Nextras\Dbal\Exception\NotSupportedException;
@@ -27,6 +28,7 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use function assert;
+use function defined;
 use function mysqli_report;
 use function str_replace;
 
@@ -58,7 +60,7 @@ use function str_replace;
  *    - "auto-offset"
  *    - specific +-00:00 timezone offset;
  */
-class MysqliDriver implements IDriver
+class MysqliDriver implements IAsyncQueryDriver
 {
 	use StrictObjectTrait;
 
@@ -67,6 +69,8 @@ class MysqliDriver implements IDriver
 	private ILogger|null $logger = null;
 	private float $timeTaken = 0.0;
 	private MysqliResultNormalizerFactory|null $resultNormalizerFactory = null;
+	private string|null $pendingQuery = null;
+	private float $pendingQueryStart = 0.0;
 
 
 	public function __destruct()
@@ -86,6 +90,7 @@ class MysqliDriver implements IDriver
 		$socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
 		$flags = $params['flags'] ?? 0;
 
+		$this->pendingQuery = null;
 		mysqli_report(MYSQLI_REPORT_OFF); // Errors are checked explicitly.
 		$this->connection = new mysqli();
 		$this->resultNormalizerFactory = new MysqliResultNormalizerFactory($this);
@@ -108,6 +113,8 @@ class MysqliDriver implements IDriver
 
 	public function disconnect(): void
 	{
+		// A pending async query is abandoned: closing the connection does not wait for its result.
+		$this->pendingQuery = null;
 		if ($this->connection !== null) {
 			$this->connection->close();
 			$this->connection = null;
@@ -138,6 +145,7 @@ class MysqliDriver implements IDriver
 	public function query(string $query): Result
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		assert($this->resultNormalizerFactory !== null);
 
@@ -162,9 +170,99 @@ class MysqliDriver implements IDriver
 	}
 
 
+	public function isAsyncQuerySupported(): bool
+	{
+		return defined('MYSQLI_ASYNC');
+	}
+
+
+	public function sendQuery(string $query): void
+	{
+		if (!$this->isAsyncQuerySupported()) {
+			throw new NotSupportedException('Async queries require the mysqlnd driver (MYSQLI_ASYNC).');
+		}
+		$this->checkConnection();
+		$this->checkNoPendingQuery();
+		assert($this->connection !== null);
+
+		$time = microtime(true);
+		$sent = @$this->connection->query($query, MYSQLI_ASYNC); // dresscode:ignore mistakes.errorSuppression -- mysqlnd emits network warnings even with MYSQLI_REPORT_OFF; errors are checked explicitly
+		if ($sent === false) {
+			$this->timeTaken = microtime(true) - $time;
+			throw $this->createException(
+				$this->connection->error,
+				$this->connection->errno,
+				$this->connection->sqlstate,
+				$query,
+			);
+		}
+
+		$this->pendingQuery = $query;
+		$this->pendingQueryStart = $time;
+	}
+
+
+	public function reapQuery(): Result
+	{
+		$this->checkConnection();
+		assert($this->connection !== null);
+		assert($this->resultNormalizerFactory !== null);
+
+		$query = $this->pendingQuery;
+		if ($query === null) {
+			throw new InvalidStateException('There is no pending query to reap.');
+		}
+		$this->pendingQuery = null;
+
+		$result = @$this->connection->reap_async_query(); // dresscode:ignore mistakes.errorSuppression -- mysqlnd emits network warnings even with MYSQLI_REPORT_OFF; errors are checked explicitly
+		$this->timeTaken = microtime(true) - $this->pendingQueryStart;
+
+		if ($result === false) {
+			throw $this->createException(
+				$this->connection->error,
+				$this->connection->errno,
+				$this->connection->sqlstate,
+				$query,
+			);
+		}
+
+		// Drain further result sets (e.g. of a CALL), otherwise the connection would be out of sync.
+		while ($this->connection->more_results()) {
+			if (!@$this->connection->next_result()) { // dresscode:ignore mistakes.errorSuppression -- mysqlnd emits network warnings even with MYSQLI_REPORT_OFF; errors are checked explicitly
+				if ($result instanceof \mysqli_result) {
+					$result->free();
+				}
+				throw $this->createException(
+					$this->connection->error,
+					$this->connection->errno,
+					$this->connection->sqlstate,
+					$query,
+				);
+			}
+			$extraResult = $this->connection->store_result();
+			if ($extraResult instanceof \mysqli_result) {
+				$extraResult->free();
+			}
+		}
+
+		if ($result === true) {
+			return new Result(new MysqliEmptyResultAdapter());
+		}
+
+		return new Result(new MysqliResultAdapter($result, $this->resultNormalizerFactory));
+	}
+
+
+	public function hasPendingQuery(): bool
+	{
+		return $this->pendingQuery !== null;
+	}
+
+
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		return $this->connection->insert_id;
 	}
@@ -173,6 +271,7 @@ class MysqliDriver implements IDriver
 	public function getAffectedRows(): int
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		$affectedRows = $this->connection->affected_rows;
 		if (is_string($affectedRows)) {
@@ -210,6 +309,7 @@ class MysqliDriver implements IDriver
 	public function ping(): bool
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		try {
 			$this->query('SELECT 1');
 			return true;
@@ -222,6 +322,7 @@ class MysqliDriver implements IDriver
 	public function setTransactionIsolationLevel(int $level): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		static $levels = [
 			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -238,6 +339,7 @@ class MysqliDriver implements IDriver
 	public function beginTransaction(): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('START TRANSACTION');
 	}
 
@@ -245,6 +347,7 @@ class MysqliDriver implements IDriver
 	public function commitTransaction(): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('COMMIT');
 	}
 
@@ -252,6 +355,7 @@ class MysqliDriver implements IDriver
 	public function rollbackTransaction(): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('ROLLBACK');
 	}
 
@@ -259,6 +363,7 @@ class MysqliDriver implements IDriver
 	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
@@ -266,6 +371,7 @@ class MysqliDriver implements IDriver
 	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
@@ -273,6 +379,7 @@ class MysqliDriver implements IDriver
 	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
 
@@ -400,6 +507,14 @@ class MysqliDriver implements IDriver
 	{
 		if ($this->connection === null) {
 			throw new InvalidStateException('Driver is not connected to database.');
+		}
+	}
+
+
+	protected function checkNoPendingQuery(): void
+	{
+		if ($this->pendingQuery !== null) {
+			throw new InvalidStateException('Driver has a pending async query; reap it with reapQuery() first.');
 		}
 	}
 }

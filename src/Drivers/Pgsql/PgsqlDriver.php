@@ -13,6 +13,7 @@ use Nextras\Dbal\Drivers\Exception\NotNullConstraintViolationException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\SerializationFailureException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
+use Nextras\Dbal\Drivers\IAsyncQueryDriver;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\InvalidStateException;
@@ -26,6 +27,7 @@ use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\StrictObjectTrait;
 use PgSql\Connection;
+use PgSql\Result as PgsqlResult;
 use function is_string;
 use function pg_escape_identifier;
 
@@ -48,7 +50,7 @@ use function pg_escape_identifier;
  *    - "auto-offset"
  *    - specific +-00:00 timezone offset;
  */
-class PgsqlDriver implements IDriver
+class PgsqlDriver implements IAsyncQueryDriver
 {
 	use StrictObjectTrait;
 
@@ -58,6 +60,8 @@ class PgsqlDriver implements IDriver
 	private int $affectedRows = 0;
 	private float $timeTaken = 0.0;
 	private PgsqlResultNormalizerFactory|null $resultNormalizationFactory = null;
+	private string|null $pendingQuery = null;
+	private float $pendingQueryStart = 0.0;
 
 
 	public function __destruct()
@@ -87,6 +91,9 @@ class PgsqlDriver implements IDriver
 		];
 
 		$this->logger = $logger;
+		if ($this->pendingQuery !== null) {
+			$this->disconnect();
+		}
 
 		$params = $this->processConfig($params);
 		$connectionString = '';
@@ -129,6 +136,16 @@ class PgsqlDriver implements IDriver
 
 	public function disconnect(): void
 	{
+		if ($this->pendingQuery !== null && $this->connection !== null) {
+			// A pending async query is abandoned: a still running query is cancelled (pg_cancel_query() also reads
+			// its results); results that have already arrived are drained, because PHP's pg_close() reads them
+			// too and would loop forever on a COPY result.
+			if (pg_connection_busy($this->connection)) {
+				@pg_cancel_query($this->connection); // dresscode:ignore mistakes.errorSuppression -- the connection is closed anyway
+			}
+			$this->drainResults(null, '');
+		}
+		$this->pendingQuery = null;
 		if ($this->connection !== null) {
 			pg_close($this->connection);
 			$this->connection = null;
@@ -159,6 +176,7 @@ class PgsqlDriver implements IDriver
 	public function query(string $query): Result
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		assert($this->resultNormalizationFactory !== null);
 
@@ -185,8 +203,105 @@ class PgsqlDriver implements IDriver
 	}
 
 
+	public function isAsyncQuerySupported(): bool
+	{
+		return true;
+	}
+
+
+	public function sendQuery(string $query): void
+	{
+		$this->checkConnection();
+		$this->checkNoPendingQuery();
+		assert($this->connection !== null);
+
+		$time = microtime(true);
+		if (pg_send_query($this->connection, $query) === false) {
+			$this->timeTaken = microtime(true) - $time;
+			throw $this->createException(pg_last_error($this->connection), 0, null);
+		}
+
+		$this->pendingQuery = $query;
+		$this->pendingQueryStart = $time;
+	}
+
+
+	public function reapQuery(): Result
+	{
+		$this->checkConnection();
+		assert($this->connection !== null);
+		assert($this->resultNormalizationFactory !== null);
+
+		$query = $this->pendingQuery;
+		if ($query === null) {
+			throw new InvalidStateException('There is no pending query to reap.');
+		}
+		$this->pendingQuery = null;
+
+		$resource = pg_get_result($this->connection);
+		$this->timeTaken = microtime(true) - $this->pendingQueryStart;
+
+		if ($resource === false) {
+			throw $this->createException(pg_last_error($this->connection), 0, null);
+		}
+
+		// The first statement's result is returned (as query() does); further results (multiple statements
+		// in one string) are drained so that the connection accepts another query. The first error wins.
+		$exception = $this->drainResults($resource, $query);
+		if ($exception !== null) {
+			throw $exception;
+		}
+
+		$this->affectedRows = pg_affected_rows($resource);
+		return new Result(new PgsqlResultAdapter($resource, $this->resultNormalizationFactory));
+	}
+
+
+	public function hasPendingQuery(): bool
+	{
+		return $this->pendingQuery !== null;
+	}
+
+
+	/**
+	 * Reads all remaining results of the sent query (starting with $first if given) so that the connection
+	 * becomes idle again; returns the exception of the first failed result, or null.
+	 *
+	 * A COPY FROM STDIN / TO STDOUT result would be returned by pg_get_result() forever (and PHP's own
+	 * pg_close() would loop forever too), so the COPY is ended with pg_end_copy() — COPY TO STDOUT data are
+	 * discarded, COPY FROM STDIN receives no rows — and it is reported as a DriverException.
+	 */
+	private function drainResults(PgsqlResult|null $first, string $query): Exception|null
+	{
+		assert($this->connection !== null);
+		$exception = null;
+		$resource = $first ?? pg_get_result($this->connection);
+		while ($resource !== false) {
+			$status = pg_result_status($resource);
+			if ($status === PGSQL_COPY_IN || $status === PGSQL_COPY_OUT) {
+				$exception ??= new DriverException(
+					"COPY FROM STDIN / TO STDOUT is not supported by async queries. Query: $query",
+				);
+				@pg_end_copy($this->connection); // dresscode:ignore mistakes.errorSuppression -- failure is reported via the exception above
+			} else {
+				$state = pg_result_error_field($resource, PGSQL_DIAG_SQLSTATE);
+				if (is_string($state)) {
+					$error = pg_result_error($resource);
+					$exception ??= $this->createException($error !== false ? $error : 'Unknown error', 0, $state, $query);
+				}
+			}
+			if ($resource !== $first) {
+				pg_free_result($resource);
+			}
+			$resource = pg_get_result($this->connection);
+		}
+		return $exception;
+	}
+
+
 	public function getLastInsertedId(string|Fqn|null $sequenceName = null): mixed
 	{
+		$this->checkNoPendingQuery();
 		if ($sequenceName === null) {
 			throw new InvalidArgumentException('PgsqlDriver requires passing a sequence name for getLastInsertedId() method.');
 		}
@@ -206,6 +321,7 @@ class PgsqlDriver implements IDriver
 
 	public function getAffectedRows(): int
 	{
+		$this->checkNoPendingQuery();
 		return $this->affectedRows;
 	}
 
@@ -233,6 +349,7 @@ class PgsqlDriver implements IDriver
 	public function ping(): bool
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		return pg_ping($this->connection);
 	}
@@ -241,6 +358,7 @@ class PgsqlDriver implements IDriver
 	public function setTransactionIsolationLevel(int $level): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		static $levels = [
 			IConnection::TRANSACTION_READ_UNCOMMITTED => 'READ UNCOMMITTED',
 			IConnection::TRANSACTION_READ_COMMITTED => 'READ COMMITTED',
@@ -257,6 +375,7 @@ class PgsqlDriver implements IDriver
 	public function beginTransaction(): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('START TRANSACTION');
 	}
 
@@ -264,6 +383,7 @@ class PgsqlDriver implements IDriver
 	public function commitTransaction(): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('COMMIT');
 	}
 
@@ -271,6 +391,7 @@ class PgsqlDriver implements IDriver
 	public function rollbackTransaction(): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		$this->loggedQuery('ROLLBACK');
 	}
 
@@ -278,6 +399,7 @@ class PgsqlDriver implements IDriver
 	public function createSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		$this->loggedQuery('SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -286,6 +408,7 @@ class PgsqlDriver implements IDriver
 	public function releaseSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		$this->loggedQuery('RELEASE SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -294,6 +417,7 @@ class PgsqlDriver implements IDriver
 	public function rollbackSavepoint(string|Fqn $name): void
 	{
 		$this->checkConnection();
+		$this->checkNoPendingQuery();
 		assert($this->connection !== null);
 		$this->loggedQuery('ROLLBACK TO SAVEPOINT ' . $this->convertIdentifierToSql($name));
 	}
@@ -396,6 +520,14 @@ class PgsqlDriver implements IDriver
 	{
 		if ($this->connection === null) {
 			throw new InvalidStateException('Driver is not connected to database.');
+		}
+	}
+
+
+	protected function checkNoPendingQuery(): void
+	{
+		if ($this->pendingQuery !== null) {
+			throw new InvalidStateException('Driver has a pending async query; reap it with reapQuery() first.');
 		}
 	}
 }
