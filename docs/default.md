@@ -80,6 +80,29 @@ foreach ($users as $row) {
 $maximum = $connection->query('SELECT MAX([age]) FROM [users]')->fetchField();
 ```
 
+### Async queries
+
+`queryAsync()` (and its array variant `queryArgsAsync()`) sends a query without waiting for its result and returns a `Nextras\Dbal\Result\PendingResult`. Independent queries sent on different connections then run concurrently on the database server; no event loop is needed, so it works in PHP-FPM as well. Call `getResult()` to wait for the query and obtain the usual `Result`:
+
+```php
+$items = $connection1->queryAsync('SELECT * FROM [items] ORDER BY [id] LIMIT %i', 20);
+$count = $connection2->queryAsync('SELECT COUNT(*) FROM [items]');
+
+$total = $count->getResult()->fetchField(); // waits for the second query
+foreach ($items->getResult() as $row) { // the first query has been running meanwhile
+	$row->name;
+}
+```
+
+- The SQL is processed exactly as in `query()`; the connection connects on demand.
+- Only one query may be pending per connection. Any other operation on the connection — another query or async query, `getLastInsertedId()`, `getAffectedRows()`, transactions and savepoints, `setTransactionIsolationLevel()`, `ping()`, `disconnect()`, `reconnect()` — first waits for the pending query. Its result is kept in its `PendingResult`; a failure of the pending query is not thrown by that other operation.
+- A failure to send the query is thrown by `queryAsync()`; a failure of the query itself is thrown by `getResult()` (the same exception instance on every call). `isResolved()` tells whether the query has already finished and been collected.
+- The connection's loggers are notified once, when the pending query is collected, with the time elapsed since it was sent.
+- Async queries are supported by the `mysqli` (requires mysqlnd) and `pgsql` drivers; use `supportsAsyncQueries()` to check. With other drivers `queryAsync()` runs the query synchronously and returns an already resolved `PendingResult`; errors are then thrown directly by `queryAsync()`.
+- `disconnect()` (and therefore `reconnect()`) waits for the pending query to finish. Do not use the raw driver (`getDriver()`) while a query is pending; it throws `InvalidStateException`.
+- A `PendingResult` that is never read is still collected by the next operation on its connection; only its loggers see a failure then.
+- The queries should be single statements returning one result set. Multiple statements are drained (the first result is returned, the first failure thrown); `COPY FROM STDIN / TO STDOUT` is rejected with a `DriverException`.
+
 ### Transactions & savepoints
 
 The `Connection` interface provides a convenient API for working with transactions. You can call `beginTransaction()`, `commitTransaction()`, and `rollbackTransaction()` directly. For the common case of rolling back on exceptions, use `transactional()`, which executes the callback atomically.

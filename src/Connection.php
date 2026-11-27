@@ -3,6 +3,8 @@
 namespace Nextras\Dbal;
 
 
+use Nextras\Dbal\Drivers\Exception\DriverException;
+use Nextras\Dbal\Drivers\IAsyncQueryDriver;
 use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\Exception\InvalidArgumentException;
 use Nextras\Dbal\Exception\InvalidStateException;
@@ -10,6 +12,7 @@ use Nextras\Dbal\Exception\TransactionRollbackException;
 use Nextras\Dbal\Platforms\Data\Fqn;
 use Nextras\Dbal\Platforms\IPlatform;
 use Nextras\Dbal\QueryBuilder\QueryBuilder;
+use Nextras\Dbal\Result\PendingResult;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\Utils\LoggerHelper;
 use Nextras\Dbal\Utils\MultiLogger;
@@ -34,6 +37,7 @@ class Connection implements IConnection
 	private int $nestedTransactionIndex = 0;
 	private bool $nestedTransactionsWithSavepoint = true;
 	private MultiLogger $logger;
+	private PendingResult|null $pendingResult = null;
 
 
 	public function __construct(
@@ -67,6 +71,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			return;
 		}
+		$this->resolvePendingQuery();
 		$this->driver->disconnect();
 		$this->connected = false;
 		$this->nestedTransactionIndex = 0;
@@ -109,11 +114,7 @@ class Connection implements IConnection
 
 	public function query(string $expression, mixed ...$args): Result
 	{
-		if (!$this->connected) {
-			$this->connect();
-		}
-		array_unshift($args, $expression);
-		$sql = $this->sqlPreprocessor->process($args);
+		$sql = $this->prepareQuery($expression, $args);
 		return $this->nativeQuery($sql);
 	}
 
@@ -121,16 +122,59 @@ class Connection implements IConnection
 	/** @inheritDoc */
 	public function queryArgs($query, array $args = []): Result
 	{
-		if (!$this->connected) {
-			$this->connect();
-		}
-		if (is_array($query)) {
-			$args = $query;
-		} else {
-			array_unshift($args, $query);
-		}
-		$sql = $this->sqlPreprocessor->process($args);
+		$sql = $this->prepareQuery($query, $args);
 		return $this->nativeQuery($sql);
+	}
+
+
+	/**
+	 * Returns true if the driver can send a query without waiting for its result; otherwise
+	 * {@see queryAsync()} runs the query synchronously.
+	 */
+	#[\NoDiscard]
+	public function supportsAsyncQueries(): bool
+	{
+		return $this->driver instanceof IAsyncQueryDriver && $this->driver->isAsyncQuerySupported();
+	}
+
+
+	/**
+	 * Sends the query without waiting for its result, so queries on several connections can run concurrently.
+	 * Only one query may be pending per connection: any other operation on this connection waits for it first.
+	 * If the driver does not support async queries, the query runs synchronously.
+	 * @throws DriverException if the query cannot be sent (or fails, when run synchronously)
+	 */
+	public function queryAsync(string $expression, mixed ...$args): PendingResult
+	{
+		return $this->queryArgsAsync($expression, $args);
+	}
+
+
+	/**
+	 * @see queryAsync()
+	 * @param string|array<mixed> $query
+	 * @param array<mixed> $args
+	 * @throws DriverException if the query cannot be sent (or fails, when run synchronously)
+	 */
+	public function queryArgsAsync(string|array $query, array $args = []): PendingResult
+	{
+		$sql = $this->prepareQuery($query, $args);
+
+		$driver = $this->driver;
+		if (!$driver instanceof IAsyncQueryDriver || !$driver->isAsyncQuerySupported()) {
+			return PendingResult::createResolved($this->nativeQuery($sql));
+		}
+
+		try {
+			$driver->sendQuery($sql);
+		} catch (DriverException $exception) {
+			$this->logger->onQueryException($sql, $driver->getQueryElapsedTime(), $exception);
+			throw $exception;
+		}
+
+		$pendingResult = PendingResult::createPending(fn(): Result => $this->reapQuery($driver, $sql));
+		$this->pendingResult = $pendingResult;
+		return $pendingResult;
 	}
 
 
@@ -150,6 +194,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 		return $this->driver->getLastInsertedId($sequenceName);
 	}
 
@@ -160,6 +205,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 		return $this->driver->getAffectedRows();
 	}
 
@@ -184,6 +230,7 @@ class Connection implements IConnection
 
 	public function setTransactionIsolationLevel(int $level): void
 	{
+		$this->resolvePendingQuery();
 		$this->driver->setTransactionIsolationLevel($level);
 	}
 
@@ -230,6 +277,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 
 		if ($this->nestedTransactionIndex === 0) {
 			$this->driver->beginTransaction();
@@ -251,6 +299,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->commitTransaction();
@@ -267,6 +316,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->rollbackTransaction();
@@ -290,6 +340,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 		$this->driver->createSavepoint($name);
 	}
 
@@ -299,6 +350,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 		$this->driver->releaseSavepoint($name);
 	}
 
@@ -308,6 +360,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
+		$this->resolvePendingQuery();
 		$this->driver->rollbackSavepoint($name);
 	}
 
@@ -317,6 +370,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			return false;
 		}
+		$this->resolvePendingQuery();
 		return $this->driver->ping();
 	}
 
@@ -336,6 +390,53 @@ class Connection implements IConnection
 	protected function getSavepointName(): string
 	{
 		return "NEXTRAS_SAVEPOINT_{$this->nestedTransactionIndex}";
+	}
+
+
+	/**
+	 * @param string|array<mixed> $query
+	 * @param array<mixed> $args
+	 */
+	private function prepareQuery(string|array $query, array $args): string
+	{
+		if (!$this->connected) {
+			$this->connect();
+		}
+		// the SQL processor may use the driver (e.g. for escaping)
+		$this->resolvePendingQuery();
+		if (is_array($query)) {
+			$args = $query;
+		} else {
+			array_unshift($args, $query);
+		}
+		return $this->sqlPreprocessor->process($args);
+	}
+
+
+	/**
+	 * Waits for the pending query (if any) and stores its outcome in its {@see PendingResult}; its failure is not
+	 * thrown here but by {@see PendingResult::getResult()}.
+	 */
+	private function resolvePendingQuery(): void
+	{
+		$this->pendingResult?->resolve();
+	}
+
+
+	/**
+	 * @throws DriverException
+	 */
+	private function reapQuery(IAsyncQueryDriver $driver, string $sql): Result
+	{
+		$this->pendingResult = null;
+		try {
+			$result = $driver->reapQuery();
+		} catch (DriverException $exception) {
+			$this->logger->onQueryException($sql, $driver->getQueryElapsedTime(), $exception);
+			throw $exception;
+		}
+		$this->logger->onQuery($sql, $driver->getQueryElapsedTime(), $result);
+		return $result;
 	}
 
 
