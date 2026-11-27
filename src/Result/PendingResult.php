@@ -13,7 +13,7 @@ use Throwable;
 
 /**
  * Result of a query sent by {@see Connection::queryAsync()}. The query runs on the database server
- * while the application continues; {@see getResult()} waits for it. The connection resolves the pending query
+ * while the application continues; {@see getResult()} waits for it. The connection collects the pending query
  * automatically before it is used for anything else, so the result (or the failure) is never lost.
  */
 final class PendingResult
@@ -23,6 +23,9 @@ final class PendingResult
 	private Result|null $result = null;
 
 	private Throwable|null $exception = null;
+
+	/** Whether the outcome was handed to the caller by {@see getResult()}. */
+	private bool $isRead = false;
 
 
 	private function __construct(
@@ -55,12 +58,24 @@ final class PendingResult
 
 
 	/**
+	 * @internal
+	 */
+	public static function createFailed(Throwable $exception): PendingResult
+	{
+		$pendingResult = new self(null);
+		$pendingResult->exception = $exception;
+		return $pendingResult;
+	}
+
+
+	/**
 	 * Waits for the query if it is still running and returns its result.
 	 * @throws DriverException the query failure; the same instance on every call
 	 */
 	public function getResult(): Result
 	{
 		$this->resolve();
+		$this->isRead = true;
 		if ($this->exception !== null) {
 			throw $this->exception;
 		}
@@ -82,10 +97,18 @@ final class PendingResult
 
 
 	/**
-	 * Waits for the query and stores its outcome without throwing it.
-	 * @internal
+	 * Waits for the query and stores its outcome without throwing it; returns the failure unless the caller
+	 * has already read the outcome by {@see getResult()}.
+	 * @internal Used by Connection.
 	 */
-	public function resolve(): void
+	public function collect(): Throwable|null
+	{
+		$this->resolve();
+		return $this->isRead ? null : $this->exception;
+	}
+
+
+	private function resolve(): void
 	{
 		$resolver = $this->resolver;
 		if ($resolver === null) {

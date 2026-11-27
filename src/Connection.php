@@ -26,7 +26,7 @@ use function ucfirst;
 use function ucwords;
 
 
-class Connection implements IConnection
+class Connection implements IAsyncConnection
 {
 	use StrictObjectTrait;
 
@@ -38,6 +38,9 @@ class Connection implements IConnection
 	private bool $nestedTransactionsWithSavepoint = true;
 	private MultiLogger $logger;
 	private PendingResult|null $pendingResult = null;
+
+	/** @var list<PendingResult> failed queries of the open transaction collected without the caller reading them */
+	private array $unreadFailures = [];
 
 
 	public function __construct(
@@ -75,6 +78,7 @@ class Connection implements IConnection
 		$this->driver->disconnect();
 		$this->connected = false;
 		$this->nestedTransactionIndex = 0;
+		$this->unreadFailures = [];
 		$this->logger->onDisconnect();
 	}
 
@@ -142,7 +146,7 @@ class Connection implements IConnection
 	 * Sends the query without waiting for its result, so queries on several connections can run concurrently.
 	 * Only one query may be pending per connection: any other operation on this connection waits for it first.
 	 * If the driver does not support async queries, the query runs synchronously.
-	 * @throws DriverException if the query cannot be sent (or fails, when run synchronously)
+	 * @throws DriverException if the query cannot be sent
 	 */
 	public function queryAsync(string $expression, mixed ...$args): PendingResult
 	{
@@ -154,7 +158,7 @@ class Connection implements IConnection
 	 * @see queryAsync()
 	 * @param string|array<mixed> $query
 	 * @param array<mixed> $args
-	 * @throws DriverException if the query cannot be sent (or fails, when run synchronously)
+	 * @throws DriverException if the query cannot be sent
 	 */
 	public function queryArgsAsync(string|array $query, array $args = []): PendingResult
 	{
@@ -162,7 +166,15 @@ class Connection implements IConnection
 
 		$driver = $this->driver;
 		if (!$driver instanceof IAsyncQueryDriver || !$driver->isAsyncQuerySupported()) {
-			return PendingResult::createResolved($this->nativeQuery($sql));
+			try {
+				return PendingResult::createResolved($this->nativeQuery($sql));
+			} catch (DriverException $exception) {
+				$pendingResult = PendingResult::createFailed($exception);
+				if ($this->nestedTransactionIndex > 0) {
+					$this->unreadFailures[] = $pendingResult;
+				}
+				return $pendingResult;
+			}
 		}
 
 		try {
@@ -175,6 +187,16 @@ class Connection implements IConnection
 		$pendingResult = PendingResult::createPending(fn(): Result => $this->reapQuery($driver, $sql));
 		$this->pendingResult = $pendingResult;
 		return $pendingResult;
+	}
+
+
+	/**
+	 * @see queryAsync()
+	 * @throws DriverException if the query cannot be sent
+	 */
+	public function queryByQueryBuilderAsync(QueryBuilder $queryBuilder): PendingResult
+	{
+		return $this->queryArgsAsync($queryBuilder->getQuerySql(), $queryBuilder->getQueryParameters());
 	}
 
 
@@ -299,11 +321,12 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
-		$this->resolvePendingQuery();
+		$this->throwUnreadFailure();
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->commitTransaction();
 			$this->nestedTransactionIndex = 0;
+			$this->unreadFailures = [];
 		} elseif ($this->nestedTransactionsWithSavepoint) {
 			$this->driver->releaseSavepoint($this->getSavepointName());
 			$this->nestedTransactionIndex--;
@@ -317,6 +340,7 @@ class Connection implements IConnection
 			$this->connect();
 		}
 		$this->resolvePendingQuery();
+		$this->unreadFailures = []; // rolled back; on PostgreSQL also the only way to recover from a failed statement
 
 		if ($this->nestedTransactionIndex <= 1) {
 			$this->driver->rollbackTransaction();
@@ -350,7 +374,7 @@ class Connection implements IConnection
 		if (!$this->connected) {
 			$this->connect();
 		}
-		$this->resolvePendingQuery();
+		$this->throwUnreadFailure();
 		$this->driver->releaseSavepoint($name);
 	}
 
@@ -361,6 +385,7 @@ class Connection implements IConnection
 			$this->connect();
 		}
 		$this->resolvePendingQuery();
+		$this->unreadFailures = [];
 		$this->driver->rollbackSavepoint($name);
 	}
 
@@ -419,7 +444,33 @@ class Connection implements IConnection
 	 */
 	private function resolvePendingQuery(): void
 	{
-		$this->pendingResult?->resolve();
+		$pendingResult = $this->pendingResult;
+		if ($pendingResult !== null && $pendingResult->collect() !== null && $this->nestedTransactionIndex > 0) {
+			$this->unreadFailures[] = $pendingResult;
+		}
+	}
+
+
+	/**
+	 * Committing over a failed statement the caller never saw would hide the failure (and PostgreSQL turns
+	 * the COMMIT into a ROLLBACK), so the first unread failure is thrown instead; the transaction stays open.
+	 */
+	private function throwUnreadFailure(): void
+	{
+		$pendingResult = $this->pendingResult;
+		$candidates = $this->unreadFailures;
+		if ($pendingResult !== null) {
+			$pendingResult->collect();
+			$candidates[] = $pendingResult;
+		}
+
+		$this->unreadFailures = [];
+		foreach ($candidates as $candidate) {
+			$failure = $candidate->collect(); // null once the caller has read it
+			if ($failure !== null) {
+				throw $failure;
+			}
+		}
 	}
 
 

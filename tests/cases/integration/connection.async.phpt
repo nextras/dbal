@@ -8,6 +8,7 @@
 namespace NextrasTests\Dbal;
 
 
+use Nextras\Dbal\Connection;
 use Nextras\Dbal\Drivers\Exception\DriverException;
 use Nextras\Dbal\Drivers\Exception\QueryException;
 use Nextras\Dbal\Drivers\Exception\UniqueConstraintViolationException;
@@ -32,7 +33,9 @@ class ConnectionAsyncTest extends IntegrationTestCase
 		$pending = $this->connection->queryAsync('SELECT %i AS i', 1);
 		Assert::true($pending->isResolved());
 		Assert::same(1, $pending->getResult()->fetchField());
-		Assert::exception(fn() => $this->connection->queryAsync('SELECT * FROM non_existing_table'), QueryException::class);
+		$failing = $this->connection->queryAsync('SELECT * FROM non_existing_table'); // errors surface in getResult(), as with async drivers
+		Assert::true($failing->isResolved());
+		Assert::exception(fn() => $failing->getResult(), QueryException::class);
 	}
 
 
@@ -109,6 +112,33 @@ class ConnectionAsyncTest extends IntegrationTestCase
 
 		Assert::same(['SELECT 1 AS i', 'SELECT 2 AS i'], array_slice($logger->queries, 0, 2));
 		Assert::count(1, $logger->exceptions);
+	}
+
+
+	public function testCommitDoesNotHidePendingFailure(): void
+	{
+		$this->requireAsync();
+		$this->initData($this->connection);
+
+		Assert::exception(fn() => $this->connection->transactional(function (Connection $connection): void {
+			$connection->query('INSERT INTO tags (name) VALUES (%s)', 'must not be committed');
+			$connection->queryAsync('INSERT INTO tags (id, name) VALUES (1, %s)', 'duplicate'); // fails, never read
+		}), UniqueConstraintViolationException::class);
+
+		Assert::same(0, $this->connection->query('SELECT COUNT(*) FROM tags WHERE name = %s', 'must not be committed')->fetchField());
+		Assert::same(0, $this->connection->getTransactionNestedIndex());
+	}
+
+
+	public function testQueryBuilderAsync(): void
+	{
+		$this->requireAsync();
+		$this->initData($this->connection);
+		$builder = $this->connection->createQueryBuilder()->select('COUNT(*)')->from('tags');
+		Assert::same(
+			$this->connection->queryByQueryBuilder($builder)->fetchField(),
+			$this->connection->queryByQueryBuilderAsync($builder)->getResult()->fetchField(),
+		);
 	}
 
 

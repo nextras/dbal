@@ -49,7 +49,7 @@ class PendingResultTest extends TestCase
 	}
 
 
-	public function testResolveStoresFailure(): void
+	public function testCollectStoresFailure(): void
 	{
 		$failure = new DriverException('Query failed');
 		$calls = 0;
@@ -58,12 +58,22 @@ class PendingResultTest extends TestCase
 			throw $failure;
 		});
 
-		$pendingResult->resolve();
-		$pendingResult->resolve();
+		Assert::same($failure, $pendingResult->collect());
+		Assert::same($failure, $pendingResult->collect());
 		Assert::true($pendingResult->isResolved());
 		Assert::same($failure, Assert::exception(fn() => $pendingResult->getResult(), DriverException::class));
 		Assert::same($failure, Assert::exception(fn() => $pendingResult->getResult(), DriverException::class));
 		Assert::same(1, $calls);
+	}
+
+
+	public function testCollectReturnsNoFailureOnceRead(): void
+	{
+		$failure = new DriverException('Query failed');
+		$pendingResult = PendingResult::createFailed($failure);
+		Assert::same($failure, $pendingResult->collect());
+		Assert::exception(fn() => $pendingResult->getResult(), DriverException::class);
+		Assert::null($pendingResult->collect());
 	}
 
 

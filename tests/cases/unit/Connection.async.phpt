@@ -16,6 +16,7 @@ use Nextras\Dbal\Drivers\IDriver;
 use Nextras\Dbal\IConnection;
 use Nextras\Dbal\ILogger;
 use Nextras\Dbal\ISqlProcessorFactory;
+use Nextras\Dbal\QueryBuilder\QueryBuilder;
 use Nextras\Dbal\Result\IResultAdapter;
 use Nextras\Dbal\Result\Result;
 use Nextras\Dbal\SqlProcessor;
@@ -89,7 +90,7 @@ class ConnectionAsyncTest extends TestCase
 	}
 
 
-	public function testUnsupportedDriverThrowsImmediately(): void
+	public function testUnsupportedDriverStoresFailureInPendingResult(): void
 	{
 		$driver = Mockery::mock(IDriver::class);
 		$connection = $this->createConnection($driver, $logger);
@@ -97,7 +98,9 @@ class ConnectionAsyncTest extends TestCase
 		$driver->shouldReceive('query')->once()->andThrow($failure);
 		$driver->shouldReceive('getQueryElapsedTime')->andReturn(0.5);
 
-		Assert::same($failure, Assert::exception(fn() => $connection->queryAsync('SELECT 1'), DriverException::class));
+		$pendingResult = $connection->queryAsync('SELECT 1'); // the same error path as with an async driver
+		Assert::true($pendingResult->isResolved());
+		Assert::same($failure, Assert::exception(fn() => $pendingResult->getResult(), DriverException::class));
 		Assert::same([['exception', 'SQL(SELECT 1)', 0.5, $failure]], $logger->queries);
 	}
 
@@ -308,7 +311,20 @@ class ConnectionAsyncTest extends TestCase
 
 
 	/**
-	 * @dataProvider getOperations
+	 * Operations that do not commit anything collect a failed pending query without throwing its failure.
+	 * @return list<array{string, callable(Connection, IAsyncQueryDriver&MockInterface): void}>
+	 */
+	public function getNonCommittingOperations(): array
+	{
+		return array_values(array_filter(
+			$this->getOperations(),
+			fn(array $operation) => !in_array($operation[0], ['commitTransaction', 'releaseSavepoint', 'transactional'], true),
+		));
+	}
+
+
+	/**
+	 * @dataProvider getNonCommittingOperations
 	 */
 	public function testOperationResolvesPendingQuerySilently(string $name, callable $operation): void
 	{
@@ -344,6 +360,125 @@ class ConnectionAsyncTest extends TestCase
 		Assert::true($pendingResult->isResolved(), $name);
 		Assert::same($result, $pendingResult->getResult());
 		Assert::same(['query', 'SQL(SELECT 1)', 0.0, $result], $logger->queries[0]);
+	}
+
+
+	public function testCommitThrowsUnreadPendingFailure(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$failure = new DriverException('Query failed');
+		$driver->shouldReceive('beginTransaction')->once();
+		$driver->shouldReceive('sendQuery')->once();
+		$driver->shouldReceive('reapQuery')->once()->andThrow($failure);
+		$driver->shouldNotReceive('commitTransaction');
+
+		$connection->beginTransaction();
+		$connection->queryAsync('INSERT 1'); // never read
+		Assert::same($failure, Assert::exception(fn() => $connection->commitTransaction(), DriverException::class));
+		Assert::same(1, $connection->getTransactionNestedIndex()); // still open, the caller has to roll back
+	}
+
+
+	public function testCommitThrowsFailureCollectedSilentlyEarlier(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$failure = new DriverException('Query failed');
+		$driver->shouldReceive('beginTransaction')->once();
+		$driver->shouldReceive('sendQuery')->once();
+		$driver->shouldReceive('reapQuery')->once()->andThrow($failure);
+		$driver->shouldReceive('query')->once()->andReturn($this->createResult());
+		$driver->shouldNotReceive('commitTransaction');
+
+		$connection->beginTransaction();
+		$connection->queryAsync('INSERT 1'); // never read
+		$connection->query('SELECT 2'); // collects the failure silently
+		Assert::same($failure, Assert::exception(fn() => $connection->commitTransaction(), DriverException::class));
+	}
+
+
+	public function testCommitIgnoresFailureTheCallerHasRead(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$driver->shouldReceive('beginTransaction')->once();
+		$driver->shouldReceive('sendQuery')->once();
+		$driver->shouldReceive('reapQuery')->once()->andThrow(new DriverException('Query failed'));
+		$driver->shouldReceive('commitTransaction')->once();
+
+		$connection->beginTransaction();
+		$pendingResult = $connection->queryAsync('INSERT 1');
+		Assert::exception(fn() => $pendingResult->getResult(), DriverException::class); // handled by the caller
+		$connection->commitTransaction();
+		Assert::same(0, $connection->getTransactionNestedIndex());
+	}
+
+
+	public function testReleaseSavepointThrowsUnreadPendingFailure(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$failure = new DriverException('Query failed');
+		$driver->shouldReceive('sendQuery')->once();
+		$driver->shouldReceive('reapQuery')->once()->andThrow($failure);
+		$driver->shouldNotReceive('releaseSavepoint');
+
+		$connection->queryAsync('INSERT 1');
+		Assert::same($failure, Assert::exception(fn() => $connection->releaseSavepoint('sp'), DriverException::class));
+	}
+
+
+	public function testTransactionalRollsBackOnUnreadPendingFailure(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$failure = new DriverException('Query failed');
+		$driver->shouldReceive('beginTransaction')->once()->ordered();
+		$driver->shouldReceive('sendQuery')->once()->ordered();
+		$driver->shouldReceive('reapQuery')->once()->ordered()->andThrow($failure);
+		$driver->shouldReceive('rollbackTransaction')->once()->ordered();
+		$driver->shouldNotReceive('commitTransaction');
+
+		Assert::same($failure, Assert::exception(
+			fn() => $connection->transactional(fn(Connection $connection) => $connection->queryAsync('INSERT 1')),
+			DriverException::class,
+		));
+		Assert::same(0, $connection->getTransactionNestedIndex());
+	}
+
+
+	public function testRollbackForgetsUnreadFailures(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$driver->shouldReceive('beginTransaction')->twice();
+		$driver->shouldReceive('sendQuery')->once();
+		$driver->shouldReceive('reapQuery')->once()->andThrow(new DriverException('Query failed'));
+		$driver->shouldReceive('rollbackTransaction')->once();
+		$driver->shouldReceive('commitTransaction')->once();
+
+		$connection->beginTransaction();
+		$connection->queryAsync('INSERT 1');
+		$connection->rollbackTransaction();
+		$connection->beginTransaction();
+		$connection->commitTransaction(); // the rolled back failure does not leak into the next transaction
+		Assert::same(0, $connection->getTransactionNestedIndex());
+	}
+
+
+	public function testQueryByQueryBuilderAsync(): void
+	{
+		$driver = $this->createAsyncDriver();
+		$connection = $this->createConnection($driver);
+		$result = $this->createResult();
+		$builder = Mockery::mock(QueryBuilder::class);
+		$builder->shouldReceive('getQuerySql')->andReturn('SELECT %i');
+		$builder->shouldReceive('getQueryParameters')->andReturn([1]);
+		$driver->shouldReceive('sendQuery')->with('SQL(SELECT %i, 1)')->once();
+		$driver->shouldReceive('reapQuery')->once()->andReturn($result);
+
+		Assert::same($result, $connection->queryByQueryBuilderAsync($builder)->getResult());
 	}
 
 
